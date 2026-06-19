@@ -21,10 +21,10 @@ void game_pass::render(EngineContext& ctx)
     scene& gameScene = ctx.session.game_scene();
     const entity gameCam = gameScene.get_active_camera();
 
-    if (gameCam != 0 && gameScene.get_registry().has_camera(gameCam))
+    if (gameCam != 0 && gameScene.get_registry().has_component<camera_component>(gameCam))
     {
-        auto* t = gameScene.get_registry().get_transform(gameCam);
-        auto* c = gameScene.get_registry().get_camera(gameCam);
+        auto* t = gameScene.get_registry().get_component<transform_component>(gameCam);
+        auto* c = gameScene.get_registry().get_component<camera_component>(gameCam);
 
         if (t && c)
         {

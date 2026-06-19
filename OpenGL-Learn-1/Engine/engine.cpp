@@ -94,7 +94,7 @@ namespace
         const entity activeCam = gameScene.get_active_camera();
 
         auto* camT = (activeCam != 0)
-            ? gameScene.get_registry().get_transform(activeCam)
+            ? gameScene.get_registry().get_component<transform_component>(activeCam)
             : nullptr;
 
         if (!camT)

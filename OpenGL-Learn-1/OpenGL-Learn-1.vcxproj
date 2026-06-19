@@ -94,7 +94,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\Libraries\imgui\backends\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="ECS\components.h" />
+    <ClInclude Include="ECS\component_pool.h" />
     <ClInclude Include="ECS\entity.h" />
+    <ClInclude Include="ECS\component_pool_interface.h" />
     <ClInclude Include="ECS\registry.h" />
     <!-- IMGUI -->
     <!-- BACKEND ONLY -->

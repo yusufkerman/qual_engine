@@ -5,21 +5,24 @@
 #include <string>
 #include <imgui_internal.h>
 
+// =========================
+// SAFE NAME GET (GENERIC)
+// =========================
+static std::string getEntityName(registry& reg, entity e)
+{
+    if (auto* n = reg.get_component<name_component>(e))
+        return n->name;
+
+    return "Entity";
+}
+
 void Editor::init(GLFWwindow*) {}
 
 void Editor::update(scene&) {}
 
 // =========================
-// SAFE NAME GET
+// MAIN UI
 // =========================
-static std::string getEntityName(auto& reg, entity e)
-{
-    if (reg.has_name(e))
-        return reg.get_name(e)->name;
-
-    return "Entity";
-}
-
 void Editor::renderUI(scene& scene)
 {
     auto& reg = scene.get_registry();
@@ -42,17 +45,16 @@ void Editor::renderUI(scene& scene)
     // =========================
     ImGui::Begin("Hierarchy");
 
-    // CREATE OBJECT (UNITY STYLE)
+    // CREATE OBJECT
     if (ImGui::Button("Create Object"))
     {
         entity e = reg.create_entity();
 
-        reg.add_transform(e, {});
-        reg.add_name(e, { "New Entity" });
+        reg.add_component<transform_component>(e, transform_component{});
+        reg.add_component<name_component>(e, name_component{ "New Entity" });
 
         selectedEntity = (int)e;
 
-        // rename immediately
         renamingEntity = (int)e;
         strcpy_s(renameBuffer, sizeof(renameBuffer), "New Entity");
     }
@@ -74,6 +76,7 @@ void Editor::renderUI(scene& scene)
             if (ImGui::Selectable(name.c_str(), isSelected))
                 selectedEntity = (int)e;
 
+            // RIGHT CLICK MENU
             if (ImGui::BeginPopupContextItem())
             {
                 if (ImGui::MenuItem("Rename"))
@@ -87,12 +90,13 @@ void Editor::renderUI(scene& scene)
                     if (selectedEntity == (int)e)
                         selectedEntity = -1;
 
-                    deleteQueue.push_back(e);  
+                    deleteQueue.push_back(e);
                 }
 
                 ImGui::EndPopup();
             }
 
+            // DOUBLE CLICK RENAME
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
             {
                 renamingEntity = (int)e;
@@ -101,8 +105,6 @@ void Editor::renderUI(scene& scene)
         }
         else
         {
-            ImGui::PushID((int)e);
-
             ImGui::SetNextItemWidth(160);
 
             bool enter = ImGui::InputText(
@@ -115,23 +117,20 @@ void Editor::renderUI(scene& scene)
             ImGui::SameLine();
 
             bool cancel = ImGui::SmallButton("X");
-
             bool esc = ImGui::IsKeyPressed(ImGuiKey_Escape);
 
             if (enter || cancel || esc)
             {
                 if (enter)
                 {
-                    if (auto* n = reg.get_name(e))
+                    if (auto* n = reg.get_component<name_component>(e))
                         n->name = renameBuffer;
                     else
-                        reg.add_name(e, { renameBuffer });
+                        reg.add_component<name_component>(e, name_component{ renameBuffer });
                 }
 
                 renamingEntity = -1;
             }
-
-            ImGui::PopID();
         }
 
         ImGui::PopID();
@@ -231,35 +230,39 @@ void Editor::renderUI(scene& scene)
 
         ImGui::Text("Entity %d", selectedEntity);
 
-        if (reg.has_transform(e))
+        // =========================
+        // TRANSFORM
+        // =========================
+        if (auto* t = reg.get_component<transform_component>(e))
         {
             if (ImGui::CollapsingHeader("Transform"))
             {
-                auto* t = reg.get_transform(e);
                 ImGui::DragFloat3("Position", &t->position.x, 0.1f);
                 ImGui::DragFloat3("Rotation", &t->rotation.x, 0.1f);
                 ImGui::DragFloat3("Scale", &t->scale.x, 0.1f);
             }
         }
 
-        if (reg.has_camera(e))
+        // =========================
+        // CAMERA
+        // =========================
+        if (auto* c = reg.get_component<camera_component>(e))
         {
             if (ImGui::CollapsingHeader("Camera"))
             {
-                auto* c = reg.get_camera(e);
-
                 ImGui::DragFloat("FOV", &c->fov);
                 ImGui::DragFloat("Near", &c->nearPlane);
                 ImGui::DragFloat("Far", &c->farPlane);
             }
         }
 
-        if (reg.has_light(e))
+        // =========================
+        // LIGHT
+        // =========================
+        if (auto* l = reg.get_component<light_component>(e))
         {
             if (ImGui::CollapsingHeader("Light"))
             {
-                auto* l = reg.get_light(e);
-
                 ImGui::ColorEdit3("Color", &l->color.x);
                 ImGui::DragFloat("Intensity", &l->intensity);
             }
@@ -268,6 +271,9 @@ void Editor::renderUI(scene& scene)
 
     ImGui::End();
 
+    // =========================
+    // DELETE QUEUE
+    // =========================
     for (entity e : deleteQueue)
     {
         if (selectedEntity == (int)e)
@@ -278,5 +284,6 @@ void Editor::renderUI(scene& scene)
 
         reg.remove_entity(e);
     }
+
     deleteQueue.clear();
 }

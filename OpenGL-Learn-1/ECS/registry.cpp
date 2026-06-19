@@ -1,7 +1,10 @@
 #include "registry.h"
 
+// =========================
 // ENTITY
-entity registry::create_entity() {
+// =========================
+entity registry::create_entity()
+{
     entity e = next_entity++;
     entities.insert(e);
     return e;
@@ -11,6 +14,7 @@ void registry::add_entity(entity e)
 {
     entities.insert(e);
 }
+
 void registry::remove_entity(entity e)
 {
     entities.erase(e);
@@ -22,128 +26,59 @@ void registry::remove_entity(entity e)
     names.erase(e);
 }
 
-const std::unordered_set<entity>& registry::get_all_entities() const {
+const std::unordered_set<entity>& registry::get_all_entities() const
+{
     return entities;
 }
 
-// TRANSFORM
-void registry::add_transform(entity e, const transform_component& t) {
-    transforms[e] = t;
+// =========================
+// POOLS
+// =========================
+template<typename T>
+std::unordered_map<entity, T>& registry::pool()
+{
+    if constexpr (std::is_same_v<T, transform_component>) return transforms;
+    if constexpr (std::is_same_v<T, mesh_component>) return meshes;
+    if constexpr (std::is_same_v<T, camera_component>) return cameras;
+    if constexpr (std::is_same_v<T, light_component>) return lights;
+    if constexpr (std::is_same_v<T, name_component>) return names;
+
+    static std::unordered_map<entity, T> dummy;
+    return dummy;
 }
 
-transform_component* registry::get_transform(entity e) {
-    auto it = transforms.find(e);
-    return it != transforms.end() ? &it->second : nullptr;
+template<typename T>
+const std::unordered_map<entity, T>& registry::pool() const
+{
+    if constexpr (std::is_same_v<T, transform_component>) return transforms;
+    if constexpr (std::is_same_v<T, mesh_component>) return meshes;
+    if constexpr (std::is_same_v<T, camera_component>) return cameras;
+    if constexpr (std::is_same_v<T, light_component>) return lights;
+    if constexpr (std::is_same_v<T, name_component>) return names;
+
+    static std::unordered_map<entity, T> dummy;
+    return dummy;
 }
 
-const transform_component* registry::get_transform(entity e) const {
-    auto it = transforms.find(e);
-    return it != transforms.end() ? &it->second : nullptr;
-}
+// =========================
+// OCP CLONE (AUTO)
+// =========================
+void registry::clone_entity(entity e, registry& dst) const
+{
+    dst.add_entity(e);
 
-void registry::remove_transform(entity e) {
-    transforms.erase(e);
-}
+    if (auto* c = get_component<transform_component>(e))
+        dst.add_component<transform_component>(e, *c);
 
-bool registry::has_transform(entity e) const {
-    return transforms.find(e) != transforms.end();
-}
+    if (auto* c = get_component<mesh_component>(e))
+        dst.add_component<mesh_component>(e, *c);
 
-// MESH
-void registry::add_mesh(entity e, const mesh_component& m) {
-    meshes[e] = m;
-}
+    if (auto* c = get_component<camera_component>(e))
+        dst.add_component<camera_component>(e, *c);
 
-mesh_component* registry::get_mesh(entity e) {
-    auto it = meshes.find(e);
-    return it != meshes.end() ? &it->second : nullptr;
-}
+    if (auto* c = get_component<light_component>(e))
+        dst.add_component<light_component>(e, *c);
 
-const mesh_component* registry::get_mesh(entity e) const {
-    auto it = meshes.find(e);
-    return it != meshes.end() ? &it->second : nullptr;
-}
-
-void registry::remove_mesh(entity e) {
-    meshes.erase(e);
-}
-
-bool registry::has_mesh(entity e) const {
-    return meshes.find(e) != meshes.end();
-}
-
-// CAMERA
-void registry::add_camera(entity e, const camera_component& c) {
-    cameras[e] = c;
-}
-
-camera_component* registry::get_camera(entity e) {
-    auto it = cameras.find(e);
-    return it != cameras.end() ? &it->second : nullptr;
-}
-
-const camera_component* registry::get_camera(entity e) const {
-    auto it = cameras.find(e);
-    return it != cameras.end() ? &it->second : nullptr;
-}
-
-void registry::remove_camera(entity e) {
-    cameras.erase(e);
-}
-
-bool registry::has_camera(entity e) const {
-    return cameras.find(e) != cameras.end();
-}
-
-// LIGHT
-void registry::add_light(entity e, const light_component& l) {
-    lights[e] = l;
-}
-
-light_component* registry::get_light(entity e) {
-    auto it = lights.find(e);
-    return it != lights.end() ? &it->second : nullptr;
-}
-
-const light_component* registry::get_light(entity e) const {
-    auto it = lights.find(e);
-    return it != lights.end() ? &it->second : nullptr;
-}
-
-void registry::remove_light(entity e) {
-    lights.erase(e);
-}
-
-bool registry::has_light(entity e) const {
-    return lights.find(e) != lights.end();
-}
-
-const std::unordered_map<entity, mesh_component>& registry::get_meshes() const {
-    return meshes;
-}
-
-const std::unordered_map<entity, light_component>& registry::get_lights() const {
-    return lights;
-}
-// NAME
-void registry::add_name(entity e, const name_component& c) {
-	names[e] = c;
-}
-
-name_component* registry::get_name(entity e) {
-    auto it = names.find(e);
-    return it != names.end() ? &it->second : nullptr;
-}
-
-const name_component* registry::get_name(entity e) const {
-    auto it = names.find(e);
-    return it != names.end() ? &it->second : nullptr;
-}
-
-void registry::remove_name(entity e) {
-    names.erase(e);
-}
-
-bool registry::has_name(entity e) const {
-    return names.find(e) != names.end();
+    if (auto* c = get_component<name_component>(e))
+        dst.add_component<name_component>(e, *c);
 }
