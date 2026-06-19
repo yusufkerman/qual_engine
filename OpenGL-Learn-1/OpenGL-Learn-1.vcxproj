@@ -66,6 +66,7 @@
     <ClCompile Include="Editor\editor.cpp" />
     <ClCompile Include="Editor\editor_camera.cpp" />
     <ClCompile Include="Editor\ui_manager.cpp" />
+    <ClCompile Include="Engine\engine.cpp" />
     <ClCompile Include="Externals\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="Externals\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Externals\imgui\imgui.cpp" />
@@ -94,6 +95,8 @@
     <ClInclude Include="Editor\editor.h" />
     <ClInclude Include="Editor\editor_camera.h" />
     <ClInclude Include="Editor\ui_manager.h" />
+    <ClInclude Include="Engine\engine.context.h" />
+    <ClInclude Include="Engine\engine.h" />
     <ClInclude Include="Externals\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="Externals\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="Externals\imgui\backend\imgui_impl_glfw.h" />

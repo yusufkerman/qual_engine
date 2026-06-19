@@ -51,6 +51,7 @@
     <ClCompile Include="Externals\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Scene\scene_session.cpp" />
     <ClCompile Include="Renderer\render_target.cpp" />
+    <ClCompile Include="Engine\engine.cpp" />
   </ItemGroup>
   <!-- ================= HEADERS ================= -->
   <ItemGroup>
@@ -122,5 +123,7 @@
     <ClInclude Include="Scene\scene_session.h" />
     <ClInclude Include="Scene\scene_session.h" />
     <ClInclude Include="Renderer\render_target.h" />
+    <ClInclude Include="Engine\engine.context.h" />
+    <ClInclude Include="Engine\engine.h" />
   </ItemGroup>
 </Project>
