@@ -17,16 +17,16 @@ void render_system::render(
     shader.setMat4("view", view);
     shader.setMat4("projection", projection);
 
-    for (const auto& [e, light] : reg.get_lights())
+    for (const auto& [e, light] : reg.get_all<light_component>())
     {
-        const transform_component* t = reg.get_transform(e);
+        const transform_component* t = reg.get_component<transform_component>(e);
         if (t)
             shader.setVec3("lightPos", t->position);
     }
 
-    for (const auto& [e, mesh] : reg.get_meshes())
+    for (const auto& [e, mesh] : reg.get_all<mesh_component>())
     {
-        const transform_component* transform = reg.get_transform(e);
+        const transform_component* transform = reg.get_component<transform_component>(e);
         if (!transform)
             continue;
 

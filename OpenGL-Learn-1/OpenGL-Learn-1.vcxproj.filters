@@ -137,5 +137,7 @@
     <ClInclude Include="Renderer\Passes\grid_pass.h" />
     <ClInclude Include="Renderer\Passes\game_pass.h" />
     <ClInclude Include="Renderer\Passes\ui_pass.h" />
+    <ClInclude Include="ECS\component_pool_interface.h" />
+    <ClInclude Include="ECS\component_pool.h" />
   </ItemGroup>
 </Project>

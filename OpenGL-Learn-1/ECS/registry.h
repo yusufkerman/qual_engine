@@ -2,6 +2,8 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <type_traits>
+#include <stdexcept>
 
 #include "entity.h"
 #include "components.h"
@@ -10,51 +12,79 @@ class registry {
 public:
     entity create_entity();
     void add_entity(entity e);
-	void remove_entity(entity e);
-
-    void add_transform(entity e, const transform_component& t);
-    void add_mesh(entity e, const mesh_component& m);
-    void add_camera(entity e, const camera_component& c);
-    void add_light(entity e, const light_component& l);
-    void add_name(entity e, const name_component& n);
-
-    void remove_transform(entity e);
-    void remove_mesh(entity e);
-    void remove_camera(entity e);
-    void remove_light(entity e);
-	void remove_name(entity e);
-
-    transform_component* get_transform(entity e);
-    mesh_component* get_mesh(entity e);
-    camera_component* get_camera(entity e);
-    light_component* get_light(entity e);
-	name_component* get_name(entity e);
-
-    const transform_component* get_transform(entity e) const;
-    const mesh_component* get_mesh(entity e) const;
-    const camera_component* get_camera(entity e) const;
-    const light_component* get_light(entity e) const;
-	const name_component* get_name(entity e) const;
-
-    bool has_transform(entity e) const;
-    bool has_mesh(entity e) const;
-    bool has_camera(entity e) const;
-    bool has_light(entity e) const;
-	bool has_name(entity e) const;
+    void remove_entity(entity e);
 
     const std::unordered_set<entity>& get_all_entities() const;
 
-    const std::unordered_map<entity, mesh_component>& get_meshes() const;
-    const std::unordered_map<entity, light_component>& get_lights() const;
+    // =========================
+    // COMPONENT API
+    // =========================
+    template<typename T, typename... Args>
+    T& add_component(entity e, Args&&... args)
+    {
+        auto& p = pool<T>();
+        return p[e] = T{ std::forward<Args>(args)... };
+    }
+
+    template<typename T>
+    T* get_component(entity e)
+    {
+        auto& p = pool<T>();
+        auto it = p.find(e);
+        return it != p.end() ? &it->second : nullptr;
+    }
+
+    template<typename T>
+    const T* get_component(entity e) const
+    {
+        auto& p = pool<T>();
+        auto it = p.find(e);
+        return it != p.end() ? &it->second : nullptr;
+    }
+
+    template<typename T>
+    bool has_component(entity e) const
+    {
+        const auto& p = pool<T>();
+        return p.find(e) != p.end();
+    }
+
+    template<typename T>
+    void remove_component(entity e)
+    {
+        pool<T>().erase(e);
+    }
+
+    template<typename T>
+    auto& get_all()
+    {
+        return pool<T>();
+    }
+
+    template<typename T>
+    const auto& get_all() const
+    {
+        return pool<T>();
+    }
+
+    // =========================
+    // CLONE SYSTEM (OCP FIX)
+    // =========================
+    void clone_entity(entity e, registry& dst) const;
 
 private:
     entity next_entity = 1;
-
     std::unordered_set<entity> entities;
 
     std::unordered_map<entity, transform_component> transforms;
     std::unordered_map<entity, mesh_component> meshes;
     std::unordered_map<entity, camera_component> cameras;
     std::unordered_map<entity, light_component> lights;
-	std::unordered_map<entity, name_component> names;
+    std::unordered_map<entity, name_component> names;
+
+    template<typename T>
+    std::unordered_map<entity, T>& pool();
+
+    template<typename T>
+    const std::unordered_map<entity, T>& pool() const;
 };

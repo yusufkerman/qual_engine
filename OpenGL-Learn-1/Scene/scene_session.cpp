@@ -70,26 +70,11 @@ scene scene_session::clone_scene(const scene& src)
     const registry& srcReg = src.get_registry();
     registry& dstReg = newScene.get_registry();
 
-    newScene.set_entities(src.get_entities());
-
     for (auto e : srcReg.get_all_entities())
     {
-        dstReg.add_entity(e);
-
-        if (srcReg.has_transform(e))
-            dstReg.add_transform(e, *srcReg.get_transform(e));
-
-        if (srcReg.has_mesh(e))
-            dstReg.add_mesh(e, *srcReg.get_mesh(e));
-
-        if (srcReg.has_camera(e))
-            dstReg.add_camera(e, *srcReg.get_camera(e));
-
-        if (srcReg.has_light(e))
-            dstReg.add_light(e, *srcReg.get_light(e));
+        srcReg.clone_entity(e, dstReg);
     }
 
     newScene.set_active_camera(src.get_active_camera());
-
     return newScene;
 }
