@@ -11,6 +11,16 @@ void registry::add_entity(entity e)
 {
     entities.insert(e);
 }
+void registry::remove_entity(entity e)
+{
+    entities.erase(e);
+
+    transforms.erase(e);
+    meshes.erase(e);
+    cameras.erase(e);
+    lights.erase(e);
+    names.erase(e);
+}
 
 const std::unordered_set<entity>& registry::get_all_entities() const {
     return entities;
@@ -114,4 +124,26 @@ const std::unordered_map<entity, mesh_component>& registry::get_meshes() const {
 
 const std::unordered_map<entity, light_component>& registry::get_lights() const {
     return lights;
+}
+// NAME
+void registry::add_name(entity e, const name_component& c) {
+	names[e] = c;
+}
+
+name_component* registry::get_name(entity e) {
+    auto it = names.find(e);
+    return it != names.end() ? &it->second : nullptr;
+}
+
+const name_component* registry::get_name(entity e) const {
+    auto it = names.find(e);
+    return it != names.end() ? &it->second : nullptr;
+}
+
+void registry::remove_name(entity e) {
+    names.erase(e);
+}
+
+bool registry::has_name(entity e) const {
+    return names.find(e) != names.end();
 }

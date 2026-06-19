@@ -2,8 +2,12 @@
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <string.h>
+#include <vector>
 
 #include "editor_camera.h"
+
+#include "..\ECS\entity.h"
 
 class scene;
 
@@ -47,7 +51,15 @@ public:
 
 private:
     int selectedEntity = -1;
+
     unsigned int sceneTexture = 0;
     unsigned int gameTexture = 0;
+
     scene* currentScene = nullptr;
+
+    int renamingEntity = -1;
+    char renameBuffer[64] = "";
+
+    std::vector<entity> deleteQueue;
+
 };

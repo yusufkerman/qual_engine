@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <string>
 
 //Contains all components that can be attached to an entity
 
@@ -23,4 +24,7 @@ struct light_component
 {
     glm::vec3 color = glm::vec3(1.0f);
     float     intensity = 1.0f;
+};
+struct name_component {
+    std::string name;
 };

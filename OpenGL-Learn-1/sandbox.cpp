@@ -21,6 +21,7 @@ void sandbox_load_default_scene(EngineContext& ctx)
         glm::vec3(1.0f)
         });
     editorScene.get_registry().add_mesh(chairEntity, { meshID });
+	editorScene.get_registry().add_name(chairEntity, { "Chair" });
 
     entity gameCameraEntity = editorScene.create_entity();
     editorScene.get_registry().add_transform(gameCameraEntity, {
@@ -34,6 +35,8 @@ void sandbox_load_default_scene(EngineContext& ctx)
         1000.0f
         });
     editorScene.set_active_camera(gameCameraEntity);
+    editorScene.get_registry().add_name(gameCameraEntity, { "Game Camera" });
+
 
     entity lightEntity = editorScene.create_entity();
     editorScene.get_registry().add_transform(lightEntity, {
@@ -42,4 +45,6 @@ void sandbox_load_default_scene(EngineContext& ctx)
         glm::vec3(1.0f)
         });
     editorScene.get_registry().add_light(lightEntity, {});
+    editorScene.get_registry().add_name(lightEntity, { "Point Light" });
+
 }

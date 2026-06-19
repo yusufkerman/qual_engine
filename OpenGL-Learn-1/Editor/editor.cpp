@@ -3,12 +3,21 @@
 
 #include <imgui.h>
 #include <string>
+#include <imgui_internal.h>
 
 void Editor::init(GLFWwindow*) {}
 
-void Editor::update(scene&)
+void Editor::update(scene&) {}
+
+// =========================
+// SAFE NAME GET
+// =========================
+static std::string getEntityName(auto& reg, entity e)
 {
-    // şimdilik boş
+    if (reg.has_name(e))
+        return reg.get_name(e)->name;
+
+    return "Entity";
 }
 
 void Editor::renderUI(scene& scene)
@@ -21,9 +30,7 @@ void Editor::renderUI(scene& scene)
     ImGui::Begin("TopBar");
 
     if (ImGui::Button(mode == EngineMode::EDITOR ? "Play" : "Stop"))
-    {
         toggleMode();
-    }
 
     ImGui::SameLine();
     ImGui::Text("Mode: %s", mode == EngineMode::EDITOR ? "EDITOR" : "PLAY");
@@ -35,13 +42,99 @@ void Editor::renderUI(scene& scene)
     // =========================
     ImGui::Begin("Hierarchy");
 
+    // CREATE OBJECT (UNITY STYLE)
+    if (ImGui::Button("Create Object"))
+    {
+        entity e = reg.create_entity();
+
+        reg.add_transform(e, {});
+        reg.add_name(e, { "New Entity" });
+
+        selectedEntity = (int)e;
+
+        // rename immediately
+        renamingEntity = (int)e;
+        strcpy_s(renameBuffer, sizeof(renameBuffer), "New Entity");
+    }
+
+    ImGui::Separator();
+
+    // =========================
+    // ENTITY LIST
+    // =========================
     for (auto e : reg.get_all_entities())
     {
-        std::string label = "Entity " + std::to_string(e);
-        bool selected = (selectedEntity == (int)e);
+        std::string name = getEntityName(reg, e);
+        bool isSelected = (selectedEntity == (int)e);
 
-        if (ImGui::Selectable(label.c_str(), selected))
-            selectedEntity = (int)e;
+        ImGui::PushID((int)e);
+
+        if (renamingEntity != (int)e)
+        {
+            if (ImGui::Selectable(name.c_str(), isSelected))
+                selectedEntity = (int)e;
+
+            if (ImGui::BeginPopupContextItem())
+            {
+                if (ImGui::MenuItem("Rename"))
+                {
+                    renamingEntity = (int)e;
+                    strcpy_s(renameBuffer, sizeof(renameBuffer), name.c_str());
+                }
+
+                if (ImGui::MenuItem("Delete"))
+                {
+                    if (selectedEntity == (int)e)
+                        selectedEntity = -1;
+
+                    deleteQueue.push_back(e);  
+                }
+
+                ImGui::EndPopup();
+            }
+
+            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+            {
+                renamingEntity = (int)e;
+                strcpy_s(renameBuffer, sizeof(renameBuffer), name.c_str());
+            }
+        }
+        else
+        {
+            ImGui::PushID((int)e);
+
+            ImGui::SetNextItemWidth(160);
+
+            bool enter = ImGui::InputText(
+                "##rename",
+                renameBuffer,
+                IM_ARRAYSIZE(renameBuffer),
+                ImGuiInputTextFlags_EnterReturnsTrue
+            );
+
+            ImGui::SameLine();
+
+            bool cancel = ImGui::SmallButton("X");
+
+            bool esc = ImGui::IsKeyPressed(ImGuiKey_Escape);
+
+            if (enter || cancel || esc)
+            {
+                if (enter)
+                {
+                    if (auto* n = reg.get_name(e))
+                        n->name = renameBuffer;
+                    else
+                        reg.add_name(e, { renameBuffer });
+                }
+
+                renamingEntity = -1;
+            }
+
+            ImGui::PopID();
+        }
+
+        ImGui::PopID();
     }
 
     ImGui::End();
@@ -114,22 +207,12 @@ void Editor::renderUI(scene& scene)
 
     if (gameAvail.x > 0 && gameAvail.y > 0 && gameTexture != 0)
     {
-        ImVec2 cursor = ImGui::GetCursorScreenPos();
-
-        ImGui::GetWindowDrawList()->PushClipRect(
-            cursor,
-            ImVec2(cursor.x + gameAvail.x, cursor.y + gameAvail.y),
-            true
-        );
-
         ImGui::Image(
             (ImTextureID)(intptr_t)gameTexture,
             gameAvail,
             ImVec2(0, 1),
             ImVec2(1, 0)
         );
-
-        ImGui::GetWindowDrawList()->PopClipRect();
     }
 
     ImGui::PopStyleVar(2);
@@ -152,9 +235,6 @@ void Editor::renderUI(scene& scene)
         {
             if (ImGui::CollapsingHeader("Transform"))
             {
-                if (ImGui::SmallButton("X##transform"))
-                    reg.remove_transform(e);
-
                 auto* t = reg.get_transform(e);
                 ImGui::DragFloat3("Position", &t->position.x, 0.1f);
                 ImGui::DragFloat3("Rotation", &t->rotation.x, 0.1f);
@@ -166,20 +246,7 @@ void Editor::renderUI(scene& scene)
         {
             if (ImGui::CollapsingHeader("Camera"))
             {
-                if (ImGui::SmallButton("X##camera"))
-                {
-                    if (scene.get_active_camera() == e)
-                        scene.set_active_camera(0);
-
-                    reg.remove_camera(e);
-                }
-
                 auto* c = reg.get_camera(e);
-
-                if (ImGui::Button("Set as Game Camera"))
-                {
-                    scene.set_active_camera(e);
-                }
 
                 ImGui::DragFloat("FOV", &c->fov);
                 ImGui::DragFloat("Near", &c->nearPlane);
@@ -191,47 +258,25 @@ void Editor::renderUI(scene& scene)
         {
             if (ImGui::CollapsingHeader("Light"))
             {
-                if (ImGui::SmallButton("X##light"))
-                    reg.remove_light(e);
-
                 auto* l = reg.get_light(e);
+
                 ImGui::ColorEdit3("Color", &l->color.x);
                 ImGui::DragFloat("Intensity", &l->intensity);
             }
         }
-
-        if (reg.has_mesh(e))
-        {
-            if (ImGui::CollapsingHeader("Mesh"))
-            {
-                if (ImGui::SmallButton("X##mesh"))
-                    reg.remove_mesh(e);
-            }
-        }
-
-        ImGui::Separator();
-
-        if (ImGui::BeginMenu("Add Component"))
-        {
-            if (ImGui::MenuItem("Transform"))
-                if (!reg.has_transform(e))
-                    reg.add_transform(e, {});
-
-            if (ImGui::MenuItem("Camera"))
-                if (!reg.has_camera(e))
-                    reg.add_camera(e, { 45.0f, 0.1f, 1000.0f });
-
-            if (ImGui::MenuItem("Light"))
-                if (!reg.has_light(e))
-                    reg.add_light(e, {});
-
-            if (ImGui::MenuItem("Mesh"))
-                if (!reg.has_mesh(e))
-                    reg.add_mesh(e, { 0 });
-
-            ImGui::EndMenu();
-        }
     }
 
     ImGui::End();
+
+    for (entity e : deleteQueue)
+    {
+        if (selectedEntity == (int)e)
+            selectedEntity = -1;
+
+        if (renamingEntity == (int)e)
+            renamingEntity = -1;
+
+        reg.remove_entity(e);
+    }
+    deleteQueue.clear();
 }
