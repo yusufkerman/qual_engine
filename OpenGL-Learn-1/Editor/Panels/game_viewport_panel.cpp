@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+
 void game_viewport_panel::render(
     unsigned int gameTexture,
     glm::vec2& gameViewportSize,

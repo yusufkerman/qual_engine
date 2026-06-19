@@ -1,6 +1,8 @@
 #include <imgui.h>
 
 #include "hierarchy_panel.h"
+#include "../../ECS/registry.h"
+
 
 void hierarchy_panel::render(scene& scene,
     int& selectedEntity,
@@ -15,8 +17,8 @@ void hierarchy_panel::render(scene& scene,
     if (ImGui::Button("Create Object"))
     {
         entity e = reg.create_entity();
-        reg.add_transform(e, {});
-        reg.add_name(e, { "New Entity" });
+        reg.add_component<transform_component>(e);
+        reg.add_component<name_component>(e);
 
         selectedEntity = (int)e;
         renamingEntity = (int)e;
@@ -27,7 +29,7 @@ void hierarchy_panel::render(scene& scene,
 
     for (auto e : reg.get_all_entities())
     {
-        std::string name = reg.has_name(e) ? reg.get_name(e)->name : "Entity";
+        std::string name = reg.has_component<name_component>(e) ? reg.get_component<name_component>(e)->name : "Entity";
         bool isSelected = (selectedEntity == (int)e);
 
         ImGui::PushID((int)e);
