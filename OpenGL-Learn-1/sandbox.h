@@ -2,4 +2,4 @@
 
 struct EngineContext;
 
-void Sandbox_LoadDefaultScene(EngineContext& ctx);
+void sandbox_load_default_scene(EngineContext& ctx);

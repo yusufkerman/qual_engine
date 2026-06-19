@@ -1,12 +1,13 @@
 #include "fly_camera.h"
 
 #include "../Input/input_state.h"
+#include "../Input/input_map.h"
 
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <cmath>
 
-glm::vec3 CalcForward(const glm::vec3& rot)
+glm::vec3 calc_forward(const glm::vec3& rot)
 {
     glm::vec3 forward;
     forward.x = std::cos(rot.x) * std::sin(rot.y);
@@ -15,7 +16,7 @@ glm::vec3 CalcForward(const glm::vec3& rot)
     return glm::normalize(forward);
 }
 
-void UpdateFlyCamera(
+void update_fly_camera(
     GLFWwindow* window,
     InputState& input,
     fly_camera_state& state,
@@ -23,7 +24,8 @@ void UpdateFlyCamera(
     glm::vec3& rotation,
     float sensitivity,
     float moveSpeed,
-    bool hoverGate
+    bool hoverGate,
+    float* scrollStep
 )
 {
     if (!window)
@@ -77,7 +79,7 @@ void UpdateFlyCamera(
 
     rotation.x = std::clamp(rotation.x, -1.5f, 1.5f);
 
-    const glm::vec3 forward = CalcForward(rotation);
+    const glm::vec3 forward = calc_forward(rotation);
     const glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
 
     if (input.actions[(int)InputAction::MoveForward])
@@ -91,4 +93,10 @@ void UpdateFlyCamera(
 
     if (input.actions[(int)InputAction::MoveLeft])
         position -= right * speed;
+
+    if (scrollStep)
+    {
+        position += forward * (*scrollStep) * 1.5f;
+        *scrollStep = 0.0f;
+    }
 }

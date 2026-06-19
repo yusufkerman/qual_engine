@@ -14,9 +14,9 @@ struct fly_camera_state
     double lastY = 0.0;
 };
 
-glm::vec3 CalcForward(const glm::vec3& rotation);
+glm::vec3 calc_forward(const glm::vec3& rotation);
 
-void UpdateFlyCamera(
+void update_fly_camera(
     GLFWwindow* window,
     InputState& input,
     fly_camera_state& state,
@@ -24,5 +24,6 @@ void UpdateFlyCamera(
     glm::vec3& rotation,
     float sensitivity,
     float moveSpeed,
-    bool hoverGate
+    bool hoverGate,
+    float* scrollStep = nullptr
 );

@@ -80,6 +80,10 @@
     <ClCompile Include="Importers\ModelLoader.cpp" />
     <ClCompile Include="Renderer\Debug\grid_renderer.cpp" />
     <ClCompile Include="Renderer\MeshRenderer.cpp" />
+    <ClCompile Include="Renderer\Passes\editor_pass.cpp" />
+    <ClCompile Include="Renderer\Passes\game_pass.cpp" />
+    <ClCompile Include="Renderer\Passes\grid_pass.cpp" />
+    <ClCompile Include="Renderer\Passes\ui_pass.cpp" />
     <ClCompile Include="Renderer\render_target.cpp" />
     <ClCompile Include="sandbox.cpp" />
     <ClCompile Include="Scene\scene.cpp" />
@@ -97,7 +101,7 @@
     <ClInclude Include="Editor\editor.h" />
     <ClInclude Include="Editor\editor_camera.h" />
     <ClInclude Include="Editor\ui_manager.h" />
-    <ClInclude Include="Engine\engine.context.h" />
+    <ClInclude Include="Engine\engine_context.h" />
     <ClInclude Include="Engine\engine.h" />
     <ClInclude Include="Engine\fly_camera.h" />
     <ClInclude Include="Externals\imgui\backends\imgui_impl_glfw.h" />
@@ -122,6 +126,10 @@
     <ClInclude Include="Input\input_utils.h" />
     <ClInclude Include="Renderer\Debug\grid_renderer.h" />
     <ClInclude Include="Renderer\MeshRenderer.h" />
+    <ClInclude Include="Renderer\Passes\editor_pass.h" />
+    <ClInclude Include="Renderer\Passes\game_pass.h" />
+    <ClInclude Include="Renderer\Passes\grid_pass.h" />
+    <ClInclude Include="Renderer\Passes\ui_pass.h" />
     <ClInclude Include="Renderer\render_target.h" />
     <ClInclude Include="sandbox.h" />
     <ClInclude Include="Scene\scene.h" />

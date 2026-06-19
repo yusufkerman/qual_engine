@@ -1,0 +1,57 @@
+#include "game_pass.h"
+
+#include "../../Engine/engine_context.h"
+#include "../../Engine/fly_camera.h"
+#include "../../shader.h"
+
+#include <glm/gtc/matrix_transform.hpp>
+
+void game_pass::render(EngineContext& ctx)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, ctx.gameTarget.fbo);
+    glViewport(0, 0, ctx.gameTarget.width, ctx.gameTarget.height);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glClearColor(0.03f, 0.03f, 0.05f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    ctx.shader->use();
+
+    scene& gameScene = ctx.session.game_scene();
+    const entity gameCam = gameScene.get_active_camera();
+
+    if (gameCam != 0 && gameScene.get_registry().has_camera(gameCam))
+    {
+        auto* t = gameScene.get_registry().get_transform(gameCam);
+        auto* c = gameScene.get_registry().get_camera(gameCam);
+
+        if (t && c)
+        {
+            const glm::vec3 forward = calc_forward(t->rotation);
+
+            const glm::mat4 gameView = glm::lookAt(
+                t->position,
+                t->position + forward,
+                glm::vec3(0, 1, 0)
+            );
+
+            const glm::mat4 gameProj = glm::perspective(
+                glm::radians(c->fov),
+                (float)ctx.gameTarget.width / (float)ctx.gameTarget.height,
+                c->nearPlane,
+                c->farPlane
+            );
+
+            ctx.renderSystem.render(
+                gameScene.get_registry(),
+                ctx.renderer,
+                *ctx.shader,
+                gameView,
+                gameProj
+            );
+        }
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}

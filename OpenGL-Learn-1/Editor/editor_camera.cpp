@@ -15,7 +15,7 @@ void EditorCamera::update(
     float moveSpeed
 )
 {
-    UpdateFlyCamera(
+    update_fly_camera(
         window,
         input,
         flyState,
@@ -23,20 +23,14 @@ void EditorCamera::update(
         rotation,
         sensitivity,
         moveSpeed,
-        sceneHovered
+        sceneHovered,
+        &scrollStep
     );
-
-    if (!flyState.capturingMouse)
-        return;
-
-    const glm::vec3 forward = CalcForward(rotation);
-    position += forward * scrollStep * 1.5f;
-    scrollStep = 0.0f;
 }
 
 glm::mat4 EditorCamera::getViewMatrix() const
 {
-    const glm::vec3 forward = CalcForward(rotation);
+    const glm::vec3 forward = calc_forward(rotation);
     return glm::lookAt(position, position + forward, glm::vec3(0, 1, 0));
 }
 

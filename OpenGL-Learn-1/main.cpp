@@ -8,7 +8,7 @@ int main()
     if (!Engine::init(ctx))
         return -1;
 
-    Sandbox_LoadDefaultScene(ctx);
+    sandbox_load_default_scene(ctx);
 
     while (!glfwWindowShouldClose(ctx.window))
     {

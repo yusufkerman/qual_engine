@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "..\Engine/fly_camera.h"
+#include "../Engine/fly_camera.h"
 
 struct GLFWwindow;
 struct InputState;

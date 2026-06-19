@@ -1,12 +1,14 @@
 #include "engine.h"
 
-#include <algorithm>
-#include <iostream>
-
 #include <glad/glad.h>
-#include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
 
-#include "../Engine/fly_camera.h"
+#include <algorithm>
+
+#include "../Renderer/passes/editor_pass.h"
+#include "../Renderer/passes/grid_pass.h"
+#include "../Renderer/passes/game_pass.h"
+#include "../Renderer/passes/ui_pass.h"
 
 namespace
 {
@@ -45,6 +47,7 @@ namespace
 
         ctx.editor.editorCamera.resetMouseState();
         ctx.runtimeCameraState = fly_camera_state{};
+
         glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
         if (ctx.editor.mode == EngineMode::PLAY)
@@ -88,7 +91,7 @@ namespace
             return;
 
         scene& gameScene = ctx.session.game_scene();
-        entity activeCam = gameScene.get_active_camera();
+        const entity activeCam = gameScene.get_active_camera();
 
         auto* camT = (activeCam != 0)
             ? gameScene.get_registry().get_transform(activeCam)
@@ -97,7 +100,7 @@ namespace
         if (!camT)
             return;
 
-        UpdateFlyCamera(
+        update_fly_camera(
             ctx.window,
             ctx.inputState,
             ctx.runtimeCameraState,
@@ -105,139 +108,9 @@ namespace
             camT->rotation,
             ctx.sensitivity,
             ctx.moveSpeed,
-            ctx.editor.gameViewportHovered
+            ctx.editor.gameViewportHovered,
+            nullptr
         );
-    }
-
-    static void render_editor_pass(EngineContext& ctx)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, ctx.editorTarget.fbo);
-        glViewport(0, 0, ctx.editorTarget.width, ctx.editorTarget.height);
-
-        glEnable(GL_DEPTH_TEST);
-        glClearColor(0.08f, 0.08f, 0.12f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        ctx.shader->use();
-
-        glm::mat4 editorView = ctx.editor.editorCamera.getViewMatrix();
-        glm::mat4 editorProj = ctx.editor.editorCamera.getProjectionMatrix(
-            (float)ctx.editorTarget.width / (float)ctx.editorTarget.height
-        );
-
-        ctx.renderSystem.render(
-            ctx.session.editor_scene().get_registry(),
-            ctx.renderer,
-            *ctx.shader,
-            editorView,
-            editorProj
-        );
-    }
-
-    static void render_grid_pass(EngineContext& ctx)
-    {
-        glDisable(GL_DEPTH_TEST);
-        glDepthMask(GL_FALSE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        ctx.gridShader->use();
-
-        const glm::vec3& camPos = ctx.editor.editorCamera.position;
-        glm::vec3 gridForward = CalcForward(ctx.editor.editorCamera.rotation);
-
-        glm::mat4 gridView = glm::lookAt(
-            camPos,
-            camPos + gridForward,
-            glm::vec3(0, 1, 0)
-        );
-
-        glm::mat4 gridProj = glm::perspective(
-            glm::radians(ctx.editor.editorCamera.fov),
-            (float)ctx.editorTarget.width / (float)ctx.editorTarget.height,
-            ctx.editor.editorCamera.nearPlane,
-            ctx.editor.editorCamera.farPlane
-        );
-
-        glm::mat4 invViewProj = glm::inverse(gridProj * gridView);
-
-        ctx.gridShader->setMat4("invViewProj", invViewProj);
-        ctx.gridShader->setVec3("cameraPos", camPos);
-
-        ctx.grid.draw();
-
-        glDisable(GL_BLEND);
-        glDepthMask(GL_TRUE);
-    }
-
-    static void render_game_pass(EngineContext& ctx)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, ctx.gameTarget.fbo);
-        glViewport(0, 0, ctx.gameTarget.width, ctx.gameTarget.height);
-
-        glEnable(GL_DEPTH_TEST);
-        glClearColor(0.03f, 0.03f, 0.05f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        ctx.shader->use();
-
-        scene& gameScene = ctx.session.game_scene();
-        entity gameCam = gameScene.get_active_camera();
-
-        if (gameCam != 0 && gameScene.get_registry().has_camera(gameCam))
-        {
-            auto* t = gameScene.get_registry().get_transform(gameCam);
-            auto* c = gameScene.get_registry().get_camera(gameCam);
-
-            if (t && c)
-            {
-                glm::vec3 forward = CalcForward(t->rotation);
-
-                glm::mat4 gameView = glm::lookAt(
-                    t->position,
-                    t->position + forward,
-                    glm::vec3(0, 1, 0)
-                );
-
-                glm::mat4 gameProj = glm::perspective(
-                    glm::radians(c->fov),
-                    (float)ctx.gameTarget.width / (float)ctx.gameTarget.height,
-                    c->nearPlane,
-                    c->farPlane
-                );
-
-                ctx.renderSystem.render(
-                    gameScene.get_registry(),
-                    ctx.renderer,
-                    *ctx.shader,
-                    gameView,
-                    gameProj
-                );
-            }
-        }
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
-
-    static void render_ui(EngineContext& ctx)
-    {
-        glViewport(0, 0, ctx.screenW, ctx.screenH);
-
-        glDisable(GL_DEPTH_TEST);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        ctx.editor.setSceneTexture(ctx.editorTarget.tex);
-        ctx.editor.setGameTexture(ctx.gameTarget.tex);
-
-        ctx.uiManager.beginFrame();
-
-        scene& uiScene = ctx.session.is_playing()
-            ? ctx.session.runtime_scene()
-            : ctx.session.editor_scene();
-
-        ctx.editor.renderUI(uiScene);
-
-        ctx.uiManager.endFrame();
     }
 }
 
@@ -277,8 +150,6 @@ bool Engine::init(EngineContext& ctx)
     ctx.editorTarget.create(1, 1);
     ctx.gameTarget.create(1, 1);
 
-    ctx.editor.setScene(&ctx.session.editor_scene());
-
     init_input(ctx);
 
     ctx.prevMode = ctx.editor.mode;
@@ -304,10 +175,10 @@ void Engine::update(EngineContext& ctx)
 
 void Engine::render(EngineContext& ctx)
 {
-    render_editor_pass(ctx);
-    render_grid_pass(ctx);
-    render_game_pass(ctx);
-    render_ui(ctx);
+    editor_pass::render(ctx);
+    grid_pass::render(ctx);
+    game_pass::render(ctx);
+    ui_pass::render(ctx);
 
     glfwSwapBuffers(ctx.window);
     glfwPollEvents();
@@ -315,6 +186,11 @@ void Engine::render(EngineContext& ctx)
 
 void Engine::shutdown(EngineContext& ctx)
 {
+    ctx.uiManager.shutdown();
+
+    ctx.shader.reset();
+    ctx.gridShader.reset();
+
     ctx.editorTarget.destroy();
     ctx.gameTarget.destroy();
     ctx.grid.shutdown();
