@@ -67,6 +67,7 @@
     <ClCompile Include="Editor\editor_camera.cpp" />
     <ClCompile Include="Editor\ui_manager.cpp" />
     <ClCompile Include="Engine\engine.cpp" />
+    <ClCompile Include="Engine\fly_camera.cpp" />
     <ClCompile Include="Externals\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="Externals\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Externals\imgui\imgui.cpp" />
@@ -80,6 +81,7 @@
     <ClCompile Include="Renderer\Debug\grid_renderer.cpp" />
     <ClCompile Include="Renderer\MeshRenderer.cpp" />
     <ClCompile Include="Renderer\render_target.cpp" />
+    <ClCompile Include="sandbox.cpp" />
     <ClCompile Include="Scene\scene.cpp" />
     <ClCompile Include="Scene\scene_session.cpp" />
     <ClCompile Include="Systems\render_system.cpp" />
@@ -97,6 +99,7 @@
     <ClInclude Include="Editor\ui_manager.h" />
     <ClInclude Include="Engine\engine.context.h" />
     <ClInclude Include="Engine\engine.h" />
+    <ClInclude Include="Engine\fly_camera.h" />
     <ClInclude Include="Externals\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="Externals\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="Externals\imgui\backend\imgui_impl_glfw.h" />
@@ -120,6 +123,7 @@
     <ClInclude Include="Renderer\Debug\grid_renderer.h" />
     <ClInclude Include="Renderer\MeshRenderer.h" />
     <ClInclude Include="Renderer\render_target.h" />
+    <ClInclude Include="sandbox.h" />
     <ClInclude Include="Scene\scene.h" />
     <ClInclude Include="Scene\scene_session.h" />
     <ClInclude Include="Scene\scene_session.h" />

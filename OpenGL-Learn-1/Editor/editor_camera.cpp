@@ -1,12 +1,10 @@
 #include "editor_camera.h"
+
 #include <glm/gtc/matrix_transform.hpp>
-#include <algorithm>
 
 void EditorCamera::resetMouseState()
 {
-    capturingMouse = false;
-    firstMouse = true;
-    prevRightHeld = false;
+    flyState = fly_camera_state{};
     scrollStep = 0.0f;
 }
 
@@ -17,86 +15,28 @@ void EditorCamera::update(
     float moveSpeed
 )
 {
-    bool rightHeld =
-        glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+    UpdateFlyCamera(
+        window,
+        input,
+        flyState,
+        position,
+        rotation,
+        sensitivity,
+        moveSpeed,
+        sceneHovered
+    );
 
-    bool shiftHeld =
-        glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
-
-    float speed = moveSpeed * (shiftHeld ? 3.0f : 1.0f);
-
-    if (sceneHovered && rightHeld && !prevRightHeld)
-    {
-        capturingMouse = true;
-        firstMouse = true;
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
-
-    if (!rightHeld && prevRightHeld)
-    {
-        capturingMouse = false;
-        firstMouse = true;
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-
-    prevRightHeld = rightHeld;
-
-    if (!capturingMouse)
+    if (!flyState.capturingMouse)
         return;
 
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xoffset = float(xpos - lastX);
-    float yoffset = float(lastY - ypos);
-
-    lastX = xpos;
-    lastY = ypos;
-
-    rotation.y += xoffset * sensitivity;
-    rotation.x += yoffset * sensitivity;
-
-    rotation.x = std::clamp(rotation.x, -1.5f, 1.5f);
-
-    glm::vec3 forward;
-    forward.x = cos(rotation.x) * sin(rotation.y);
-    forward.y = sin(rotation.x);
-    forward.z = -cos(rotation.x) * cos(rotation.y);
-    forward = glm::normalize(forward);
-
-    glm::vec3 right = glm::normalize(glm::cross(forward, { 0,1,0 }));
-
-    if (input.actions[(int)InputAction::MoveForward])
-        position += forward * speed;
-
-    if (input.actions[(int)InputAction::MoveBackward])
-        position -= forward * speed;
-
-    if (input.actions[(int)InputAction::MoveRight])
-        position += right * speed;
-
-    if (input.actions[(int)InputAction::MoveLeft])
-        position -= right * speed;
-
+    const glm::vec3 forward = CalcForward(rotation);
     position += forward * scrollStep * 1.5f;
     scrollStep = 0.0f;
 }
+
 glm::mat4 EditorCamera::getViewMatrix() const
 {
-    glm::vec3 forward;
-    forward.x = cos(rotation.x) * sin(rotation.y);
-    forward.y = sin(rotation.x);
-    forward.z = -cos(rotation.x) * cos(rotation.y);
-
-    forward = glm::normalize(forward);
-
+    const glm::vec3 forward = CalcForward(rotation);
     return glm::lookAt(position, position + forward, glm::vec3(0, 1, 0));
 }
 

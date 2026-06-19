@@ -52,6 +52,8 @@
     <ClCompile Include="Scene\scene_session.cpp" />
     <ClCompile Include="Renderer\render_target.cpp" />
     <ClCompile Include="Engine\engine.cpp" />
+    <ClCompile Include="Engine\fly_camera.cpp" />
+    <ClCompile Include="sandbox.cpp" />
   </ItemGroup>
   <!-- ================= HEADERS ================= -->
   <ItemGroup>
@@ -125,5 +127,7 @@
     <ClInclude Include="Renderer\render_target.h" />
     <ClInclude Include="Engine\engine.context.h" />
     <ClInclude Include="Engine\engine.h" />
+    <ClInclude Include="Engine\fly_camera.h" />
+    <ClInclude Include="sandbox.h" />
   </ItemGroup>
 </Project>

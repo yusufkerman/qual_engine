@@ -2,111 +2,14 @@
 
 #include <algorithm>
 #include <iostream>
-#include <cmath>
 
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "..\Importers/ModelLoader.h"
+#include "../Engine/fly_camera.h"
 
 namespace
 {
-    static glm::vec3 CalcForward(const glm::vec3& rot)
-    {
-        glm::vec3 forward;
-        forward.x = std::cos(rot.x) * std::sin(rot.y);
-        forward.y = std::sin(rot.x);
-        forward.z = -std::cos(rot.x) * std::cos(rot.y);
-        return glm::normalize(forward);
-    }
-
-    static void ResetRuntimeCameraMouseState(GLFWwindow* window)
-    {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-
-    static void UpdateRuntimeCamera(
-        GLFWwindow* window,
-        InputState& input,
-        float sensitivity,
-        float moveSpeed,
-        transform_component* cam,
-        bool viewportHovered
-    )
-    {
-        static bool runtimeMouseCaptured = false;
-        static bool runtimeFirstMouse = true;
-        static bool runtimePrevRightHeld = false;
-        static double runtimeLastX = 0.0;
-        static double runtimeLastY = 0.0;
-
-        if (!cam)
-            return;
-
-        bool rightHeld =
-            glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
-
-        bool shiftHeld =
-            glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
-
-        float speed = moveSpeed * (shiftHeld ? 3.0f : 1.0f);
-
-        if (rightHeld && !runtimePrevRightHeld && viewportHovered)
-        {
-            runtimeMouseCaptured = true;
-            runtimeFirstMouse = true;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        }
-
-        if (!rightHeld && runtimePrevRightHeld)
-        {
-            runtimeMouseCaptured = false;
-            runtimeFirstMouse = true;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        }
-
-        runtimePrevRightHeld = rightHeld;
-
-        if (!runtimeMouseCaptured)
-            return;
-
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-
-        if (runtimeFirstMouse)
-        {
-            runtimeLastX = xpos;
-            runtimeLastY = ypos;
-            runtimeFirstMouse = false;
-        }
-
-        float xoffset = static_cast<float>(xpos - runtimeLastX);
-        float yoffset = static_cast<float>(runtimeLastY - ypos);
-
-        runtimeLastX = xpos;
-        runtimeLastY = ypos;
-
-        cam->rotation.y += xoffset * sensitivity;
-        cam->rotation.x += yoffset * sensitivity;
-
-        cam->rotation.x = std::clamp(cam->rotation.x, -1.5f, 1.5f);
-
-        glm::vec3 forward = CalcForward(cam->rotation);
-        glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
-
-        if (input.actions[(int)InputAction::MoveForward])
-            cam->position += forward * speed;
-
-        if (input.actions[(int)InputAction::MoveBackward])
-            cam->position -= forward * speed;
-
-        if (input.actions[(int)InputAction::MoveRight])
-            cam->position += right * speed;
-
-        if (input.actions[(int)InputAction::MoveLeft])
-            cam->position -= right * speed;
-    }
-
     static void framebuffer_size_callback(GLFWwindow* window, int w, int h)
     {
         auto* ctx = static_cast<EngineContext*>(glfwGetWindowUserPointer(window));
@@ -135,52 +38,14 @@ namespace
         ctx.inputMap.bind(GLFW_KEY_D, InputAction::MoveRight);
     }
 
-    static void init_scene_content(EngineContext& ctx)
-    {
-        scene& editorScene = ctx.session.editor_scene();
-
-        ctx.editor.setScene(&editorScene);
-
-        Model model = ModelLoader::Load("Assets/model1.FBX");
-        unsigned int meshID = ctx.renderer.UploadModel(model);
-
-        entity chairEntity = editorScene.create_entity();
-        editorScene.get_registry().add_transform(chairEntity, {
-            glm::vec3(0.0f),
-            glm::vec3(glm::radians(-90.0f), glm::radians(0.0f), glm::radians(0.0f)),
-            glm::vec3(1.0f)
-            });
-        editorScene.get_registry().add_mesh(chairEntity, { meshID });
-
-        entity gameCameraEntity = editorScene.create_entity();
-        editorScene.get_registry().add_transform(gameCameraEntity, {
-            glm::vec3(0.0f, -5.0f, 70.0f),
-            glm::vec3(0.0f),
-            glm::vec3(1.0f)
-            });
-        editorScene.get_registry().add_camera(gameCameraEntity, {
-            45.0f,
-            0.1f,
-            1000.0f
-            });
-        editorScene.set_active_camera(gameCameraEntity);
-
-        entity lightEntity = editorScene.create_entity();
-        editorScene.get_registry().add_transform(lightEntity, {
-            glm::vec3(25.0f, 110.0f, 5.0f),
-            glm::vec3(0.0f),
-            glm::vec3(1.0f)
-            });
-        editorScene.get_registry().add_light(lightEntity, {});
-    }
-
     static void handle_mode_transition(EngineContext& ctx)
     {
         if (ctx.editor.mode == ctx.prevMode)
             return;
 
         ctx.editor.editorCamera.resetMouseState();
-        ResetRuntimeCameraMouseState(ctx.window);
+        ctx.runtimeCameraState = fly_camera_state{};
+        glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
         if (ctx.editor.mode == EngineMode::PLAY)
             ctx.session.play();
@@ -222,8 +87,6 @@ namespace
         if (ctx.editor.mode != EngineMode::PLAY)
             return;
 
-        //ctx.session.sync_editor_from_runtime();
-
         scene& gameScene = ctx.session.game_scene();
         entity activeCam = gameScene.get_active_camera();
 
@@ -231,12 +94,17 @@ namespace
             ? gameScene.get_registry().get_transform(activeCam)
             : nullptr;
 
-        UpdateRuntimeCamera(
+        if (!camT)
+            return;
+
+        UpdateFlyCamera(
             ctx.window,
             ctx.inputState,
+            ctx.runtimeCameraState,
+            camT->position,
+            camT->rotation,
             ctx.sensitivity,
             ctx.moveSpeed,
-            camT,
             ctx.editor.gameViewportHovered
         );
     }
@@ -409,8 +277,9 @@ bool Engine::init(EngineContext& ctx)
     ctx.editorTarget.create(1, 1);
     ctx.gameTarget.create(1, 1);
 
+    ctx.editor.setScene(&ctx.session.editor_scene());
+
     init_input(ctx);
-    init_scene_content(ctx);
 
     ctx.prevMode = ctx.editor.mode;
 
