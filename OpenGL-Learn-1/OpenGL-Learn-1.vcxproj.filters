@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <!-- ================= SOURCE FILES ================= -->
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Importers\ModelLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\MeshRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ECS\registry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Systems\render_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\input_map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\input_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\Libraries\glad\src\glad.c" />
+    <ClCompile Include="Editor\editor.cpp" />
+    <ClCompile Include="Scene\scene.cpp" />
+    <ClCompile Include="Editor\ui_manager.cpp" />
+    <ClCompile Include="Externals\imgui\imgui.cpp" />
+    <ClCompile Include="Externals\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
+    <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Editor\editor_camera.cpp" />
+    <ClCompile Include="Renderer\Debug\grid_renderer.cpp" />
+    <ClCompile Include="Externals\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Externals\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Scene\scene_session.cpp" />
+    <ClCompile Include="Renderer\render_target.cpp" />
+  </ItemGroup>
+  <!-- ================= HEADERS ================= -->
+  <ItemGroup>
+    <ClInclude Include="shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Importers\ModelLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\MeshRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\registry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\components.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Systems\render_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\input_map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\input_state.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\input_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\input_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <!-- IMGUI HEADERS -->
+    <ClInclude Include="..\..\..\..\..\..\Libraries\imgui\backends\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="Editor\editor.h" />
+    <ClInclude Include="Externals\imgui\backend\imgui_impl_glfw.h" />
+    <ClInclude Include="Input\input.h" />
+    <ClInclude Include="Input\input_action.h" />
+    <ClInclude Include="Input\input_map.h" />
+    <ClInclude Include="Input\input_state.h" />
+    <ClInclude Include="Input\input_system.h" />
+    <ClInclude Include="Input\input_utils.h" />
+    <ClInclude Include="Scene\scene.h" />
+    <ClInclude Include="Editor\ui_manager.h" />
+    <ClInclude Include="Externals\imgui\imconfig.h" />
+    <ClInclude Include="Externals\imgui\imgui.h" />
+    <ClInclude Include="Externals\imgui\imgui_internal.h" />
+    <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
+    <ClInclude Include="Externals\imgui\imstb_textedit.h" />
+    <ClInclude Include="Externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="Editor\editor_camera.h" />
+    <ClInclude Include="Renderer\Debug\grid_renderer.h" />
+    <ClInclude Include="Externals\imgui\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="Externals\imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="Externals\imgui\imstb_textedit.h" />
+    <ClInclude Include="Scene\scene_session.h" />
+    <ClInclude Include="Scene\scene_session.h" />
+    <ClInclude Include="Renderer\render_target.h" />
+  </ItemGroup>
+</Project>

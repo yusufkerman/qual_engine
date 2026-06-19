@@ -1,0 +1,53 @@
+#pragma once
+
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+
+#include "editor_camera.h"
+
+class scene;
+
+enum class EngineMode
+{
+    EDITOR,
+    PLAY
+};
+
+class Editor
+{
+public:
+    EditorCamera editorCamera;
+
+    glm::vec2 sceneViewportSize = { 800.0f, 600.0f };
+    glm::vec2 gameViewportSize = { 800.0f, 600.0f };
+
+    bool sceneViewportHovered = false;
+    bool gameViewportHovered = false;
+
+    EngineMode mode = EngineMode::EDITOR;
+
+    void init(GLFWwindow* window);
+    void update(scene& scene);
+    void renderUI(scene& scene);
+
+    void setSceneTexture(unsigned int tex) { sceneTexture = tex; }
+    void setGameTexture(unsigned int tex) { gameTexture = tex; }
+
+    void setSceneViewportSize(const glm::vec2& size) { sceneViewportSize = size; }
+    void setGameViewportSize(const glm::vec2& size) { gameViewportSize = size; }
+
+    void setScene(scene* s) { currentScene = s; }
+
+    void toggleMode()
+    {
+        mode = (mode == EngineMode::EDITOR)
+            ? EngineMode::PLAY
+            : EngineMode::EDITOR;
+    }
+
+private:
+    int selectedEntity = -1;
+    unsigned int sceneTexture = 0;
+    unsigned int gameTexture = 0;
+    scene* currentScene = nullptr;
+};

@@ -1,0 +1,69 @@
+# =========================
+# Build klasörleri
+# =========================
+build/
+cmake-build-*/
+out/
+bin/
+obj/
+x64/
+x86/
+
+# =========================
+# IDE dosyaları
+# =========================
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# =========================
+# CMake
+# =========================
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# =========================
+# Derlenmiş dosyalar
+# =========================
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+*.pdb
+
+# =========================
+# Shader / runtime output (istersen)
+# =========================
+*.spv
+*.bin
+
+# =========================
+# Assimp / model cache (opsiyonel)
+# =========================
+*.assimp_cache
+
+# =========================
+# ImGui / imgui.ini
+# =========================
+imgui.ini
+
+# =========================
+# OS dosyaları
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Vendor / external libs (SADECE build ediliyorsa ignore et)
+# =========================
+# externals/  (eğer source olarak tutuyorsan BUNU AÇMA)
+# libs/
