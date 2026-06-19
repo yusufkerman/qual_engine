@@ -9,13 +9,18 @@
 
 #include "..\ECS\entity.h"
 
+
+#include "Panels/hierarchy_panel.h"
+#include "Panels/top_bar_panel.h"
+#include "Panels/inspector_panel.h"
+#include "Panels/scene_viewport_panel.h"
+#include "Panels/game_viewport_panel.h"
+
+#include "engine_mode.h"
+
+
 class scene;
 
-enum class EngineMode
-{
-    EDITOR,
-    PLAY
-};
 
 class Editor
 {
@@ -61,5 +66,12 @@ private:
     char renameBuffer[64] = "";
 
     std::vector<entity> deleteQueue;
+
+    //Panels
+	hierarchy_panel hierarchyPanel;
+	top_bar_panel topBarPanel;
+    inspector_panel inspectorPanel;
+    scene_viewport_panel sceneViewportPanel;
+    game_viewport_panel gameViewportPanel;
 
 };

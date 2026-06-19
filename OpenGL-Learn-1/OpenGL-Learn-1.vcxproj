@@ -38,7 +38,16 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)Externals\imgui;$(ProjectDir)Externals\imgui\backends;C:\Libraries\glad\include;C:\Libraries\glfw\include;C:\Libraries\glm;C:\dev\assimp-6.0.5\assimp_build\include;C:\dev\assimp-6.0.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(ProjectDir)Externals\imgui;
+        $(ProjectDir)Externals\imgui\backends;
+        C:\Libraries\glad\include;
+        C:\Libraries\glfw\include;
+        C:\Libraries\glm;
+        C:\dev\assimp-6.0.5\assimp_build\include;
+        C:\dev\assimp-6.0.5\include;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -60,11 +69,13 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\Libraries\glad\src\glad.c" />
     <ClCompile Include="ECS\registry.cpp" />
-    <!-- IMGUI CORE -->
-    <!-- ONLY ONE BACKEND SYSTEM (backend) -->
-    <!-- PROJECT -->
     <ClCompile Include="Editor\editor.cpp" />
     <ClCompile Include="Editor\editor_camera.cpp" />
+    <ClCompile Include="Editor\Panels\game_viewport_panel.cpp" />
+    <ClCompile Include="Editor\Panels\hierarchy_panel.cpp" />
+    <ClCompile Include="Editor\Panels\inspector_panel.cpp" />
+    <ClCompile Include="Editor\Panels\scene_viewport_panel.cpp" />
+    <ClCompile Include="Editor\Panels\top_bar_panel.cpp" />
     <ClCompile Include="Editor\ui_manager.cpp" />
     <ClCompile Include="Engine\engine.cpp" />
     <ClCompile Include="Engine\fly_camera.cpp" />
@@ -96,10 +107,14 @@
     <ClInclude Include="ECS\components.h" />
     <ClInclude Include="ECS\entity.h" />
     <ClInclude Include="ECS\registry.h" />
-    <!-- IMGUI -->
-    <!-- BACKEND ONLY -->
     <ClInclude Include="Editor\editor.h" />
     <ClInclude Include="Editor\editor_camera.h" />
+    <ClInclude Include="Editor\engine_mode.h" />
+    <ClInclude Include="Editor\Panels\game_viewport_panel.h" />
+    <ClInclude Include="Editor\Panels\hierarchy_panel.h" />
+    <ClInclude Include="Editor\Panels\inspector_panel.h" />
+    <ClInclude Include="Editor\Panels\scene_viewport_panel.h" />
+    <ClInclude Include="Editor\Panels\top_bar_panel.h" />
     <ClInclude Include="Editor\ui_manager.h" />
     <ClInclude Include="Engine\engine_context.h" />
     <ClInclude Include="Engine\engine.h" />
@@ -107,7 +122,6 @@
     <ClInclude Include="Externals\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="Externals\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="Externals\imgui\backend\imgui_impl_glfw.h" />
-    <!-- ENGINE -->
     <ClInclude Include="Externals\imgui\imconfig.h" />
     <ClInclude Include="Externals\imgui\imgui.h" />
     <ClInclude Include="Externals\imgui\imgui_internal.h" />
@@ -133,10 +147,14 @@
     <ClInclude Include="Renderer\render_target.h" />
     <ClInclude Include="sandbox.h" />
     <ClInclude Include="Scene\scene.h" />
-    <ClInclude Include="Scene\scene_session.h" />
+    <!-- ❌ DUPLICATE SİLİNDİ -->
     <ClInclude Include="Scene\scene_session.h" />
     <ClInclude Include="Systems\render_system.h" />
     <ClInclude Include="shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\fragment.glsl" />
+    <None Include="Shaders\vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
