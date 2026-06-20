@@ -13,8 +13,6 @@ void editor_pass::render(EngineContext& ctx)
     glClearColor(0.08f, 0.08f, 0.12f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ctx.shader->use();
-
     const glm::mat4 editorView = ctx.editor.editorCamera.getViewMatrix();
     const glm::mat4 editorProj = ctx.editor.editorCamera.getProjectionMatrix(
         (float)ctx.editorTarget.width / (float)ctx.editorTarget.height
@@ -23,7 +21,7 @@ void editor_pass::render(EngineContext& ctx)
     ctx.renderSystem.render(
         ctx.session.editor_scene().get_registry(),
         ctx.renderer,
-        *ctx.shader,
+        ctx.shaderManager,   // shader_manager
         editorView,
         editorProj
     );

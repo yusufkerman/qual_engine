@@ -19,7 +19,7 @@ std::string loadFile(const char* path)
     return ss.str();
 }
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+shader::shader(const char* vertexPath, const char* fragmentPath)
 {
     std::string vCode = loadFile(vertexPath);
     std::string fCode = loadFile(fragmentPath);
@@ -58,26 +58,26 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     glDeleteShader(fs);
 }
 
-void Shader::use()
+void shader::use()
 {
     glUseProgram(ID);
 }
 
-void Shader::setFloat(const std::string& name, float value)
+void shader::setFloat(const std::string& name, float value)
 {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setMat4(const std::string& name, const glm::mat4& mat)
+void shader::setMat4(const std::string& name, const glm::mat4& mat)
 {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-void Shader::setVec3(const std::string& name, const glm::vec3& value)
+void shader::setVec3(const std::string& name, const glm::vec3& value)
 {
     glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(value));
 }
-void Shader::setVec2(const std::string& name, const glm::vec2& value)
+void shader::setVec2(const std::string& name, const glm::vec2& value)
 {
     glUniform2f(glGetUniformLocation(ID, name.c_str()), value.x, value.y);
 }

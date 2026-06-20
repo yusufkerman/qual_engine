@@ -72,10 +72,21 @@ void MeshRenderer::DrawModel()
         glDrawElements(GL_TRIANGLES, m.indexCount, GL_UNSIGNED_INT, 0);
     }
 }
-void MeshRenderer::DrawMesh(int meshID)
+//void MeshRenderer::DrawMesh(int meshID)
+//{
+//    GPU_Mesh& m = GetMesh(meshID);
+//
+//    glBindVertexArray(m.VAO);
+//    glDrawElements(GL_TRIANGLES, m.indexCount, GL_UNSIGNED_INT, 0);
+//}
+void MeshRenderer::Draw(const render_item& item)
 {
-    GPU_Mesh& m = GetMesh(meshID);
+    GPU_Mesh& m = GetMesh(item.mesh_id);
 
     glBindVertexArray(m.VAO);
+
+    // şimdilik sadece model matrix
+    // shader setleme kısmı ileride material'a taşınacak
+
     glDrawElements(GL_TRIANGLES, m.indexCount, GL_UNSIGNED_INT, 0);
 }

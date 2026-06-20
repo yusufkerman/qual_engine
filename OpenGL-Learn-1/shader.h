@@ -4,11 +4,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
 
-class Shader {
+class shader {
 public:
     unsigned int ID;
 
-    Shader(const char* vertexPath, const char* fragmentPath);
+    shader(const char* vertexPath, const char* fragmentPath);
     void use();
     void setFloat(const std::string& name, float value);
     void setVec2(const std::string& name, const glm::vec2& value);

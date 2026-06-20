@@ -83,6 +83,8 @@ private:
     std::unordered_map<entity, camera_component> cameras;
     std::unordered_map<entity, light_component> lights;
     std::unordered_map<entity, name_component> names;
+    std::unordered_map<entity, bounds_component> bounds;     
+    std::unordered_map<entity, material_component> materials; 
 
     template<typename T>
     std::unordered_map<entity, T>& pool();
@@ -102,6 +104,8 @@ std::unordered_map<entity, T>& registry::pool()
     if constexpr (std::is_same_v<T, camera_component>) return cameras;
     if constexpr (std::is_same_v<T, light_component>) return lights;
     if constexpr (std::is_same_v<T, name_component>) return names;
+    if constexpr (std::is_same_v<T, bounds_component>) return bounds;     
+    if constexpr (std::is_same_v<T, material_component>) return materials; 
 
     static std::unordered_map<entity, T> dummy;
     return dummy;
@@ -115,6 +119,8 @@ const std::unordered_map<entity, T>& registry::pool() const
     if constexpr (std::is_same_v<T, camera_component>) return cameras;
     if constexpr (std::is_same_v<T, light_component>) return lights;
     if constexpr (std::is_same_v<T, name_component>) return names;
+    if constexpr (std::is_same_v<T, bounds_component>) return bounds;     
+    if constexpr (std::is_same_v<T, material_component>) return materials;
 
     static std::unordered_map<entity, T> dummy;
     return dummy;

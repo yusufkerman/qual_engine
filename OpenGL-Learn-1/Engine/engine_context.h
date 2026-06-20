@@ -14,11 +14,13 @@
 #include "../Systems/render_system.h"
 #include "../Scene/scene_session.h"
 #include "../Editor/ui_manager.h"
+#include "../shader_manager.h"
 
 #include <memory>
+#include "../Renderer/material_manager.h"
 
 struct GLFWwindow;
-class Shader;
+class shader_manager;
 
 struct EngineContext
 {
@@ -29,6 +31,8 @@ struct EngineContext
 
     float sensitivity = 0.002f;
     float moveSpeed = 0.10f;
+
+    unsigned int gridShaderID;
 
     InputState inputState;
     InputMap inputMap;
@@ -43,12 +47,13 @@ struct EngineContext
     RenderTarget gameTarget;
     ui_manager uiManager;
 
+    shader_manager shaderManager;
+    material_manager materialManager;
+
     render_system renderSystem;
     camera_system cameraSystem;
 
-    std::unique_ptr<Shader> shader;
-    std::unique_ptr<Shader> gridShader;
-
     EngineMode prevMode = EngineMode::EDITOR;
     fly_camera_state runtimeCameraState;
+
 };

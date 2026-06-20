@@ -24,6 +24,8 @@ void registry::remove_entity(entity e)
     cameras.erase(e);
     lights.erase(e);
     names.erase(e);
+    bounds.erase(e);    
+    materials.erase(e);
 }
 
 const std::unordered_set<entity>& registry::get_all_entities() const

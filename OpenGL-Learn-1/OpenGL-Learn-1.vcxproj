@@ -90,6 +90,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Importers\ModelLoader.cpp" />
     <ClCompile Include="Renderer\Debug\grid_renderer.cpp" />
+    <ClCompile Include="Renderer\material_manager.cpp" />
     <ClCompile Include="Renderer\MeshRenderer.cpp" />
     <ClCompile Include="Renderer\Passes\editor_pass.cpp" />
     <ClCompile Include="Renderer\Passes\game_pass.cpp" />
@@ -99,6 +100,7 @@
     <ClCompile Include="sandbox.cpp" />
     <ClCompile Include="Scene\scene.cpp" />
     <ClCompile Include="Scene\scene_session.cpp" />
+    <ClCompile Include="shader_manager.cpp" />
     <ClCompile Include="Systems\camera_system.cpp" />
     <ClCompile Include="Systems\render_system.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -142,16 +144,22 @@
     <ClInclude Include="Input\input_system.h" />
     <ClInclude Include="Input\input_utils.h" />
     <ClInclude Include="Renderer\Debug\grid_renderer.h" />
+    <ClInclude Include="Renderer\frustum.h" />
+    <ClInclude Include="Renderer\material.h" />
+    <ClInclude Include="Renderer\material_manager.h" />
     <ClInclude Include="Renderer\MeshRenderer.h" />
     <ClInclude Include="Renderer\Passes\editor_pass.h" />
     <ClInclude Include="Renderer\Passes\game_pass.h" />
     <ClInclude Include="Renderer\Passes\grid_pass.h" />
     <ClInclude Include="Renderer\Passes\ui_pass.h" />
+    <ClInclude Include="Renderer\render_item.h" />
+    <ClInclude Include="Renderer\render_queue.h" />
     <ClInclude Include="Renderer\render_target.h" />
     <ClInclude Include="sandbox.h" />
     <ClInclude Include="Scene\scene.h" />
     <!-- ❌ DUPLICATE SİLİNDİ -->
     <ClInclude Include="Scene\scene_session.h" />
+    <ClInclude Include="shader_manager.h" />
     <ClInclude Include="Systems\camera_system.h" />
     <ClInclude Include="Systems\render_system.h" />
     <ClInclude Include="shader.h" />

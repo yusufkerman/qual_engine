@@ -144,8 +144,17 @@ bool Engine::init(EngineContext& ctx)
     ctx.uiManager.init(ctx.window);
     ctx.grid.init();
 
-    ctx.shader = std::make_unique<Shader>("Shaders/vertex.glsl", "Shaders/fragment.glsl");
-    ctx.gridShader = std::make_unique<Shader>("Shaders/Debug/grid.vert", "Shaders/Debug/grid.frag");
+    unsigned int mainShader = ctx.shaderManager.load(
+        "Shaders/vertex.glsl",
+        "Shaders/fragment.glsl"
+    );
+
+    ctx.gridShaderID = ctx.shaderManager.load(
+        "Shaders/Debug/grid.vert",
+        "Shaders/Debug/grid.frag"
+    );
+
+
 
     ctx.editorTarget.create(1, 1);
     ctx.gameTarget.create(1, 1);
@@ -189,9 +198,6 @@ void Engine::render(EngineContext& ctx)
 void Engine::shutdown(EngineContext& ctx)
 {
     ctx.uiManager.shutdown();
-
-    ctx.shader.reset();
-    ctx.gridShader.reset();
 
     ctx.editorTarget.destroy();
     ctx.gameTarget.destroy();

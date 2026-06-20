@@ -4,7 +4,10 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <glm/glm.hpp>
+
 #include <iostream>
+#include <limits>
 
 // -------------------------
 // Vertex
@@ -43,6 +46,41 @@ static Vertex ProcessVertex(aiMesh* mesh, unsigned int i)
 }
 
 // -------------------------
+// Bounds (YENİ)
+// -------------------------
+static void ComputeBounds(Mesh& out)
+{
+    if (out.vertices.empty())
+    {
+        out.localCenter = glm::vec3(0.0f);
+        out.localRadius = 0.0f;
+        return;
+    }
+
+    glm::vec3 minB(std::numeric_limits<float>::max());
+    glm::vec3 maxB(std::numeric_limits<float>::lowest());
+
+    for (const auto& v : out.vertices)
+    {
+        glm::vec3 p(v.Position[0], v.Position[1], v.Position[2]);
+        minB = glm::min(minB, p);
+        maxB = glm::max(maxB, p);
+    }
+
+    out.localCenter = (minB + maxB) * 0.5f;
+
+    float maxDistSq = 0.0f;
+    for (const auto& v : out.vertices)
+    {
+        glm::vec3 p(v.Position[0], v.Position[1], v.Position[2]);
+        glm::vec3 diff = p - out.localCenter;
+        maxDistSq = glm::max(maxDistSq, glm::dot(diff, diff));
+    }
+
+    out.localRadius = glm::sqrt(maxDistSq);
+}
+
+// -------------------------
 // Mesh
 // -------------------------
 static Mesh ProcessMesh(aiMesh* mesh)
@@ -59,6 +97,8 @@ static Mesh ProcessMesh(aiMesh* mesh)
         for (unsigned int j = 0; j < face.mNumIndices; j++)
             out.indices.push_back(face.mIndices[j]);
     }
+
+    ComputeBounds(out); // YENİ
 
     return out;
 }

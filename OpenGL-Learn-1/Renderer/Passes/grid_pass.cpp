@@ -2,7 +2,6 @@
 
 #include "../../Engine/engine_context.h"
 #include "../../Engine/fly_camera.h"
-#include "../../shader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -10,10 +9,15 @@ void grid_pass::render(EngineContext& ctx)
 {
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    ctx.gridShader->use();
+    // =========================
+    // SHADER (NEW SYSTEM)
+    // =========================
+    shader& shader = ctx.shaderManager.get(ctx.gridShaderID);
+    shader.use();
 
     const glm::vec3& camPos = ctx.editor.editorCamera.position;
     const glm::vec3 gridForward = calc_forward(ctx.editor.editorCamera.rotation);
@@ -33,8 +37,8 @@ void grid_pass::render(EngineContext& ctx)
 
     const glm::mat4 invViewProj = glm::inverse(gridProj * gridView);
 
-    ctx.gridShader->setMat4("invViewProj", invViewProj);
-    ctx.gridShader->setVec3("cameraPos", camPos);
+    shader.setMat4("invViewProj", invViewProj);
+    shader.setVec3("cameraPos", camPos);
 
     ctx.grid.draw();
 

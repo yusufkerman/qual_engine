@@ -16,8 +16,6 @@ void game_pass::render(EngineContext& ctx)
     glClearColor(0.03f, 0.03f, 0.05f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ctx.shader->use();
-
     scene& gameScene = ctx.session.game_scene();
     const entity gameCam = gameScene.get_active_camera();
 
@@ -28,15 +26,15 @@ void game_pass::render(EngineContext& ctx)
 
         if (t && c)
         {
-            const glm::vec3 forward = calc_forward(t->rotation);
+            glm::vec3 forward = calc_forward(t->rotation);
 
-            const glm::mat4 gameView = glm::lookAt(
+            glm::mat4 gameView = glm::lookAt(
                 t->position,
                 t->position + forward,
                 glm::vec3(0, 1, 0)
             );
 
-            const glm::mat4 gameProj = glm::perspective(
+            glm::mat4 gameProj = glm::perspective(
                 glm::radians(c->fov),
                 (float)ctx.gameTarget.width / (float)ctx.gameTarget.height,
                 c->nearPlane,
@@ -46,7 +44,7 @@ void game_pass::render(EngineContext& ctx)
             ctx.renderSystem.render(
                 gameScene.get_registry(),
                 ctx.renderer,
-                *ctx.shader,
+                ctx.shaderManager,
                 gameView,
                 gameProj
             );

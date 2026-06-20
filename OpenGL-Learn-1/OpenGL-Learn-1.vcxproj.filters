@@ -64,6 +64,8 @@
     <ClCompile Include="Editor\Panels\scene_viewport_panel.cpp" />
     <ClCompile Include="Editor\Panels\top_bar_panel.cpp" />
     <ClCompile Include="Systems\camera_system.cpp" />
+    <ClCompile Include="shader_manager.cpp" />
+    <ClCompile Include="Renderer\material_manager.cpp" />
   </ItemGroup>
   <!-- ================= HEADERS ================= -->
   <ItemGroup>
@@ -152,6 +154,12 @@
     <ClInclude Include="Editor\Panels\scene_viewport_panel.h" />
     <ClInclude Include="Editor\Panels\top_bar_panel.h" />
     <ClInclude Include="Systems\camera_system.h" />
+    <ClInclude Include="Renderer\render_item.h" />
+    <ClInclude Include="Renderer\render_queue.h" />
+    <ClInclude Include="shader_manager.h" />
+    <ClInclude Include="Renderer\frustum.h" />
+    <ClInclude Include="Renderer\material.h" />
+    <ClInclude Include="Renderer\material_manager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.glsl" />

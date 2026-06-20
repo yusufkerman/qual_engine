@@ -8,7 +8,6 @@
 void sandbox_load_default_scene(EngineContext& ctx)
 {
     scene& editorScene = ctx.session.editor_scene();
-
     ctx.editor.setScene(&editorScene);
 
     // =========================
@@ -16,6 +15,14 @@ void sandbox_load_default_scene(EngineContext& ctx)
     // =========================
     Model model = ModelLoader::Load("Assets/model1.FBX");
     unsigned int meshID = ctx.renderer.UploadModel(model);
+
+    // MATERIAL (örnek)
+    material mat;
+    mat.shader_id = 0;
+    mat.base_color = glm::vec3(1.0f, 1.0f, 1.0f);
+    mat.diffuse_texture = 0;
+
+    unsigned int materialID = ctx.materialManager.create(mat);
 
     // =========================
     // CHAIR ENTITY
@@ -40,13 +47,26 @@ void sandbox_load_default_scene(EngineContext& ctx)
         mesh_component{ meshID }
     );
 
+    editorScene.get_registry().add_component<material_component>(
+        chairEntity,
+        material_component{ materialID }
+    );
+
+    editorScene.get_registry().add_component<bounds_component>(
+        chairEntity,
+        bounds_component{
+            model.meshes[0].localCenter,
+            model.meshes[0].localRadius
+        }
+    );
+
     editorScene.get_registry().add_component<name_component>(
         chairEntity,
         name_component{ "Chair" }
     );
 
     // =========================
-    // GAME CAMERA
+    // CAMERA
     // =========================
     entity gameCameraEntity = editorScene.create_entity();
 
@@ -75,7 +95,7 @@ void sandbox_load_default_scene(EngineContext& ctx)
     );
 
     // =========================
-    // LIGHT ENTITY
+    // LIGHT
     // =========================
     entity lightEntity = editorScene.create_entity();
 
