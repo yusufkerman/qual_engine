@@ -18,21 +18,24 @@ void sandbox_load_default_scene(EngineContext& ctx)
     unsigned int meshID = ctx.renderer.UploadModel(model);
 
     // =========================================================
-    // MATERIAL (MANUAL PIPELINE)
-    // texture -> material -> material_manager
+    // MATERIAL
     // =========================================================
-    unsigned int texHandle = ctx.textureManager.load("Assets/Textures/rockModelBase.png");
-    unsigned int glTexID = ctx.textureManager.get(texHandle); // gerçek OpenGL texture id
+    unsigned int diffuseGL =
+        ctx.textureManager.get(ctx.textureManager.load("Assets/Textures/rockModelBase.png"));
+
+    unsigned int normalGL =
+        ctx.textureManager.get(ctx.textureManager.load("Assets/Textures/rockModelNormal.png"));
 
     material mat;
     mat.shader_id = 0;
-    mat.base_color = glm::vec3(1.0f);
-    mat.diffuse_texture = glTexID;   // 
+    mat.diffuse_texture = diffuseGL;
+    mat.normal_texture = normalGL;
+    mat.normal_strength = 1.0f;
 
     unsigned int materialID = ctx.materialManager.create(mat);
 
     // =========================================================
-    // CHAIR ENTITY
+    // MESH ENTITY (Chair / Rock Model)
     // =========================================================
     entity chairEntity = editorScene.create_entity();
 
@@ -69,7 +72,7 @@ void sandbox_load_default_scene(EngineContext& ctx)
 
     editorScene.get_registry().add_component<name_component>(
         chairEntity,
-        name_component{ "Chair" }
+        name_component{ "Rock" }
     );
 
     // =========================================================
@@ -102,26 +105,35 @@ void sandbox_load_default_scene(EngineContext& ctx)
     );
 
     // =========================================================
-    // LIGHT
+    // LIGHT (NEW CLEAN POINT LIGHT TEST)
     // =========================================================
     entity lightEntity = editorScene.create_entity();
 
     editorScene.get_registry().add_component<transform_component>(
         lightEntity,
         transform_component{
-            glm::vec3(25.0f, 110.0f, 5.0f),
-            glm::vec3(0.0f),
+            glm::vec3(25.0f, 110.0f, 5.0f),   // position
+            glm::vec3(1.0f),                 // rotation (unused for point light)
             glm::vec3(1.0f)
         }
     );
 
+    light_component pointLight;
+    pointLight.type = light_type::spot;
+    pointLight.color = glm::vec3(1.0f, 0.95f, 0.8f); // warm light
+    pointLight.intensity = 3.0f;
+    pointLight.range = 150.0f;
+    pointLight.inner_cone = 2.0f;
+	pointLight.outer_cone = 10.0f;
+    
+
     editorScene.get_registry().add_component<light_component>(
         lightEntity,
-        light_component{}
+        pointLight
     );
 
     editorScene.get_registry().add_component<name_component>(
         lightEntity,
-        name_component{ "Point Light" }
+        name_component{ "Test Point Light" }
     );
 }

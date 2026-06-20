@@ -53,6 +53,9 @@ int MeshRenderer::UploadModel(const Model& model)
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(2);
 
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(8 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+
         glBindVertexArray(0);
 
 

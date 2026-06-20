@@ -69,6 +69,7 @@
     <ClCompile Include="Importers\texture_loader.cpp" />
     <ClCompile Include="Renderer\texture_manager.cpp" />
     <ClCompile Include="Externals\stb\stb_image.cpp" />
+    <ClCompile Include="Systems\light_system.cpp" />
   </ItemGroup>
   <!-- ================= HEADERS ================= -->
   <ItemGroup>
@@ -166,6 +167,7 @@
     <ClInclude Include="Importers\texture_loader.h" />
     <ClInclude Include="Externals\stb\stb_image.h" />
     <ClInclude Include="Renderer\texture_manager.h" />
+    <ClInclude Include="Systems\light_system.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.glsl" />

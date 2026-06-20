@@ -105,6 +105,7 @@
     <ClCompile Include="Scene\scene_session.cpp" />
     <ClCompile Include="shader_manager.cpp" />
     <ClCompile Include="Systems\camera_system.cpp" />
+    <ClCompile Include="Systems\light_system.cpp" />
     <ClCompile Include="Systems\render_system.cpp" />
     <ClCompile Include="shader.cpp" />
   </ItemGroup>
@@ -167,6 +168,7 @@
     <ClInclude Include="Scene\scene_session.h" />
     <ClInclude Include="shader_manager.h" />
     <ClInclude Include="Systems\camera_system.h" />
+    <ClInclude Include="Systems\light_system.h" />
     <ClInclude Include="Systems\render_system.h" />
     <ClInclude Include="shader.h" />
   </ItemGroup>

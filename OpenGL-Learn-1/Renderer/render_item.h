@@ -12,4 +12,8 @@ struct render_item
     glm::vec3 base_color;
 
     unsigned int diffuse_texture;
+    unsigned int normal_texture = 0;
+    unsigned int specular_texture = 0;
+
+    float normal_strength = 1.0f;
 };

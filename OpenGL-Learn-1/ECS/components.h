@@ -4,6 +4,14 @@
 
 //Contains all components that can be attached to an entity
 
+//Light type for light component.
+enum class light_type
+{
+    directional,
+    point,
+    spot
+};
+
 struct transform_component {
     glm::vec3 position{ 0.0f };
     glm::vec3 rotation{ 0.0f };
@@ -34,8 +42,17 @@ struct camera_component
 
 struct light_component
 {
-    glm::vec3 color = glm::vec3(1.0f);
-    float     intensity = 1.0f;
+    light_type type = light_type::point;
+
+    glm::vec3 color{ 1.0f };
+    float intensity = 1.0f;
+
+    float range = 10.0f;
+
+    float inner_cone = 15.0f;
+    float outer_cone = 25.0f;
+
+    bool cast_shadows = false;
 };
 struct name_component {
     std::string name;

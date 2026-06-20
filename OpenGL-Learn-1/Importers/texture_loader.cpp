@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <iostream>
 #include "../Externals/stb/stb_image.h"
+#include <glm/common.hpp>
 
 unsigned int texture_loader::load(const char* path)
 {
@@ -44,8 +45,21 @@ unsigned int texture_loader::load(const char* path)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    float maxAniso = 0.0f;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAniso);
+
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR)
+        std::cout << "[TextureLoader] Anisotropy query failed, GL error: " << err << std::endl;
+
+    std::cout << "[TextureLoader] maxAniso = " << maxAniso << std::endl;
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, glm::min(8.0f, maxAniso));
 
     stbi_image_free(data);
 

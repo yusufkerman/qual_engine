@@ -8,6 +8,7 @@
 #include "../shader_manager.h"
 #include "../Renderer/material_manager.h"
 #include "../Renderer/material.h"
+#include "light_system.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -27,6 +28,9 @@ void render_system::render(
 {
     glm::mat4 viewProj = projection * view;
 
+    // FRAME LEVEL DATA (ONCE)
+    auto lights = light_system::extract(reg);
+
     auto items = extract(reg, materialManager, viewProj);
 
     render_queue queue;
@@ -39,6 +43,30 @@ void render_system::render(
         shader& shader = shaderManager.get(shaderID);
         shader.use();
 
+        // =========================
+        // LIGHT UPLOAD (FRAME LEVEL)
+        // =========================
+        shader.setInt("lightCount", (int)lights.size());
+
+        for (int i = 0; i < (int)lights.size() && i < 64; i++)
+        {
+            const auto& l = lights[i];
+
+            std::string base = "lights[" + std::to_string(i) + "]";
+
+            shader.setInt(base + ".type", l.type);
+            shader.setVec3(base + ".position", l.position);
+            shader.setVec3(base + ".direction", l.direction);
+            shader.setVec3(base + ".color", l.color);
+            shader.setFloat(base + ".intensity", l.intensity);
+            shader.setFloat(base + ".range", l.range);
+            shader.setFloat(base + ".inner_cone", l.inner_cone);
+            shader.setFloat(base + ".outer_cone", l.outer_cone);
+        }
+
+        // =========================
+        // CAMERA MATRICES
+        // =========================
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
 
@@ -47,15 +75,19 @@ void render_system::render(
             shader.setMat4("model", item.model);
             shader.setVec3("baseColor", item.base_color);
 
-            if (item.diffuse_texture != 0)
+            shader.setInt("useTexture", item.diffuse_texture != 0);
+            if (item.diffuse_texture)
             {
-                shader.setInt("useTexture", 1);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, item.diffuse_texture);
             }
-            else
+
+            shader.setInt("useNormalMap", item.normal_texture != 0);
+            if (item.normal_texture)
             {
-                shader.setInt("useTexture", 0);
+                shader.setFloat("normalStrength", item.normal_strength);
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, item.normal_texture);
             }
 
             renderer.Draw(item);
@@ -125,10 +157,10 @@ std::vector<render_item> render_system::extract(
         if (matComp)
         {
             const material& mat = materialManager.get(matComp->material_id);
-
             item.shader_id = mat.shader_id;
             item.base_color = mat.base_color;
             item.diffuse_texture = mat.diffuse_texture;
+            item.normal_texture = mat.normal_texture;
         }
         else
         {

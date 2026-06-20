@@ -157,6 +157,7 @@ bool Engine::init(EngineContext& ctx)
     shader& s = ctx.shaderManager.get(mainShader);
     s.use();
     s.setInt("diffuseTex", 0);
+    s.setInt("normalTex", 1);
 
 
     ctx.editorTarget.create(1, 1);

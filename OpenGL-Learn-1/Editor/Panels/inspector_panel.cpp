@@ -94,6 +94,14 @@ void inspector_panel::render(scene& scene,
 
             ImGui::ColorEdit3("Color", &l->color.x);
             ImGui::DragFloat("Intensity", &l->intensity, 0.1f);
+            ImGui::DragFloat("Range", &l->range, 1.0f);
+            ImGui::DragFloat("Inner Cone", &l->inner_cone, 0.5f, 0.0f, 89.0f);
+            ImGui::DragFloat("Outer Cone", &l->outer_cone, 0.5f, 0.0f, 90.0f);
+
+            const char* typeNames[] = { "Directional", "Point", "Spot" };
+            int typeIndex = (int)l->type;
+            if (ImGui::Combo("Type", &typeIndex, typeNames, 3))
+                l->type = (light_type)typeIndex;
         }
     }
 

@@ -42,6 +42,18 @@ static Vertex ProcessVertex(aiMesh* mesh, unsigned int i)
         v.TexCoord[1] = 0.0f;
     }
 
+
+    if (mesh->HasTangentsAndBitangents())
+    {
+        v.Tangent[0] = mesh->mTangents[i].x;
+        v.Tangent[1] = mesh->mTangents[i].y;
+        v.Tangent[2] = mesh->mTangents[i].z;
+    }
+    else
+    {
+        v.Tangent[0] = v.Tangent[1] = v.Tangent[2] = 0.0f;
+    }
+
     return v;
 }
 
@@ -131,7 +143,8 @@ Model ModelLoader::Load(const std::string& path)
         path,
         aiProcess_Triangulate |
         aiProcess_GenNormals |
-        aiProcess_JoinIdenticalVertices
+        aiProcess_JoinIdenticalVertices |
+        aiProcess_CalcTangentSpace
     );
 
     Model model;
