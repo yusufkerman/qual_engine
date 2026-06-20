@@ -145,8 +145,8 @@ bool Engine::init(EngineContext& ctx)
     ctx.grid.init();
 
     unsigned int mainShader = ctx.shaderManager.load(
-        "Shaders/vertex.glsl",
-        "Shaders/fragment.glsl"
+        "Shaders/default_vertex.glsl",
+        "Shaders/default_fragment.glsl"
     );
 
     ctx.gridShaderID = ctx.shaderManager.load(
@@ -154,6 +154,9 @@ bool Engine::init(EngineContext& ctx)
         "Shaders/Debug/grid.frag"
     );
 
+    shader& s = ctx.shaderManager.get(mainShader);
+    s.use();
+    s.setInt("diffuseTex", 0);
 
 
     ctx.editorTarget.create(1, 1);

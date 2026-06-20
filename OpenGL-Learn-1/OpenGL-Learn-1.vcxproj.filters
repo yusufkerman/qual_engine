@@ -66,6 +66,9 @@
     <ClCompile Include="Systems\camera_system.cpp" />
     <ClCompile Include="shader_manager.cpp" />
     <ClCompile Include="Renderer\material_manager.cpp" />
+    <ClCompile Include="Importers\texture_loader.cpp" />
+    <ClCompile Include="Renderer\texture_manager.cpp" />
+    <ClCompile Include="Externals\stb\stb_image.cpp" />
   </ItemGroup>
   <!-- ================= HEADERS ================= -->
   <ItemGroup>
@@ -160,9 +163,16 @@
     <ClInclude Include="Renderer\frustum.h" />
     <ClInclude Include="Renderer\material.h" />
     <ClInclude Include="Renderer\material_manager.h" />
+    <ClInclude Include="Importers\texture_loader.h" />
+    <ClInclude Include="Externals\stb\stb_image.h" />
+    <ClInclude Include="Renderer\texture_manager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.glsl" />
     <None Include="Shaders\vertex.glsl" />
+    <None Include="Shaders\default_vertex.glsl" />
+    <None Include="Shaders\default_fragment.glsl" />
+    <None Include="Shaders\Debug\grid.vert" />
+    <None Include="Shaders\Debug\grid.frag" />
   </ItemGroup>
 </Project>

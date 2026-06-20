@@ -45,10 +45,18 @@ void render_system::render(
         for (auto& item : batch)
         {
             shader.setMat4("model", item.model);
-            shader.setVec3("color", item.base_color);
+            shader.setVec3("baseColor", item.base_color);
 
             if (item.diffuse_texture != 0)
+            {
+                shader.setInt("useTexture", 1);
+                glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, item.diffuse_texture);
+            }
+            else
+            {
+                shader.setInt("useTexture", 0);
+            }
 
             renderer.Draw(item);
         }

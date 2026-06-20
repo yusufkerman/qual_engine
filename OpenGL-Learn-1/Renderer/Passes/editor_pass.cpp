@@ -22,6 +22,7 @@ void editor_pass::render(EngineContext& ctx)
         ctx.session.editor_scene().get_registry(),
         ctx.renderer,
         ctx.shaderManager,   // shader_manager
+        ctx.materialManager,
         editorView,
         editorProj
     );

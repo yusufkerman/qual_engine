@@ -18,6 +18,7 @@
 
 #include <memory>
 #include "../Renderer/material_manager.h"
+#include "../Renderer/texture_manager.h"
 
 struct GLFWwindow;
 class shader_manager;
@@ -49,6 +50,7 @@ struct EngineContext
 
     shader_manager shaderManager;
     material_manager materialManager;
+    texture_manager textureManager;
 
     render_system renderSystem;
     camera_system cameraSystem;

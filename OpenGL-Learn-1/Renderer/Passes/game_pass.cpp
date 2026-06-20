@@ -45,6 +45,7 @@ void game_pass::render(EngineContext& ctx)
                 gameScene.get_registry(),
                 ctx.renderer,
                 ctx.shaderManager,
+                ctx.materialManager,
                 gameView,
                 gameProj
             );

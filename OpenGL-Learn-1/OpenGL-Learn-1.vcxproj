@@ -85,6 +85,8 @@
     <ClCompile Include="Externals\imgui\imgui_draw.cpp" />
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Externals\stb\stb_image.cpp" />
+    <ClCompile Include="Importers\texture_loader.cpp" />
     <ClCompile Include="Input\input_map.cpp" />
     <ClCompile Include="Input\input_system.cpp" />
     <ClCompile Include="main.cpp" />
@@ -97,6 +99,7 @@
     <ClCompile Include="Renderer\Passes\grid_pass.cpp" />
     <ClCompile Include="Renderer\Passes\ui_pass.cpp" />
     <ClCompile Include="Renderer\render_target.cpp" />
+    <ClCompile Include="Renderer\texture_manager.cpp" />
     <ClCompile Include="sandbox.cpp" />
     <ClCompile Include="Scene\scene.cpp" />
     <ClCompile Include="Scene\scene_session.cpp" />
@@ -133,10 +136,12 @@
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="Externals\stb\stb_image.h" />
     <ClInclude Include="Graphics\mesh.h" />
     <ClInclude Include="Graphics\model.h" />
     <ClInclude Include="Graphics\vertex.h" />
     <ClInclude Include="Importers\ModelLoader.h" />
+    <ClInclude Include="Importers\texture_loader.h" />
     <ClInclude Include="Input\input.h" />
     <ClInclude Include="Input\input_action.h" />
     <ClInclude Include="Input\input_map.h" />
@@ -155,6 +160,7 @@
     <ClInclude Include="Renderer\render_item.h" />
     <ClInclude Include="Renderer\render_queue.h" />
     <ClInclude Include="Renderer\render_target.h" />
+    <ClInclude Include="Renderer\texture_manager.h" />
     <ClInclude Include="sandbox.h" />
     <ClInclude Include="Scene\scene.h" />
     <!-- ❌ DUPLICATE SİLİNDİ -->
@@ -165,6 +171,10 @@
     <ClInclude Include="shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\Debug\grid.frag" />
+    <None Include="Shaders\Debug\grid.vert" />
+    <None Include="Shaders\default_fragment.glsl" />
+    <None Include="Shaders\default_vertex.glsl" />
     <None Include="Shaders\fragment.glsl" />
     <None Include="Shaders\vertex.glsl" />
   </ItemGroup>

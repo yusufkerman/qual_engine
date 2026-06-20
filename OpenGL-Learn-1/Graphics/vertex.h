@@ -1,8 +1,10 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 struct Vertex
 {
-    float Position[3];   // x y z
-    float Normal[3];     // normal
-    float TexCoord[2];   // uv
+    glm::vec3 Position;
+    glm::vec3 Normal;
+    glm::vec2 TexCoord;
 };

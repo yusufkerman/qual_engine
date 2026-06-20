@@ -4,29 +4,36 @@
 #include "Importers/ModelLoader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 void sandbox_load_default_scene(EngineContext& ctx)
 {
     scene& editorScene = ctx.session.editor_scene();
     ctx.editor.setScene(&editorScene);
 
-    // =========================
+    // =========================================================
     // MODEL LOAD
-    // =========================
-    Model model = ModelLoader::Load("Assets/model1.FBX");
+    // =========================================================
+    Model model = ModelLoader::Load("Assets/rockModel.obj");
     unsigned int meshID = ctx.renderer.UploadModel(model);
 
-    // MATERIAL (örnek)
+    // =========================================================
+    // MATERIAL (MANUAL PIPELINE)
+    // texture -> material -> material_manager
+    // =========================================================
+    unsigned int texHandle = ctx.textureManager.load("Assets/Textures/rockModelBase.png");
+    unsigned int glTexID = ctx.textureManager.get(texHandle); // gerçek OpenGL texture id
+
     material mat;
     mat.shader_id = 0;
-    mat.base_color = glm::vec3(1.0f, 1.0f, 1.0f);
-    mat.diffuse_texture = 0;
+    mat.base_color = glm::vec3(1.0f);
+    mat.diffuse_texture = glTexID;   // 
 
     unsigned int materialID = ctx.materialManager.create(mat);
 
-    // =========================
+    // =========================================================
     // CHAIR ENTITY
-    // =========================
+    // =========================================================
     entity chairEntity = editorScene.create_entity();
 
     editorScene.get_registry().add_component<transform_component>(
@@ -65,9 +72,9 @@ void sandbox_load_default_scene(EngineContext& ctx)
         name_component{ "Chair" }
     );
 
-    // =========================
+    // =========================================================
     // CAMERA
-    // =========================
+    // =========================================================
     entity gameCameraEntity = editorScene.create_entity();
 
     editorScene.get_registry().add_component<transform_component>(
@@ -94,9 +101,9 @@ void sandbox_load_default_scene(EngineContext& ctx)
         name_component{ "Game Camera" }
     );
 
-    // =========================
+    // =========================================================
     // LIGHT
-    // =========================
+    // =========================================================
     entity lightEntity = editorScene.create_entity();
 
     editorScene.get_registry().add_component<transform_component>(
