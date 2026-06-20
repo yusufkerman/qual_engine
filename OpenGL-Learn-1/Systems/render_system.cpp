@@ -17,27 +17,42 @@ void render_system::render(
     shader.setMat4("view", view);
     shader.setMat4("projection", projection);
 
+    // =========================
+    // LIGHT PASS
+    // =========================
     for (const auto& [e, light] : reg.get_all<light_component>())
     {
         const transform_component* t = reg.get_component<transform_component>(e);
+
         if (t)
+        {
             shader.setVec3("lightPos", t->position);
+        }
     }
 
+    // =========================
+    // MESH PASS
+    // =========================
     for (const auto& [e, mesh] : reg.get_all<mesh_component>())
     {
-        const transform_component* transform = reg.get_component<transform_component>(e);
+        const transform_component* transform =
+            reg.get_component<transform_component>(e);
+
         if (!transform)
             continue;
 
-        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 model(1.0f);
+
         model = glm::translate(model, transform->position);
+
         model = glm::rotate(model, transform->rotation.x, glm::vec3(1, 0, 0));
         model = glm::rotate(model, transform->rotation.y, glm::vec3(0, 1, 0));
         model = glm::rotate(model, transform->rotation.z, glm::vec3(0, 0, 1));
+
         model = glm::scale(model, transform->scale);
 
         shader.setMat4("model", model);
+
         renderer.DrawMesh(mesh.mesh_id);
     }
 }

@@ -2,8 +2,9 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 #include <type_traits>
-#include <stdexcept>
+#include <utility>
 
 #include "entity.h"
 #include "components.h"
@@ -37,7 +38,7 @@ public:
     template<typename T>
     const T* get_component(entity e) const
     {
-        auto& p = pool<T>();
+        const auto& p = pool<T>();
         auto it = p.find(e);
         return it != p.end() ? &it->second : nullptr;
     }
@@ -68,12 +69,13 @@ public:
     }
 
     // =========================
-    // CLONE SYSTEM (OCP FIX)
+    // CLONE SYSTEM
     // =========================
     void clone_entity(entity e, registry& dst) const;
 
 private:
     entity next_entity = 1;
+
     std::unordered_set<entity> entities;
 
     std::unordered_map<entity, transform_component> transforms;
@@ -88,3 +90,32 @@ private:
     template<typename T>
     const std::unordered_map<entity, T>& pool() const;
 };
+
+// =========================
+// POOL DEFINITIONS
+// =========================
+template<typename T>
+std::unordered_map<entity, T>& registry::pool()
+{
+    if constexpr (std::is_same_v<T, transform_component>) return transforms;
+    if constexpr (std::is_same_v<T, mesh_component>) return meshes;
+    if constexpr (std::is_same_v<T, camera_component>) return cameras;
+    if constexpr (std::is_same_v<T, light_component>) return lights;
+    if constexpr (std::is_same_v<T, name_component>) return names;
+
+    static std::unordered_map<entity, T> dummy;
+    return dummy;
+}
+
+template<typename T>
+const std::unordered_map<entity, T>& registry::pool() const
+{
+    if constexpr (std::is_same_v<T, transform_component>) return transforms;
+    if constexpr (std::is_same_v<T, mesh_component>) return meshes;
+    if constexpr (std::is_same_v<T, camera_component>) return cameras;
+    if constexpr (std::is_same_v<T, light_component>) return lights;
+    if constexpr (std::is_same_v<T, name_component>) return names;
+
+    static std::unordered_map<entity, T> dummy;
+    return dummy;
+}

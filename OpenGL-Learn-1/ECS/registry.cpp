@@ -32,36 +32,7 @@ const std::unordered_set<entity>& registry::get_all_entities() const
 }
 
 // =========================
-// POOLS
-// =========================
-template<typename T>
-std::unordered_map<entity, T>& registry::pool()
-{
-    if constexpr (std::is_same_v<T, transform_component>) return transforms;
-    if constexpr (std::is_same_v<T, mesh_component>) return meshes;
-    if constexpr (std::is_same_v<T, camera_component>) return cameras;
-    if constexpr (std::is_same_v<T, light_component>) return lights;
-    if constexpr (std::is_same_v<T, name_component>) return names;
-
-    static std::unordered_map<entity, T> dummy;
-    return dummy;
-}
-
-template<typename T>
-const std::unordered_map<entity, T>& registry::pool() const
-{
-    if constexpr (std::is_same_v<T, transform_component>) return transforms;
-    if constexpr (std::is_same_v<T, mesh_component>) return meshes;
-    if constexpr (std::is_same_v<T, camera_component>) return cameras;
-    if constexpr (std::is_same_v<T, light_component>) return lights;
-    if constexpr (std::is_same_v<T, name_component>) return names;
-
-    static std::unordered_map<entity, T> dummy;
-    return dummy;
-}
-
-// =========================
-// OCP CLONE (AUTO)
+// CLONE SYSTEM
 // =========================
 void registry::clone_entity(entity e, registry& dst) const
 {

@@ -9,43 +9,55 @@ void Editor::init(GLFWwindow*) {}
 
 void Editor::update(scene&) {}
 
-
+// =========================
+// MAIN UI
+// =========================
 void Editor::renderUI(scene& scene)
 {
     auto& reg = scene.get_registry();
 
+    // =========================
     // TOP BAR
+    // =========================
     topBarPanel.render(mode);
 
+    // =========================
     // HIERARCHY
+    // =========================
     hierarchyPanel.render(
         scene,
         selectedEntity,
         renamingEntity,
         renameBuffer,
+        256,
         deleteQueue);
 
+    // =========================
     // SCENE VIEWPORT
+    // =========================
     sceneViewportPanel.render(
         sceneTexture,
         sceneViewportSize,
         sceneViewportHovered,
         editorCamera);
 
+    // =========================
     // GAME VIEWPORT
+    // =========================
     gameViewportPanel.render(
         gameTexture,
         gameViewportSize,
         gameViewportHovered);
 
+    // =========================
     // INSPECTOR
+    // =========================
     inspectorPanel.render(
         scene,
         selectedEntity);
 
-
     // =========================
-    // DELETE QUEUE PROCESS
+    // DELETE QUEUE
     // =========================
     for (entity e : deleteQueue)
     {

@@ -2,25 +2,21 @@
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <string.h>
 #include <vector>
+#include <string.h>
 
 #include "editor_camera.h"
+#include "engine_mode.h"
 
-#include "..\ECS\entity.h"
-
+#include "../ECS/entity.h"
 
 #include "Panels/hierarchy_panel.h"
 #include "Panels/top_bar_panel.h"
-#include "Panels/inspector_panel.h"
 #include "Panels/scene_viewport_panel.h"
 #include "Panels/game_viewport_panel.h"
-
-#include "engine_mode.h"
-
+#include "Panels/inspector_panel.h"
 
 class scene;
-
 
 class Editor
 {
@@ -63,15 +59,14 @@ private:
     scene* currentScene = nullptr;
 
     int renamingEntity = -1;
-    char renameBuffer[64] = "";
+
+    char renameBuffer[256] = {};
 
     std::vector<entity> deleteQueue;
 
-    //Panels
-	hierarchy_panel hierarchyPanel;
-	top_bar_panel topBarPanel;
-    inspector_panel inspectorPanel;
+    hierarchy_panel hierarchyPanel;
+    top_bar_panel topBarPanel;
     scene_viewport_panel sceneViewportPanel;
     game_viewport_panel gameViewportPanel;
-
+    inspector_panel inspectorPanel;
 };
