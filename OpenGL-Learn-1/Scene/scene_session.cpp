@@ -69,10 +69,16 @@ scene scene_session::clone_scene(const scene& src)
     const registry& srcReg = src.get_registry();
     registry& dstReg = newScene.get_registry();
 
+    std::vector<entity> clonedEntities;
+
     for (auto e : srcReg.get_all_entities())
     {
         srcReg.clone_entity(e, dstReg);
+        clonedEntities.push_back(e);
     }
+
+    newScene.set_entities(clonedEntities);          
+    newScene.set_active_camera(src.get_active_camera());
 
     return newScene;
 }

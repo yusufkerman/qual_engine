@@ -43,7 +43,7 @@ void game_pass::render(EngineContext& ctx)
 
             ctx.renderSystem.render(
                 gameScene.get_registry(),
-                ctx.session.editor_scene().get_light_batch(),
+                ctx.session.game_scene().get_light_batch(),
                 ctx.renderer,
                 ctx.shaderManager,
                 ctx.materialManager,

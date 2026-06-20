@@ -13,6 +13,9 @@ entity registry::create_entity()
 void registry::add_entity(entity e)
 {
     entities.insert(e);
+
+    if (e >= next_entity)
+        next_entity = e + 1;
 }
 
 void registry::remove_entity(entity e)
@@ -24,7 +27,7 @@ void registry::remove_entity(entity e)
     cameras.erase(e);
     lights.erase(e);
     names.erase(e);
-    bounds.erase(e);    
+    bounds.erase(e);
     materials.erase(e);
 }
 
@@ -51,6 +54,12 @@ void registry::clone_entity(entity e, registry& dst) const
 
     if (auto* c = get_component<light_component>(e))
         dst.add_component<light_component>(e, *c);
+
+    if (auto* c = get_component<material_component>(e))
+        dst.add_component<material_component>(e, *c);
+
+    if (auto* c = get_component<bounds_component>(e))
+        dst.add_component<bounds_component>(e, *c);
 
     if (auto* c = get_component<name_component>(e))
         dst.add_component<name_component>(e, *c);
