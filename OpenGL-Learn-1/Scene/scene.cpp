@@ -1,4 +1,5 @@
 #include "scene.h"
+#include <iostream>
 
 entity scene::create_entity()
 {
@@ -11,7 +12,6 @@ void scene::new_scene()
 {
     reg = registry();
     entities.clear();
-    activeCamera = 0;
 }
 
 registry& scene::get_registry()

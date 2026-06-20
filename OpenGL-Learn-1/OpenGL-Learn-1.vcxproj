@@ -99,6 +99,7 @@
     <ClCompile Include="sandbox.cpp" />
     <ClCompile Include="Scene\scene.cpp" />
     <ClCompile Include="Scene\scene_session.cpp" />
+    <ClCompile Include="Systems\camera_system.cpp" />
     <ClCompile Include="Systems\render_system.cpp" />
     <ClCompile Include="shader.cpp" />
   </ItemGroup>
@@ -151,6 +152,7 @@
     <ClInclude Include="Scene\scene.h" />
     <!-- ❌ DUPLICATE SİLİNDİ -->
     <ClInclude Include="Scene\scene_session.h" />
+    <ClInclude Include="Systems\camera_system.h" />
     <ClInclude Include="Systems\render_system.h" />
     <ClInclude Include="shader.h" />
   </ItemGroup>

@@ -171,6 +171,8 @@ void Engine::update(EngineContext& ctx)
         update_runtime_camera(ctx);
         ctx.session.sync_editor_from_runtime();
     }
+
+    ctx.cameraSystem.update(ctx.session.game_scene());
 }
 
 void Engine::render(EngineContext& ctx)

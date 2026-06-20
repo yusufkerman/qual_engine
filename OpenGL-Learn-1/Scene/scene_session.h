@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scene.h"
+#include "../Systems/camera_system.h"
 
 class scene_session {
 public:

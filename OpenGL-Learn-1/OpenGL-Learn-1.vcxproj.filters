@@ -58,6 +58,12 @@
     <ClCompile Include="Renderer\Passes\grid_pass.cpp" />
     <ClCompile Include="Renderer\Passes\game_pass.cpp" />
     <ClCompile Include="Renderer\Passes\ui_pass.cpp" />
+    <ClCompile Include="Editor\Panels\game_viewport_panel.cpp" />
+    <ClCompile Include="Editor\Panels\hierarchy_panel.cpp" />
+    <ClCompile Include="Editor\Panels\inspector_panel.cpp" />
+    <ClCompile Include="Editor\Panels\scene_viewport_panel.cpp" />
+    <ClCompile Include="Editor\Panels\top_bar_panel.cpp" />
+    <ClCompile Include="Systems\camera_system.cpp" />
   </ItemGroup>
   <!-- ================= HEADERS ================= -->
   <ItemGroup>
@@ -139,5 +145,16 @@
     <ClInclude Include="Renderer\Passes\ui_pass.h" />
     <ClInclude Include="ECS\component_pool_interface.h" />
     <ClInclude Include="ECS\component_pool.h" />
+    <ClInclude Include="Editor\engine_mode.h" />
+    <ClInclude Include="Editor\Panels\game_viewport_panel.h" />
+    <ClInclude Include="Editor\Panels\hierarchy_panel.h" />
+    <ClInclude Include="Editor\Panels\inspector_panel.h" />
+    <ClInclude Include="Editor\Panels\scene_viewport_panel.h" />
+    <ClInclude Include="Editor\Panels\top_bar_panel.h" />
+    <ClInclude Include="Systems\camera_system.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\fragment.glsl" />
+    <None Include="Shaders\vertex.glsl" />
   </ItemGroup>
 </Project>

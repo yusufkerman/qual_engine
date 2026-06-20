@@ -24,7 +24,8 @@ void hierarchy_panel::render(scene& scene,
     // CREATE OBJECT
     if (ImGui::Button("Create Object"))
     {
-        entity e = reg.create_entity();
+        entity e = scene.create_entity();
+        auto& reg = scene.get_registry();
 
         reg.add_component<transform_component>(e, transform_component{});
         reg.add_component<name_component>(e, name_component{ "New Entity" });

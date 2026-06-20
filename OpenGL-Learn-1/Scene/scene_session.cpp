@@ -62,7 +62,6 @@ void scene_session::sync_editor_from_runtime()
 
     editorScene = clone_scene(runtimeScene);
 }
-
 scene scene_session::clone_scene(const scene& src)
 {
     scene newScene;
@@ -75,6 +74,5 @@ scene scene_session::clone_scene(const scene& src)
         srcReg.clone_entity(e, dstReg);
     }
 
-    newScene.set_active_camera(src.get_active_camera());
     return newScene;
 }

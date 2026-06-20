@@ -42,7 +42,9 @@ struct EngineContext
     RenderTarget editorTarget;
     RenderTarget gameTarget;
     ui_manager uiManager;
+
     render_system renderSystem;
+    camera_system cameraSystem;
 
     std::unique_ptr<Shader> shader;
     std::unique_ptr<Shader> gridShader;

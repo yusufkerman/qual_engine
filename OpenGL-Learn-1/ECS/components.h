@@ -14,10 +14,14 @@ struct mesh_component {
     unsigned int mesh_id;
 };
 
-struct camera_component {
-    float fov;
-    float nearPlane;
-    float farPlane;
+struct camera_component
+{
+    float fov = 45.f;
+    float nearPlane = 0.1f;
+    float farPlane = 1000.f;
+
+    bool primary = false;   // kullanıcı işaretler
+    int priority = 0;       // ileride multi camera için
 };
 
 struct light_component

@@ -64,7 +64,8 @@ void sandbox_load_default_scene(EngineContext& ctx)
         camera_component{
             45.0f,
             0.1f,
-            1000.0f
+            1000.0f,
+            true
         }
     );
 
@@ -72,8 +73,6 @@ void sandbox_load_default_scene(EngineContext& ctx)
         gameCameraEntity,
         name_component{ "Game Camera" }
     );
-
-    editorScene.set_active_camera(gameCameraEntity);
 
     // =========================
     // LIGHT ENTITY
