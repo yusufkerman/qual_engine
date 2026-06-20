@@ -8,7 +8,6 @@
 #include "../shader_manager.h"
 #include "../Renderer/material_manager.h"
 #include "../Renderer/material.h"
-#include "light_system.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -19,6 +18,7 @@
 // =========================
 void render_system::render(
     const registry& reg,
+    const light_batch& lightBatch,
     MeshRenderer& renderer,
     shader_manager& shaderManager,
     const material_manager& materialManager,
@@ -28,9 +28,7 @@ void render_system::render(
 {
     glm::mat4 viewProj = projection * view;
 
-    // FRAME LEVEL DATA (ONCE)
-    auto lights = light_system::extract(reg);
-
+    const auto& lights = lightBatch.lights;
     auto items = extract(reg, materialManager, viewProj);
 
     render_queue queue;
@@ -43,15 +41,11 @@ void render_system::render(
         shader& shader = shaderManager.get(shaderID);
         shader.use();
 
-        // =========================
-        // LIGHT UPLOAD (FRAME LEVEL)
-        // =========================
         shader.setInt("lightCount", (int)lights.size());
 
         for (int i = 0; i < (int)lights.size() && i < 64; i++)
         {
             const auto& l = lights[i];
-
             std::string base = "lights[" + std::to_string(i) + "]";
 
             shader.setInt(base + ".type", l.type);
@@ -64,9 +58,6 @@ void render_system::render(
             shader.setFloat(base + ".outer_cone", l.outer_cone);
         }
 
-        // =========================
-        // CAMERA MATRICES
-        // =========================
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
 
@@ -129,8 +120,10 @@ std::vector<render_item> render_system::extract(
         glm::vec3 localCenter = bounds ? bounds->localCenter : glm::vec3(0.0f);
         glm::vec3 worldCenter = glm::vec3(model * glm::vec4(localCenter, 1.0f));
 
-        float maxScale = glm::max(transform->scale.x,
-            glm::max(transform->scale.y, transform->scale.z));
+        float maxScale = glm::max(
+            transform->scale.x,
+            glm::max(transform->scale.y, transform->scale.z)
+        );
 
         float baseRadius = bounds ? bounds->localRadius : transform->boundingRadius;
         float radius = baseRadius * maxScale + kCullBias;
@@ -150,7 +143,6 @@ std::vector<render_item> render_system::extract(
             continue;
 
         render_item item;
-
         item.model = model;
         item.mesh_id = mesh.mesh_id;
 

@@ -92,6 +92,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Importers\ModelLoader.cpp" />
     <ClCompile Include="Renderer\Debug\grid_renderer.cpp" />
+    <ClCompile Include="Renderer\light_batch.cpp" />
     <ClCompile Include="Renderer\material_manager.cpp" />
     <ClCompile Include="Renderer\MeshRenderer.cpp" />
     <ClCompile Include="Renderer\Passes\editor_pass.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="Input\input_utils.h" />
     <ClInclude Include="Renderer\Debug\grid_renderer.h" />
     <ClInclude Include="Renderer\frustum.h" />
+    <ClInclude Include="Renderer\light_batch.h" />
     <ClInclude Include="Renderer\material.h" />
     <ClInclude Include="Renderer\material_manager.h" />
     <ClInclude Include="Renderer\MeshRenderer.h" />

@@ -1,4 +1,6 @@
 #include "scene.h"
+#include "../Systems/light_system.h"
+
 #include <iostream>
 
 entity scene::create_entity()
@@ -12,6 +14,8 @@ void scene::new_scene()
 {
     reg = registry();
     entities.clear();
+    activeCamera = 0;
+    lights.clear();
 }
 
 registry& scene::get_registry()
@@ -42,4 +46,10 @@ void scene::set_active_camera(entity e)
 entity scene::get_active_camera() const
 {
     return activeCamera;
+}
+
+void scene::update_light_batch()
+{
+    lights.clear();
+    lights.lights = light_system::extract(reg);
 }

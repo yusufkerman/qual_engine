@@ -20,8 +20,9 @@ void editor_pass::render(EngineContext& ctx)
 
     ctx.renderSystem.render(
         ctx.session.editor_scene().get_registry(),
+        ctx.session.editor_scene().get_light_batch(),
         ctx.renderer,
-        ctx.shaderManager,   // shader_manager
+        ctx.shaderManager,
         ctx.materialManager,
         editorView,
         editorProj

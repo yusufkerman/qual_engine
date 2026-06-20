@@ -185,6 +185,9 @@ void Engine::update(EngineContext& ctx)
         ctx.session.sync_editor_from_runtime();
     }
 
+    ctx.session.editor_scene().update_light_batch();
+    ctx.session.game_scene().update_light_batch();
+
     ctx.cameraSystem.update(ctx.session.game_scene());
 }
 
