@@ -5,6 +5,7 @@
 
 #include "../Renderer/light_batch.h"
 #include "../Engine/Assets/asset_manager.h"
+#include "../Renderer/texture_manager.h"
 
 class registry;
 class MeshRenderer;
@@ -21,6 +22,7 @@ public:
         MeshRenderer& renderer,
         shader_manager& shaderManager,
         asset_manager& assetManager,
+        texture_manager& textureManager,
         const glm::mat4& view,
         const glm::mat4& projection
     );
@@ -29,6 +31,7 @@ private:
     std::vector<render_item> extract(
         const registry& reg,
         asset_manager& assetManager,
+        class texture_manager& textureManager,
         const glm::mat4& viewProj
     );
 };

@@ -33,3 +33,9 @@ unsigned int texture_manager::get(unsigned int id)
 
     return it->second;
 }
+bool texture_manager::has(unsigned int id) const
+{
+    // find() fonksiyonu haritada arama yapar ama ekrana hata basmaz.
+    // Eğer ID bulunduysa true, yoksa false döner.
+    return textures.find(id) != textures.end();
+}

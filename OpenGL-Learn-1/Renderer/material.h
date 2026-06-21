@@ -14,4 +14,6 @@ struct material
     unsigned int specular_texture = 0;
 
     float normal_strength = 1.0f;
+
+    glm::vec2 texture_scale{ 1.0f, 1.0f };
 };

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <unordered_map>
 #include <glm/glm.hpp>
 
 class EngineContext;
@@ -19,4 +20,7 @@ struct imported_model_result
 namespace asset_pipeline
 {
     imported_model_result import_model(EngineContext& ctx, const std::string& path);
+
+    asset_id import_texture(EngineContext& ctx, const std::string& path);
+
 }

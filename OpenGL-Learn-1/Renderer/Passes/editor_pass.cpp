@@ -27,6 +27,7 @@ void editor_pass::render(EngineContext& ctx)
         ctx.renderer,
         ctx.shaderManager,
         ctx.assetManager,
+        ctx.textureManager,
         editorView,
         editorProj
     );

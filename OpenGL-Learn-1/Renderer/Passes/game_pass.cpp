@@ -50,6 +50,7 @@ void game_pass::render(EngineContext& ctx)
                 ctx.renderer,
                 ctx.shaderManager,
                 ctx.assetManager,
+                ctx.textureManager,
                 gameView,
                 gameProj
             );
