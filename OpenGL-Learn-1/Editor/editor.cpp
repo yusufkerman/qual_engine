@@ -20,7 +20,7 @@ void Editor::renderUI(scene& scene, EngineContext& ctx)
     // =========================
     // TOP BAR
     // =========================
-    topBarPanel.render(mode);
+    topBarPanel.render(mode, scene, ctx);
 
     // =========================
     // HIERARCHY

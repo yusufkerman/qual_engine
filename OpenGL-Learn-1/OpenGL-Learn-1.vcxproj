@@ -99,6 +99,7 @@
     <ClCompile Include="Renderer\texture_manager.cpp" />
     <ClCompile Include="sandbox.cpp" />
     <ClCompile Include="Scene\scene.cpp" />
+    <ClCompile Include="Scene\scene_serializer.cpp" />
     <ClCompile Include="Scene\scene_session.cpp" />
     <ClCompile Include="shader_manager.cpp" />
     <ClCompile Include="Systems\camera_system.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="Externals\nfd\nfd.h" />
     <ClInclude Include="Externals\nfd\nfd.hpp" />
     <ClInclude Include="Externals\nfd\nfd_glfw3.h" />
+    <ClInclude Include="Externals\nlohmann\json.hpp" />
     <ClInclude Include="Externals\stb\stb_image.h" />
     <ClInclude Include="Graphics\mesh.h" />
     <ClInclude Include="Graphics\model.h" />
@@ -168,8 +170,10 @@
     <ClInclude Include="Renderer\render_target.h" />
     <ClInclude Include="Renderer\texture_manager.h" />
     <ClInclude Include="sandbox.h" />
+    <ClInclude Include="Scene\component_serialization.h" />
     <ClInclude Include="Scene\scene.h" />
     <!-- ❌ DUPLICATE SİLİNDİ -->
+    <ClInclude Include="Scene\scene_serializer.h" />
     <ClInclude Include="Scene\scene_session.h" />
     <ClInclude Include="shader_manager.h" />
     <ClInclude Include="Systems\camera_system.h" />

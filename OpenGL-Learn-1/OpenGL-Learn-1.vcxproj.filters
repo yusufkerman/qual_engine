@@ -76,6 +76,7 @@
     <ClCompile Include="Engine\Assets\asset_manager.cpp" />
     <ClCompile Include="Engine\asset_pipeline.cpp" />
     <ClCompile Include="Externals\nfd\nfd_win.cpp" />
+    <ClCompile Include="Scene\scene_serializer.cpp" />
   </ItemGroup>
   <!-- ================= HEADERS ================= -->
   <ItemGroup>
@@ -182,6 +183,9 @@
     <ClInclude Include="Externals\nfd\nfd.h" />
     <ClInclude Include="Externals\nfd\nfd_glfw3.h" />
     <ClInclude Include="Externals\nfd\nfd.hpp" />
+    <ClInclude Include="Externals\nlohmann\json.hpp" />
+    <ClInclude Include="Scene\scene_serializer.h" />
+    <ClInclude Include="Scene\component_serialization.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.glsl" />

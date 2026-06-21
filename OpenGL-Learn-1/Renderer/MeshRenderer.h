@@ -13,4 +13,6 @@ public:
 
     void Draw(const render_item& item);
 
+    void Clear();
+
 };

@@ -1,5 +1,6 @@
 #include "MeshRenderer.h"
 #include <glad/glad.h>
+#include <iostream>
 
 struct GPU_Mesh
 {
@@ -92,4 +93,22 @@ void MeshRenderer::Draw(const render_item& item)
     // shader setleme kısmı ileride material'a taşınacak
 
     glDrawElements(GL_TRIANGLES, m.indexCount, GL_UNSIGNED_INT, 0);
+}
+void MeshRenderer::Clear()
+{
+    // 1. Döngüyle ekran kartındaki tüm bufferları serbest bırakıyoruz
+    for (auto& m : gpuMeshes)
+    {
+        glDeleteVertexArrays(1, &m.VAO);
+        glDeleteBuffers(1, &m.VBO);
+        glDeleteBuffers(1, &m.EBO);
+    }
+
+    // 2. CPU tarafındaki listeyi boşaltıyoruz
+    gpuMeshes.clear();
+
+    // 3. ID sayacını sıfırlıyoruz ki yeni yüklenenler yine 0'dan başlasın
+    nextMeshID = 0;
+
+    std::cout << "[MeshRenderer] VRAM temizlendi, tüm meshler silindi." << std::endl;
 }
