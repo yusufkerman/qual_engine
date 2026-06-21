@@ -5,6 +5,7 @@
 #include "../../shader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include "skybox_pass.h"
 
 void game_pass::render(EngineContext& ctx)
 {
@@ -40,6 +41,8 @@ void game_pass::render(EngineContext& ctx)
                 c->nearPlane,
                 c->farPlane
             );
+
+            skybox_pass::render(ctx, gameView, gameProj);
 
             ctx.renderSystem.render(
                 gameScene.get_registry(),

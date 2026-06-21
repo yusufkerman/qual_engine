@@ -2,6 +2,7 @@
 
 #include "../../Engine/engine_context.h"
 #include "../../shader.h"
+#include "skybox_pass.h"
 
 void editor_pass::render(EngineContext& ctx)
 {
@@ -17,6 +18,8 @@ void editor_pass::render(EngineContext& ctx)
     const glm::mat4 editorProj = ctx.editor.editorCamera.getProjectionMatrix(
         (float)ctx.editorTarget.width / (float)ctx.editorTarget.height
     );
+
+    skybox_pass::render(ctx, editorView, editorProj);
 
     ctx.renderSystem.render(
         ctx.session.editor_scene().get_registry(),

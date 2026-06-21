@@ -34,6 +34,8 @@ struct EngineContext
     float moveSpeed = 0.10f;
 
     unsigned int gridShaderID;
+    unsigned int skyboxTexture = 0;
+    unsigned int skyboxShaderID = 0;
 
     InputState inputState;
     InputMap inputMap;

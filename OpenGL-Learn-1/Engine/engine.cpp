@@ -9,6 +9,8 @@
 #include "../Renderer/passes/grid_pass.h"
 #include "../Renderer/passes/game_pass.h"
 #include "../Renderer/passes/ui_pass.h"
+#include "../Importers/cubemap_loader.h"
+#include "../Renderer/Passes/skybox_pass.h"
 
 namespace
 {
@@ -154,6 +156,12 @@ bool Engine::init(EngineContext& ctx)
         "Shaders/Debug/grid.frag"
     );
 
+    ctx.skyboxShaderID = ctx.shaderManager.load(
+        "Shaders/Skybox/skybox.vert",
+        "Shaders/Skybox/skybox.frag"
+    );
+	
+
     shader& s = ctx.shaderManager.get(mainShader);
     s.use();
     s.setInt("diffuseTex", 0);
@@ -166,6 +174,10 @@ bool Engine::init(EngineContext& ctx)
     init_input(ctx);
 
     ctx.prevMode = ctx.editor.mode;
+
+    ctx.skyboxTexture = cubemap_loader::load_atlas({
+        "Assets/sky/skybox1.png"
+        });
 
     return true;
 }
@@ -193,13 +205,16 @@ void Engine::update(EngineContext& ctx)
 
 void Engine::render(EngineContext& ctx)
 {
+    glfwPollEvents();
+
     editor_pass::render(ctx);
     grid_pass::render(ctx);
+
     game_pass::render(ctx);
+
     ui_pass::render(ctx);
 
-    glfwSwapBuffers(ctx.window);
-    glfwPollEvents();
+    glfwSwapBuffers(ctx.window);   
 }
 
 void Engine::shutdown(EngineContext& ctx)

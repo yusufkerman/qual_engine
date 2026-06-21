@@ -71,6 +71,8 @@
     <ClCompile Include="Externals\stb\stb_image.cpp" />
     <ClCompile Include="Systems\light_system.cpp" />
     <ClCompile Include="Renderer\light_batch.cpp" />
+    <ClCompile Include="Renderer\Passes\skybox_pass.cpp" />
+    <ClCompile Include="Importers\cubemap_loader.cpp" />
   </ItemGroup>
   <!-- ================= HEADERS ================= -->
   <ItemGroup>
@@ -170,6 +172,8 @@
     <ClInclude Include="Renderer\texture_manager.h" />
     <ClInclude Include="Systems\light_system.h" />
     <ClInclude Include="Renderer\light_batch.h" />
+    <ClInclude Include="Renderer\Passes\skybox_pass.h" />
+    <ClInclude Include="Importers\cubemap_loader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.glsl" />
@@ -178,5 +182,7 @@
     <None Include="Shaders\default_fragment.glsl" />
     <None Include="Shaders\Debug\grid.vert" />
     <None Include="Shaders\Debug\grid.frag" />
+    <None Include="Shaders\Skybox\skybox.frag" />
+    <None Include="Shaders\Skybox\skybox.vert" />
   </ItemGroup>
 </Project>

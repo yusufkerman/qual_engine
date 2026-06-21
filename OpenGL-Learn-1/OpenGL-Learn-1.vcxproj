@@ -86,6 +86,7 @@
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Externals\stb\stb_image.cpp" />
+    <ClCompile Include="Importers\cubemap_loader.cpp" />
     <ClCompile Include="Importers\texture_loader.cpp" />
     <ClCompile Include="Input\input_map.cpp" />
     <ClCompile Include="Input\input_system.cpp" />
@@ -98,6 +99,7 @@
     <ClCompile Include="Renderer\Passes\editor_pass.cpp" />
     <ClCompile Include="Renderer\Passes\game_pass.cpp" />
     <ClCompile Include="Renderer\Passes\grid_pass.cpp" />
+    <ClCompile Include="Renderer\Passes\skybox_pass.cpp" />
     <ClCompile Include="Renderer\Passes\ui_pass.cpp" />
     <ClCompile Include="Renderer\render_target.cpp" />
     <ClCompile Include="Renderer\texture_manager.cpp" />
@@ -142,6 +144,7 @@
     <ClInclude Include="Graphics\mesh.h" />
     <ClInclude Include="Graphics\model.h" />
     <ClInclude Include="Graphics\vertex.h" />
+    <ClInclude Include="Importers\cubemap_loader.h" />
     <ClInclude Include="Importers\ModelLoader.h" />
     <ClInclude Include="Importers\texture_loader.h" />
     <ClInclude Include="Input\input.h" />
@@ -159,6 +162,7 @@
     <ClInclude Include="Renderer\Passes\editor_pass.h" />
     <ClInclude Include="Renderer\Passes\game_pass.h" />
     <ClInclude Include="Renderer\Passes\grid_pass.h" />
+    <ClInclude Include="Renderer\Passes\skybox_pass.h" />
     <ClInclude Include="Renderer\Passes\ui_pass.h" />
     <ClInclude Include="Renderer\render_item.h" />
     <ClInclude Include="Renderer\render_queue.h" />
@@ -180,6 +184,8 @@
     <None Include="Shaders\default_fragment.glsl" />
     <None Include="Shaders\default_vertex.glsl" />
     <None Include="Shaders\fragment.glsl" />
+    <None Include="Shaders\Skybox\skybox.frag" />
+    <None Include="Shaders\Skybox\skybox.vert" />
     <None Include="Shaders\vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
