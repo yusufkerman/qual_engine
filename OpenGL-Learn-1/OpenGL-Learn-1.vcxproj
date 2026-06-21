@@ -77,6 +77,8 @@
     <ClCompile Include="Editor\Panels\scene_viewport_panel.cpp" />
     <ClCompile Include="Editor\Panels\top_bar_panel.cpp" />
     <ClCompile Include="Editor\ui_manager.cpp" />
+    <ClCompile Include="Engine\Assets\asset_manager.cpp" />
+    <ClCompile Include="Engine\asset_pipeline.cpp" />
     <ClCompile Include="Engine\engine.cpp" />
     <ClCompile Include="Engine\fly_camera.cpp" />
     <ClCompile Include="Externals\imgui\backends\imgui_impl_glfw.cpp" />
@@ -128,6 +130,8 @@
     <ClInclude Include="Editor\Panels\scene_viewport_panel.h" />
     <ClInclude Include="Editor\Panels\top_bar_panel.h" />
     <ClInclude Include="Editor\ui_manager.h" />
+    <ClInclude Include="Engine\Assets\asset_manager.h" />
+    <ClInclude Include="Engine\asset_pipeline.h" />
     <ClInclude Include="Engine\engine_context.h" />
     <ClInclude Include="Engine\engine.h" />
     <ClInclude Include="Engine\fly_camera.h" />

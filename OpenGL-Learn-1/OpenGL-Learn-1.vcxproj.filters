@@ -73,6 +73,8 @@
     <ClCompile Include="Renderer\light_batch.cpp" />
     <ClCompile Include="Renderer\Passes\skybox_pass.cpp" />
     <ClCompile Include="Importers\cubemap_loader.cpp" />
+    <ClCompile Include="Engine\Assets\asset_manager.cpp" />
+    <ClCompile Include="Engine\asset_pipeline.cpp" />
   </ItemGroup>
   <!-- ================= HEADERS ================= -->
   <ItemGroup>
@@ -174,6 +176,8 @@
     <ClInclude Include="Renderer\light_batch.h" />
     <ClInclude Include="Renderer\Passes\skybox_pass.h" />
     <ClInclude Include="Importers\cubemap_loader.h" />
+    <ClInclude Include="Engine\Assets\asset_manager.h" />
+    <ClInclude Include="Engine\asset_pipeline.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.glsl" />

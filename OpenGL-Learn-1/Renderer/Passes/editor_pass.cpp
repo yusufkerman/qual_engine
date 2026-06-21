@@ -26,7 +26,7 @@ void editor_pass::render(EngineContext& ctx)
         ctx.session.editor_scene().get_light_batch(),
         ctx.renderer,
         ctx.shaderManager,
-        ctx.materialManager,
+        ctx.assetManager,
         editorView,
         editorProj
     );

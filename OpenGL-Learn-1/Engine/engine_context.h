@@ -15,6 +15,9 @@
 #include "../Scene/scene_session.h"
 #include "../Editor/ui_manager.h"
 #include "../shader_manager.h"
+#include "Assets/asset_manager.h"
+
+#include "../Importers/ModelLoader.h"
 
 #include <memory>
 #include "../Renderer/material_manager.h"
@@ -53,6 +56,9 @@ struct EngineContext
     shader_manager shaderManager;
     material_manager materialManager;
     texture_manager textureManager;
+    asset_manager assetManager;
+
+	ModelLoader modelLoader;
 
     render_system renderSystem;
     camera_system cameraSystem;

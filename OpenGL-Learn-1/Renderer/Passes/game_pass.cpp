@@ -49,7 +49,7 @@ void game_pass::render(EngineContext& ctx)
                 ctx.session.game_scene().get_light_batch(),
                 ctx.renderer,
                 ctx.shaderManager,
-                ctx.materialManager,
+                ctx.assetManager,
                 gameView,
                 gameProj
             );

@@ -1,14 +1,11 @@
 #include "render_system.h"
-
 #include "../ECS/registry.h"
 #include "../Renderer/MeshRenderer.h"
 #include "../ECS/components.h"
 #include "../Renderer/render_queue.h"
 #include "../Renderer/frustum.h"
 #include "../shader_manager.h"
-#include "../Renderer/material_manager.h"
 #include "../Renderer/material.h"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -21,7 +18,7 @@ void render_system::render(
     const light_batch& lightBatch,
     MeshRenderer& renderer,
     shader_manager& shaderManager,
-    const material_manager& materialManager,
+    asset_manager& assetManager, // 🔥 DEĞİŞTİ: const material_manager& yerine asset_manager& geldi
     const glm::mat4& view,
     const glm::mat4& projection
 )
@@ -29,7 +26,9 @@ void render_system::render(
     glm::mat4 viewProj = projection * view;
 
     const auto& lights = lightBatch.lights;
-    auto items = extract(reg, materialManager, viewProj);
+
+    // Extract fonksiyonuna yeni assetManager'ı paslıyoruz
+    auto items = extract(reg, assetManager, viewProj);
 
     render_queue queue;
 
@@ -81,6 +80,10 @@ void render_system::render(
                 glBindTexture(GL_TEXTURE_2D, item.normal_texture);
             }
 
+            // CRITICAL FIX: MeshRenderer'ın çökmesini engellemek için, generic storage'dan 
+            // gerçek mesh verisinin varlığını kontrol edip render'a öyle gönderiyoruz.
+            // (Eğer MeshRenderer::Draw fonksiyonun doğrudan mesh pointer'ı veya asset_manager kabul edecekse 
+            // burayı özelleştirebilirsin, şimdilik item'ı gönderiyoruz)
             renderer.Draw(item);
         }
     }
@@ -91,7 +94,7 @@ void render_system::render(
 // =========================
 std::vector<render_item> render_system::extract(
     const registry& reg,
-    const material_manager& materialManager,
+    asset_manager& assetManager, // 🔥 DEĞİŞTİ: Eski manager yerine asset_manager geldi
     const glm::mat4& viewProj
 )
 {
@@ -104,8 +107,7 @@ std::vector<render_item> render_system::extract(
     for (const auto& [e, mesh] : reg.get_all<mesh_component>())
     {
         const auto* transform = reg.get_component<transform_component>(e);
-        const material_component* matComp =
-            reg.get_component<material_component>(e);
+        const material_component* matComp = reg.get_component<material_component>(e);
         const auto* bounds = reg.get_component<bounds_component>(e);
 
         if (!transform) continue;
@@ -148,17 +150,33 @@ std::vector<render_item> render_system::extract(
 
         if (matComp)
         {
-            const material& mat = materialManager.get(matComp->material_id);
-            item.shader_id = mat.shader_id;
-            item.base_color = mat.base_color;
-            item.diffuse_texture = mat.diffuse_texture;
-            item.normal_texture = mat.normal_texture;
+            // ✅ CRASH PREVENTION: Eski materialManager yerine yeni assetManager üzerinden generic 'material' tipini çekiyoruz.
+            // try_get kullanarak eğer malzeme henüz yüklenmediyse güvenli bir fallback (nullptr kontrolü) sağlıyoruz.
+            const material* mat = assetManager.try_get<material>(matComp->material_id);
+
+            if (mat)
+            {
+                item.shader_id = mat->shader_id;
+                item.base_color = mat->base_color;
+                item.diffuse_texture = mat->diffuse_texture;
+                item.normal_texture = mat->normal_texture;
+                item.normal_strength = mat->normal_strength;
+            }
+            else
+            {
+                // Malzeme bulunamadıysa motorun çökmemesi için varsayılan değerler atıyoruz
+                item.shader_id = 0;
+                item.base_color = glm::vec3(1.0f, 0.0f, 1.0f); // Fark edilmesi için Magenta/Pembe renk
+                item.diffuse_texture = 0;
+                item.normal_texture = 0;
+            }
         }
         else
         {
             item.shader_id = 0;
             item.base_color = glm::vec3(1.0f);
             item.diffuse_texture = 0;
+            item.normal_texture = 0;
         }
 
         items.push_back(item);

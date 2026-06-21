@@ -62,7 +62,3 @@ struct bounds_component
     glm::vec3 localCenter{ 0.0f };   // mesh AABB merkezi, LOCAL space, pivot'a göre offset
     float localRadius = 0.0f;      // localCenter'dan en uzak vertex'e mesafe
 };
-struct skybox_component
-{
-    unsigned int cubemap_id = 0;
-};

@@ -1,7 +1,7 @@
 #include "sandbox.h"
 
 #include "Engine/engine_context.h"
-#include "Importers/ModelLoader.h"
+#include "Engine/asset_pipeline.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -12,35 +12,39 @@ void sandbox_load_default_scene(EngineContext& ctx)
     ctx.editor.setScene(&editorScene);
 
     // =========================================================
-    // MODEL LOAD
+    // MODEL LOAD + ASSET PIPELINE
     // =========================================================
-    Model model = ModelLoader::Load("Assets/rockModel.obj");
-    unsigned int meshID = ctx.renderer.UploadModel(model);
+    auto rockImport = asset_pipeline::import_model(ctx, "Assets/rockModel.obj");
+
+    if (rockImport.mesh_ids.empty())
+    {
+        std::cout << "[Sandbox] Rock model could not be imported.\n";
+        return;
+    }
+
+    unsigned int meshID = rockImport.mesh_ids.front();
 
     // =========================================================
-    // MATERIAL
+    // MATERIAL (GÜNCELLENMİŞ)
     // =========================================================
-    unsigned int diffuseGL =
-        ctx.textureManager.get(ctx.textureManager.load("Assets/Textures/rockModelBase.png"));
-
-    unsigned int normalGL =
-        ctx.textureManager.get(ctx.textureManager.load("Assets/Textures/rockModelNormal.png"));
+    unsigned int diffuseGL = ctx.textureManager.get(ctx.textureManager.load("Assets/Textures/rockModelBase.png"));
+    unsigned int normalGL = ctx.textureManager.get(ctx.textureManager.load("Assets/Textures/rockModelNormal.png"));
 
     material mat;
-    mat.shader_id = 0;
+    mat.shader_id = 0; // TODO: Eğer shaderManager da assetManager'a taşınacaksa onun ID'sini verin
     mat.diffuse_texture = diffuseGL;
     mat.normal_texture = normalGL;
     mat.normal_strength = 1.0f;
 
-    unsigned int materialID = ctx.materialManager.create(mat);
+    asset_id materialID = ctx.assetManager.add<material>(mat);
 
     // =========================================================
-    // MESH ENTITY (Chair / Rock Model)
+    // ENTITY (ROCK)
     // =========================================================
-    entity chairEntity = editorScene.create_entity();
+    entity rockEntity = editorScene.create_entity();
 
     editorScene.get_registry().add_component<transform_component>(
-        chairEntity,
+        rockEntity,
         transform_component{
             glm::vec3(0.0f),
             glm::vec3(
@@ -53,25 +57,29 @@ void sandbox_load_default_scene(EngineContext& ctx)
     );
 
     editorScene.get_registry().add_component<mesh_component>(
-        chairEntity,
+        rockEntity,
         mesh_component{ meshID }
     );
 
     editorScene.get_registry().add_component<material_component>(
-        chairEntity,
+        rockEntity,
         material_component{ materialID }
     );
 
+    // =========================================================
+    // FIX: MODEL ACCESS REMOVED (CRASH SOURCE FIXED)
+    // =========================================================
+
     editorScene.get_registry().add_component<bounds_component>(
-        chairEntity,
+        rockEntity,
         bounds_component{
-            model.meshes[0].localCenter,
-            model.meshes[0].localRadius
+            rockImport.boundsCenter,
+            rockImport.boundsRadius
         }
     );
 
     editorScene.get_registry().add_component<name_component>(
-        chairEntity,
+        rockEntity,
         name_component{ "Rock" }
     );
 
@@ -105,27 +113,26 @@ void sandbox_load_default_scene(EngineContext& ctx)
     );
 
     // =========================================================
-    // LIGHT (NEW CLEAN POINT LIGHT TEST)
+    // LIGHT
     // =========================================================
     entity lightEntity = editorScene.create_entity();
 
     editorScene.get_registry().add_component<transform_component>(
         lightEntity,
         transform_component{
-            glm::vec3(25.0f, 110.0f, 5.0f),   // position
-            glm::vec3(1.0f),                 // rotation (unused for point light)
+            glm::vec3(25.0f, 110.0f, 5.0f),
+            glm::vec3(1.0f),
             glm::vec3(1.0f)
         }
     );
 
     light_component pointLight;
     pointLight.type = light_type::spot;
-    pointLight.color = glm::vec3(1.0f, 0.95f, 0.8f); // warm light
+    pointLight.color = glm::vec3(1.0f, 0.95f, 0.8f);
     pointLight.intensity = 3.0f;
     pointLight.range = 150.0f;
     pointLight.inner_cone = 2.0f;
-	pointLight.outer_cone = 10.0f;
-    
+    pointLight.outer_cone = 10.0f;
 
     editorScene.get_registry().add_component<light_component>(
         lightEntity,
