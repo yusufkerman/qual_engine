@@ -1,5 +1,6 @@
 #include "editor.h"
 #include "../Scene/scene.h"
+#include "../Engine/engine_context.h"
 
 #include <imgui.h>
 #include <string>
@@ -12,7 +13,7 @@ void Editor::update(scene&) {}
 // =========================
 // MAIN UI
 // =========================
-void Editor::renderUI(scene& scene)
+void Editor::renderUI(scene& scene, EngineContext& ctx)
 {
     auto& reg = scene.get_registry();
 
@@ -54,7 +55,8 @@ void Editor::renderUI(scene& scene)
     // =========================
     inspectorPanel.render(
         scene,
-        selectedEntity);
+        selectedEntity,
+        ctx);
 
     // =========================
     // DELETE QUEUE

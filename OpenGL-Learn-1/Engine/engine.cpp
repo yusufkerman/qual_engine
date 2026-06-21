@@ -11,6 +11,8 @@
 #include "../Renderer/passes/ui_pass.h"
 #include "../Importers/cubemap_loader.h"
 #include "../Renderer/Passes/skybox_pass.h"
+#include "../Externals/nfd/nfd.h"
+#include <iostream>
 
 namespace
 {
@@ -179,6 +181,12 @@ bool Engine::init(EngineContext& ctx)
         "Assets/sky/skybox1.png"
         });
 
+
+    if (NFD_Init() != NFD_OKAY)
+    {
+        std::cout << "[NFD Error] Dosya gezgini baslatilamadi!" << std::endl;
+    }
+
     return true;
 }
 
@@ -230,6 +238,8 @@ void Engine::shutdown(EngineContext& ctx)
         glfwDestroyWindow(ctx.window);
         ctx.window = nullptr;
     }
+
+    NFD_Quit();
 
     glfwTerminate();
 }

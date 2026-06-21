@@ -75,6 +75,7 @@
     <ClCompile Include="Importers\cubemap_loader.cpp" />
     <ClCompile Include="Engine\Assets\asset_manager.cpp" />
     <ClCompile Include="Engine\asset_pipeline.cpp" />
+    <ClCompile Include="Externals\nfd\nfd_win.cpp" />
   </ItemGroup>
   <!-- ================= HEADERS ================= -->
   <ItemGroup>
@@ -178,6 +179,9 @@
     <ClInclude Include="Importers\cubemap_loader.h" />
     <ClInclude Include="Engine\Assets\asset_manager.h" />
     <ClInclude Include="Engine\asset_pipeline.h" />
+    <ClInclude Include="Externals\nfd\nfd.h" />
+    <ClInclude Include="Externals\nfd\nfd_glfw3.h" />
+    <ClInclude Include="Externals\nfd\nfd.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.glsl" />

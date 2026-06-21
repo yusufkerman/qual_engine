@@ -1,6 +1,8 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
+class GLFWwindow;
+
 #include <glm/glm.hpp>
 #include <vector>
 #include <string.h>
@@ -16,6 +18,7 @@
 #include "Panels/game_viewport_panel.h"
 #include "Panels/inspector_panel.h"
 
+class EngineContext;
 class scene;
 
 class Editor
@@ -33,7 +36,7 @@ public:
 
     void init(GLFWwindow* window);
     void update(scene& scene);
-    void renderUI(scene& scene);
+    void renderUI(scene& scene, EngineContext& ctx);
 
     void setSceneTexture(unsigned int tex) { sceneTexture = tex; }
     void setGameTexture(unsigned int tex) { gameTexture = tex; }

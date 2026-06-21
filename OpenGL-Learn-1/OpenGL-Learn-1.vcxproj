@@ -38,16 +38,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>
-        $(ProjectDir)Externals\imgui;
-        $(ProjectDir)Externals\imgui\backends;
-        C:\Libraries\glad\include;
-        C:\Libraries\glfw\include;
-        C:\Libraries\glm;
-        C:\dev\assimp-6.0.5\assimp_build\include;
-        C:\dev\assimp-6.0.5\include;
-        %(AdditionalIncludeDirectories)
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Externals\imgui;$(ProjectDir)Externals\imgui\backends;C:\Libraries\glad\include;C:\Libraries\glfw\include;C:\Libraries\glm;C:\dev\assimp-6.0.5\assimp_build\include;C:\dev\assimp-6.0.5\include;$(ProjectDir)Externals\nfd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -87,6 +78,7 @@
     <ClCompile Include="Externals\imgui\imgui_draw.cpp" />
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Externals\nfd\nfd_win.cpp" />
     <ClCompile Include="Externals\stb\stb_image.cpp" />
     <ClCompile Include="Importers\cubemap_loader.cpp" />
     <ClCompile Include="Importers\texture_loader.cpp" />
@@ -144,6 +136,9 @@
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="Externals\nfd\nfd.h" />
+    <ClInclude Include="Externals\nfd\nfd.hpp" />
+    <ClInclude Include="Externals\nfd\nfd_glfw3.h" />
     <ClInclude Include="Externals\stb\stb_image.h" />
     <ClInclude Include="Graphics\mesh.h" />
     <ClInclude Include="Graphics\model.h" />

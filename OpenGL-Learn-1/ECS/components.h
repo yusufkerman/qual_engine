@@ -23,6 +23,8 @@ struct transform_component {
 
 struct mesh_component {
     unsigned int mesh_id;
+
+    std::string model_path = "None";   // Inspector'da hangi dosyanın yüklü olduğunu görmek için
 };
 
 struct material_component

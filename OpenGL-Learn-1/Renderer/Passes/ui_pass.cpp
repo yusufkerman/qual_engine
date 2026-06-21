@@ -18,7 +18,7 @@ void ui_pass::render(EngineContext& ctx)
         ? ctx.session.runtime_scene()
         : ctx.session.editor_scene();
 
-    ctx.editor.renderUI(uiScene);
+    ctx.editor.renderUI(uiScene,ctx);
 
     ctx.uiManager.endFrame();
 }
