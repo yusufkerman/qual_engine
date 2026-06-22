@@ -29,6 +29,9 @@ void registry::remove_entity(entity e)
     names.erase(e);
     bounds.erase(e);
     materials.erase(e);
+
+    rigidbodies.erase(e);
+    colliders.erase(e);
 }
 
 const std::unordered_set<entity>& registry::get_all_entities() const
@@ -63,4 +66,7 @@ void registry::clone_entity(entity e, registry& dst) const
 
     if (auto* c = get_component<name_component>(e))
         dst.add_component<name_component>(e, *c);
+
+    if (auto* c = get_component<rigidbody_component>(e)) dst.add_component<rigidbody_component>(e, *c);
+    if (auto* c = get_component<collider_component>(e))  dst.add_component<collider_component>(e, *c);
 }

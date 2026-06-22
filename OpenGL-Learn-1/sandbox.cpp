@@ -1,8 +1,7 @@
+// Dosya Yolu: sandbox.cpp
 #include "sandbox.h"
-
 #include "Engine/engine_context.h"
 #include "Engine/asset_pipeline.h"
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
@@ -12,79 +11,114 @@ void sandbox_load_default_scene(EngineContext& ctx)
     ctx.editor.setScene(&editorScene);
 
     // =========================================================
-    // MODEL LOAD + ASSET PIPELINE
+    // MATERIAL (Sadece renk amaçlı basit bir materyal)
     // =========================================================
-    auto rockImport = asset_pipeline::import_model(ctx, "Assets/rockModel.obj");
-
-    if (rockImport.mesh_ids.empty())
-    {
-        std::cout << "[Sandbox] Rock model could not be imported.\n";
-        return;
-    }
-
-    unsigned int meshID = rockImport.mesh_ids.front();
-
-    // =========================================================
-    // MATERIAL (GÜNCELLENMİŞ)
-    // =========================================================
-    unsigned int diffuseGL = ctx.textureManager.get(ctx.textureManager.load("Assets/Textures/rockModelBase.png"));
-    unsigned int normalGL = ctx.textureManager.get(ctx.textureManager.load("Assets/Textures/rockModelNormal.png"));
-
     material mat;
-    mat.shader_id = 0; // TODO: Eğer shaderManager da assetManager'a taşınacaksa onun ID'sini verin
-    mat.diffuse_texture = diffuseGL;
-    mat.normal_texture = normalGL;
+    mat.shader_id = 0;
+    mat.diffuse_texture = 0; // Herhangi bir doku yüklemiyoruz, default beyaz kalabilir
+    mat.normal_texture = 0;
     mat.normal_strength = 1.0f;
 
     asset_id materialID = ctx.assetManager.add<material>(mat);
 
     // =========================================================
-    // ENTITY (ROCK)
+    // 1. PRIMITIVE: STATIC FLOOR (Küpü Plane gibi kullanıyoruz)
     // =========================================================
-    entity rockEntity = editorScene.create_entity();
+    auto cubeImport = asset_pipeline::create_cube_mesh(ctx);
+    entity floorEntity = editorScene.create_entity();
 
+    editorScene.get_registry().add_component<name_component>(
+        floorEntity,
+        name_component{ "Static Floor (Plane)" }
+    );
+
+    editorScene.get_registry().add_component<mesh_component>(
+        floorEntity,
+        mesh_component{ cubeImport.mesh_ids.front(), "internal://primitive_cube" }
+    );
+
+    editorScene.get_registry().add_component<material_component>(
+        floorEntity,
+        material_component{ materialID }
+    );
+
+    editorScene.get_registry().add_component<bounds_component>(
+        floorEntity,
+        bounds_component{ cubeImport.boundsCenter, cubeImport.boundsRadius }
+    );
+
+    // Küpü ince ve çok geniş yaparak bir zemin (Plane) haline getiriyoruz
     editorScene.get_registry().add_component<transform_component>(
-        rockEntity,
+        floorEntity,
         transform_component{
+            glm::vec3(0.0f, -20.0f, 0.0f), // Aşağıda konumlandı
             glm::vec3(0.0f),
-            glm::vec3(
-                glm::radians(-90.0f),
-                glm::radians(0.0f),
-                glm::radians(0.0f)
-            ),
+            glm::vec3(100.0f, 1.0f, 100.0f) // Geniş zemin ölçeği
+        }
+    );
+
+    // Jolt Fizik: Küpün scale değerinin yarısını extents olarak veriyoruz (50x0.5x50)
+    editorScene.get_registry().add_component<collider_component>(
+        floorEntity,
+        collider_component{ collider_type::box, glm::vec3(50.0f, 0.5f, 50.0f) }
+    );
+
+    editorScene.get_registry().add_component<rigidbody_component>(
+        floorEntity,
+        rigidbody_component{ motion_type::kinematic_body, 0.0f, 0.6f, 0.0f } // Statik, kımıldamaz
+    );
+
+    // =========================================================
+    // 2. PRIMITIVE: DYNAMIC SPHERE (Yukarıdan düşecek olan top)
+    // =========================================================
+    float sphereRadius = 2.0f;
+    auto sphereImport = asset_pipeline::create_sphere_mesh(ctx, sphereRadius);
+    entity sphereEntity = editorScene.create_entity();
+
+    editorScene.get_registry().add_component<name_component>(
+        sphereEntity,
+        name_component{ "Falling Sphere" }
+    );
+
+    editorScene.get_registry().add_component<mesh_component>(
+        sphereEntity,
+        mesh_component{ sphereImport.mesh_ids.front(), "internal://primitive_sphere_" + std::to_string(sphereRadius) }
+    );
+
+    editorScene.get_registry().add_component<material_component>(
+        sphereEntity,
+        material_component{ materialID }
+    );
+
+    editorScene.get_registry().add_component<bounds_component>(
+        sphereEntity,
+        bounds_component{ sphereImport.boundsCenter, sphereImport.boundsRadius }
+    );
+
+    // Küreyi zeminin yukarısında havada başlatıyoruz
+    editorScene.get_registry().add_component<transform_component>(
+        sphereEntity,
+        transform_component{
+            glm::vec3(0.0f, 15.0f, 0.0f), // Havada başladı
+            glm::vec3(0.0f),
             glm::vec3(1.0f)
         }
     );
 
-    editorScene.get_registry().add_component<mesh_component>(
-        rockEntity,
-        mesh_component{ meshID }
+    // Jolt Fizik: Küre collider yarıçapını ayarlıyoruz
+    editorScene.get_registry().add_component<collider_component>(
+        sphereEntity,
+        collider_component{ collider_type::sphere, glm::vec3(sphereRadius) }
     );
 
-    editorScene.get_registry().add_component<material_component>(
-        rockEntity,
-        material_component{ materialID }
-    );
-
-    // =========================================================
-    // FIX: MODEL ACCESS REMOVED (CRASH SOURCE FIXED)
-    // =========================================================
-
-    editorScene.get_registry().add_component<bounds_component>(
-        rockEntity,
-        bounds_component{
-            rockImport.boundsCenter,
-            rockImport.boundsRadius
-        }
-    );
-
-    editorScene.get_registry().add_component<name_component>(
-        rockEntity,
-        name_component{ "Rock" }
+    // Dinamik nesne: 5kg ağırlık ve zıplama (restitution) 0.5f verilerek sekmesi sağlandı
+    editorScene.get_registry().add_component<rigidbody_component>(
+        sphereEntity,
+        rigidbody_component{ motion_type::dynamic_body, 5.0f, 0.4f, 0.5f }
     );
 
     // =========================================================
-    // CAMERA
+    // CAMERA (Aynen Korundu)
     // =========================================================
     entity gameCameraEntity = editorScene.create_entity();
 
@@ -113,7 +147,7 @@ void sandbox_load_default_scene(EngineContext& ctx)
     );
 
     // =========================================================
-    // LIGHT
+    // LIGHT (Aynen Korundu)
     // =========================================================
     entity lightEntity = editorScene.create_entity();
 

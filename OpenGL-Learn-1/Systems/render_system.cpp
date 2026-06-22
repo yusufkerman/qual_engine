@@ -61,6 +61,7 @@ void render_system::render(
 
         for (auto& item : batch)
         {
+
             shader.setMat4("model", item.model);
             shader.setVec3("baseColor", item.base_color);
 
@@ -89,6 +90,7 @@ void render_system::render(
                 glActiveTexture(GL_TEXTURE1);
                 glBindTexture(GL_TEXTURE_2D, realNormalGLid);
             }
+
 
             renderer.Draw(item);
         }

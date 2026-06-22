@@ -23,4 +23,14 @@ namespace asset_pipeline
 
     asset_id import_texture(EngineContext& ctx, const std::string& path);
 
+    // --- YENİ PRİMİTİVE FONKSİYONLARI ---
+    // 1x1x1 boyutlarında statik bir küp üretip GPU / AssetManager'a yükler
+    imported_model_result create_cube_mesh(EngineContext& ctx);
+
+    // Belirtilen yarıçapa sahip bir küre üretip GPU / AssetManager'a yükler
+    imported_model_result create_sphere_mesh(EngineContext& ctx, float radius = 1.0f);
+
+    void clear_cache();
+
+
 }

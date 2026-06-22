@@ -17,6 +17,9 @@
 #include "../shader_manager.h"
 #include "Assets/asset_manager.h"
 
+#include "../Systems/physics_system.h"
+
+
 #include "../Importers/ModelLoader.h"
 
 #include <memory>
@@ -62,6 +65,7 @@ struct EngineContext
 
     render_system renderSystem;
     camera_system cameraSystem;
+    physics_system physicsSystem;
 
     EngineMode prevMode = EngineMode::EDITOR;
     fly_camera_state runtimeCameraState;

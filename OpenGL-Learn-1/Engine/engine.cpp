@@ -11,6 +11,7 @@
 #include "../Renderer/passes/ui_pass.h"
 #include "../Importers/cubemap_loader.h"
 #include "../Renderer/Passes/skybox_pass.h"
+#include "../Systems/physics_bridge.h"
 #include "../Externals/nfd/nfd.h"
 #include <iostream>
 
@@ -54,10 +55,18 @@ namespace
 
         glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-        if (ctx.editor.mode == EngineMode::PLAY)
+        if (ctx.editor.mode == EngineMode::PLAY) {
             ctx.session.play();
-        else
+            physics_bridge::create_physics_world(ctx, ctx.session.game_scene());
+        }
+        else {
+            // ⚠️ KRİTİK DÜZELTME:
+            // Önce runtime_scene'i el ile vererek Jolt dünyasını ve rigidBody bileşenlerini tamamen yok ediyoruz!
+            physics_bridge::destroy_physics_world(ctx, ctx.session.runtime_scene());
+
+            // Jolt tamamen temizlendikten sonra sahneyi snapshot'tan geri yükleyebiliriz
             ctx.session.stop();
+        }
 
         ctx.prevMode = ctx.editor.mode;
     }
@@ -148,6 +157,13 @@ bool Engine::init(EngineContext& ctx)
     ctx.uiManager.init(ctx.window);
     ctx.grid.init();
 
+    // Jolt Fizik Sistemini Başlatıyoruz
+    if (!ctx.physicsSystem.init())
+    {
+        std::cout << "[Jolt Error] Fizik sistemi baslatilamadi!" << std::endl;
+        return false;
+    }
+
     unsigned int mainShader = ctx.shaderManager.load(
         "Shaders/default_vertex.glsl",
         "Shaders/default_fragment.glsl"
@@ -202,6 +218,20 @@ void Engine::update(EngineContext& ctx)
     if (ctx.editor.mode == EngineMode::PLAY)
     {
         update_runtime_camera(ctx);
+
+        // ⚠️ 1. ADIM: Önce editör sahnesinde (Inspector'da) yaptığın değişiklikleri runtime (game) sahnesine aktar!
+        // (Eğer senin yapında tam tersi sync_runtime_from_editor gibi bir fonksiyon varsa buraya o gelmeli)
+
+        // 2. ADIM: Game scene'deki son transformları Jolt'a gönder
+        physics_bridge::sync_ecs_to_physics(ctx, ctx.session.game_scene());
+
+        // 3. ADIM: Jolt simülasyonu 1 kare ilerletsin
+        ctx.physicsSystem.update(0.016f);
+
+        // 4. ADIM: Jolt'ta oluşan yeni yerleri game_scene transformuna yaz
+        physics_bridge::sync_physics_to_ecs(ctx, ctx.session.game_scene());
+
+        // ⚠️ 5. ADIM: Runtime'da (Jolt ile) hareket eden topun pozisyonunu editöre bildir ki editör ekranında da topun düştüğünü görebilesin.
         ctx.session.sync_editor_from_runtime();
     }
 
@@ -232,6 +262,8 @@ void Engine::shutdown(EngineContext& ctx)
     ctx.editorTarget.destroy();
     ctx.gameTarget.destroy();
     ctx.grid.shutdown();
+
+    ctx.physicsSystem.shutdown();
 
     if (ctx.window)
     {

@@ -86,6 +86,9 @@ private:
     std::unordered_map<entity, bounds_component> bounds;     
     std::unordered_map<entity, material_component> materials; 
 
+    std::unordered_map<entity, rigidbody_component> rigidbodies;
+    std::unordered_map<entity, collider_component> colliders;
+
     template<typename T>
     std::unordered_map<entity, T>& pool();
 
@@ -107,6 +110,9 @@ std::unordered_map<entity, T>& registry::pool()
     if constexpr (std::is_same_v<T, bounds_component>) return bounds;     
     if constexpr (std::is_same_v<T, material_component>) return materials; 
 
+    if constexpr (std::is_same_v<T, rigidbody_component>) return rigidbodies;
+    if constexpr (std::is_same_v<T, collider_component>) return colliders;
+
     static std::unordered_map<entity, T> dummy;
     return dummy;
 }
@@ -121,6 +127,9 @@ const std::unordered_map<entity, T>& registry::pool() const
     if constexpr (std::is_same_v<T, name_component>) return names;
     if constexpr (std::is_same_v<T, bounds_component>) return bounds;     
     if constexpr (std::is_same_v<T, material_component>) return materials;
+
+    if constexpr (std::is_same_v<T, rigidbody_component>) return rigidbodies;
+    if constexpr (std::is_same_v<T, collider_component>) return colliders;
 
     static std::unordered_map<entity, T> dummy;
     return dummy;

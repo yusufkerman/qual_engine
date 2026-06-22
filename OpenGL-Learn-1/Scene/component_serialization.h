@@ -6,33 +6,41 @@
 #include "../ECS/registry.h"
 
 // ============================================================================
-// 1. GLM VEC3 İÇİN DOĞRUDAN DÖNÜŞÜM KURALLARI (Net ve Düz)
+// 1. GLM VEC2/VEC3 İÇİN GÜVENLİ DÖNÜŞÜM KURALLARI
 // ============================================================================
 namespace glm {
     inline void to_json(nlohmann::json& j, const vec3& v) {
         j = nlohmann::json{ {"x", v.x}, {"y", v.y}, {"z", v.z} };
     }
 
-    // 🌟 Vec2 Kaydetme Kuralları
     inline void to_json(nlohmann::json& j, const vec2& v) {
         j = nlohmann::json{ {"x", v.x}, {"y", v.y} };
     }
 
     inline void from_json(const nlohmann::json& j, vec3& v) {
-        v.x = j.at("x").get<float>();
-        v.y = j.at("y").get<float>();
-        v.z = j.at("z").get<float>();
+        try {
+            v.x = j.value("x", 0.0f);
+            v.y = j.value("y", 0.0f);
+            v.z = j.value("z", 0.0f);
+        }
+        catch (...) {
+            v = vec3(0.0f);
+        }
     }
 
-    
     inline void from_json(const nlohmann::json& j, vec2& v) {
-        v.x = j.at("x").get<float>();
-        v.y = j.at("y").get<float>();
+        try {
+            v.x = j.value("x", 0.0f);
+            v.y = j.value("y", 0.0f);
+        }
+        catch (...) {
+            v = vec2(0.0f);
+        }
     }
 }
 
 // ============================================================================
-// 2. ENUM (LIGHT TYPE) DÖNÜŞÜMÜ
+// 2. ENUM DÖNÜŞÜMLERİ
 // ============================================================================
 NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     {light_type::directional, "directional"},
@@ -40,24 +48,31 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     {light_type::spot, "spot"}
     })
 
+    NLOHMANN_JSON_SERIALIZE_ENUM(motion_type, {
+        {motion_type::static_body, "static"},
+        {motion_type::dynamic_body, "dynamic"},
+        {motion_type::kinematic_body, "kinematic"}
+        })
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(collider_type, {
+        {collider_type::box, "box"},
+        {collider_type::sphere, "sphere"}
+        })
+
 // ============================================================================
 // 3. TÜM BİLEŞENLERİN DOĞRUDAN JSON NESNESİNE EŞLENMESİ (Makro Sihri)
 // ============================================================================
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(name_component, name)
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(transform_component, position, rotation, scale, boundingRadius)
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(mesh_component, mesh_id, model_path)
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material_component, material_id)
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(camera_component, fov, nearPlane, farPlane, primary, priority)
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(light_component, type, color, intensity, range, inner_cone, outer_cone, cast_shadows)
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(bounds_component, localCenter, localRadius)
-
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material, shader_id, base_color, diffuse_texture, normal_texture, specular_texture, normal_strength, texture_scale)
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(name_component, name)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(transform_component, position, rotation, scale, boundingRadius)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(mesh_component, mesh_id, model_path)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material_component, material_id)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(camera_component, fov, nearPlane, farPlane, primary, priority)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(light_component, type, color, intensity, range, inner_cone, outer_cone, cast_shadows)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(bounds_component, localCenter, localRadius)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(rigidbody_component, motion, mass, friction, restitution)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(collider_component, type, extents)
 
 
 using EngineComponentList = std::tuple<
@@ -67,7 +82,9 @@ using EngineComponentList = std::tuple<
     material_component,
     camera_component,
     light_component,
-    bounds_component
+    bounds_component,
+    rigidbody_component,
+    collider_component 
 >;
 
 // 🛠️ Bir entity'de bu bileşen varsa JSON'a yazan jenerik yardımcı fonksiyon

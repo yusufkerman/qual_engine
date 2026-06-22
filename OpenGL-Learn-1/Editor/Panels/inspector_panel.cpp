@@ -53,6 +53,18 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& ct
         if (!reg.has_component<material_component>(e)) {
             if (ImGui::MenuItem("Material")) reg.add_component<material_component>(e);
         }
+        if (!reg.has_component<rigidbody_component>(e)) {
+            if (ImGui::MenuItem("Rigidbody")) {
+                // Varsayılan olarak dynamic, 1.0 kg kütle ve 0.5 sürtünme ile başlatıyoruz
+                reg.add_component<rigidbody_component>(e, rigidbody_component{ motion_type::dynamic_body, 1.0f, 0.5f });
+            }
+        }
+        if (!reg.has_component<collider_component>(e)) {
+            if (ImGui::MenuItem("Collider")) {
+                // Varsayılan olarak Box ve 1x1x1 boyutlarında başlatıyoruz
+                reg.add_component<collider_component>(e, collider_component{ collider_type::box, glm::vec3(1.0f) });
+            }
+        }
 
         ImGui::EndPopup();
     }
@@ -278,6 +290,122 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& ct
 
                     matComp->material_id = ctx.assetManager.add<material>(defaultMat);
                 }
+            }
+        }
+    }
+    // =========================================================
+    // RIGIDBODY / JOLT PHYSICS (YENİ)
+    // =========================================================
+    if (reg.has_component<rigidbody_component>(e))
+    {
+        if (ImGui::CollapsingHeader("Rigidbody (Jolt Physics)", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            auto* rb = reg.get_component<rigidbody_component>(e);
+
+            // Jolt BodyID bilgisini debug amaçlı gösterelim
+            if (!rb->body_id.IsInvalid()) {
+                ImGui::Text("Jolt Body ID: %u", rb->body_id.GetIndex());
+            }
+            else {
+                ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Status: Editor Mode (Fizik Pasif)");
+            }
+
+            ImGui::Separator();
+
+            // 1. Motion Type Seçimi (Static, Kinematic, Dynamic)
+            const char* motionNames[] = { "Static", "Kinematic", "Dynamic" };
+            int motionIndex = (int)rb->motion; // Component içindeki değişken adın (motion/motion_type)
+
+            if (ImGui::Combo("Motion Type", &motionIndex, motionNames, 3))
+            {
+                rb->motion = (motion_type)motionIndex;
+
+                // ⚠️ EĞER OYUN OYNANIRKEN DEĞİŞTİRİLİRSE:
+                // Jolt'un arkadaki body tipini de canlı değiştirmek gerekir. 
+                // Şimdilik editör modunda güvenle değişir, PLAY modunda kökten yeniden kurulur.
+            }
+
+            // 2. Kütle ve Sürtünme Ayarları
+            // Eğer nesne static ise kütle ayarını kapatmak (Disable) mantıklıdır
+            if (rb->motion == motion_type::static_body) {
+                ImGui::BeginDisabled();
+                float dummyMass = 0.0f;
+                ImGui::DragFloat("Mass (Kg)", &dummyMass, 0.0f);
+                ImGui::EndDisabled();
+            }
+            else {
+                ImGui::DragFloat("Mass (Kg)", &rb->mass, 0.05f, 0.01f, 10000.0f, "%.2f");
+            }
+
+            // Sürtünme katsayısı genellikle 0 ile 1 arasındadır
+            ImGui::SliderFloat("Friction", &rb->friction, 0.0f, 1.0f, "%.2f");
+
+            ImGui::Separator();
+
+            // Component Kaldırma Butonu
+            if (ImGui::Button("Remove Rigidbody"))
+            {
+                // Eğer oyun oynanırken kaldırılırsa Jolt dünyasından da silmek gerekir
+                if (ctx.editor.mode == EngineMode::PLAY && !rb->body_id.IsInvalid()) {
+                    auto* jolt_system = ctx.physicsSystem.get_jolt_system();
+                    jolt_system->GetBodyInterface().RemoveBody(rb->body_id);
+                    jolt_system->GetBodyInterface().DestroyBody(rb->body_id);
+                }
+                reg.remove_component<rigidbody_component>(e);
+            }
+        }
+    }
+    // =========================================================
+    // COLLIDER COMPONENT (YENİ)
+    // =========================================================
+    if (reg.has_component<collider_component>(e))
+    {
+        if (ImGui::CollapsingHeader("Collider (Jolt Shape)", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            auto* col = reg.get_component<collider_component>(e);
+
+            // 1. Collider Tipi Seçimi (Box, Sphere)
+            const char* colliderNames[] = { "Box", "Sphere" };
+            int typeIndex = (int)col->type;
+
+            if (ImGui::Combo("Collider Type", &typeIndex, colliderNames, 2))
+            {
+                col->type = (collider_type)typeIndex;
+
+                // Tip değiştiğinde kullanıcıyı şaşırtmamak için extents değerini sıfırlamayalım, 
+                // x değerini doğrudan radius kabul edeceğiz.
+            }
+
+            ImGui::Separator();
+
+            // 2. Tipe Göre Dinamik Boyutlandırma UI Kontrolleri
+            if (col->type == collider_type::box)
+            {
+                // Unity'deki Box Collider "Size" mantığı (Aslında Jolt Half-Extents bekler, 
+                // yani merkezin kenara olan uzaklığı. Buraya not düşmek editör kolaylığı sağlar)
+                ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Box Dimensions (Half-Extents)");
+                ImGui::DragFloat3("Extents", &col->extents.x, 0.05f, 0.01f, 100.0f, "%.2f");
+            }
+            else if (col->type == collider_type::sphere)
+            {
+                ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Sphere Dimensions");
+
+                // Küre için sadece tek bir yarıçap (Radius) yeterlidir, extents.x bileşenini kullanalım
+                ImGui::DragFloat("Radius", &col->extents.x, 0.05f, 0.01f, 100.0f, "%.2f");
+
+                // Yarıçap değiştiğinde y ve z'yi de senkron tutalım ki veri temiz kalsın
+                col->extents.y = col->extents.x;
+                col->extents.z = col->extents.x;
+            }
+
+            ImGui::Separator();
+
+            // Component Kaldırma Butonu
+            if (ImGui::Button("Remove Collider"))
+            {
+                // Güvenlik önlemi: Eğer PLAY modunda collider silinirse, Jolt'un patlamaması için 
+                // Rigidbody'nin de durumunu güncellemek gerekir. Editor modunda sorunsuz silinir.
+                reg.remove_component<collider_component>(e);
             }
         }
     }
