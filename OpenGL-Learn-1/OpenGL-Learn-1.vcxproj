@@ -49,11 +49,7 @@
         assimp-vc145-mt.lib;
         %(AdditionalDependencies)
       </AdditionalDependencies>
-      <AdditionalLibraryDirectories>
-        C:\Libraries\glfw\lib-vc2022;
-        C:\dev\assimp-6.0.5\assimp_build\lib\Release;
-        %(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Libraries\glfw\lib-vc2022;C:\dev\assimp-6.0.5\assimp_build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <!-- ================= FILES ================= -->

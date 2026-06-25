@@ -1,0 +1,211 @@
+{
+    "active_camera": 3,
+    "entities": [
+        {
+            "bounds_component": {
+                "localCenter": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "localRadius": 0.8660253882408142
+            },
+            "collider_component": {
+                "extents": {
+                    "x": 50.0,
+                    "y": 0.5,
+                    "z": 50.0
+                },
+                "type": "box"
+            },
+            "id": 1,
+            "material_component": {
+                "material_id": 1
+            },
+            "mesh_component": {
+                "mesh_id": 0,
+                "model_path": "internal://primitive_cube"
+            },
+            "name_component": {
+                "name": "Static Floor (Plane)"
+            },
+            "rigidbody_component": {
+                "friction": 0.6000000238418579,
+                "mass": 0.0,
+                "motion": "kinematic",
+                "restitution": 0.0
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": -20.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 100.0,
+                    "y": 1.0,
+                    "z": 100.0
+                }
+            }
+        },
+        {
+            "bounds_component": {
+                "localCenter": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "localRadius": 2.0
+            },
+            "collider_component": {
+                "extents": {
+                    "x": 2.0,
+                    "y": 2.0,
+                    "z": 2.0
+                },
+                "type": "sphere"
+            },
+            "id": 2,
+            "material_component": {
+                "material_id": 0
+            },
+            "mesh_component": {
+                "mesh_id": 1,
+                "model_path": "internal://primitive_sphere_2.000000"
+            },
+            "name_component": {
+                "name": "Falling Sphere"
+            },
+            "rigidbody_component": {
+                "friction": 0.4000000059604645,
+                "mass": 5.0,
+                "motion": "dynamic",
+                "restitution": 0.5
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": 15.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "camera_component": {
+                "farPlane": 1000.0,
+                "fov": 45.0,
+                "nearPlane": 0.10000000149011612,
+                "primary": true,
+                "priority": 0
+            },
+            "id": 3,
+            "name_component": {
+                "name": "Game Camera"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": -5.0,
+                    "z": 70.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "id": 4,
+            "light_component": {
+                "cast_shadows": false,
+                "color": {
+                    "x": 1.0,
+                    "y": 0.949999988079071,
+                    "z": 0.800000011920929
+                },
+                "inner_cone": 2.0,
+                "intensity": 3.0,
+                "outer_cone": 10.0,
+                "range": 150.0,
+                "type": "directional"
+            },
+            "name_component": {
+                "name": "Test Point Light"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 25.0,
+                    "y": 110.0,
+                    "z": 5.0
+                },
+                "rotation": {
+                    "x": -0.800000011920929,
+                    "y": 0.6000000238418579,
+                    "z": 1.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        }
+    ],
+    "materials": [
+        {
+            "data": {
+                "base_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "diffuse_texture": 1,
+                "normal_strength": 1.0,
+                "normal_texture": 0,
+                "shader_id": 0,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 1
+        }
+    ],
+    "scene_name": "PS1_Engine_Scene",
+    "textures": [
+        {
+            "id": 0,
+            "path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\OpenGL-Learn-1\\Assets\\Textures\\wooden_houseBase.png"
+        },
+        {
+            "id": 1,
+            "path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\OpenGL-Learn-1\\Assets\\Textures\\rockModelBase.png"
+        }
+    ]
+}

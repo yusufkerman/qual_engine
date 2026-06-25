@@ -73,7 +73,7 @@
             },
             "id": 2,
             "material_component": {
-                "material_id": 0
+                "material_id": 1
             },
             "mesh_component": {
                 "mesh_id": 1,
@@ -176,7 +176,27 @@
             }
         }
     ],
-    "materials": [],
+    "materials": [
+        {
+            "data": {
+                "base_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "diffuse_texture": 0,
+                "normal_strength": 1.0,
+                "normal_texture": 0,
+                "shader_id": 0,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 1
+        }
+    ],
     "scene_name": "PS1_Engine_Scene",
     "textures": []
 }

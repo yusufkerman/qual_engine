@@ -7,6 +7,7 @@ int main()
     // Window, renderer, input, scene session, editor vb. sistemler bu context içindedir.
     EngineContext ctx;
 
+
     // OpenGL, GLFW, ImGui, shaderlar ve render target'lar oluşturulur.
     // Başarısız olursa program sonlandırılır.
     if (!Engine::init(ctx))
