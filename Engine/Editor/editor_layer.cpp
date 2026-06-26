@@ -31,14 +31,18 @@ static void update_viewports(EngineContext& ctx)
     }
 }
 
-void editor_layer::update(EngineContext& ctx)
+void editor_layer::update(EngineContext& ctx, EditorContext& editorCtx)
 {
-    update_editor_camera(ctx);
+    if (editorCtx.focusedPanel == FocusedPanel::SceneViewport) 
+    {
+        update_editor_camera(ctx);
+    }
+
     update_viewports(ctx);
 
     ctx.editor.update(ctx.session.editor_scene());
 }
-void editor_layer::render(EngineContext& ctx)
+void editor_layer::render(EngineContext& ctx, EditorContext& editorCtx)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, ctx.screenW, ctx.screenH);
@@ -55,7 +59,7 @@ void editor_layer::render(EngineContext& ctx)
         ? ctx.session.runtime_scene()
         : ctx.session.editor_scene();
 
-    ctx.editor.renderUI(uiScene, ctx);
+    ctx.editor.renderUI(uiScene, ctx, editorCtx);
 
     ctx.uiManager.endFrame();
 }

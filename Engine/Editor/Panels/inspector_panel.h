@@ -2,12 +2,14 @@
 
 #include "../../Scene/scene.h"
 
-class EngineContext;
+struct EngineContext;
+struct EditorContext;
 
 class inspector_panel
 {
 public:
     void render(scene& scene,
         int selectedEntity, 
-        EngineContext& ctx);
+        EngineContext& engineCtx,
+        EditorContext& editorCtx);
 };

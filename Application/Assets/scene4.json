@@ -20,7 +20,7 @@
             },
             "id": 1,
             "material_component": {
-                "material_id": 0
+                "material_id": 7
             },
             "mesh_component": {
                 "mesh_id": 0,
@@ -49,7 +49,7 @@
                 },
                 "scale": {
                     "x": 100.0,
-                    "y": 1.0,
+                    "y": 9.600000381469727,
                     "z": 100.0
                 }
             }
@@ -164,14 +164,92 @@
                     "z": 5.0
                 },
                 "rotation": {
-                    "x": -0.800000011920929,
-                    "y": 0.6000000238418579,
+                    "x": -1.399999976158142,
+                    "y": -0.20000000298023224,
                     "z": 1.0
                 },
                 "scale": {
                     "x": 1.0,
                     "y": 1.0,
                     "z": 1.0
+                }
+            }
+        },
+        {
+            "bounds_component": {
+                "localCenter": {
+                    "x": -0.36028385162353516,
+                    "y": 5.83153772354126,
+                    "z": 0.00422358512878418
+                },
+                "localRadius": 8.544775009155273
+            },
+            "id": 5,
+            "material_component": {
+                "material_id": 4
+            },
+            "mesh_component": {
+                "mesh_id": 2,
+                "model_path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\wooden_house.obj"
+            },
+            "name_component": {
+                "name": "House"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 3.0999999046325684,
+                    "y": -6.0,
+                    "z": 20.799999237060547
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "bounds_component": {
+                "localCenter": {
+                    "x": -0.23139476776123047,
+                    "y": 11.11177921295166,
+                    "z": 1.5493144989013672
+                },
+                "localRadius": 29.462949752807617
+            },
+            "id": 6,
+            "material_component": {
+                "material_id": 6
+            },
+            "mesh_component": {
+                "mesh_id": 3,
+                "model_path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\rockModel.obj"
+            },
+            "name_component": {
+                "name": "New Entity"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": -6.800000190734863,
+                    "z": 10.899999618530273
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 0.10000000149011612,
+                    "y": 0.10000000149011612,
+                    "z": 0.10000000149011612
                 }
             }
         }
@@ -184,7 +262,83 @@
                     1.0,
                     1.0
                 ],
-                "diffuse_texture": 1,
+                "diffuse_texture": 0,
+                "normal_strength": 1.0,
+                "normal_texture": 1,
+                "shader_id": 0,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 7
+        },
+        {
+            "data": {
+                "base_color": [
+                    1.0,
+                    0.30882352590560913,
+                    0.30882352590560913
+                ],
+                "diffuse_texture": 0,
+                "normal_strength": 0.9580000042915344,
+                "normal_texture": 0,
+                "shader_id": 0,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 1
+        },
+        {
+            "data": {
+                "base_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "diffuse_texture": 2,
+                "normal_strength": 2.1510000228881836,
+                "normal_texture": 1,
+                "shader_id": 0,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 4
+        },
+        {
+            "data": {
+                "base_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "diffuse_texture": 3,
+                "normal_strength": 1.687000036239624,
+                "normal_texture": 4,
+                "shader_id": 0,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 6
+        },
+        {
+            "data": {
+                "base_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "diffuse_texture": 0,
                 "normal_strength": 1.0,
                 "normal_texture": 0,
                 "shader_id": 0,
@@ -195,25 +349,6 @@
                 ]
             },
             "id": 0
-        },
-        {
-            "data": {
-                "base_color": [
-                    1.0,
-                    0.0,
-                    0.0
-                ],
-                "diffuse_texture": 0,
-                "normal_strength": 2.4040000438690186,
-                "normal_texture": 0,
-                "shader_id": 0,
-                "specular_texture": 0,
-                "texture_scale": [
-                    1.0,
-                    1.0
-                ]
-            },
-            "id": 1
         }
     ],
     "scene_name": "PS1_Engine_Scene",
@@ -224,7 +359,19 @@
         },
         {
             "id": 1,
+            "path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\Textures\\wooden_houseNormal.png"
+        },
+        {
+            "id": 2,
+            "path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\Textures\\wooden_houseBase.png"
+        },
+        {
+            "id": 3,
             "path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\Textures\\rockModelBase.png"
+        },
+        {
+            "id": 4,
+            "path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\Textures\\rockModelNormal.png"
         }
     ]
 }

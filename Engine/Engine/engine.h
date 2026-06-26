@@ -5,7 +5,7 @@
 namespace Engine
 {
     bool init(EngineContext& ctx);
-    void update(EngineContext& ctx);
-    void render(EngineContext& ctx);
+    void update(EngineContext& ctx, EditorContext& editorCtx);
+    void render(EngineContext& ctx, EditorContext& editorCtx);
     void shutdown(EngineContext& ctx);
 }

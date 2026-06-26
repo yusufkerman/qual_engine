@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Editor/editor_camera.h"
+#include "../editor_context.h"
 
 class scene_viewport_panel
 {
@@ -9,5 +10,6 @@ public:
         unsigned int sceneTexture,
         glm::vec2& sceneViewportSize,
         bool& sceneViewportHovered,
-        EditorCamera& editorCamera);
+        EditorCamera& editorCamera,
+        EditorContext& ctx);
 };

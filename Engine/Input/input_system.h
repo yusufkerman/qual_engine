@@ -1,12 +1,16 @@
 #pragma once
 
+
 struct GLFWwindow;
 struct InputState;
 class InputMap;
 
+struct EngineContext;
+struct EditorContext;
+
 class InputSystem
 {
 public:
-    void update(GLFWwindow* window, InputState& state, InputMap& map);
+    void update(EngineContext& ctx, EditorContext& editorCtx);
 
 };

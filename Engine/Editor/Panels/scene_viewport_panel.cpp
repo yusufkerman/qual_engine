@@ -6,9 +6,16 @@ void scene_viewport_panel::render(
     unsigned int sceneTexture,
     glm::vec2& sceneViewportSize,
     bool& sceneViewportHovered,
-    EditorCamera& editorCamera)
+    EditorCamera& editorCamera,
+    EditorContext& ctx)
 {
     ImGui::Begin("Scene");
+
+    // Eğer kullanıcı şu an bu panele tıkladıysa veya bu panel aktifse bağlamı güncelle
+    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+    {
+        ctx.focusedPanel = FocusedPanel::SceneViewport;
+    }
 
     sceneViewportHovered =
         ImGui::IsWindowHovered(

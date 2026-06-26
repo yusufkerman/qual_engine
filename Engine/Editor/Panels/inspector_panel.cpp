@@ -12,11 +12,17 @@
 #include "../../Externals/nfd/nfd.h"
 #include <iostream>
 
-void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& ctx)
+void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& engineCtx, EditorContext& editorCtx)
 {
     auto& reg = scene.get_registry();
 
     ImGui::Begin("Inspector");
+
+    // Eğer kullanıcı şu an bu panele tıkladıysa veya bu panel aktifse bağlamı güncelle
+    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+    {
+        editorCtx.focusedPanel = FocusedPanel::Inspector;
+    }
 
     if (selectedEntity == -1)
     {
@@ -152,7 +158,7 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& ct
                     std::string selectedPath = outPath.get();
 
                     // Senin o meşhur pipeline fonksiyonunu tetikliyoruz
-                    auto importResult = asset_pipeline::import_model(ctx, selectedPath);
+                    auto importResult = asset_pipeline::import_model(engineCtx, selectedPath);
 
                     if (!importResult.mesh_ids.empty())
                     {
@@ -197,7 +203,7 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& ct
             auto* matComp = reg.get_component<material_component>(e);
 
             // Generic asset_manager'dan materyali çekiyoruz
-            material* mat = ctx.assetManager.try_get<material>(matComp->material_id);
+            material* mat = engineCtx.assetManager.try_get<material>(matComp->material_id);
 
             if (mat)
             {
@@ -208,9 +214,9 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& ct
                 if (ImGui::Button("Make Unique (Clone Material)"))
                 {
                     material clonedMat = *mat;
-                    asset_id newMatID = ctx.assetManager.add<material>(clonedMat);
+                    asset_id newMatID = engineCtx.assetManager.add<material>(clonedMat);
                     matComp->material_id = newMatID;
-                    mat = ctx.assetManager.try_get<material>(newMatID);
+                    mat = engineCtx.assetManager.try_get<material>(newMatID);
                 }
 
                 ImGui::Separator();
@@ -244,7 +250,7 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& ct
                     if (result == NFD_OKAY)
                     {
                         std::string texturePath = outPath.get();
-                        asset_id texID = asset_pipeline::import_texture(ctx, texturePath);
+                        asset_id texID = asset_pipeline::import_texture(engineCtx, texturePath);
                         if (texID != 0)
                         {
                             mat->diffuse_texture = texID;
@@ -266,7 +272,7 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& ct
                     if (result == NFD_OKAY)
                     {
                         std::string texturePath = outPath.get();
-                        asset_id texID = asset_pipeline::import_texture(ctx, texturePath);
+                        asset_id texID = asset_pipeline::import_texture(engineCtx, texturePath);
                         if (texID != 0)
                         {
                             mat->normal_texture = texID;
@@ -288,7 +294,7 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& ct
                     defaultMat.normal_texture = 0;
                     defaultMat.texture_scale = glm::vec2(1.0f); // Varsayılan ölçek 1.0
 
-                    matComp->material_id = ctx.assetManager.add<material>(defaultMat);
+                    matComp->material_id = engineCtx.assetManager.add<material>(defaultMat);
                 }
             }
         }
@@ -346,8 +352,8 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& ct
             if (ImGui::Button("Remove Rigidbody"))
             {
                 // Eğer oyun oynanırken kaldırılırsa Jolt dünyasından da silmek gerekir
-                if (ctx.editor.mode == EngineMode::PLAY && !rb->body_id.IsInvalid()) {
-                    auto* jolt_system = ctx.physicsSystem.get_jolt_system();
+                if (engineCtx.editor.mode == EngineMode::PLAY && !rb->body_id.IsInvalid()) {
+                    auto* jolt_system = engineCtx.physicsSystem.get_jolt_system();
                     jolt_system->GetBodyInterface().RemoveBody(rb->body_id);
                     jolt_system->GetBodyInterface().DestroyBody(rb->body_id);
                 }

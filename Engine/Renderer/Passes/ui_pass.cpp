@@ -2,7 +2,7 @@
 
 #include "../../Engine/engine_context.h"
 
-void ui_pass::render(EngineContext& ctx)
+void ui_pass::render(EngineContext& ctx, EditorContext& editorCtx)
 {
     glViewport(0, 0, ctx.screenW, ctx.screenH);
 
@@ -18,7 +18,7 @@ void ui_pass::render(EngineContext& ctx)
         ? ctx.session.runtime_scene()
         : ctx.session.editor_scene();
 
-    ctx.editor.renderUI(uiScene,ctx);
+    ctx.editor.renderUI(uiScene,ctx, editorCtx);
 
     ctx.uiManager.endFrame();
 }

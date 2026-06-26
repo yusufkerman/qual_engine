@@ -5,6 +5,8 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 
+class scriptable_entity;
+
 //Contains all components that can be attached to an entity
 
 //Light type for light component.
@@ -91,6 +93,11 @@ struct rigidbody_component
     float friction = 0.5f;
     float restitution = 0.1f; // Zıplama/esneklik katsayısı (0 = hiç zıplamaz, 1 = tam zıplar)
 
+    // Rotasyon kilitli mi?
+    bool freeze_rotation_x = false;
+    bool freeze_rotation_z = false;
+    bool freeze_rotation_y = false;
+
     // Jolt tarafındaki karşılığı. Simülasyon başlamadan önce (EDITOR modunda) geçersizdir.
     // PLAY moduna girildiğinde Jolt burayı dolduracak.
     JPH::BodyID body_id;
@@ -103,4 +110,23 @@ struct collider_component
     // Box ise genişlik/yükseklik/derinlik yarıçapları (Half-extents)
     // Sphere ise x değeri radius (yarıçap) olarak kullanılır
     glm::vec3 extents{ 1.0f };
+};
+
+//Scritable component
+struct native_script_component {
+
+	scriptable_entity* instance = nullptr;
+    
+    // Çalışma zamanında (Runtime) script nesnesini RAM'de "new"lemek ve "delete"lemek için 
+    // fonksiyon pointer'ları saklıyoruz. Komponent fonksiyon çalıştırmıyor, sadece adres tutuyor.
+    scriptable_entity* (*bind_instantiate)() = nullptr;
+    void (*bind_destroy)(native_script_component*) = nullptr;
+
+    // Kullanıcının Sandbox'ta kolayca script bağlayabilmesi için şablon fonksiyon
+    template<typename T>
+    void bind()
+    {
+        bind_instantiate = []() { return static_cast<scriptable_entity*>(new T()); };
+        bind_destroy = [](native_script_component* nsc) { delete (T*)nsc->instance; nsc->instance = nullptr; };
+    }
 };

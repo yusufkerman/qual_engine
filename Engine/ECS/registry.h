@@ -89,6 +89,9 @@ private:
     std::unordered_map<entity, rigidbody_component> rigidbodies;
     std::unordered_map<entity, collider_component> colliders;
 
+    std::unordered_map<entity, native_script_component> scriptable_components;
+
+
     template<typename T>
     std::unordered_map<entity, T>& pool();
 
@@ -113,6 +116,9 @@ std::unordered_map<entity, T>& registry::pool()
     if constexpr (std::is_same_v<T, rigidbody_component>) return rigidbodies;
     if constexpr (std::is_same_v<T, collider_component>) return colliders;
 
+    if constexpr (std::is_same_v<T, native_script_component>) return scriptable_components;
+
+
     static std::unordered_map<entity, T> dummy;
     return dummy;
 }
@@ -130,6 +136,9 @@ const std::unordered_map<entity, T>& registry::pool() const
 
     if constexpr (std::is_same_v<T, rigidbody_component>) return rigidbodies;
     if constexpr (std::is_same_v<T, collider_component>) return colliders;
+
+    if constexpr (std::is_same_v<T, native_script_component>) return scriptable_components;
+
 
     static std::unordered_map<entity, T> dummy;
     return dummy;

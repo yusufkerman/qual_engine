@@ -49,7 +49,7 @@ namespace
 
         if (ctx.editor.mode == EngineMode::PLAY)
         {
-            ctx.session.play();
+            ctx.session.play(ctx);
             physics_bridge::create_physics_world(ctx, ctx.session.game_scene());
         }
         else
@@ -90,7 +90,8 @@ bool Engine::init(EngineContext& ctx)
     ctx.uiManager.init(ctx.window);
     ctx.grid.init();
 
-    if (!ctx.physicsSystem.init())
+
+    if (!ctx.physicsSystem.init(ctx.session.game_scene()))
     {
         std::cout << "[Physics] init failed\n";
         return false;
@@ -135,14 +136,23 @@ bool Engine::init(EngineContext& ctx)
     return true;
 }
 
-void Engine::update(EngineContext& ctx)
+void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 {
-    ctx.inputSystem.update(ctx.window, ctx.inputState, ctx.inputMap);
+    ctx.inputSystem.update(ctx, editorCtx);
 
     handle_mode_transition(ctx);
 
     // runtime her zaman çalışır
     runtime_layer::update(ctx);
+
+    if (ctx.editor.mode == EngineMode::PLAY)
+    {
+        float dt = 0.016f; //Geçici
+
+        ctx.inputState.active = (!ctx.isEditorBuild) || (editorCtx.focusedPanel == FocusedPanel::GameViewport);
+
+        ctx.session.game_scene().on_update_runtime(dt);
+    }
 
     ctx.session.game_scene().update_light_batch();
     ctx.cameraSystem.update(ctx.session.game_scene());
@@ -150,13 +160,12 @@ void Engine::update(EngineContext& ctx)
     // editor sadece editor build’de
     if (ctx.isEditorBuild)
     {
-        std::cout << "Editor Running...\n";
-        editor_layer::update(ctx);
+        editor_layer::update(ctx, editorCtx);
         ctx.session.editor_scene().update_light_batch();
     }
 }
 
-void Engine::render(EngineContext& ctx)
+void Engine::render(EngineContext& ctx, EditorContext& editorCtx)
 {
     glfwPollEvents();
 
@@ -166,7 +175,7 @@ void Engine::render(EngineContext& ctx)
     {
         editor_pass::render(ctx);
         grid_pass::render(ctx);
-        editor_layer::render(ctx); // ← bunu ekle, ui_pass'ı kaldır
+        editor_layer::render(ctx, editorCtx); // ← bunu ekle, ui_pass'ı kaldır
     }
 
     glfwSwapBuffers(ctx.window);
@@ -174,6 +183,8 @@ void Engine::render(EngineContext& ctx)
 
 void Engine::shutdown(EngineContext& ctx)
 {
+    ctx.session.game_scene().clean_up_scripts();
+
     ctx.uiManager.shutdown();
 
     ctx.editorTarget.destroy();

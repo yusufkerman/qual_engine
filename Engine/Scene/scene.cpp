@@ -1,7 +1,10 @@
 #include "scene.h"
 #include "../Systems/light_system.h"
+#include "../Scene/scriptable_entity.h"
 
 #include <iostream>
+
+struct EngineContext;
 
 entity scene::create_entity()
 {
@@ -18,6 +21,47 @@ void scene::new_scene()
     lights.clear();
 }
 
+void scene::on_runtime_start(EngineContext& ctx)
+{
+    registry& reg = get_registry();
+    for (auto& [e, scriptComp] : reg.get_all<native_script_component>())
+    {
+        if (!scriptComp.bind_instantiate) continue;
+        scriptComp.instance = scriptComp.bind_instantiate();
+        scriptComp.instance->set_entity(e);
+        scriptComp.instance->set_registry(&reg);
+        scriptComp.instance->setContext(&ctx);
+        scriptComp.instance->on_create();
+    }
+}
+void scene::on_update_runtime(float deltaTime)
+{
+	registry& reg = get_registry();
+    for (auto [e, scriptComp] : reg.get_all<native_script_component>()) 
+    {
+        if (!scriptComp.instance) continue;
+
+        scriptComp.instance->set_entity(e);
+		scriptComp.instance->set_registry(&reg);
+
+		scriptComp.instance->on_update(deltaTime);
+    }
+}
+void scene::clean_up_scripts()
+{
+    registry& reg = get_registry();
+    for (auto [e, scriptComp] : reg.get_all<native_script_component>())
+    {
+        if (scriptComp.instance)
+        {
+            // 1. Önce oyun mantığı yok etme fonksiyonunu çağırıyoruz
+            scriptComp.instance->on_destroy();
+
+            // 2. Ardından bellek silme işini komponentin tuttuğu fonksiyona yaptırıyoruz
+            scriptComp.bind_destroy(&scriptComp);
+        }
+    }
+}
 registry& scene::get_registry()
 {
     return reg;

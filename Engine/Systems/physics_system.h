@@ -9,6 +9,11 @@
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <memory>
 
+#include "../Scene/scene.h"
+
+class physics_api;
+
+
 // Jolt namespace'lerini temiz tutmak için kütüphane içindeki katman numaralarını öntanımlıyoruz
 namespace layers
 {
@@ -99,17 +104,22 @@ public:
 class physics_system
 {
 public:
-    physics_system() = default;
-    ~physics_system() = default;
+    physics_system();
+    ~physics_system();
 
-    bool init();
+    bool init(scene& s);
     void update(float delta_time);
     void shutdown();
+
+    physics_api& api() { return *m_api; }
 
     JPH::PhysicsSystem* get_jolt_system() { return mPhysicsSystem.get(); }
 
 
 private:
+
+    std::unique_ptr<physics_api> m_api;
+
     std::unique_ptr<JPH::PhysicsSystem> mPhysicsSystem;
     std::unique_ptr<JPH::TempAllocatorImpl> mTempAllocator;
     std::unique_ptr<JPH::JobSystemThreadPool> mJobSystem;

@@ -19,6 +19,7 @@ class GLFWwindow;
 #include "Panels/inspector_panel.h"
 
 class EngineContext;
+struct EditorContext;
 class scene;
 
 class Editor
@@ -29,6 +30,7 @@ public:
     glm::vec2 sceneViewportSize = { 800.0f, 600.0f };
     glm::vec2 gameViewportSize = { 800.0f, 600.0f };
 
+
     bool sceneViewportHovered = false;
     bool gameViewportHovered = false;
 
@@ -36,7 +38,7 @@ public:
 
     void init(GLFWwindow* window);
     void update(scene& scene);
-    void renderUI(scene& scene, EngineContext& ctx);
+    void renderUI(scene& scene, EngineContext& ctx, EditorContext& editorCtx);
 
     void setSceneTexture(unsigned int tex) { sceneTexture = tex; }
     void setGameTexture(unsigned int tex) { gameTexture = tex; }

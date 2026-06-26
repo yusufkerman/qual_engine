@@ -6,9 +6,16 @@
 void game_viewport_panel::render(
     unsigned int gameTexture,
     glm::vec2& gameViewportSize,
-    bool& gameViewportHovered)
+    bool& gameViewportHovered,
+    EditorContext& ctx)
 {
     ImGui::Begin("Game");
+
+    // Eğer kullanıcı şu an bu panele tıkladıysa veya bu panel aktifse bağlamı güncelle
+    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+    {
+        ctx.focusedPanel = FocusedPanel::GameViewport;
+    }
 
     gameViewportHovered =
         ImGui::IsWindowHovered(
@@ -41,6 +48,10 @@ void game_viewport_panel::render(
         avail.y > 0 &&
         gameTexture != 0)
     {
+        ImVec2 pos = ImGui::GetCursorScreenPos();
+        ctx.gameViewportPos = { pos.x, pos.y };
+        
+
         ImGui::Image(
             (ImTextureID)(intptr_t)gameTexture,
             avail,

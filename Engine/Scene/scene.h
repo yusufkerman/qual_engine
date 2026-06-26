@@ -6,6 +6,9 @@
 #include "../Systems/camera_system.h"
 #include "../Renderer/light_batch.h"
 
+struct EngineContext;
+
+
 class scene
 {
 public:
@@ -24,6 +27,10 @@ public:
     entity get_active_camera() const;
 
     void update_light_batch();
+
+    void on_runtime_start(EngineContext& ctx);
+	void on_update_runtime(float deltaTime);
+    void clean_up_scripts();
 
     light_batch& get_light_batch()
     {

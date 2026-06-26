@@ -15,11 +15,18 @@ void hierarchy_panel::render(scene& scene,
     int& renamingEntity,
     char* renameBuffer,
     size_t renameBufferSize,
-    std::vector<entity>& deleteQueue)
+    std::vector<entity>& deleteQueue,
+    EditorContext& ctx)
 {
     auto& reg = scene.get_registry();
 
     ImGui::Begin("Hierarchy");
+
+    // Eğer kullanıcı şu an bu panele tıkladıysa veya bu panel aktifse bağlamı güncelle
+    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+    {
+        ctx.focusedPanel = FocusedPanel::Hierarchy;
+    }
 
     // CREATE OBJECT
     if (ImGui::Button("Create Object"))

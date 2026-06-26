@@ -9,6 +9,14 @@ class RenderTarget;
 
 enum class EngineMode;
 
+enum class FocusedPanel {
+	None,
+	SceneViewport,
+	GameViewport,
+	Inspector,
+	Hierarchy
+};
+
 struct EditorContext
 {
     Editor* editor = nullptr;
@@ -20,8 +28,12 @@ struct EditorContext
     RenderTarget* sceneTarget = nullptr;
     RenderTarget* gameTarget = nullptr;
 
+    FocusedPanel focusedPanel = FocusedPanel::None;
+
     glm::vec2 sceneViewportSize{ 800, 600 };
     glm::vec2 gameViewportSize{ 800, 600 };
+    glm::vec2 gameViewportPos = { 0.0f, 0.0f };
+
 
     EngineMode* mode = nullptr;
 };

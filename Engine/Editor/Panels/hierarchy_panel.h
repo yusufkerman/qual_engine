@@ -1,7 +1,9 @@
 #pragma once
 
 #include "../../Scene/scene.h"
+#include "../editor_context.h"
 #include <vector>
+
 
 struct hierarchy_panel
 {
@@ -10,5 +12,6 @@ struct hierarchy_panel
         int& renamingEntity,
         char* renameBuffer,
         size_t renameBufferSize,   
-        std::vector<entity>& deleteQueue);
+        std::vector<entity>& deleteQueue,
+        EditorContext& ctx);
 };

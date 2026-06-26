@@ -6,6 +6,10 @@
 #include <iostream>
 #include <Scene/scene_serializer.h>
 
+#include "Assets/Scripts/player_controller.h"
+#include "Assets/Scripts/camera_controller.h" 
+
+
 void sandbox_load_default_scene(EngineContext& ctx)
 {
     scene& editorScene = ctx.session.editor_scene();
@@ -210,4 +214,137 @@ void sandbox_load_scene2_directly(EngineContext& ctx)
 
     // Editörün takip ettiği sahne işaretçisini güncelliyoruz
     ctx.editor.setScene(&activeScene);
+}
+// =========================================================
+// 🎮 NEW FUNCTION: SANDBOX DEMO GAME
+// =========================================================
+void sandbox_load_demo_game(EngineContext& ctx)
+{
+    scene& editorScene = ctx.session.editor_scene();
+    ctx.editor.setScene(&editorScene);
+
+    // Default Material
+    material mat;
+    mat.shader_id = 0;
+    mat.diffuse_texture = 0;
+    mat.normal_texture = 0;
+    mat.normal_strength = 1.0f;
+    unsigned int materialID = ctx.materialManager.create(mat);
+
+    auto cubeImport = asset_pipeline::create_cube_mesh(ctx);
+
+    // ---------------------------------------------------------
+    // 1. STATIC FLOOR
+    // ---------------------------------------------------------
+    entity floorEntity = editorScene.create_entity();
+    editorScene.get_registry().add_component<name_component>(floorEntity, name_component{ "Zemin (Static)" });
+    editorScene.get_registry().add_component<mesh_component>(floorEntity, mesh_component{ cubeImport.mesh_ids.front(), "internal://primitive_cube" });
+    editorScene.get_registry().add_component<material_component>(floorEntity, material_component{ materialID });
+    editorScene.get_registry().add_component<bounds_component>(floorEntity, bounds_component{ cubeImport.boundsCenter, cubeImport.boundsRadius });
+
+    editorScene.get_registry().add_component<transform_component>(
+        floorEntity,
+        transform_component{
+            glm::vec3(0.0f, -10.0f, 0.0f),
+            glm::vec3(0.0f),
+            glm::vec3(150.0f, 1.0f, 150.0f) // Geniş zemin
+        }
+    );
+    editorScene.get_registry().add_component<collider_component>(floorEntity, collider_component{ collider_type::box, glm::vec3(75.0f, 0.5f, 75.0f) });
+    editorScene.get_registry().add_component<rigidbody_component>(floorEntity, rigidbody_component{ motion_type::kinematic_body, 0.0f, 0.6f, 0.0f });
+
+    // ---------------------------------------------------------
+    // 2.  PLAYER (Artık Görsel Mesh ve Materyal Var!)
+    // ---------------------------------------------------------
+    entity playerEntity = editorScene.create_entity();
+    editorScene.get_registry().add_component<name_component>(playerEntity, name_component{ "Player" });
+
+    // Görsel olarak dik bir prizma olması için Y eksenini (Yükseklik) 5.0f yapıyoruz.
+    // X ve Z eksenleri 2.0f yapılarak kalınlaştırıldı.
+    editorScene.get_registry().add_component<transform_component>(
+        playerEntity,
+        transform_component{
+            glm::vec3(0.0f, -5.0f, 0.0f), // Başlangıç pozisyonu
+            glm::vec3(0.0f),
+            glm::vec3(2.0f, 5.0f, 2.0f)   // Dikdörtgenler prizması şekli (Görsel Scale)
+        }
+    );
+
+    // Görsel mesh ve materyal bileşenlerini ekliyoruz
+    editorScene.get_registry().add_component<mesh_component>(
+        playerEntity,
+        mesh_component{ cubeImport.mesh_ids.front(), "internal://primitive_cube" }
+    );
+
+    editorScene.get_registry().add_component<material_component>(
+        playerEntity,
+        material_component{ materialID }
+    );
+
+    editorScene.get_registry().add_component<bounds_component>(
+        playerEntity,
+        bounds_component{ cubeImport.boundsCenter, cubeImport.boundsRadius }
+    );
+
+    // Jolt Fizik: Collider boyutlarını (extents) görsel transform'un yarıçapı ile eşitliyoruz.
+    // Görsel transform scale (2.0f, 5.0f, 2.0f) olduğu için, fizik kutusunun yarıçapı (1.0f, 2.5f, 1.0f) olmalıdır.
+    editorScene.get_registry().add_component<collider_component>(
+        playerEntity,
+        collider_component{ collider_type::box, glm::vec3(1.0f, 2.5f, 1.0f) }
+    );
+
+    rigidbody_component playerRB;
+    playerRB.motion = motion_type::dynamic_body;
+    playerRB.mass = 70.0f;
+    playerRB.friction = 0.3f;
+    playerRB.restitution = 0.0f;
+
+    playerRB.freeze_rotation_x = true;
+    playerRB.freeze_rotation_z = true;
+    playerRB.freeze_rotation_y = false;
+
+    editorScene.get_registry().add_component<rigidbody_component>(
+        playerEntity,
+        playerRB
+    );
+
+    // SCRIPT BINDING (Aynen Korundu)
+    auto& scriptComp = editorScene.get_registry().add_component<native_script_component>(playerEntity);
+    scriptComp.bind_instantiate = []() { return static_cast<scriptable_entity*>(new player_controller()); };
+    scriptComp.bind_destroy = [](native_script_component* nsc) { delete static_cast<player_controller*>(nsc->instance); nsc->instance = nullptr; };
+
+    // ---------------------------------------------------------
+    // 3. GAME CAMERA (sandbox.cpp içindeki ilgili kısım)
+    // ---------------------------------------------------------
+    entity gameCameraEntity = editorScene.create_entity();
+    editorScene.get_registry().add_component<name_component>(gameCameraEntity, name_component{ "MainCamera" });
+
+    // İlk pozisyonun çok önemi yok, çünkü script çalışır çalışmaz oyuncunun arkasına ışınlayacak
+    editorScene.get_registry().add_component<transform_component>(
+        gameCameraEntity,
+        transform_component{ glm::vec3(0.0f, 15.0f, 45.0f), glm::vec3(0.0f), glm::vec3(1.0f) }
+    );
+    editorScene.get_registry().add_component<camera_component>(gameCameraEntity, camera_component{ 45.0f, 0.1f, 1000.0f, true });
+
+    //  YENİ SCRIPT BINDING: Kamera kontrolcüsünü bağlıyoruz
+
+    auto& camScriptComp = editorScene.get_registry().add_component<native_script_component>(gameCameraEntity);
+    camScriptComp.bind_instantiate = []() { return static_cast<scriptable_entity*>(new camera_controller()); };
+    camScriptComp.bind_destroy = [](native_script_component* nsc) { delete static_cast<camera_controller*>(nsc->instance); nsc->instance = nullptr; };
+
+    // ---------------------------------------------------------
+    // 4. LIGHT
+    // ---------------------------------------------------------
+    entity lightEntity = editorScene.create_entity();
+    editorScene.get_registry().add_component<name_component>(lightEntity, name_component{ "Main Light" });
+    editorScene.get_registry().add_component<transform_component>(lightEntity, transform_component{ glm::vec3(20.0f, 50.0f, 20.0f), glm::vec3(0.0f), glm::vec3(1.0f) });
+
+    light_component pointLight;
+    pointLight.type = light_type::spot;
+    pointLight.color = glm::vec3(1.0f, 1.0f, 1.0f);
+    pointLight.intensity = 4.0f;
+    pointLight.range = 200.0f;
+    pointLight.inner_cone = 10.0f;
+    pointLight.outer_cone = 30.0f;
+    editorScene.get_registry().add_component<light_component>(lightEntity, pointLight);
 }

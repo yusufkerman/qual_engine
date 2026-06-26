@@ -144,9 +144,13 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\Libraries\glad\src\glad.c" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Assets\Scripts\camera_controller.cpp" />
+    <ClCompile Include="Assets\Scripts\player_controller.cpp" />
     <ClCompile Include="sandbox.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Assets\Scripts\camera_controller.h" />
+    <ClInclude Include="Assets\Scripts\player_controller.h" />
     <ClInclude Include="sandbox.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

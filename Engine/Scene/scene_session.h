@@ -16,7 +16,7 @@ public:
 
     bool is_playing() const;
 
-    void play();
+    void play(EngineContext& ctx);
     void stop();
 
     void sync_editor_from_runtime();

@@ -3,11 +3,19 @@
 #include <Jolt/Core/IssueReporting.h>
 #include <iostream>
 
+#include "physics_api.h"
+
 // Jolt için gerekli temel global macro kayıtları
 JPH_SUPPRESS_WARNINGS
 
-bool physics_system::init()
+physics_system::physics_system() = default;
+
+
+bool physics_system::init(scene& s)
 {
+	// physics_api nesnesini oluşturur ve physics_system ile ilişkilendirir
+    m_api = std::make_unique<physics_api>(this,&s.get_registry());
+
     // Jolt bellek allocator yapısını kurar
     JPH::RegisterDefaultAllocator();
 
@@ -65,3 +73,6 @@ void physics_system::shutdown()
     delete JPH::Factory::sInstance;
     JPH::Factory::sInstance = nullptr;
 }
+
+
+physics_system::~physics_system() = default;

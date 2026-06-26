@@ -77,6 +77,18 @@ namespace physics_bridge
                 body_settings.mMassPropertiesOverride.mMass = rb.mass;
             }
 
+            // =========================================================
+            // CREATION-TIME ROTATION FREEZE
+            // =========================================================
+            JPH::EAllowedDOFs allowedDOFs = JPH::EAllowedDOFs::All;
+
+            if (rb.freeze_rotation_x) allowedDOFs &= ~JPH::EAllowedDOFs::RotationX;
+            if (rb.freeze_rotation_y) allowedDOFs &= ~JPH::EAllowedDOFs::RotationY;
+            if (rb.freeze_rotation_z) allowedDOFs &= ~JPH::EAllowedDOFs::RotationZ;
+
+            body_settings.mAllowedDOFs = allowedDOFs;
+            // =========================================================
+
             // 4. Dünyada Nesneyi Yarat ve Aktive Et
             JPH::Body* body = body_interface.CreateBody(body_settings);
 
@@ -105,25 +117,23 @@ namespace physics_bridge
         {
             if (rb.body_id.IsInvalid()) continue;
 
-            // ⚠️ KRİTİK FİLTRE:
-            // Eğer nesne statik veya kinematic ise, onun pozisyon otoritesi tamamen kodda/editördedir.
-            // Jolt'un hesapladığı pozisyonu ECS'ye geri yazarak sonsuz döngü yaratmasını ENGELLİYORUZ!
-            if (rb.motion == motion_type::static_body || rb.motion == motion_type::kinematic_body)
-            {
+            // Static'leri atla, kinematic ve dynamic'leri güncelle
+            if (rb.motion == motion_type::static_body)
                 continue;
-            }
 
             auto* transform = reg.get_component<transform_component>(ent);
             if (!transform) continue;
 
-            // Sadece DİNAMİK nesnelerin (Küre gibi düşen topun) fizik sonuçlarını ECS'ye yazıyoruz
             JPH::RVec3 post_sim_pos = body_interface.GetPosition(rb.body_id);
-            JPH::Quat post_sim_quat = body_interface.GetRotation(rb.body_id);
-
             transform->position = glm::vec3(post_sim_pos.GetX(), post_sim_pos.GetY(), post_sim_pos.GetZ());
 
-            glm::quat q(post_sim_quat.GetW(), post_sim_quat.GetX(), post_sim_quat.GetY(), post_sim_quat.GetZ());
-            transform->rotation = glm::eulerAngles(q);
+            // Kinematic'te rotasyonu Jolt'tan okumana gerek yok, sadece pozisyon yeterli
+            if (rb.motion == motion_type::dynamic_body)
+            {
+                JPH::Quat post_sim_quat = body_interface.GetRotation(rb.body_id);
+                glm::quat q(post_sim_quat.GetW(), post_sim_quat.GetX(), post_sim_quat.GetY(), post_sim_quat.GetZ());
+                transform->rotation = glm::degrees(glm::eulerAngles(q));
+            }
         }
     }
     void physics_bridge::sync_ecs_to_physics(EngineContext& ctx, scene& current_scene)
@@ -138,6 +148,9 @@ namespace physics_bridge
         for (auto& [ent, rb] : rb_pool)
         {
             if (rb.body_id.IsInvalid()) continue;
+
+            if (rb.motion == motion_type::kinematic_body)
+                continue;
 
             auto* transform = reg.get_component<transform_component>(ent);
             if (!transform) continue;

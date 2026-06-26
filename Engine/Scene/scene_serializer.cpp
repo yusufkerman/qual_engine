@@ -181,7 +181,7 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
 
     //Fizik temizliği
     ctx.physicsSystem.shutdown();
-    if (!ctx.physicsSystem.init())
+    if (!ctx.physicsSystem.init(ctx.session.editor_scene()))
     {
         std::cout << "[Jolt Error] Sahne yuklenirken fizik sistemi yeniden baslatilamadi!" << std::endl;
         return false;

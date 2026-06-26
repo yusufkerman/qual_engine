@@ -82,16 +82,16 @@ void update_fly_camera(
     const glm::vec3 forward = calc_forward(rotation);
     const glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
 
-    if (input.actions[(int)InputAction::MoveForward])
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         position += forward * speed;
 
-    if (input.actions[(int)InputAction::MoveBackward])
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         position -= forward * speed;
 
-    if (input.actions[(int)InputAction::MoveRight])
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         position += right * speed;
 
-    if (input.actions[(int)InputAction::MoveLeft])
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         position -= right * speed;
 
     if (scrollStep)

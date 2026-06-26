@@ -1,4 +1,5 @@
 #include "scene_session.h"
+#include "../Engine/engine_context.h"
 
 scene& scene_session::editor_scene()
 {
@@ -35,7 +36,7 @@ bool scene_session::is_playing() const
     return playing;
 }
 
-void scene_session::play()
+void scene_session::play(EngineContext& ctx)
 {
     if (playing)
         return;
@@ -43,12 +44,17 @@ void scene_session::play()
     editorSnapshot = clone_scene(editorScene);
     runtimeScene = clone_scene(editorScene);
     playing = true;
+
+    game_scene().on_runtime_start(ctx);
+
 }
 
 void scene_session::stop()
 {
     if (!playing)
         return;
+
+    game_scene().clean_up_scripts();
 
     editorScene = clone_scene(editorSnapshot);
     runtimeScene = scene();

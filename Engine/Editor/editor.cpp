@@ -13,9 +13,11 @@ void Editor::update(scene&) {}
 // =========================
 // MAIN UI
 // =========================
-void Editor::renderUI(scene& scene, EngineContext& ctx)
+void Editor::renderUI(scene& scene, EngineContext& ctx, EditorContext& editorCtx)
 {
     auto& reg = scene.get_registry();
+
+    editorCtx.focusedPanel = FocusedPanel::None;
 
     // =========================
     // TOP BAR
@@ -31,7 +33,8 @@ void Editor::renderUI(scene& scene, EngineContext& ctx)
         renamingEntity,
         renameBuffer,
         256,
-        deleteQueue);
+        deleteQueue,
+        editorCtx);
 
     // =========================
     // SCENE VIEWPORT
@@ -40,7 +43,8 @@ void Editor::renderUI(scene& scene, EngineContext& ctx)
         sceneTexture,
         sceneViewportSize,
         sceneViewportHovered,
-        editorCamera);
+        editorCamera,
+        editorCtx);
 
     // =========================
     // GAME VIEWPORT
@@ -48,7 +52,8 @@ void Editor::renderUI(scene& scene, EngineContext& ctx)
     gameViewportPanel.render(
         gameTexture,
         gameViewportSize,
-        gameViewportHovered);
+        gameViewportHovered,
+        editorCtx);
 
     // =========================
     // INSPECTOR
@@ -56,7 +61,8 @@ void Editor::renderUI(scene& scene, EngineContext& ctx)
     inspectorPanel.render(
         scene,
         selectedEntity,
-        ctx);
+        ctx,
+        editorCtx);
 
     // =========================
     // DELETE QUEUE

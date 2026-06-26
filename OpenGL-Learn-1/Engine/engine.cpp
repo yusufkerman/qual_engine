@@ -206,12 +206,14 @@ bool Engine::init(EngineContext& ctx)
     return true;
 }
 
-void Engine::update(EngineContext& ctx)
+void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 {
     ctx.inputSystem.update(ctx.window, ctx.inputState, ctx.inputMap);
 
     handle_mode_transition(ctx);
     handle_viewport_resizes(ctx);
+
+    
 
     update_editor_camera(ctx);
 

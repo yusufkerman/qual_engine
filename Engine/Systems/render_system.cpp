@@ -1,6 +1,4 @@
-// =========================================================
-// RENDER_SYSTEM.CPP - KESİN ÇÖZÜMÜNÜN OLDUĞU YER
-// =========================================================
+
 #include "render_system.h"
 #include "../ECS/registry.h"
 #include "../Renderer/MeshRenderer.h"
@@ -13,6 +11,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+
 
 //  NOT: Parametrelere texture_manager& textureManager eklendi!
 void render_system::render(

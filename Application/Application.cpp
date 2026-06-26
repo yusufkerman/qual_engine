@@ -8,6 +8,7 @@ int main()
     // Motorun çalışması için gereken tüm global/runtime state burada tutulur.
     // Window, renderer, input, scene session, editor vb. sistemler bu context içindedir.
     EngineContext ctx;
+	EditorContext editorCtx;
 
     ctx.isEditorBuild = true;
 
@@ -20,7 +21,7 @@ int main()
     // Önemli:
     // Motor artık hangi modeli veya sahneyi yükleyeceğini bilmez.
     // İçerik oluşturma sorumluluğu Sandbox katmanındadır.
-    sandbox_load_scene2_directly(ctx);
+    sandbox_load_demo_game(ctx);
     std::cout << "mat size: " << ctx.materialManager.get_all_materials().size() << "\n";
 
     bool sceneLoaded = false;
@@ -28,7 +29,7 @@ int main()
   
     if (!ctx.isEditorBuild)
     {
-        ctx.session.play();
+        ctx.session.play(ctx);
         ctx.editor.mode = EngineMode::PLAY;
         ctx.prevMode = EngineMode::EDITOR;
     }
@@ -39,10 +40,10 @@ int main()
 
         // Input, editor güncellemeleri,
         // play/editor geçişleri ve runtime mantıkları çalıştırılır.
-        Engine::update(ctx);
+        Engine::update(ctx, editorCtx);
 
         // Editor viewport, game viewport ve UI render edilir.
-        Engine::render(ctx);
+        Engine::render(ctx, editorCtx);
     }
 
     // GPU kaynakları, render target'lar,
