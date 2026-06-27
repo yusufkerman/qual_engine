@@ -114,7 +114,8 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;GLFW_INCLUDE_NONE;
+GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -157,6 +158,15 @@
     <ClInclude Include="ECS\component_pool_interface.h" />
     <ClInclude Include="ECS\entity.h" />
     <ClInclude Include="ECS\registry.h" />
+    <ClInclude Include="Editor\ComponentUI\camera_component_ui.h" />
+    <ClInclude Include="Editor\ComponentUI\collider_component_ui.h" />
+    <ClInclude Include="Editor\ComponentUI\component_ui_registry.h" />
+    <ClInclude Include="Editor\ComponentUI\light_component_ui.h" />
+    <ClInclude Include="Editor\ComponentUI\material_component_ui.h" />
+    <ClInclude Include="Editor\ComponentUI\mesh_component_ui.h" />
+    <ClInclude Include="Editor\ComponentUI\name_component_ui.h" />
+    <ClInclude Include="Editor\ComponentUI\rigidbody_component_ui.h" />
+    <ClInclude Include="Editor\ComponentUI\transform_component_ui.h" />
     <ClInclude Include="Editor\editor.h" />
     <ClInclude Include="Editor\editor_camera.h" />
     <ClInclude Include="Editor\editor_context.h" />
