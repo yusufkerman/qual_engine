@@ -8,6 +8,7 @@
 #include "ComponentUI/material_component_ui.h"
 #include "ComponentUI/rigidbody_component_ui.h"
 #include "ComponentUI/collider_component_ui.h"
+#include "ComponentUI/native_script_component_ui.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -79,6 +80,8 @@ void ui_manager::init(GLFWwindow* window_)
     register_material_ui_system();
     register_rigidbody_ui_system();
     register_collider_ui_system();
+
+    register_native_script_ui_system();
 }
 
 void ui_manager::beginFrame()

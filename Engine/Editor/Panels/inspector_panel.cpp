@@ -2,8 +2,8 @@
 #include "../ComponentUI/component_ui_registry.h"
 #include "../../ECS/registry.h"
 #include "../../Engine/engine_context.h"
-
 #include <imgui.h>
+#include <string> // std::string kontrolü için eklendi
 
 void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& engineCtx, EditorContext& editorCtx) {
     ImGui::Begin("Inspector");
@@ -53,14 +53,61 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& en
     ImGui::Separator();
 
     // =========================================================
-    // DİNAMİK BİLEŞEN ÇİZİMLERİ (RENDER)
+    // DİNAMİK BİLEŞEN ÇİZİMLERİ & MERKEZİ BAŞLIK / SİLME YÖNETİMİ
     // =========================================================
     for (const auto& [type_hash, ui_info] : registry_map) {
         if (ui_info.has_fn && ui_info.has_fn(e, reg)) {
-            if (ui_info.render_fn) {
-                ui_info.render_fn(e, reg, engineCtx, editorCtx);
+
+            // ImGui ID çakışmalarını önlemek için her bileşene benzersiz ID alanı açıyoruz
+            ImGui::PushID((int)type_hash);
+
+            // 1. "Remove" Butonunun Konum ve Stil Hesaplamaları
+            float button_width = 55.0f;
+            float button_height = 18.0f;
+            float header_height = ImGui::GetFrameHeight();
+            ImVec2 backup_cursor_pos = ImGui::GetCursorPos();
+            float content_width = ImGui::GetContentRegionAvail().x;
+
+            // Butonu katman olarak en üstte çizmek ve tıklamayı yutmasını sağlamak için Header'dan önce çiziyoruz
+            float align_y = (header_height - button_height) * 0.5f;
+            ImGui::SetCursorPos(ImVec2(backup_cursor_pos.x + content_width - button_width - 4.0f, backup_cursor_pos.y + align_y));
+
+            // Buton için tatlı bir koyu kırmızı editör stili ayarlayalım
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0.1f, 0.1f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.2f, 0.2f, 0.8f));
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f); // Hafif yuvarlatılmış köşeler
+
+            bool remove_clicked = false;
+
+            // Kritik Güvenlik Filtresi: "Name" veya "Transform" gibi bir entity'nin olmazsa olmaz bileşenlerinin silinmesini engelliyoruz
+            std::string comp_name = ui_info.name ? ui_info.name : "";
+            if (comp_name != "Name" && comp_name != "Transform" && ui_info.remove_fn) {
+                remove_clicked = ImGui::Button("Remove", ImVec2(button_width, button_height));
+            }
+
+            ImGui::PopStyleVar();
+            ImGui::PopStyleColor(2);
+
+            // 2. İmleci Geri Sar ve Jenerik Başlığı Çiz
+            ImGui::SetCursorPos(backup_cursor_pos);
+            bool open = ImGui::CollapsingHeader(ui_info.name, ImGuiTreeNodeFlags_DefaultOpen);
+
+            // 3. Merkezi Silme Tetikleyicisi (Butona basıldıysa)
+            if (remove_clicked && ui_info.remove_fn) {
+                ui_info.remove_fn(e, reg); // `std::function` sarmalı çağrılır, RAM temizliği ve ECS silme işlemi yapılır
+                ImGui::PopID();
+                continue; // Bileşen silindiği için alt tarafı çizmeden döngüdeki bir sonraki bileşene atla
+            }
+
+            // 4. Bileşenin Kendi Özel İçeriğini Çiz (Eğer başlık açıksa)
+            if (open && ui_info.render_fn) {
+                ImGui::Spacing();
+                ui_info.render_fn(e, reg, engineCtx, editorCtx); // Diğer dosyalardaki Combo Box, DragFloat vb. özellikleri çizer
                 ImGui::Spacing();
             }
+
+            ImGui::PopID();
+            ImGui::Spacing();
         }
     }
 

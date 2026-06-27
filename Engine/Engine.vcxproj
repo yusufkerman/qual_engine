@@ -165,6 +165,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Editor\ComponentUI\material_component_ui.h" />
     <ClInclude Include="Editor\ComponentUI\mesh_component_ui.h" />
     <ClInclude Include="Editor\ComponentUI\name_component_ui.h" />
+    <ClInclude Include="Editor\ComponentUI\native_script_component_ui.h" />
     <ClInclude Include="Editor\ComponentUI\rigidbody_component_ui.h" />
     <ClInclude Include="Editor\ComponentUI\transform_component_ui.h" />
     <ClInclude Include="Editor\editor.h" />
@@ -183,6 +184,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Engine\engine.h" />
     <ClInclude Include="Engine\engine_context.h" />
     <ClInclude Include="Engine\fly_camera.h" />
+    <ClInclude Include="Engine\Scripting\script_factory.h" />
     <ClInclude Include="Externals\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="Externals\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="Externals\imgui\backends\imgui_impl_opengl3_loader.h" />

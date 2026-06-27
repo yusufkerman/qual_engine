@@ -21,21 +21,17 @@
   * @param editorCtx Editörün panel odakları ve arayüz durumu (EditorContext).
   */
 inline void render_transform_ui(entity e, registry& reg, EngineContext& engineCtx, EditorContext& editorCtx) {
-    // Görsel bütünlük için katlanabilir bir başlık (Collapsing Header) oluşturuyoruz
-    if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+    // Varlığa ait transform bileşeninin ham göstergesini güvenli bir şekilde çekiyoruz
+    auto* t = reg.get_component<transform_component>(e);
+    if (t) {
+        // Konum (X, Y, Z) Ayarı - 0.1 birimlik adımlarla kaydırılabilir
+        ImGui::DragFloat3("Position", &t->position.x, 0.1f);
 
-        // Varlığa ait transform bileşeninin ham göstergesini güvenli bir şekilde çekiyoruz
-        auto* t = reg.get_component<transform_component>(e);
-        if (t) {
-            // Konum (X, Y, Z) Ayarı - 0.1 birimlik adımlarla kaydırılabilir
-            ImGui::DragFloat3("Position", &t->position.x, 0.1f);
+        // Rotasyon (X, Y, Z - Euler Açıları) Ayarı - 0.1 birimlik adımlarla kaydırılabilir
+        ImGui::DragFloat3("Rotation", &t->rotation.x, 0.1f);
 
-            // Rotasyon (X, Y, Z - Euler Açıları) Ayarı - 0.1 birimlik adımlarla kaydırılabilir
-            ImGui::DragFloat3("Rotation", &t->rotation.x, 0.1f);
-
-            // Ölçekleme (X, Y, Z) Ayarı - 0.1 birimlik adımlarla kaydırılabilir
-            ImGui::DragFloat3("Scale", &t->scale.x, 0.1f);
-        }
+        // Ölçekleme (X, Y, Z) Ayarı - 0.1 birimlik adımlarla kaydırılabilir
+        ImGui::DragFloat3("Scale", &t->scale.x, 0.1f);
     }
 }
 

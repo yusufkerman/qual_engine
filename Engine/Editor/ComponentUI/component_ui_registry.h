@@ -31,6 +31,10 @@ using ComponentAddFn = std::function<void(entity, registry&, EngineContext&, Edi
  * @brief Bir varlığın ilgili bileşene sahip olup olmadığını sorgulayan fonksiyon türü.
  */
 using ComponentHasFn = std::function<bool(entity, const registry&)>;
+/**
+ * @brief Bir bileşenin varlıktan (entity) güvenle kaldırılmasını sağlayan fonksiyon türü.
+ */
+using ComponentRemoveFn = std::function<void(entity, registry&)>;
 
 /**
  * @brief Bir bileşene ait editör arayüzü meta verilerini ve fonksiyon işaretçilerini tutan veri yapısı.
@@ -40,6 +44,7 @@ struct ComponentUIInfo {
     ComponentRenderFn render_fn;  /**< Bileşenin özelliklerini ImGui'de çizen fonksiyon sarmalı. */
     ComponentAddFn add_fn;        /**< "Add Component" popup'ından çağrılan ekleme fonksiyonu sarmalı. */
     ComponentHasFn has_fn;        /**< `registry::has_component` çağrısını gizleyen sorgu lambdası. */
+    ComponentRemoveFn remove_fn;  /**< Bileşeni hem RAM'den hem ECS'den silen fonksiyon sarmalı. */
 };
 
 /**

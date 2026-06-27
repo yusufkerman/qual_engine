@@ -9,6 +9,7 @@
 #include <iostream>
 #include <unordered_map>
 #include "../Engine/asset_pipeline.h"
+#include "../Engine/Scripting/script_factory.h"
 
 using json = nlohmann::json;
 
@@ -139,6 +140,8 @@ bool scene_serializer::serialize(const std::string& filepath, const scene& curre
         // Fizik Bileşenleri
         serialize_component_if_exists<rigidbody_component>(e, reg, entityJson, "rigidbody_component");
         serialize_component_if_exists<collider_component>(e, reg, entityJson, "collider_component");
+
+        serialize_component_if_exists<native_script_component>(e, reg, entityJson, "native_script_component");
 
         sceneJson["entities"].push_back(entityJson);
     }
@@ -314,6 +317,22 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
             deserialize_component_if_exists<rigidbody_component>(newE, reg, entityJson, "rigidbody_component");
             deserialize_component_if_exists<collider_component>(newE, reg, entityJson, "collider_component");
 
+            //  OTOMATİK SCRIPT YÜKLEME VE BAĞLAMA KATMANI
+            if (entityJson.contains("native_script_component") && !entityJson["native_script_component"].is_null())
+            {
+                std::string s_name = entityJson["native_script_component"].value("script_name", "None");
+
+                if (s_name != "None")
+                {
+                    // Fabrikaya sor: "Bu isimde bir script kayıtlı mı? Kayıtlıysa entity'ye bind et."
+                    if (!script_factory::instantiate_script(s_name, newE, reg))
+                    {
+                        std::cout << "[Serializer Warning] Diskten '" << s_name
+                            << "' okundu fakat Sandbox bu scripti motora kaydetmemis!" << std::endl;
+                    }
+                }
+            }
+
             if (entityJson.contains("mesh_component") && !entityJson["mesh_component"].is_null())
             {
                 mesh_component meshComp = entityJson["mesh_component"].get<mesh_component>();
@@ -329,6 +348,8 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
                 matComp.material_id = (itMat != materialIdMap.end()) ? itMat->second : 0;
                 reg.add_component<material_component>(newE, matComp);
             }
+
+
         }
     }
 

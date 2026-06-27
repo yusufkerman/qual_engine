@@ -308,10 +308,10 @@ void sandbox_load_demo_game(EngineContext& ctx)
         playerRB
     );
 
-    // SCRIPT BINDING (Aynen Korundu)
+    // SCRIPT BINDING
     auto& scriptComp = editorScene.get_registry().add_component<native_script_component>(playerEntity);
-    scriptComp.bind_instantiate = []() { return static_cast<scriptable_entity*>(new player_controller()); };
-    scriptComp.bind_destroy = [](native_script_component* nsc) { delete static_cast<player_controller*>(nsc->instance); nsc->instance = nullptr; };
+    // Jenerik ve ismi otomatik kaydeden bind metodunu çağırıyoruz:
+    scriptComp.bind<player_controller>("PlayerController");
 
     // ---------------------------------------------------------
     // 3. GAME CAMERA (sandbox.cpp içindeki ilgili kısım)
@@ -327,10 +327,8 @@ void sandbox_load_demo_game(EngineContext& ctx)
     editorScene.get_registry().add_component<camera_component>(gameCameraEntity, camera_component{ 45.0f, 0.1f, 1000.0f, true });
 
     //  YENİ SCRIPT BINDING: Kamera kontrolcüsünü bağlıyoruz
-
     auto& camScriptComp = editorScene.get_registry().add_component<native_script_component>(gameCameraEntity);
-    camScriptComp.bind_instantiate = []() { return static_cast<scriptable_entity*>(new camera_controller()); };
-    camScriptComp.bind_destroy = [](native_script_component* nsc) { delete static_cast<camera_controller*>(nsc->instance); nsc->instance = nullptr; };
+    camScriptComp.bind<camera_controller>("CameraController");
 
     // ---------------------------------------------------------
     // 4. LIGHT

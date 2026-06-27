@@ -116,6 +116,7 @@ struct collider_component
 struct native_script_component {
 
 	scriptable_entity* instance = nullptr;
+    std::string script_name;
     
     // Çalışma zamanında (Runtime) script nesnesini RAM'de "new"lemek ve "delete"lemek için 
     // fonksiyon pointer'ları saklıyoruz. Komponent fonksiyon çalıştırmıyor, sadece adres tutuyor.
@@ -124,8 +125,9 @@ struct native_script_component {
 
     // Kullanıcının Sandbox'ta kolayca script bağlayabilmesi için şablon fonksiyon
     template<typename T>
-    void bind()
+    void bind(const std::string& name)
     {
+        script_name = name;
         bind_instantiate = []() { return static_cast<scriptable_entity*>(new T()); };
         bind_destroy = [](native_script_component* nsc) { delete (T*)nsc->instance; nsc->instance = nullptr; };
     }

@@ -26,55 +26,51 @@
   * @param editorCtx Editörün panel odakları ve arayüz durumu (EditorContext).
   */
 inline void render_mesh_ui(entity e, registry& reg, EngineContext& engineCtx, EditorContext& editorCtx) {
-    // Görsel bütünlük için katlanabilir bir başlık (Collapsing Header) oluşturuyoruz
-    if (ImGui::CollapsingHeader("Mesh Renderer", ImGuiTreeNodeFlags_DefaultOpen)) {
+    // Varlığa ait mesh bileşeninin ham göstergesini güvenli bir şekilde çekiyoruz
+    auto* meshComp = reg.get_component<mesh_component>(e);
+    if (!meshComp) return;
 
-        // Varlığa ait mesh bileşeninin ham göstergesini güvenli bir şekilde çekiyoruz
-        auto* meshComp = reg.get_component<mesh_component>(e);
-        if (!meshComp) return;
+    // Mevcut yüklenmiş modelin ID ve dosya yolu bilgilerini salt okunur metin olarak basıyoruz
+    ImGui::Text("Mesh ID: %u", meshComp->mesh_id);
+    ImGui::Text("Loaded File: %s", meshComp->model_path.c_str());
 
-        // Mevcut yüklenmiş modelin ID ve dosya yolu bilgilerini salt okunur metin olarak basıyoruz
-        ImGui::Text("Mesh ID: %u", meshComp->mesh_id);
-        ImGui::Text("Loaded File: %s", meshComp->model_path.c_str());
+    // ---------------------------------------------------------
+    // DİNAMİK MODEL YÜKLEME TETİKLEYİCİSİ (NFD ENTEGRASYONU)
+    // ---------------------------------------------------------
+    if (ImGui::Button("Load New Model (.obj)")) {
+        NFD::UniquePath outPath;
+        // Sadece Wavefront OBJ uzantılı dosyaları göstermek üzere filtre hazırlıyoruz
+        nfdfilteritem_t filterItem[1] = { { "Wavefront OBJ", "obj" } };
 
-        // ---------------------------------------------------------
-        // DİNAMİK MODEL YÜKLEME TETİKLEYİCİSİ (NFD ENTEGRASYONU)
-        // ---------------------------------------------------------
-        if (ImGui::Button("Load New Model (.obj)")) {
-            NFD::UniquePath outPath;
-            // Sadece Wavefront OBJ uzantılı dosyaları göstermek üzere filtre hazırlıyoruz
-            nfdfilteritem_t filterItem[1] = { { "Wavefront OBJ", "obj" } };
+        // İşletim sisteminin yerel dosya seçme penceresini açıyoruz
+        nfdresult_t result = NFD::OpenDialog(outPath, filterItem, 1, nullptr);
 
-            // İşletim sisteminin yerel dosya seçme penceresini açıyoruz
-            nfdresult_t result = NFD::OpenDialog(outPath, filterItem, 1, nullptr);
+        if (result == NFD_OKAY) {
+            std::string selectedPath = outPath.get();
 
-            if (result == NFD_OKAY) {
-                std::string selectedPath = outPath.get();
+            // Seçilen model dosyasını asset_pipeline üzerinden belleğe ve GPU'ya yüklüyoruz
+            auto importResult = asset_pipeline::import_model(engineCtx, selectedPath);
 
-                // Seçilen model dosyasını asset_pipeline üzerinden belleğe ve GPU'ya yüklüyoruz
-                auto importResult = asset_pipeline::import_model(engineCtx, selectedPath);
+            // Yükleme işlemi başarılı olduysa ve en az bir parça mesh üretildiyse
+            if (!importResult.mesh_ids.empty()) {
+                // İlk mesh parçasının benzersiz kimliğini ve dosya yolunu bileşene atıyoruz
+                meshComp->mesh_id = importResult.mesh_ids.front();
+                meshComp->model_path = selectedPath;
 
-                // Yükleme işlemi başarılı olduysa ve en az bir parça mesh üretildiyse
-                if (!importResult.mesh_ids.empty()) {
-                    // İlk mesh parçasının benzersiz kimliğini ve dosya yolunu bileşene atıyoruz
-                    meshComp->mesh_id = importResult.mesh_ids.front();
-                    meshComp->model_path = selectedPath;
-
-                    // Frustum Culling (Görüş hacmi ayıklaması) işlemleri için nesnenin bounds bileşenini güncelliyoruz
-                    if (!reg.has_component<bounds_component>(e)) {
-                        reg.add_component<bounds_component>(e);
-                    }
-
-                    // Yüklenen modelin asıl boyutlarından (AABB) hesaplanan merkez ve yarıçap verilerini yazıyoruz
-                    auto* bounds = reg.get_component<bounds_component>(e);
-                    bounds->localCenter = importResult.boundsCenter;
-                    bounds->localRadius = importResult.boundsRadius;
+                // Frustum Culling (Görüş hacmi ayıklaması) işlemleri için nesnenin bounds bileşenini güncelliyoruz
+                if (!reg.has_component<bounds_component>(e)) {
+                    reg.add_component<bounds_component>(e);
                 }
+
+                // Yüklenen modelin asıl boyutlarından (AABB) hesaplanan merkez ve yarıçap verilerini yazıyoruz
+                auto* bounds = reg.get_component<bounds_component>(e);
+                bounds->localCenter = importResult.boundsCenter;
+                bounds->localRadius = importResult.boundsRadius;
             }
-            else if (result == NFD_ERROR) {
-                // Beklenmedik bir NFD hatası oluşursa konsol ekranına hata çıktısını yazdırıyoruz
-                std::cout << "[NFD Error] " << NFD_GetError() << std::endl;
-            }
+        }
+        else if (result == NFD_ERROR) {
+            // Beklenmedik bir NFD hatası oluşursa konsol ekranına hata çıktısını yazdırıyoruz
+            std::cout << "[NFD Error] " << NFD_GetError() << std::endl;
         }
     }
 }
@@ -105,6 +101,11 @@ inline void register_mesh_ui_system() {
     // Tip gizleme (type-erasure) işlemi için has_component kontrol lambdası
     info.has_fn = [](entity e, const registry& reg) -> bool {
         return reg.has_component<mesh_component>(e);
+        };
+
+    // Mesh bileşenini ECS'den güvenle kaldıran remove_fn lambdası
+    info.remove_fn = [](entity e, registry& reg) {
+        reg.remove_component<mesh_component>(e);
         };
 
     // Benzersiz tip imzasını (hash_code) anahtar olarak kullanarak sisteme kayıt işlemini tamamlıyoruz

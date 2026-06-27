@@ -66,6 +66,7 @@ inline void register_name_ui_system() {
         return reg.has_component<name_component>(e);
         };
 
+
     // Yeni non-template doğrudan kayıt fonksiyonumuzu çağırıyoruz
     // Bileşenin tip özetini (hash_code) anahtar olarak kullanarak kaydı tamamlıyoruz
     component_ui_registry::register_component(typeid(name_component).hash_code(), info);

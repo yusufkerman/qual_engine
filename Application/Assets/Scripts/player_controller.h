@@ -1,5 +1,6 @@
 #pragma once
 #include <Scene/scriptable_entity.h>
+#include <Engine/Scripting/script_factory.h>
 #include <glm/glm.hpp>
 
 class player_controller : public scriptable_entity
@@ -11,3 +12,5 @@ public:
 private:
     float speed = 5.0f;
 };
+
+REGISTER_SCRIPT(player_controller);

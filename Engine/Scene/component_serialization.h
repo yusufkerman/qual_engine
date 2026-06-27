@@ -74,6 +74,15 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(bounds_component, localCenter, localRadius)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(rigidbody_component, motion, mass, friction, restitution)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(collider_component, type, extents)
 
+// NATIVE SCRIPT COMPONENT İÇİN ÖZEL DÖNÜŞÜM KURALLARI
+inline void to_json(nlohmann::json& j, const native_script_component& nsc) {
+    j = nlohmann::json{ {"script_name", nsc.script_name} };
+}
+
+inline void from_json(const nlohmann::json& j, native_script_component& nsc) {
+    nsc.script_name = j.value("script_name", "None");
+   // Dikkat: Instance bağlama (bind) işlemi burada değil, sahne yüklenirken fabrikada yapılacak!
+}
 
 using EngineComponentList = std::tuple<
     name_component,

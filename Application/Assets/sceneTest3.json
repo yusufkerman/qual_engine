@@ -1,0 +1,204 @@
+{
+    "active_camera": 3,
+    "entities": [
+        {
+            "bounds_component": {
+                "localCenter": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "localRadius": 0.8660253882408142
+            },
+            "collider_component": {
+                "extents": {
+                    "x": 75.0,
+                    "y": 0.5,
+                    "z": 75.0
+                },
+                "type": "box"
+            },
+            "id": 1,
+            "material_component": {
+                "material_id": 0
+            },
+            "mesh_component": {
+                "mesh_id": 0,
+                "model_path": "internal://primitive_cube"
+            },
+            "name_component": {
+                "name": "Zemin (Static)"
+            },
+            "rigidbody_component": {
+                "friction": 0.6000000238418579,
+                "mass": 0.0,
+                "motion": "kinematic",
+                "restitution": 0.0
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": -10.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 150.0,
+                    "y": 1.0,
+                    "z": 150.0
+                }
+            }
+        },
+        {
+            "bounds_component": {
+                "localCenter": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "localRadius": 0.8660253882408142
+            },
+            "collider_component": {
+                "extents": {
+                    "x": 1.0,
+                    "y": 2.5,
+                    "z": 1.0
+                },
+                "type": "box"
+            },
+            "id": 2,
+            "material_component": {
+                "material_id": 0
+            },
+            "name_component": {
+                "name": "Player"
+            },
+            "native_script_component": {
+                "script_name": "player_controller"
+            },
+            "rigidbody_component": {
+                "friction": 0.30000001192092896,
+                "mass": 70.0,
+                "motion": "dynamic",
+                "restitution": 0.0
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": -5.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 2.0,
+                    "y": 5.0,
+                    "z": 2.0
+                }
+            }
+        },
+        {
+            "camera_component": {
+                "farPlane": 1000.0,
+                "fov": 45.0,
+                "nearPlane": 0.10000000149011612,
+                "primary": true,
+                "priority": 0
+            },
+            "id": 3,
+            "name_component": {
+                "name": "MainCamera"
+            },
+            "native_script_component": {
+                "script_name": "camera_controller"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": 15.0,
+                    "z": 45.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "id": 4,
+            "light_component": {
+                "cast_shadows": false,
+                "color": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "inner_cone": 10.0,
+                "intensity": 1.2999999523162842,
+                "outer_cone": 30.0,
+                "range": 200.0,
+                "type": "directional"
+            },
+            "name_component": {
+                "name": "Main Light"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 20.0,
+                    "y": 50.0,
+                    "z": 20.0
+                },
+                "rotation": {
+                    "x": -0.6000000238418579,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        }
+    ],
+    "materials": [
+        {
+            "data": {
+                "base_color": [
+                    0.4453886151313782,
+                    0.563725471496582,
+                    0.40897729992866516
+                ],
+                "diffuse_texture": 0,
+                "normal_strength": 1.0,
+                "normal_texture": 0,
+                "shader_id": 0,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 0
+        }
+    ],
+    "scene_name": "PS1_Engine_Scene",
+    "textures": []
+}

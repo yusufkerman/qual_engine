@@ -26,95 +26,91 @@
   * @param editorCtx Editörün panel odakları ve arayüz durumu (EditorContext).
   */
 inline void render_material_ui(entity e, registry& reg, EngineContext& engineCtx, EditorContext& editorCtx) {
-    // Görsel bütünlük için katlanabilir bir başlık (Collapsing Header) oluşturuyoruz
-    if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen)) {
+    // Varlığa ait materyal bileşeninin ham göstergesini güvenli bir şekilde çekiyoruz
+    auto* matComp = reg.get_component<material_component>(e);
+    if (!matComp) return;
 
-        // Varlığa ait materyal bileşeninin ham göstergesini güvenli bir şekilde çekiyoruz
-        auto* matComp = reg.get_component<material_component>(e);
-        if (!matComp) return;
+    // Varlık yöneticisinden (AssetManager) materyalin asıl örneğini (instance) ID ile çekiyoruz
+    material* mat = engineCtx.assetManager.try_get<material>(matComp->material_id);
 
-        // Varlık yöneticisinden (AssetManager) materyalin asıl örneğini (instance) ID ile çekiyoruz
-        material* mat = engineCtx.assetManager.try_get<material>(matComp->material_id);
+    if (mat) {
+        ImGui::Text("Material ID: %u", matComp->material_id);
+        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "(Shared Material - Edits affect all clones)");
 
-        if (mat) {
-            ImGui::Text("Material ID: %u", matComp->material_id);
-            ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "(Shared Material - Edits affect all clones)");
+        // ---------------------------------------------------------
+        // 1. MATERYALİ BAĞIMSIZLAŞTIRMA (MAKE UNIQUE)
+        // ---------------------------------------------------------
+        // Paylaşılan materyali klonlayarak bu nesneye özel (unique) hale getirir.
+        // Böylece yapılan renk/doku değişiklikleri bu materyali kullanan diğer nesneleri etkilemez.
+        if (ImGui::Button("Make Unique (Clone Material)")) {
+            material clonedMat = *mat; // Materyal verisini kopyala
+            asset_id newMatID = engineCtx.assetManager.add<material>(clonedMat); // Yeni asset olarak kaydet
+            matComp->material_id = newMatID; // Nesneye yeni ID'yi ata
+            mat = engineCtx.assetManager.try_get<material>(newMatID); // Göstergeyi güncelle
+        }
 
-            // ---------------------------------------------------------
-            // 1. MATERYALİ BAĞIMSIZLAŞTIRMA (MAKE UNIQUE)
-            // ---------------------------------------------------------
-            // Paylaşılan materyali klonlayarak bu nesneye özel (unique) hale getirir.
-            // Böylece yapılan renk/doku değişiklikleri bu materyali kullanan diğer nesneleri etkilemez.
-            if (ImGui::Button("Make Unique (Clone Material)")) {
-                material clonedMat = *mat; // Materyal verisini kopyala
-                asset_id newMatID = engineCtx.assetManager.add<material>(clonedMat); // Yeni asset olarak kaydet
-                matComp->material_id = newMatID; // Nesneye yeni ID'yi ata
-                mat = engineCtx.assetManager.try_get<material>(newMatID); // Göstergeyi güncelle
-            }
+        ImGui::Separator();
 
-            ImGui::Separator();
+        // Temel Renk (Albedo/Base Color) Ayarı
+        ImGui::ColorEdit3("Base Color", &mat->base_color.x);
 
-            // Temel Renk (Albedo/Base Color) Ayarı
-            ImGui::ColorEdit3("Base Color", &mat->base_color.x);
+        // Normal Haritası Etki Şiddeti (Normal Strength)
+        ImGui::SliderFloat("Normal Strength", &mat->normal_strength, 0.0f, 3.0f);
 
-            // Normal Haritası Etki Şiddeti (Normal Strength)
-            ImGui::SliderFloat("Normal Strength", &mat->normal_strength, 0.0f, 3.0f);
+        // Doku Döşeme Ölçeği (Texture Tiling / Scale) - Hassas kaydırma hızı: 0.05
+        ImGui::DragFloat2("Texture Tiling", &mat->texture_scale.x, 0.05f, 0.01f, 100.0f, "%.2f");
 
-            // Doku Döşeme Ölçeği (Texture Tiling / Scale) - Hassas kaydırma hızı: 0.05
-            ImGui::DragFloat2("Texture Tiling", &mat->texture_scale.x, 0.05f, 0.01f, 100.0f, "%.2f");
+        ImGui::SameLine();
+        // Tiling değerini hızlıca varsayılan 1.0f ölçeğine sıfırlama butonu
+        if (ImGui::Button("Reset")) {
+            mat->texture_scale = glm::vec2(1.0f);
+        }
 
-            ImGui::SameLine();
-            // Tiling değerini hızlıca varsayılan 1.0f ölçeğine sıfırlama butonu
-            if (ImGui::Button("Reset")) {
-                mat->texture_scale = glm::vec2(1.0f);
-            }
+        // ---------------------------------------------------------
+        // 2. DIFFUSE TEXTURE YÜKLEME (NFD ENTEGRASYONU)
+        // ---------------------------------------------------------
+        ImGui::Separator();
+        ImGui::Text("Diffuse Texture ID: %u", mat->diffuse_texture);
+        if (ImGui::Button("Load Diffuse Texture##NFD")) {
+            NFD::UniquePath outPath;
+            nfdfilteritem_t filterItem[1] = { { "Image Files", "png,jpg,jpeg,tga,bmp" } };
 
-            // ---------------------------------------------------------
-            // 2. DIFFUSE TEXTURE YÜKLEME (NFD ENTEGRASYONU)
-            // ---------------------------------------------------------
-            ImGui::Separator();
-            ImGui::Text("Diffuse Texture ID: %u", mat->diffuse_texture);
-            if (ImGui::Button("Load Diffuse Texture##NFD")) {
-                NFD::UniquePath outPath;
-                nfdfilteritem_t filterItem[1] = { { "Image Files", "png,jpg,jpeg,tga,bmp" } };
-
-                // İşletim sisteminin yerel dosya seçme penceresini açıyoruz
-                if (NFD::OpenDialog(outPath, filterItem, 1, nullptr) == NFD_OKAY) {
-                    // Seçilen görseli asset_pipeline aracılığıyla GPU'ya yükleyip ID'sini alıyoruz
-                    asset_id texID = asset_pipeline::import_texture(engineCtx, outPath.get());
-                    if (texID != 0) mat->diffuse_texture = texID;
-                }
-            }
-
-            // ---------------------------------------------------------
-            // 3. NORMAL MAP YÜKLEME (NFD ENTEGRASYONU)
-            // ---------------------------------------------------------
-            ImGui::Separator();
-            ImGui::Text("Normal Map ID: %u", mat->normal_texture);
-            if (ImGui::Button("Load Normal Map##NFD")) {
-                NFD::UniquePath outPath;
-                nfdfilteritem_t filterItem[1] = { { "Image Files", "png,jpg,jpeg,tga,bmp" } };
-
-                if (NFD::OpenDialog(outPath, filterItem, 1, nullptr) == NFD_OKAY) {
-                    asset_id texID = asset_pipeline::import_texture(engineCtx, outPath.get());
-                    if (texID != 0) mat->normal_texture = texID;
-                }
+            // İşletim sisteminin yerel dosya seçme penceresini açıyoruz
+            if (NFD::OpenDialog(outPath, filterItem, 1, nullptr) == NFD_OKAY) {
+                // Seçilen görseli asset_pipeline aracılığıyla GPU'ya yükleyip ID'sini alıyoruz
+                asset_id texID = asset_pipeline::import_texture(engineCtx, outPath.get());
+                if (texID != 0) mat->diffuse_texture = texID;
             }
         }
-        else {
-            // Materyal ID'sinin geçersiz veya bozuk olması durumundaki güvenlik senaryosu
-            ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Warning: No material assigned!");
-            if (ImGui::Button("Create & Assign New Material")) {
-                material defaultMat;
-                defaultMat.shader_id = 0;
-                defaultMat.base_color = glm::vec3(1.0f);
-                defaultMat.normal_strength = 1.0f;
-                defaultMat.diffuse_texture = 0;
-                defaultMat.normal_texture = 0;
-                defaultMat.texture_scale = glm::vec2(1.0f);
 
-                matComp->material_id = engineCtx.assetManager.add<material>(defaultMat);
+        // ---------------------------------------------------------
+        // 3. NORMAL MAP YÜKLEME (NFD ENTEGRASYONU)
+        // ---------------------------------------------------------
+        ImGui::Separator();
+        ImGui::Text("Normal Map ID: %u", mat->normal_texture);
+        if (ImGui::Button("Load Normal Map##NFD")) {
+            NFD::UniquePath outPath;
+            nfdfilteritem_t filterItem[1] = { { "Image Files", "png,jpg,jpeg,tga,bmp" } };
+
+            if (NFD::OpenDialog(outPath, filterItem, 1, nullptr) == NFD_OKAY) {
+                asset_id texID = asset_pipeline::import_texture(engineCtx, outPath.get());
+                if (texID != 0) mat->normal_texture = texID;
             }
+        }
+    }
+    else {
+        // Materyal ID'sinin geçersiz veya bozuk olması durumundaki güvenlik senaryosu
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Warning: No material assigned!");
+        if (ImGui::Button("Create & Assign New Material")) {
+            material defaultMat;
+            defaultMat.shader_id = 0;
+            defaultMat.base_color = glm::vec3(1.0f);
+            defaultMat.normal_strength = 1.0f;
+            defaultMat.diffuse_texture = 0;
+            defaultMat.normal_texture = 0;
+            defaultMat.texture_scale = glm::vec2(1.0f);
+
+            matComp->material_id = engineCtx.assetManager.add<material>(defaultMat);
         }
     }
 }
@@ -145,6 +141,11 @@ inline void register_material_ui_system() {
     // Tip gizleme (type-erasure) işlemi için has_component kontrol lambdası
     info.has_fn = [](entity e, const registry& reg) -> bool {
         return reg.has_component<material_component>(e);
+        };
+
+    // Material bileşenini ECS'den güvenle kaldıran remove_fn lambdası
+    info.remove_fn = [](entity e, registry& reg) {
+        reg.remove_component<material_component>(e);
         };
 
     // Benzersiz tip imzasını (hash_code) anahtar olarak kullanarak sisteme kayıt işlemini tamamlıyoruz

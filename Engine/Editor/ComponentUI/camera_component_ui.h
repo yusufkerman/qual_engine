@@ -18,21 +18,17 @@
   * @param editorCtx Editörün panel odakları ve arayüz durumu (EditorContext).
   */
 inline void render_camera_ui(entity e, registry& reg, EngineContext& engineCtx, EditorContext& editorCtx) {
-    // Görsel bütünlük için katlanabilir bir başlık (Collapsing Header) oluşturuyoruz
-    if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
+    // Varlığa ait kamera bileşeninin ham göstergesini (pointer) güvenli bir şekilde çekiyoruz
+    auto* c = reg.get_component<camera_component>(e);
+    if (c) {
+        // Görüş Açısı (Field of View) ayarı - 1'er birimlik adımlarla kaydırılabilir
+        ImGui::DragFloat("FOV", &c->fov, 1.0f);
 
-        // Varlığa ait kamera bileşeninin ham göstergesini (pointer) güvenli bir şekilde çekiyoruz
-        auto* c = reg.get_component<camera_component>(e);
-        if (c) {
-            // Görüş Açısı (Field of View) ayarı - 1'er birimlik adımlarla kaydırılabilir
-            ImGui::DragFloat("FOV", &c->fov, 1.0f);
+        // Yakın Kırpma Düzlemi (Near Clip Plane) ayarı - Hassaslık için 0.01'lik adımlarla kaydırılabilir
+        ImGui::DragFloat("Near", &c->nearPlane, 0.01f);
 
-            // Yakın Kırpma Düzlemi (Near Clip Plane) ayarı - Hassaslık için 0.01'lik adımlarla kaydırılabilir
-            ImGui::DragFloat("Near", &c->nearPlane, 0.01f);
-
-            // Uzak Kırpma Düzlemi (Far Clip Plane) ayarı - 1'er birimlik adımlarla kaydırılabilir
-            ImGui::DragFloat("Far", &c->farPlane, 1.0f);
-        }
+        // Uzak Kırpma Düzlemi (Far Clip Plane) ayarı - 1'er birimlik adımlarla kaydırılabilir
+        ImGui::DragFloat("Far", &c->farPlane, 1.0f);
     }
 }
 
@@ -71,6 +67,11 @@ inline void register_camera_ui_system() {
     // Tipi gizlenmiş (type-erased) registry için varlık bileşen kontrol lambdasının tanımlanması
     info.has_fn = [](entity e, const registry& reg) -> bool {
         return reg.has_component<camera_component>(e);
+        };
+
+    // Kamera bileşenini ECS'den güvenle kaldıran remove_fn lambdası
+    info.remove_fn = [](entity e, registry& reg) {
+        reg.remove_component<camera_component>(e);
         };
 
     // Kamera bileşeninin benzersiz tip kodunu (type-hash) anahtar olarak kullanarak merkezi sisteme kayıt ediyoruz

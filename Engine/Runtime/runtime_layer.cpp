@@ -16,17 +16,7 @@ static void update_runtime_camera(EngineContext& ctx)
     if (!camT)
         return;
 
-    update_fly_camera(
-        ctx.window,
-        ctx.inputState,
-        ctx.runtimeCameraState,
-        camT->position,
-        camT->rotation,
-        ctx.sensitivity,
-        ctx.moveSpeed,
-        ctx.editor.gameViewportHovered,
-        nullptr
-    );
+    
 }
 
 void runtime_layer::update(EngineContext& ctx)

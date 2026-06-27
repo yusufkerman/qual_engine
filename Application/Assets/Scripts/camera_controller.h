@@ -1,5 +1,6 @@
 #pragma once
 #include <Scene/scriptable_entity.h>
+#include <Engine/Scripting/script_factory.h>
 #include <glm/glm.hpp>
 
 class camera_controller : public scriptable_entity
@@ -22,3 +23,5 @@ private:
     float sensitivity = 0.005f;
     float smooth = 10.0f;
 };
+
+REGISTER_SCRIPT(camera_controller);

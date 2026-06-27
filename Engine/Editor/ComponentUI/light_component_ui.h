@@ -19,35 +19,31 @@
   * @param editorCtx Editörün panel odakları ve arayüz durumu (EditorContext).
   */
 inline void render_light_ui(entity e, registry& reg, EngineContext& engineCtx, EditorContext& editorCtx) {
-    // Görsel bütünlük için katlanabilir bir başlık (Collapsing Header) oluşturuyoruz
-    if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen)) {
+    // Varlığa ait ışık bileşeninin ham göstergesini (pointer) güvenli bir şekilde çekiyoruz
+    auto* l = reg.get_component<light_component>(e);
+    if (l) {
+        // 1. RENK VE YOĞUNLUK AYARLARI
+        // Işığın RGB renk vektörünü değiştirmek için renk paleti seçici açar
+        ImGui::ColorEdit3("Color", &l->color.x);
 
-        // Varlığa ait ışık bileşeninin ham göstergesini (pointer) güvenli bir şekilde çekiyoruz
-        auto* l = reg.get_component<light_component>(e);
-        if (l) {
-            // 1. RENK VE YOĞUNLUK AYARLARI
-            // Işığın RGB renk vektörünü değiştirmek için renk paleti seçici açar
-            ImGui::ColorEdit3("Color", &l->color.x);
+        // Işık şiddeti (Intensity) - 0.1'lik adımlarla hassas kaydırma
+        ImGui::DragFloat("Intensity", &l->intensity, 0.1f);
 
-            // Işık şiddeti (Intensity) - 0.1'lik adımlarla hassas kaydırma
-            ImGui::DragFloat("Intensity", &l->intensity, 0.1f);
+        // Işığın etki mesafesi (Range) - Noktasal ve Spot ışıklar için kritik parametre
+        ImGui::DragFloat("Range", &l->range, 1.0f);
 
-            // Işığın etki mesafesi (Range) - Noktasal ve Spot ışıklar için kritik parametre
-            ImGui::DragFloat("Range", &l->range, 1.0f);
+        // 2. SPOT IŞIK ÖZEL AYARLARI (CONE ANGLES)
+        // Sadece spot ışık türünde anlamlı olan iç ve dış koni açı sınırları (0-90 derece arası)
+        ImGui::DragFloat("Inner Cone", &l->inner_cone, 0.5f, 0.0f, 89.0f);
+        ImGui::DragFloat("Outer Cone", &l->outer_cone, 0.5f, 0.0f, 90.0f);
 
-            // 2. SPOT IŞIK ÖZEL AYARLARI (CONE ANGLES)
-            // Sadece spot ışık türünde anlamlı olan iç ve dış koni açı sınırları (0-90 derece arası)
-            ImGui::DragFloat("Inner Cone", &l->inner_cone, 0.5f, 0.0f, 89.0f);
-            ImGui::DragFloat("Outer Cone", &l->outer_cone, 0.5f, 0.0f, 90.0f);
+        // 3. IŞIK TÜRÜ SEÇİMİ (ENUM MANAGEMENT)
+        const char* typeNames[] = { "Directional", "Point", "Spot" };
+        int typeIndex = (int)l->type;
 
-            // 3. IŞIK TÜRÜ SEÇİMİ (ENUM MANAGEMENT)
-            const char* typeNames[] = { "Directional", "Point", "Spot" };
-            int typeIndex = (int)l->type;
-
-            // Kullanıcı Combo Box üzerinden türü değiştirdiğinde enum cast edilerek doğrudan bileşene yazılır
-            if (ImGui::Combo("Type", &typeIndex, typeNames, 3))
-                l->type = (light_type)typeIndex;
-        }
+        // Kullanıcı Combo Box üzerinden türü değiştirdiğinde enum cast edilerek doğrudan bileşene yazılır
+        if (ImGui::Combo("Type", &typeIndex, typeNames, 3))
+            l->type = (light_type)typeIndex;
     }
 }
 
@@ -79,6 +75,11 @@ inline void register_light_ui_system() {
     // Tip gizleme (type-erasure) işlemi için has_component kontrol lambdası
     info.has_fn = [](entity e, const registry& reg) -> bool {
         return reg.has_component<light_component>(e);
+        };
+
+    // Light bileşenini ECS'den güvenle kaldıran remove_fn lambdası
+    info.remove_fn = [](entity e, registry& reg) {
+        reg.remove_component<light_component>(e);
         };
 
     // Benzersiz tip imzasını (hash_code) anahtar olarak kullanarak sisteme kayıt işlemini tamamlıyoruz

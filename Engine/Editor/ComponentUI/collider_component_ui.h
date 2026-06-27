@@ -19,57 +19,53 @@
   * @param editorCtx Editörün panel ve arayüz durumu (EditorContext).
   */
 inline void render_collider_ui(entity e, registry& reg, EngineContext& engineCtx, EditorContext& editorCtx) {
-    // Görsel bütünlük için katlanabilir bir başlık (Collapsing Header) oluşturuyoruz
-    if (ImGui::CollapsingHeader("Collider (Jolt Shape)", ImGuiTreeNodeFlags_DefaultOpen)) {
+    // Varlığa ait collider bileşeninin ham göstergesini güvenli bir şekilde çekiyoruz
+    auto* col = reg.get_component<collider_component>(e);
+    if (!col) return;
 
-        // Varlığa ait collider bileşeninin ham göstergesini güvenli bir şekilde çekiyoruz
-        auto* col = reg.get_component<collider_component>(e);
-        if (!col) return;
+    // ---------------------------------------------------------
+    // 1. COLLIDER TIPI SEÇIMI (BOX / SPHERE)
+    // ---------------------------------------------------------
+    const char* colliderNames[] = { "Box", "Sphere" };
+    int typeIndex = (int)col->type;
 
-        // ---------------------------------------------------------
-        // 1. COLLIDER TIPI SEÇIMI (BOX / SPHERE)
-        // ---------------------------------------------------------
-        const char* colliderNames[] = { "Box", "Sphere" };
-        int typeIndex = (int)col->type;
+    // Kullanıcı arayüzünden tipi değiştirdiğinde enum değerini güncelliyoruz
+    if (ImGui::Combo("Collider Type", &typeIndex, colliderNames, 2)) {
+        col->type = (collider_type)typeIndex;
+    }
 
-        // Kullanıcı arayüzünden tipi değiştirdiğinde enum değerini güncelliyoruz
-        if (ImGui::Combo("Collider Type", &typeIndex, colliderNames, 2)) {
-            col->type = (collider_type)typeIndex;
-        }
+    ImGui::Separator();
 
-        ImGui::Separator();
+    // ---------------------------------------------------------
+    // 2. TİPE GÖRE DİNAMİK BOYUTLANDIRMA KONTROLLERİ
+    // ---------------------------------------------------------
+    if (col->type == collider_type::box) {
+        // Jolt Physics, kutu boyutları için "Half-Extents" (Merkezden kenara olan mesafe) bekler.
+        // Kullanıcıyı bilgilendirmek adına gri renkte bir açıklama metni basıyoruz.
+        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Box Dimensions (Half-Extents)");
 
-        // ---------------------------------------------------------
-        // 2. TİPE GÖRE DİNAMİK BOYUTLANDIRMA KONTROLLERİ
-        // ---------------------------------------------------------
-        if (col->type == collider_type::box) {
-            // Jolt Physics, kutu boyutları için "Half-Extents" (Merkezden kenara olan mesafe) bekler.
-            // Kullanıcıyı bilgilendirmek adına gri renkte bir açıklama metni basıyoruz.
-            ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Box Dimensions (Half-Extents)");
+        // X, Y, Z eksenlerindeki yarı-uzunluk değerlerini 0.05'lik adımlarla manipüle ediyoruz
+        ImGui::DragFloat3("Extents", &col->extents.x, 0.05f, 0.01f, 100.0f, "%.2f");
+    }
+    else if (col->type == collider_type::sphere) {
+        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Sphere Dimensions");
 
-            // X, Y, Z eksenlerindeki yarı-uzunluk değerlerini 0.05'lik adımlarla manipüle ediyoruz
-            ImGui::DragFloat3("Extents", &col->extents.x, 0.05f, 0.01f, 100.0f, "%.2f");
-        }
-        else if (col->type == collider_type::sphere) {
-            ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Sphere Dimensions");
+        // Küre geometrisi için sadece yarıçap (Radius) bilgisini çekiyoruz (X bileşenini scale kabul ederek)
+        ImGui::DragFloat("Radius", &col->extents.x, 0.05f, 0.01f, 100.0f, "%.2f");
 
-            // Küre geometrisi için sadece yarıçap (Radius) bilgisini çekiyoruz (X bileşenini scale kabul ederek)
-            ImGui::DragFloat("Radius", &col->extents.x, 0.05f, 0.01f, 100.0f, "%.2f");
+        // Veri bütünlüğünü korumak adına Y ve Z eksenlerini de X (Radius) ile senkronize tutuyoruz
+        col->extents.y = col->extents.x;
+        col->extents.z = col->extents.x;
+    }
 
-            // Veri bütünlüğünü korumak adına Y ve Z eksenlerini de X (Radius) ile senkronize tutuyoruz
-            col->extents.y = col->extents.x;
-            col->extents.z = col->extents.x;
-        }
+    ImGui::Separator();
 
-        ImGui::Separator();
-
-        // ---------------------------------------------------------
-        // 3. BİLEŞENİ KALDIRMA (REMOVE)
-        // ---------------------------------------------------------
-        if (ImGui::Button("Remove Collider")) {
-            // Varlığı ECS dünyasındaki collider kütüphanesinden güvenle siliyoruz
-            reg.remove_component<collider_component>(e);
-        }
+    // ---------------------------------------------------------
+    // 3. BİLEŞENİ KALDIRMA (REMOVE)
+    // ---------------------------------------------------------
+    if (ImGui::Button("Remove Collider")) {
+        // Varlığı ECS dünyasındaki collider kütüphanesinden güvenle siliyoruz
+        reg.remove_component<collider_component>(e);
     }
 }
 
@@ -101,6 +97,11 @@ inline void register_collider_ui_system() {
     // Tip gizleme (type-erasure) işlemi için has_component kontrol lambdası
     info.has_fn = [](entity e, const registry& reg) -> bool {
         return reg.has_component<collider_component>(e);
+        };
+
+    // Collider bileşenini ECS'den güvenle kaldıran remove_fn lambdası
+    info.remove_fn = [](entity e, registry& reg) {
+        reg.remove_component<collider_component>(e);
         };
 
     // Benzersiz hash kodunu kullanarak bileşeni merkezi UI kütüphanesine ekliyoruz
