@@ -10,35 +10,44 @@ out vec4 FragColor;
 uniform vec3 baseColor;
 uniform bool useTexture;
 uniform sampler2D diffuseTex;
-uniform vec2 u_TextureScale; // 🔥 Inspector'dan gelen ölçeklendirme çarpanı
+uniform vec2 u_TextureScale; //  Inspector'dan gelen ölçeklendirme çarpanı
 
 uniform bool useNormalMap;
 uniform sampler2D normalTex;
 uniform float normalStrength;
 
+// ============================================================================
+// UBO YAPISI (std140) - HİZALAMA
+// ============================================================================
 struct Light
 {
     int type;
+    vec3 position; // type(4 byte) + GLSL vec3 hizalaması otomatik boşluk bırakır, sorun yok
+    float range;      
 
-    vec3 position;
     vec3 direction;
+    float intensity;  
 
     vec3 color;
+    float inner_cone; 
 
-    float intensity;
-
-    float range;
-
-    float inner_cone;
     float outer_cone;
+    // C++ tarafındaki son 3 float padding struct'ı 80 byte'a tamamlar
 };
 
-uniform int lightCount;
-uniform Light lights[64];
+layout (std140, binding = 0) uniform LightBuffer
+{
+    int   lightCount;
+    int   _pad0;
+    int   _pad1;
+    int   _pad2;
+    Light lights[64];
+};
+// ============================================================================
 
 void main()
 {
-    // 🔥 UV Koordinatlarını Tiling için u_TextureScale ile çarparak yeni bir koordinat üretiyoruz.
+    //  UV Koordinatlarını Tiling için u_TextureScale ile çarparak yeni bir koordinat üretiyoruz.
     // Eğer Inspector'dan (1.0, 1.0) gelirse orijinal UV kalır, (5.0, 5.0) gelirse doku 5 kat sıklaşır.
     vec2 tiledUV = vUV * u_TextureScale;
 
@@ -52,7 +61,7 @@ void main()
         N = normalize(vTBN * normalize(tangentNormal));
     }
 
-    // 🚨 tiledUV kullanıldı
+    //  tiledUV kullanıldı
     vec3 albedo = useTexture ? texture(diffuseTex, tiledUV).rgb : baseColor;
 
     vec3 result = vec3(0.0);
@@ -60,25 +69,18 @@ void main()
 
     result += albedo * ambient;
 
-    for (int i = 0; i < lightCount; i++)
+    for (int i = 0; i < lightCount && i < 64; i++)
     {
         Light l = lights[i];
 
         vec3 L;
         float attenuation = 1.0;
 
-        // -------------------------
-        // DIRECTIONAL
-        // -------------------------
-        if (l.type == 0)
+        if (l.type == 0) // DIRECTIONAL
         {
             L = normalize(-l.direction);
         }
-
-        // -------------------------
-        // POINT
-        // -------------------------
-        else if (l.type == 1)
+        else if (l.type == 1) // POINT
         {
             vec3 toLight = l.position - vWorldPos;
             float dist = length(toLight);
@@ -86,11 +88,7 @@ void main()
 
             attenuation = 1.0 / (1.0 + (dist / l.range) * (dist / l.range));
         }
-
-        // -------------------------
-        // SPOT
-        // -------------------------
-        else
+        else // SPOT
         {
             vec3 toLight = l.position - vWorldPos;
             float dist = length(toLight);
@@ -109,16 +107,10 @@ void main()
         }
 
         float diff = max(dot(N, L), 0.0);
-
-        vec3 diffuse =
-            albedo *
-            l.color *
-            l.intensity *
-            diff *
-            attenuation;
-
+        vec3 diffuse = albedo * l.color * l.intensity * diff * attenuation;
         result += diffuse;
     }
+
 
     FragColor = vec4(result, 1.0);
 }

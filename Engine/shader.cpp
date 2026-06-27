@@ -54,6 +54,12 @@ shader::shader(const char* vertexPath, const char* fragmentPath)
     glAttachShader(ID, fs);
     glLinkProgram(ID);
 
+    glGetProgramiv(ID, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(ID, 512, NULL, infoLog);
+        std::cout << "SHADER LINK ERROR:\n" << infoLog << std::endl;
+    }
+
     glDeleteShader(vs);
     glDeleteShader(fs);
 }

@@ -1,110 +1,162 @@
-
 #include "render_system.h"
+#include "../Engine/engine_context.h" 
 #include "../ECS/registry.h"
-#include "../Renderer/MeshRenderer.h"
 #include "../ECS/components.h"
-#include "../Renderer/render_queue.h"
 #include "../Renderer/frustum.h"
-#include "../shader_manager.h"
 #include "../Renderer/material.h"
-#include "../Importers/texture_loader.h"
+#include "../shader.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
+// MeshRenderer enum/sabitleri (mesh id vb.)
+#include "../Renderer/MeshRenderer.h"
 
-//  NOT: Parametrelere texture_manager& textureManager eklendi!
+
+
+// Constructor artık tamamen temiz ve güvenli
+render_system::render_system()
+    : m_LightUBO(0)
+{
+}
+/** * @brief Render sisteminin GPU kaynaklarını güvenli bir şekilde oluşturur.
+ * Bu fonksiyon GLAD ilklendirilmeden önce ÇAĞRILMAMALIDIR.
+ */
+void render_system::init()
+{
+    if (m_LightUBO != 0) return; // Zaten oluşturulduysa mükerrer işlem yapma
+
+    size_t uboSize = 16 + (sizeof(light_data) * MAX_LIGHT_COUNT);
+
+    glGenBuffers(1, &m_LightUBO);
+    glBindBuffer(GL_UNIFORM_BUFFER, m_LightUBO);
+    glBufferData(GL_UNIFORM_BUFFER, uboSize, nullptr, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_LightUBO);
+
+    std::cout << "[RenderSystem] Light UBO successfully initialized." << std::endl;
+}
+void render_system::bind_light_buffer(shader& s)
+{
+    unsigned int blockIndex = glGetUniformBlockIndex(s.ID, "LightBuffer");
+    if (blockIndex != GL_INVALID_INDEX)
+        glUniformBlockBinding(s.ID, blockIndex, 0);
+}
+
+/**
+ * @brief GPU kaynaklarını temizler.
+ */
+render_system::~render_system()
+{
+    if (m_LightUBO != 0)
+    {
+        glDeleteBuffers(1, &m_LightUBO);
+    }
+}
+
+/**
+ * @brief Sahneyi render eder (ana render pipeline).
+ *
+ * Pipeline sırası:
+ * 1. Işık verisi GPU'ya gönderilir (UBO)
+ * 2. ECS'den render edilebilir objeler çıkarılır (extract)
+ * 3. Shader bazlı batching yapılır
+ * 4. Draw call'lar gerçekleştirilir
+ */
 void render_system::render(
     const registry& reg,
     const light_batch& lightBatch,
-    MeshRenderer& renderer,
-    shader_manager& shaderManager,
-    asset_manager& assetManager,
-    texture_manager& textureManager,
+    EngineContext& ctx,
     const glm::mat4& view,
     const glm::mat4& projection
 )
 {
     glm::mat4 viewProj = projection * view;
+
+    // Scene içindeki ışık listesi alınır
     const auto& lights = lightBatch.lights;
 
-    auto items = extract(reg, assetManager, textureManager, viewProj);
-    render_queue queue;
+    int lightCount = (int)lights.size();
+    if (lightCount > MAX_LIGHT_COUNT)
+        lightCount = MAX_LIGHT_COUNT;
 
-    for (auto& item : items)
-        queue.batches[item.shader_id].push_back(item);
+    // Işık sayısı GPU'ya yazılır
+    glBindBuffer(GL_UNIFORM_BUFFER, m_LightUBO);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(int), &lightCount);
 
-    for (auto& [shaderID, batch] : queue.batches)
+    // Işık verileri GPU'ya yazılır
+    if (lightCount > 0)
     {
-        shader& shader = shaderManager.get(shaderID);
+        glBufferSubData(GL_UNIFORM_BUFFER, 16,
+            lightCount * sizeof(light_data),
+            lights.data());
+    }
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+
+
+    // Frame başı render cache temizlenir
+    m_RenderItemsCache.clear();
+
+    // ECS → render item extraction
+    extract(reg, ctx, viewProj);
+
+    // Shader bazlı batch map temizlenir
+    m_RenderQueueCache.batches.clear();
+
+    // Render item'lar shader ID'ye göre gruplanır
+    for (const auto& item : m_RenderItemsCache)
+        m_RenderQueueCache.batches[item.shader_id].push_back(item);
+
+    // Her shader grubu ayrı draw pass olur
+    for (auto& [shaderID, batch] : m_RenderQueueCache.batches)
+    {
+        shader& shader = ctx.shaderManager.get(shaderID);
         shader.use();
 
-        shader.setInt("lightCount", (int)lights.size());
-
-        for (int i = 0; i < (int)lights.size() && i < 64; i++)
-        {
-            const auto& l = lights[i];
-            std::string base = "lights[" + std::to_string(i) + "]";
-            shader.setInt(base + ".type", l.type);
-            shader.setVec3(base + ".position", l.position);
-            shader.setVec3(base + ".direction", l.direction);
-            shader.setVec3(base + ".color", l.color);
-            shader.setFloat(base + ".intensity", l.intensity);
-            shader.setFloat(base + ".range", l.range);
-            shader.setFloat(base + ".inner_cone", l.inner_cone);
-            shader.setFloat(base + ".outer_cone", l.outer_cone);
-        }
-
+        // Kamera matrisleri
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
 
-        for (auto& item : batch)
+        for (const auto& item : batch)
         {
-
             shader.setMat4("model", item.model);
             shader.setVec3("baseColor", item.base_color);
-
-            // 🔥 Evin dokusunun büyüklüğünü ayarlamak için (Tiling / Scale) shader'a gönderiyoruz
             shader.setVec2("u_TextureScale", item.texture_scale);
 
-            // 🖼️ DIFFUSE TEXTURE BAĞLAMA (DÜZELTİLDİ)
             shader.setInt("useTexture", item.diffuse_texture != 0);
-            if (item.diffuse_texture != 0)
-            {
-                // 🔥 KESİN ÇÖZÜM: texture_manager'dan gerçek OpenGL ID'sini istiyoruz!
-                unsigned int realGLid = textureManager.get(item.diffuse_texture);
-
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, realGLid); // Gerçek doku bağlandı, morluk bitti!
-            }
-
-            // 🗺️ NORMAL MAP BAĞLAMA (DÜZELTİLDİ)
             shader.setInt("useNormalMap", item.normal_texture != 0);
+
             if (item.normal_texture != 0)
             {
-                // 🔥 KESİN ÇÖZÜM: Normal map için de gerçek ID'yi çekiyoruz
-                unsigned int realNormalGLid = textureManager.get(item.normal_texture);
-
                 shader.setFloat("normalStrength", item.normal_strength);
-                glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, realNormalGLid);
             }
 
-
-            renderer.Draw(item);
+            // Mesh draw call (renderer + texture manager üzerinden)
+            ctx.renderer.Draw(item, ctx.textureManager);
         }
     }
 }
 
-std::vector<render_item> render_system::extract(
+/**
+ * @brief ECS içinden render edilebilir objeleri toplar.
+ *
+ * İşlemler:
+ * - Transform → model matrix oluşturma
+ * - Frustum culling (görünmeyen objeleri eleme)
+ * - Material çözümleme
+ * - Render item üretimi
+ */
+void render_system::extract(
     const registry& reg,
-    asset_manager& assetManager,
-    class texture_manager& textureManager,
+    EngineContext& ctx,
     const glm::mat4& viewProj
 )
 {
-    std::vector<render_item> items;
+    // Kamera görüş hacmi oluşturulur
     frustum f = buildFrustum(viewProj);
+
+    // Culling hatalarını azaltmak için küçük bias
     constexpr float kCullBias = 0.01f;
 
     for (const auto& [e, mesh] : reg.get_all<mesh_component>())
@@ -115,6 +167,7 @@ std::vector<render_item> render_system::extract(
 
         if (!transform) continue;
 
+        // Model matrix (T * R * S)
         glm::mat4 model(1.0f);
         model = glm::translate(model, transform->position);
         model = glm::rotate(model, transform->rotation.x, glm::vec3(1, 0, 0));
@@ -122,32 +175,31 @@ std::vector<render_item> render_system::extract(
         model = glm::rotate(model, transform->rotation.z, glm::vec3(0, 0, 1));
         model = glm::scale(model, transform->scale);
 
+        // Bounding sphere world space'e taşınır
         glm::vec3 localCenter = bounds ? bounds->localCenter : glm::vec3(0.0f);
         glm::vec3 worldCenter = glm::vec3(model * glm::vec4(localCenter, 1.0f));
 
-        float maxScale = glm::max(transform->scale.x, glm::max(transform->scale.y, transform->scale.z));
+        // Scale'e göre bounding radius hesaplanır
+        float maxScale = glm::max(transform->scale.x,
+            glm::max(transform->scale.y, transform->scale.z));
+
         float baseRadius = bounds ? bounds->localRadius : transform->boundingRadius;
         float radius = baseRadius * maxScale + kCullBias;
 
-        bool inside = true;
-        for (const auto& plane : f.planes)
-        {
-            if (plane.distance(worldCenter) < -radius)
-            {
-                inside = false;
-                break;
-            }
-        }
+        // Frustum dışındaysa render edilmez
+        if (!f.is_inside(worldCenter, radius))
+            continue;
 
-        if (!inside) continue;
-
+        // Render item oluşturulur
         render_item item;
         item.model = model;
         item.mesh_id = mesh.mesh_id;
 
+        // Material çözümleme
         if (matComp)
         {
-            const material* mat = assetManager.try_get<material>(matComp->material_id);
+            const material* mat =
+                ctx.assetManager.try_get<material>(matComp->material_id);
 
             if (mat)
             {
@@ -155,32 +207,14 @@ std::vector<render_item> render_system::extract(
                 item.base_color = mat->base_color;
                 item.normal_strength = mat->normal_strength;
                 item.texture_scale = mat->texture_scale;
-
-                // 🖼️ DIFFUSE TEXTURE FİLTRESİ
-                // ID sıfır değilse VE gerçekten textureManager içinde bu kayıt yüklenmişse kabul et
-                if (mat->diffuse_texture != 0 && textureManager.has(mat->diffuse_texture))
-                {
-                    item.diffuse_texture = mat->diffuse_texture;
-                }
-                else
-                {
-                    item.diffuse_texture = 0; // Çöp ID'yi temizle, hata basılmasını engelle!
-                }
-
-                // 🗺️ NORMAL MAP FİLTRESİ
-                if (mat->normal_texture != 0 && textureManager.has(mat->normal_texture))
-                {
-                    item.normal_texture = mat->normal_texture;
-                }
-                else
-                {
-                    item.normal_texture = 0; // Çöp ID ise 0 yap, düz geç!
-                }
+                item.diffuse_texture = mat->diffuse_texture;
+                item.normal_texture = mat->normal_texture;
             }
             else
             {
+                // Fallback material (debug magenta)
                 item.shader_id = 0;
-                item.base_color = glm::vec3(1.0f, 0.0f, 1.0f); // Fallback rengi mor kalabilir
+                item.base_color = glm::vec3(1.0f, 0.0f, 1.0f);
                 item.diffuse_texture = 0;
                 item.normal_texture = 0;
                 item.texture_scale = glm::vec2(1.0f);
@@ -188,6 +222,7 @@ std::vector<render_item> render_system::extract(
         }
         else
         {
+            // Material yoksa default değerler
             item.shader_id = 0;
             item.base_color = glm::vec3(1.0f);
             item.diffuse_texture = 0;
@@ -195,8 +230,7 @@ std::vector<render_item> render_system::extract(
             item.texture_scale = glm::vec2(1.0f);
         }
 
-        items.push_back(item);
+        // Cache'e eklenir (allocation yok → performans odaklı)
+        m_RenderItemsCache.push_back(item);
     }
-
-    return items;
 }

@@ -3,6 +3,38 @@
 #include <iostream>
 #include "../Importers/texture_loader.h"
 
+
+
+texture_manager::texture_manager()
+    : m_FallbackTextureGLID(0) // Constructor sadece güvenli ilk atamayı yapar
+{
+}
+
+void texture_manager::init()
+{
+    // Çünkü bu fonksiyonu gladLoadGL çağrısından SONRA tetikleyeceğiz.
+    if (m_FallbackTextureGLID != 0) return; // Zaten kurulduysa pas geç
+
+    glGenTextures(1, &m_FallbackTextureGLID);
+    glBindTexture(GL_TEXTURE_2D, m_FallbackTextureGLID);
+
+    unsigned char whitePixel[] = { 255, 255, 255, 255 };
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, whitePixel);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    std::cout << "[TextureManager] Fallback texture successfully created." << std::endl;
+}
+texture_manager::~texture_manager()
+{
+    if (m_FallbackTextureGLID != 0)
+    {
+        glDeleteTextures(1, &m_FallbackTextureGLID);
+    }
+}
+
 unsigned int texture_manager::load(const std::string& path)
 {
     unsigned int glTexture = texture_loader::load(path.c_str());
@@ -15,7 +47,7 @@ unsigned int texture_manager::load(const std::string& path)
 
     unsigned int id = nextID++;
     textures[id] = glTexture;
-    texturePaths[id] = path; // 🔥 KRİTİK: Yüklenen dokunun dosya yolunu kaydettik!
+    texturePaths[id] = path; //Yüklenen dokunun dosya yolunu kaydettik!
 
     return id;
 }
@@ -25,8 +57,9 @@ unsigned int texture_manager::get(unsigned int id)
     auto it = textures.find(id);
     if (it == textures.end())
     {
-        std::cout << "[TextureManager] Invalid texture ID: " << id << std::endl;
-        return 0;
+        // Geçersiz veya henüz yüklenmemiş bir ID istendiğinde motor çökmez, 
+        // ekrana morluk basmak yerine düz beyaz fallback dokusunu döner.
+        return m_FallbackTextureGLID;
     }
     return it->second;
 }

@@ -16,6 +16,19 @@ struct plane
 struct frustum
 {
     std::array<plane, 6> planes;
+
+    // Sorumlulukların ayrılması için culling kontrolü buraya taşındı
+    bool is_inside(const glm::vec3& worldCenter, float radius) const
+    {
+        for (const auto& plane : planes)
+        {
+            if (plane.distance(worldCenter) < -radius)
+            {
+                return false; // Eğer bir düzlemin bile arkasındaysa dışarıdadır
+            }
+        }
+        return true; // Tüm düzlemlerin içindeyse görünürdür
+    }
 };
 
 inline frustum buildFrustum(const glm::mat4& m)

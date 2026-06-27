@@ -83,16 +83,49 @@ void MeshRenderer::DrawModel()
 //    glBindVertexArray(m.VAO);
 //    glDrawElements(GL_TRIANGLES, m.indexCount, GL_UNSIGNED_INT, 0);
 //}
-void MeshRenderer::Draw(const render_item& item)
+void MeshRenderer::Draw(const render_item& item, texture_manager& textureManager) 
 {
     GPU_Mesh& m = GetMesh(item.mesh_id);
-
     glBindVertexArray(m.VAO);
 
-    // şimdilik sadece model matrix
-    // shader setleme kısmı ileride material'a taşınacak
+    // ------------------------------------------------------------------------
+    // TEXTURE BINDING (DOKULARI BAĞLAMA)
+    // ------------------------------------------------------------------------
+    if (item.diffuse_texture != 0)
+    {
+        unsigned int realGLid = textureManager.get(item.diffuse_texture);
+        glActiveTexture(GL_TEXTURE0 + DIFFUSE_TEXTURE_SLOT);
+        glBindTexture(GL_TEXTURE_2D, realGLid);
+    }
 
+    if (item.normal_texture != 0)
+    {
+        unsigned int realNormalGLid = textureManager.get(item.normal_texture);
+        glActiveTexture(GL_TEXTURE0 + NORMAL_TEXTURE_SLOT);
+        glBindTexture(GL_TEXTURE_2D, realNormalGLid);
+    }
+
+    // ------------------------------------------------------------------------
+    // ACTUAL DRAW CALL (GERÇEK ÇİZİM)
+    // ------------------------------------------------------------------------
     glDrawElements(GL_TRIANGLES, m.indexCount, GL_UNSIGNED_INT, 0);
+
+    // ------------------------------------------------------------------------
+    //  STATE LEAK PROTECTION (UNBIND KORUMASI)
+    // ------------------------------------------------------------------------
+    // İşimizi bitirdikten sonra slotları temizliyoruz
+    if (item.diffuse_texture != 0)
+    {
+        glActiveTexture(GL_TEXTURE0 + DIFFUSE_TEXTURE_SLOT);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    if (item.normal_texture != 0)
+    {
+        glActiveTexture(GL_TEXTURE0 + NORMAL_TEXTURE_SLOT);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    glBindVertexArray(0);
 }
 void MeshRenderer::Clear()
 {

@@ -5,6 +5,11 @@
 class texture_manager
 {
 public:
+    texture_manager();
+    ~texture_manager();
+
+    void init();
+
     bool has(unsigned int id) const;
     unsigned int load(const std::string& path);
     unsigned int get(unsigned int id);
@@ -19,4 +24,7 @@ private:
     std::unordered_map<unsigned int, unsigned int> textures; // ID -> OpenGL ID
     std::unordered_map<unsigned int, std::string> texturePaths; // ID -> Dosya Yolu (Yeni!)
     unsigned int nextID = 0;
+
+    unsigned int m_FallbackTextureGLID = 0;
+
 };

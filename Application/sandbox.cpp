@@ -270,11 +270,11 @@ void sandbox_load_demo_game(EngineContext& ctx)
         }
     );
 
-    // Görsel mesh ve materyal bileşenlerini ekliyoruz
-    editorScene.get_registry().add_component<mesh_component>(
+    // Görsel mesh ve materyal bileşenlerini ekliyoruz (kapalı)
+    /*editorScene.get_registry().add_component<mesh_component>(
         playerEntity,
         mesh_component{ cubeImport.mesh_ids.front(), "internal://primitive_cube" }
-    );
+    );*/
 
     editorScene.get_registry().add_component<material_component>(
         playerEntity,

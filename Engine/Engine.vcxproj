@@ -817,6 +817,10 @@
     <None Include="Externals\Jolt\Math\Vec4.inl" />
     <None Include="Externals\Jolt\Physics\Body\Body.inl" />
     <None Include="Externals\Jolt\Physics\Body\MotionProperties.inl" />
+    <None Include="Shaders\default_fragment.glsl" />
+    <None Include="Shaders\default_vertex.glsl" />
+    <None Include="Shaders\fragment.glsl" />
+    <None Include="Shaders\vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

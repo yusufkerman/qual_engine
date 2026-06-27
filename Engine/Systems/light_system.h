@@ -8,20 +8,23 @@
 
 struct light_data
 {
-    int type; // 0 directional, 1 point, 2 spot
+    int       type;
+    float     _pad0[3];    // 12 byte padding → position vec3 hizalaması
 
     glm::vec3 position;
+    float     range;
+
     glm::vec3 direction;
+    float     intensity;
 
     glm::vec3 color;
+    float     inner_cone;
 
-    float intensity;
-
-    float range;
-
-    float inner_cone;
-    float outer_cone;
+    float     outer_cone;
+    float     _pad1[3];    // struct'ı 80 byte'a tamamla
 };
+
+static_assert(sizeof(light_data) == 80, "light_data size mismatch!");
 
 class light_system
 {

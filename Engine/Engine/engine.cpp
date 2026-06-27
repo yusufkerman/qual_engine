@@ -13,6 +13,7 @@
 #include "../Renderer/Passes/ui_pass.h"
 #include "../Renderer/Passes/grid_pass.h"
 
+
 namespace
 {
     static void framebuffer_size_callback(GLFWwindow* window, int w, int h)
@@ -80,6 +81,9 @@ bool Engine::init(EngineContext& ctx)
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return false;
 
+    ctx.textureManager.init();
+    ctx.renderSystem.init();
+
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
@@ -97,11 +101,13 @@ bool Engine::init(EngineContext& ctx)
         return false;
     }
 
-    unsigned int mainShader = ctx.shaderManager.load(
+   
+
+    unsigned int mainShaderID = ctx.shaderManager.load(
         "Shaders/default_vertex.glsl",
         "Shaders/default_fragment.glsl"
     );
-    std::cout << "mainShader ID: " << mainShader << std::endl;
+    ctx.renderSystem.bind_light_buffer(ctx.shaderManager.get(mainShaderID));
 
 
     ctx.gridShaderID = ctx.shaderManager.load(
@@ -114,7 +120,7 @@ bool Engine::init(EngineContext& ctx)
         "Shaders/Skybox/skybox.frag"
     );
 
-    auto& s = ctx.shaderManager.get(mainShader);
+    auto& s = ctx.shaderManager.get(mainShaderID);
     s.use();
     s.setInt("diffuseTex", 0);
     s.setInt("normalTex", 1);
