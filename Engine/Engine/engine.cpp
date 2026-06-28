@@ -98,6 +98,7 @@ bool Engine::init(EngineContext& ctx)
 
     ctx.uiManager.init(ctx.window);
     ctx.grid.init();
+    ctx.gizmoSystem.init();
 
 
     if (!ctx.physicsSystem.init(ctx.session.game_scene()))
@@ -113,6 +114,11 @@ bool Engine::init(EngineContext& ctx)
         "Shaders/default_fragment.glsl"
     );
     ctx.renderSystem.bind_light_buffer(ctx.shaderManager.get(mainShaderID));
+
+    ctx.gizmoShaderID = ctx.shaderManager.load(
+        "Shaders/Debug/gizmo_vertex.glsl",
+        "Shaders/Debug/gizmo_fragment.glsl"
+    );
 
     //Gölge shader'ı yüklenir.
     ctx.shadowShaderID = ctx.shaderManager.load(
@@ -143,9 +149,7 @@ bool Engine::init(EngineContext& ctx)
 
     ctx.prevMode = ctx.editor.mode;
 
-    ctx.skyboxTexture = cubemap_loader::load_atlas({
-        "Assets/sky/skybox1.png"
-        });
+    ctx.skyboxTexture = cubemap_loader::load_atlas("Assets/sky/skybox1.png");
 
     if (NFD_Init() != NFD_OKAY)
         std::cout << "[NFD] init failed\n";

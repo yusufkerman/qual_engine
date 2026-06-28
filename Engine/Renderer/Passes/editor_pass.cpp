@@ -28,4 +28,17 @@ void editor_pass::render(EngineContext& ctx)
         editorView,
         editorProj
     );
+
+    // ========================================================================
+    // GIZMO RENDERING (Immediate Mode Test)
+    // ========================================================================
+
+    // Test Çizim İsteklerini Topla
+    ctx.gizmoSystem.DrawLine(glm::vec3(0.0f), glm::vec3(10.0f, 0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    ctx.gizmoSystem.DrawWireCube(glm::vec3(0.0f), glm::vec3(10.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+    // Ekrana bas
+    shader& gizmoShader = ctx.shaderManager.get(ctx.gizmoShaderID);
+    ctx.gizmoSystem.Flush(editorView, editorProj, gizmoShader.ID);
+
 }

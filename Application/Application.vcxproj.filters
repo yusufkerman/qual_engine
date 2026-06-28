@@ -49,5 +49,9 @@
     <None Include="Shaders\vertex.glsl" />
     <None Include="Shaders\shadow_fragment.glsl" />
     <None Include="Shaders\shadow_vertex.glsl" />
+    <None Include="Shaders\Debug\gizmo_fragment.glsl" />
+    <None Include="Shaders\Debug\gizmo_vertex.glsl" />
+    <None Include="Shaders\Debug\grid.frag" />
+    <None Include="Shaders\Debug\grid.vert" />
   </ItemGroup>
 </Project>

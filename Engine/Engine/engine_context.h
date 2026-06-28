@@ -29,6 +29,7 @@
 #include <memory>
 #include "../Importers/ModelLoader.h"
 #include "../Renderer/shadow_map_fbo.h"
+#include "../Renderer/Debug/gizmo_system.h"
 
 struct GLFWwindow;
 
@@ -75,6 +76,8 @@ struct EngineContext
     camera_system cameraSystem;
     physics_system physicsSystem;
 
+    gizmo_system gizmoSystem;
+
     ModelLoader modelLoader;
 
     shadow_map_fbo shadowFBO;
@@ -84,6 +87,7 @@ struct EngineContext
     unsigned int skyboxShaderID = 0;
     unsigned int skyboxTexture = 0;
     unsigned int shadowShaderID = 0;
+    unsigned int gizmoShaderID = 0;
 
     fly_camera_state runtimeCameraState;
 

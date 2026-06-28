@@ -578,6 +578,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Input\input_state.h" />
     <ClInclude Include="Input\input_system.h" />
     <ClInclude Include="Input\input_utils.h" />
+    <ClInclude Include="Renderer\Debug\gizmo_system.h" />
     <ClInclude Include="Renderer\Debug\grid_renderer.h" />
     <ClInclude Include="Renderer\frustum.h" />
     <ClInclude Include="Renderer\light_batch.h" />
@@ -790,6 +791,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClCompile Include="Importers\texture_loader.cpp" />
     <ClCompile Include="Input\input_map.cpp" />
     <ClCompile Include="Input\input_system.cpp" />
+    <ClCompile Include="Renderer\Debug\gizmo_system.cpp" />
     <ClCompile Include="Renderer\Debug\grid_renderer.cpp" />
     <ClCompile Include="Renderer\light_batch.cpp" />
     <ClCompile Include="Renderer\material_manager.cpp" />

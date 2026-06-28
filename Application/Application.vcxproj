@@ -154,6 +154,10 @@
     <ClInclude Include="sandbox.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\Debug\gizmo_fragment.glsl" />
+    <None Include="Shaders\Debug\gizmo_vertex.glsl" />
+    <None Include="Shaders\Debug\grid.frag" />
+    <None Include="Shaders\Debug\grid.vert" />
     <None Include="Shaders\default_fragment.glsl" />
     <None Include="Shaders\default_vertex.glsl" />
     <None Include="Shaders\fragment.glsl" />
