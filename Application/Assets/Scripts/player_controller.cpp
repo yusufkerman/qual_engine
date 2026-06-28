@@ -36,7 +36,7 @@ static glm::vec3 getRight(const glm::vec3& rot)
 
 void player_controller::on_create()
 {
-    getContext().inputState.cursorLocked = true;
+    //getContext().inputState.cursorLocked = true;
 }
 
 void player_controller::on_update(float dt)

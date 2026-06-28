@@ -32,6 +32,14 @@ enum class collider_type
     sphere
 };
 
+enum class mesh_source_type
+{
+    model,
+    primitive_cube,
+    primitive_sphere
+};
+
+
 struct transform_component {
     glm::vec3 position{ 0.0f };
     glm::vec3 rotation{ 0.0f };
@@ -45,6 +53,8 @@ struct mesh_component {
     unsigned int mesh_id;
 
     std::string model_path = "None";   // Inspector'da hangi dosyanın yüklü olduğunu görmek için
+
+    mesh_source_type source = mesh_source_type::model;
 };
 
 struct material_component

@@ -18,4 +18,7 @@ struct render_item
     float normal_strength = 1.0f;
 
     glm::vec2 texture_scale{ 1.0f, 1.0f };
+
+    float specular_strength;
+    float shininess;
 };

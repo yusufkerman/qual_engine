@@ -54,6 +54,10 @@ inline void render_material_ui(entity e, registry& reg, EngineContext& engineCtx
         // Temel Renk (Albedo/Base Color) Ayarı
         ImGui::ColorEdit3("Base Color", &mat->base_color.x);
 
+        ImGui::SliderFloat("Specular Strength", &mat->specular_strength, 0.0f, 1.0f, "%.2f");
+
+        ImGui::SliderFloat("Shininess", &mat->shininess, 2.0f, 256.0f, "%.0f");
+
         // Normal Haritası Etki Şiddeti (Normal Strength)
         ImGui::SliderFloat("Normal Strength", &mat->normal_strength, 0.0f, 3.0f);
 

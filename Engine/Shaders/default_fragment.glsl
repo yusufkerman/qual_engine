@@ -16,6 +16,7 @@ uniform bool useNormalMap;
 uniform sampler2D normalTex;
 uniform float normalStrength;
 
+
 // ============================================================================
 // UBO YAPISI (std140) - HİZALAMA
 // ============================================================================

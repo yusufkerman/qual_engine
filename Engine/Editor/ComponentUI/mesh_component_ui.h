@@ -26,52 +26,86 @@
   * @param editorCtx Editörün panel odakları ve arayüz durumu (EditorContext).
   */
 inline void render_mesh_ui(entity e, registry& reg, EngineContext& engineCtx, EditorContext& editorCtx) {
-    // Varlığa ait mesh bileşeninin ham göstergesini güvenli bir şekilde çekiyoruz
     auto* meshComp = reg.get_component<mesh_component>(e);
     if (!meshComp) return;
 
-    // Mevcut yüklenmiş modelin ID ve dosya yolu bilgilerini salt okunur metin olarak basıyoruz
     ImGui::Text("Mesh ID: %u", meshComp->mesh_id);
     ImGui::Text("Loaded File: %s", meshComp->model_path.c_str());
 
     // ---------------------------------------------------------
-    // DİNAMİK MODEL YÜKLEME TETİKLEYİCİSİ (NFD ENTEGRASYONU)
+    // MESH SOURCE (MODEL / CUBE / SPHERE)
     // ---------------------------------------------------------
-    if (ImGui::Button("Load New Model (.obj)")) {
+    static const char* items[] = { "Model", "Cube", "Sphere" };
+    int current = (int)meshComp->source;
+
+    if (ImGui::Combo("Mesh Source", &current, items, IM_ARRAYSIZE(items)))
+    {
+        meshComp->source = (mesh_source_type)current;
+
+        if (meshComp->source == mesh_source_type::primitive_cube)
+        {
+            auto res = asset_pipeline::create_cube_mesh(engineCtx);
+            if (!res.mesh_ids.empty())
+                meshComp->mesh_id = res.mesh_ids[0];
+
+            meshComp->model_path = "internal://primitive_cube";
+        }
+
+        if (meshComp->source == mesh_source_type::primitive_sphere)
+        {
+            auto res = asset_pipeline::create_sphere_mesh(engineCtx);
+            if (!res.mesh_ids.empty())
+                meshComp->mesh_id = res.mesh_ids[0];
+
+            meshComp->model_path = "internal://primitive_sphere";
+        }
+    }
+
+    // ---------------------------------------------------------
+    // LOAD MODEL
+    // ---------------------------------------------------------
+    if (ImGui::Button("Load Model (.obj)"))
+    {
         NFD::UniquePath outPath;
-        // Sadece Wavefront OBJ uzantılı dosyaları göstermek üzere filtre hazırlıyoruz
         nfdfilteritem_t filterItem[1] = { { "Wavefront OBJ", "obj" } };
 
-        // İşletim sisteminin yerel dosya seçme penceresini açıyoruz
         nfdresult_t result = NFD::OpenDialog(outPath, filterItem, 1, nullptr);
 
-        if (result == NFD_OKAY) {
-            std::string selectedPath = outPath.get();
+        if (result == NFD_OKAY)
+        {
+            auto importResult = asset_pipeline::import_model(engineCtx, outPath.get());
 
-            // Seçilen model dosyasını asset_pipeline üzerinden belleğe ve GPU'ya yüklüyoruz
-            auto importResult = asset_pipeline::import_model(engineCtx, selectedPath);
-
-            // Yükleme işlemi başarılı olduysa ve en az bir parça mesh üretildiyse
-            if (!importResult.mesh_ids.empty()) {
-                // İlk mesh parçasının benzersiz kimliğini ve dosya yolunu bileşene atıyoruz
+            if (!importResult.mesh_ids.empty())
+            {
                 meshComp->mesh_id = importResult.mesh_ids.front();
-                meshComp->model_path = selectedPath;
+                meshComp->model_path = outPath.get();
+                meshComp->source = mesh_source_type::model;
 
-                // Frustum Culling (Görüş hacmi ayıklaması) işlemleri için nesnenin bounds bileşenini güncelliyoruz
-                if (!reg.has_component<bounds_component>(e)) {
+                if (!reg.has_component<bounds_component>(e))
                     reg.add_component<bounds_component>(e);
-                }
 
-                // Yüklenen modelin asıl boyutlarından (AABB) hesaplanan merkez ve yarıçap verilerini yazıyoruz
                 auto* bounds = reg.get_component<bounds_component>(e);
                 bounds->localCenter = importResult.boundsCenter;
                 bounds->localRadius = importResult.boundsRadius;
             }
         }
-        else if (result == NFD_ERROR) {
-            // Beklenmedik bir NFD hatası oluşursa konsol ekranına hata çıktısını yazdırıyoruz
+        else if (result == NFD_ERROR)
+        {
             std::cout << "[NFD Error] " << NFD_GetError() << std::endl;
         }
+    }
+
+    // ---------------------------------------------------------
+    // REMOVE MODEL (FALLBACK TO CUBE)
+    // ---------------------------------------------------------
+    if (ImGui::Button("Remove Model"))
+    {
+        meshComp->source = mesh_source_type::primitive_cube;
+        meshComp->model_path = "internal://primitive_cube";
+
+        auto res = asset_pipeline::create_cube_mesh(engineCtx);
+        if (!res.mesh_ids.empty())
+            meshComp->mesh_id = res.mesh_ids[0];
     }
 }
 

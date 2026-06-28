@@ -73,6 +73,9 @@ void render_system::render(
 {
     glm::mat4 viewProj = projection * view;
 
+    glm::mat4 invView = glm::inverse(view);
+    glm::vec3 cameraPosition = glm::vec3(invView[3]);
+
     // Scene içindeki ışık listesi alınır
     const auto& lights = lightBatch.lights;
 
@@ -118,6 +121,8 @@ void render_system::render(
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
 
+        shader.setVec3("viewPos", cameraPosition);
+
         for (const auto& item : batch)
         {
             shader.setMat4("model", item.model);
@@ -131,6 +136,9 @@ void render_system::render(
             {
                 shader.setFloat("normalStrength", item.normal_strength);
             }
+
+            shader.setFloat("specularStrength", item.specular_strength);
+            shader.setFloat("shininess", item.shininess);
 
             // Mesh draw call (renderer + texture manager üzerinden)
             ctx.renderer.Draw(item, ctx.textureManager);
@@ -209,6 +217,9 @@ void render_system::extract(
                 item.texture_scale = mat->texture_scale;
                 item.diffuse_texture = mat->diffuse_texture;
                 item.normal_texture = mat->normal_texture;
+
+                item.specular_strength = mat->specular_strength;
+                item.shininess = mat->shininess;
             }
             else
             {
@@ -218,6 +229,9 @@ void render_system::extract(
                 item.diffuse_texture = 0;
                 item.normal_texture = 0;
                 item.texture_scale = glm::vec2(1.0f);
+
+                item.specular_strength = 0.5f;
+                item.shininess = 32.0f;
             }
         }
         else
@@ -228,6 +242,9 @@ void render_system::extract(
             item.diffuse_texture = 0;
             item.normal_texture = 0;
             item.texture_scale = glm::vec2(1.0f);
+
+            item.specular_strength = 0.5f;
+            item.shininess = 32.0f;
         }
 
         // Cache'e eklenir (allocation yok → performans odaklı)

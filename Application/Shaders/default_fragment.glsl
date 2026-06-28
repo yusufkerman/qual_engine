@@ -10,11 +10,17 @@ out vec4 FragColor;
 uniform vec3 baseColor;
 uniform bool useTexture;
 uniform sampler2D diffuseTex;
-uniform vec2 u_TextureScale; //  Inspector'dan gelen ölçeklendirme çarpanı
+uniform vec2 u_TextureScale; 
 
 uniform bool useNormalMap;
 uniform sampler2D normalTex;
 uniform float normalStrength;
+
+uniform float specularStrength;
+uniform float shininess;
+
+//  Kameranın dünyadaki pozisyonu (C++ tarafında her render'da set edilmeli)
+uniform vec3 viewPos;
 
 // ============================================================================
 // UBO YAPISI (std140) - HİZALAMA
@@ -22,7 +28,7 @@ uniform float normalStrength;
 struct Light
 {
     int type;
-    vec3 position; // type(4 byte) + GLSL vec3 hizalaması otomatik boşluk bırakır, sorun yok
+    vec3 position; 
     float range;      
 
     vec3 direction;
@@ -32,7 +38,6 @@ struct Light
     float inner_cone; 
 
     float outer_cone;
-    // C++ tarafındaki son 3 float padding struct'ı 80 byte'a tamamlar
 };
 
 layout (std140) uniform LightBuffer
@@ -47,27 +52,25 @@ layout (std140) uniform LightBuffer
 
 void main()
 {
-    //  UV Koordinatlarını Tiling için u_TextureScale ile çarparak yeni bir koordinat üretiyoruz.
-    // Eğer Inspector'dan (1.0, 1.0) gelirse orijinal UV kalır, (5.0, 5.0) gelirse doku 5 kat sıklaşır.
     vec2 tiledUV = vUV * u_TextureScale;
-
     vec3 N = normalize(vNormal);
 
     if (useNormalMap)
     {
-        // 🚨 tiledUV kullanıldı
         vec3 tangentNormal = texture(normalTex, tiledUV).rgb * 2.0 - 1.0;
         tangentNormal.xy *= normalStrength;
         N = normalize(vTBN * normalize(tangentNormal));
     }
 
-    //  tiledUV kullanıldı
     vec3 albedo = useTexture ? texture(diffuseTex, tiledUV).rgb : baseColor;
 
     vec3 result = vec3(0.0);
     float ambient = 0.15;
 
     result += albedo * ambient;
+
+    //  Pikselden kameraya doğru giden ortak görüş vektörü (V)
+    vec3 V = normalize(viewPos - vWorldPos);
 
     for (int i = 0; i < lightCount && i < 64; i++)
     {
@@ -106,11 +109,28 @@ void main()
             attenuation *= distanceAtt * spot; 
         }
 
+        // 1. Diffuse (Dağınık Aydınlatma)
         float diff = max(dot(N, L), 0.0);
         vec3 diffuse = albedo * l.color * l.intensity * diff * attenuation;
-        result += diffuse;
-    }
+        
+        // Blinn-Phong Specular (Parlama) Hesaplaması
+        vec3 specular = vec3(0.0);
+        if (diff > 0.0) // Eğer yüzey ışık alıyorsa parlayabilir
+        {
+            // Işık vektörü (L) ile Görüş vektörünün (V) tam ortasındaki vektör (Halfway Vector)
+            vec3 H = normalize(L + V);
+            
+            // Parlama keskinliği (Shininnes/Shininess Exponent). 
+            // 32.0 plastik gibidir, 64-128 metallere doğru gider. Şimdilik sabit veriyoruz.
+            float specPower = pow(max(dot(N, H), 0.0), shininess);
+            
+            // Işığın kendi rengi ve şiddetiyle parlamayı çarpıyoruz
+            specular = l.color * l.intensity * specPower * attenuation * specularStrength;
+        }
 
+        // Nihai sonuca diffuse'un yanına parlama (specular) efektini de ekliyoruz
+        result += diffuse + specular;
+    }
 
     FragColor = vec4(result, 1.0);
 }

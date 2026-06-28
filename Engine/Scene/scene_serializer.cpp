@@ -244,45 +244,93 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
     }
 
     // ============================================================================
-    // 4. 📐 MODELLERİ (MESH) DISKTEN ÖNDEN YÜKLEME VE TERCÜME ETME
+    // 4. 📐 MODELLERİ (MESH) LOAD - FIXED VERSION
     // ============================================================================
+
     if (sceneJson.contains("entities") && sceneJson["entities"].is_array())
     {
+        // 1. PASS: Primitive meshleri önceden üret (sphere bug fix burada)
         for (const auto& entityJson : sceneJson["entities"])
         {
-            if (entityJson.contains("mesh_component") && !entityJson["mesh_component"].is_null())
+            if (!entityJson.contains("mesh_component")) continue;
+            if (entityJson["mesh_component"].is_null()) continue;
+
+            mesh_component meshComp =
+                entityJson["mesh_component"].get<mesh_component>();
+
+            // sadece primitive sphere/cube preload
+            if (meshComp.mesh_id == 0)
             {
-                mesh_component meshComp = entityJson["mesh_component"].get<mesh_component>();
-
-                if (meshComp.model_path != "None" && meshIdMap.find(meshComp.mesh_id) == meshIdMap.end())
+                if (meshComp.source == mesh_source_type::primitive_cube)
                 {
-                    int newMeshId = 0;
+                    auto res = asset_pipeline::create_cube_mesh(ctx);
+                    if (!res.mesh_ids.empty())
+                        meshIdMap[0] = res.mesh_ids[0];
+                }
+                else if (meshComp.source == mesh_source_type::primitive_sphere)
+                {
+  
+                    auto res = asset_pipeline::create_sphere_mesh(ctx, 1.0f);
 
-                    if (meshComp.model_path.rfind("internal://primitive_cube", 0) == 0)
-                    {
-                        auto result = asset_pipeline::create_cube_mesh(ctx);
-                        newMeshId = result.mesh_ids.empty() ? 0 : result.mesh_ids[0];
-                    }
-                    else if (meshComp.model_path.rfind("internal://primitive_sphere", 0) == 0)
-                    {
-                        float radius = 1.0f;
-                        auto pos = meshComp.model_path.rfind('_');
-                        if (pos != std::string::npos)
-                            radius = std::stof(meshComp.model_path.substr(pos + 1));
-
-                        auto result = asset_pipeline::create_sphere_mesh(ctx, radius);
-                        newMeshId = result.mesh_ids.empty() ? 0 : result.mesh_ids[0];
-                    }
-                    else
-                    {
-                        Model loadedModel = ModelLoader::Load(meshComp.model_path);
-                        if (!loadedModel.meshes.empty())
-                            newMeshId = ctx.renderer.UploadModel(loadedModel);
-                    }
-
-                    meshIdMap[meshComp.mesh_id] = newMeshId;
+                    if (!res.mesh_ids.empty())
+                        meshIdMap[0] = res.mesh_ids[0];
                 }
             }
+        }
+
+        // 2. PASS: gerçek model / internal mesh çözümleme
+        for (const auto& entityJson : sceneJson["entities"])
+        {
+            if (!entityJson.contains("mesh_component")) continue;
+            if (entityJson["mesh_component"].is_null()) continue;
+
+            mesh_component meshComp =
+                entityJson["mesh_component"].get<mesh_component>();
+
+            int newMeshId = 0;
+
+            // already resolved primitive
+            if (meshComp.source == mesh_source_type::primitive_cube)
+            {
+                auto res = asset_pipeline::create_cube_mesh(ctx);
+                if (!res.mesh_ids.empty())
+                    newMeshId = res.mesh_ids[0];
+            }
+            else if (meshComp.source == mesh_source_type::primitive_sphere)
+            {
+                // ⚠️ SAFE: radius parse sadece VALID ise
+                float radius = 1.0f;
+
+                size_t pos = meshComp.model_path.rfind('_');
+                if (pos != std::string::npos)
+                {
+                    try
+                    {
+                        radius = std::stof(meshComp.model_path.substr(pos + 1));
+                        if (radius <= 0.0001f) radius = 1.0f;
+                    }
+                    catch (...)
+                    {
+                        radius = 1.0f;
+                    }
+                }
+
+                auto res = asset_pipeline::create_sphere_mesh(ctx, radius);
+                if (!res.mesh_ids.empty())
+                    newMeshId = res.mesh_ids[0];
+            }
+            else if (meshComp.source == mesh_source_type::model)
+            {
+                if (meshComp.model_path != "None")
+                {
+                    Model loaded = ModelLoader::Load(meshComp.model_path);
+
+                    if (!loaded.meshes.empty())
+                        newMeshId = ctx.renderer.UploadModel(loaded);
+                }
+            }
+
+            meshIdMap[meshComp.mesh_id] = newMeshId;
         }
     }
 

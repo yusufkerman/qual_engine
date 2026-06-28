@@ -1,47 +1,46 @@
 #pragma once
+
 #include "../Externals/nlohmann/json.hpp"
 #include "../ECS/components.h"
-#include <glm/glm.hpp>
 #include "../ECS/entity.h"
 #include "../ECS/registry.h"
+#include <glm/glm.hpp>
 
-// ============================================================================
-// 1. GLM VEC2/VEC3 İÇİN GÜVENLİ DÖNÜŞÜM KURALLARI
-// ============================================================================
+using json = nlohmann::json;
+
+// ======================================================
+// 1. GLM SERIALIZATION (SADECE MATH, COMPONENT YOK)
+// ======================================================
 namespace glm {
-    inline void to_json(nlohmann::json& j, const vec3& v) {
-        j = nlohmann::json{ {"x", v.x}, {"y", v.y}, {"z", v.z} };
+
+    inline void to_json(json& j, const vec3& v)
+    {
+        j = json{ {"x", v.x}, {"y", v.y}, {"z", v.z} };
     }
 
-    inline void to_json(nlohmann::json& j, const vec2& v) {
-        j = nlohmann::json{ {"x", v.x}, {"y", v.y} };
+    inline void from_json(const json& j, vec3& v)
+    {
+        v.x = j.value("x", 0.0f);
+        v.y = j.value("y", 0.0f);
+        v.z = j.value("z", 0.0f);
     }
 
-    inline void from_json(const nlohmann::json& j, vec3& v) {
-        try {
-            v.x = j.value("x", 0.0f);
-            v.y = j.value("y", 0.0f);
-            v.z = j.value("z", 0.0f);
-        }
-        catch (...) {
-            v = vec3(0.0f);
-        }
+    inline void to_json(json& j, const vec2& v)
+    {
+        j = json{ {"x", v.x}, {"y", v.y} };
     }
 
-    inline void from_json(const nlohmann::json& j, vec2& v) {
-        try {
-            v.x = j.value("x", 0.0f);
-            v.y = j.value("y", 0.0f);
-        }
-        catch (...) {
-            v = vec2(0.0f);
-        }
+    inline void from_json(const json& j, vec2& v)
+    {
+        v.x = j.value("x", 0.0f);
+        v.y = j.value("y", 0.0f);
     }
-}
 
-// ============================================================================
-// 2. ENUM DÖNÜŞÜMLERİ
-// ============================================================================
+} // glm
+
+// ======================================================
+// 2. ENUM SERIALIZATION
+// ======================================================
 NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     {light_type::directional, "directional"},
     {light_type::point, "point"},
@@ -59,31 +58,61 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
         {collider_type::sphere, "sphere"}
         })
 
-// ============================================================================
-// 3. TÜM BİLEŞENLERİN DOĞRUDAN JSON NESNESİNE EŞLENMESİ (Makro Sihri)
-// ============================================================================
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material, shader_id, base_color, diffuse_texture, normal_texture, specular_texture, normal_strength, texture_scale)
+    NLOHMANN_JSON_SERIALIZE_ENUM(mesh_source_type, {
+        {mesh_source_type::model, "model"},
+        {mesh_source_type::primitive_cube, "cube"},
+        {mesh_source_type::primitive_sphere, "sphere"}
+        })
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(name_component, name)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(transform_component, position, rotation, scale, boundingRadius)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(mesh_component, mesh_id, model_path)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material_component, material_id)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(camera_component, fov, nearPlane, farPlane, primary, priority)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(light_component, type, color, intensity, range, inner_cone, outer_cone, cast_shadows)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(bounds_component, localCenter, localRadius)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(rigidbody_component, motion, mass, friction, restitution)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(collider_component, type, extents)
+    // ======================================================
+    // 3. COMPONENT SERIALIZATION
+    // ======================================================
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material,
+        shader_id, base_color,
+        diffuse_texture, normal_texture,
+        specular_texture, normal_strength,
+        texture_scale)
 
-// NATIVE SCRIPT COMPONENT İÇİN ÖZEL DÖNÜŞÜM KURALLARI
-inline void to_json(nlohmann::json& j, const native_script_component& nsc) {
-    j = nlohmann::json{ {"script_name", nsc.script_name} };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(name_component, name)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(transform_component,
+        position, rotation, scale, boundingRadius)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(mesh_component,
+        mesh_id, model_path, source)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material_component, material_id)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(camera_component,
+        fov, nearPlane, farPlane, primary, priority)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(light_component,
+        type, color, intensity, range,
+        inner_cone, outer_cone, cast_shadows)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(bounds_component,
+        localCenter, localRadius)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(rigidbody_component,
+        motion, mass, friction, restitution)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(collider_component,
+        type, extents)
+
+// ======================================================
+// 4. NATIVE SCRIPT
+// ======================================================
+inline void to_json(json& j, const native_script_component& nsc)
+{
+    j = json{ {"script_name", nsc.script_name} };
 }
 
-inline void from_json(const nlohmann::json& j, native_script_component& nsc) {
+inline void from_json(const json& j, native_script_component& nsc)
+{
     nsc.script_name = j.value("script_name", "None");
-   // Dikkat: Instance bağlama (bind) işlemi burada değil, sahne yüklenirken fabrikada yapılacak!
 }
 
+// ======================================================
+// 5. ENGINE HELPERS
+// ======================================================
 using EngineComponentList = std::tuple<
     name_component,
     transform_component,
@@ -93,28 +122,26 @@ using EngineComponentList = std::tuple<
     light_component,
     bounds_component,
     rigidbody_component,
-    collider_component 
+    collider_component
 >;
 
-// 🛠️ Bir entity'de bu bileşen varsa JSON'a yazan jenerik yardımcı fonksiyon
+// ======================================================
+// 6. GENERIC SERIALIZER
+// ======================================================
 template <typename T>
-void serialize_component_if_exists(entity e, const registry& reg, nlohmann::json& entityJson, const std::string& keyName)
+void serialize_component_if_exists(entity e, const registry& reg,
+    json& entityJson, const std::string& key)
 {
     if (reg.has_component<T>(e))
-    {
-        // Makro sayesinde otomatik json'a dönüşüyor
-        entityJson[keyName] = *reg.get_component<T>(e);
-    }
+        entityJson[key] = *reg.get_component<T>(e);
 }
 
-// 🛠️ JSON içinde bu bileşen başlığı varsa diskten okur ve entity'ye jenerik olarak ekler
 template <typename T>
-void deserialize_component_if_exists(entity e, registry& reg, const nlohmann::json& entityJson, const std::string& keyName)
+void deserialize_component_if_exists(entity e, registry& reg,
+    const json& entityJson, const std::string& key)
 {
-    if (entityJson.contains(keyName))
-    {
-        // Makromuz sayesinde otomatik JSON'dan struct'a dönüşüm (implicit conversion) tetiklenir
-        T comp = entityJson[keyName].get<T>();
-        reg.add_component<T>(e, comp);
-    }
+    if (!entityJson.contains(key)) return;
+
+    T comp = entityJson.at(key).get<T>();
+    reg.add_component<T>(e, comp);
 }
