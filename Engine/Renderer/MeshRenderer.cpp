@@ -9,9 +9,7 @@ struct GPU_Mesh
 };
 
 static std::vector<GPU_Mesh> gpuMeshes;
-
 static int nextMeshID = 0;
-
 
 static GPU_Mesh& GetMesh(int meshID)
 {
@@ -68,6 +66,7 @@ int MeshRenderer::UploadModel(const Model& model)
 
     return baseID;
 }
+
 void MeshRenderer::DrawModel()
 {
     for (auto& m : gpuMeshes)
@@ -76,14 +75,8 @@ void MeshRenderer::DrawModel()
         glDrawElements(GL_TRIANGLES, m.indexCount, GL_UNSIGNED_INT, 0);
     }
 }
-//void MeshRenderer::DrawMesh(int meshID)
-//{
-//    GPU_Mesh& m = GetMesh(meshID);
-//
-//    glBindVertexArray(m.VAO);
-//    glDrawElements(GL_TRIANGLES, m.indexCount, GL_UNSIGNED_INT, 0);
-//}
-void MeshRenderer::Draw(const render_item& item, texture_manager& textureManager) 
+
+void MeshRenderer::Draw(const render_item& item, texture_manager& textureManager)
 {
     GPU_Mesh& m = GetMesh(item.mesh_id);
     glBindVertexArray(m.VAO);
@@ -113,7 +106,6 @@ void MeshRenderer::Draw(const render_item& item, texture_manager& textureManager
     // ------------------------------------------------------------------------
     //  STATE LEAK PROTECTION (UNBIND KORUMASI)
     // ------------------------------------------------------------------------
-    // İşimizi bitirdikten sonra slotları temizliyoruz
     if (item.diffuse_texture != 0)
     {
         glActiveTexture(GL_TEXTURE0 + DIFFUSE_TEXTURE_SLOT);
@@ -127,9 +119,9 @@ void MeshRenderer::Draw(const render_item& item, texture_manager& textureManager
 
     glBindVertexArray(0);
 }
+
 void MeshRenderer::Clear()
 {
-    // 1. Döngüyle ekran kartındaki tüm bufferları serbest bırakıyoruz
     for (auto& m : gpuMeshes)
     {
         glDeleteVertexArrays(1, &m.VAO);
@@ -137,11 +129,25 @@ void MeshRenderer::Clear()
         glDeleteBuffers(1, &m.EBO);
     }
 
-    // 2. CPU tarafındaki listeyi boşaltıyoruz
     gpuMeshes.clear();
-
-    // 3. ID sayacını sıfırlıyoruz ki yeni yüklenenler yine 0'dan başlasın
     nextMeshID = 0;
 
     std::cout << "[MeshRenderer] VRAM temizlendi, tüm meshler silindi." << std::endl;
+}
+
+// 🛠️ YENİ EKLEMELER: Gelen state isteklerini karşılayan gövdeler
+void MeshRenderer::SetViewport(int x, int y, int width, int height)
+{
+    glViewport(x, y, width, height);
+}
+
+void MeshRenderer::BindFramebuffer(unsigned int fboID)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, fboID);
+}
+
+void MeshRenderer::BindTextureSlot(unsigned int slot, unsigned int textureID)
+{
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, textureID);
 }

@@ -28,6 +28,7 @@
 
 #include <memory>
 #include "../Importers/ModelLoader.h"
+#include "../Renderer/shadow_map_fbo.h"
 
 struct GLFWwindow;
 
@@ -76,10 +77,13 @@ struct EngineContext
 
     ModelLoader modelLoader;
 
+    shadow_map_fbo shadowFBO;
+
     // runtime
     unsigned int gridShaderID = 0;
     unsigned int skyboxShaderID = 0;
     unsigned int skyboxTexture = 0;
+    unsigned int shadowShaderID = 0;
 
     fly_camera_state runtimeCameraState;
 

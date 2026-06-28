@@ -4,6 +4,7 @@ in vec2 vUV;
 in vec3 vNormal;
 in vec3 vWorldPos;
 in mat3 vTBN;
+in vec4 vFragPosLightSpace;
 
 out vec4 FragColor;
 
@@ -21,6 +22,7 @@ uniform float shininess;
 
 //  Kameranın dünyadaki pozisyonu (C++ tarafında her render'da set edilmeli)
 uniform vec3 viewPos;
+uniform sampler2D shadowMap;
 
 // ============================================================================
 // UBO YAPISI (std140) - HİZALAMA
@@ -50,6 +52,37 @@ layout (std140) uniform LightBuffer
 };
 // ============================================================================
 
+
+// Gölge Hesaplama Fonksiyonu
+float CalculateShadow(vec4 fragPosLightSpace, vec3 N, vec3 L)
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    
+    if(projCoords.z > 1.0)
+        return 0.0;
+
+    // 🛠️ YENİ HESAPLAMA: Normal Bias (Dünya koordinatını yüzey normaline göre modifiye etme)
+    // Işık açısı eğildikçe bias'ı hafifçe artırıyoruz ama çok küçük tutuyoruz.
+    float shadowMapSize = 2048.0; // Gölge haritandaki çözünürlük (Örn: 2048)
+    float texelSize = 1.0 / shadowMapSize;
+    
+    // Sabit bir bias yerine, yüzey normaline bağlı çok küçük bir ofset
+    float bias = max(0.002 * (1.0 - dot(N, L)), 0.0008);  
+    
+    // Shadow Map'ten derinliği oku
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    float currentDepth = projCoords.z;
+    
+    // Işığa arkasını dönen yüzeyleri doğrudan gölgede bırak
+    if(dot(N, L) < 0.0) 
+        return 1.0;
+
+    // Karşılaştırma
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    
+    return shadow;
+}
 void main()
 {
     vec2 tiledUV = vUV * u_TextureScale;
@@ -128,9 +161,15 @@ void main()
             specular = l.color * l.intensity * specPower * attenuation * specularStrength;
         }
 
+        float shadow = 0.0;
+        if (l.type == 0) 
+        {
+            shadow = CalculateShadow(vFragPosLightSpace, N, L);
+        }
+
         // Nihai sonuca diffuse'un yanına parlama (specular) efektini de ekliyoruz
-        result += diffuse + specular;
-    }
+        result += (1.0 - shadow) * (diffuse + specular);    
+}
 
     FragColor = vec4(result, 1.0);
 }

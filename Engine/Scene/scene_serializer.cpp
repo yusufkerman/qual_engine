@@ -24,7 +24,9 @@ void to_json(json& j, const material& m) {
         {"normal_texture", m.normal_texture},
         {"specular_texture", m.specular_texture},
         {"normal_strength", m.normal_strength},
-        {"texture_scale", {m.texture_scale.x, m.texture_scale.y}}
+        {"texture_scale", {m.texture_scale.x, m.texture_scale.y}},
+        { "specular_strength", m.specular_strength },
+        {"shininess", m.shininess}
     };
 }
 
@@ -46,6 +48,9 @@ void from_json(const json& j, material& m) {
         m.texture_scale.x = j["texture_scale"][0];
         m.texture_scale.y = j["texture_scale"][1];
     }
+
+    m.specular_strength = j.value("specular_strength", 0.5f);
+    m.shininess = j.value("shininess", 32.0f);
 }
 
 bool scene_serializer::serialize(const std::string& filepath, const scene& currentScene, EngineContext& ctx)

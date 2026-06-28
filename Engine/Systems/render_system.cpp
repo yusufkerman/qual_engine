@@ -6,18 +6,19 @@
 #include "../Renderer/material.h"
 #include "../shader.h"
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <algorithm> // std::min için
 
 // MeshRenderer enum/sabitleri (mesh id vb.)
 #include "../Renderer/MeshRenderer.h"
-
-
 
 // Constructor artık tamamen temiz ve güvenli
 render_system::render_system()
     : m_LightUBO(0)
 {
 }
+
 /** * @brief Render sisteminin GPU kaynaklarını güvenli bir şekilde oluşturur.
  * Bu fonksiyon GLAD ilklendirilmeden önce ÇAĞRILMAMALIDIR.
  */
@@ -27,6 +28,7 @@ void render_system::init()
 
     size_t uboSize = 16 + (sizeof(light_data) * MAX_LIGHT_COUNT);
 
+    // Not: UBO sistemin kendi iç yönetimi olduğu için buradaki ham çağrılar kalmıştır.
     glGenBuffers(1, &m_LightUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, m_LightUBO);
     glBufferData(GL_UNIFORM_BUFFER, uboSize, nullptr, GL_DYNAMIC_DRAW);
@@ -36,6 +38,7 @@ void render_system::init()
 
     std::cout << "[RenderSystem] Light UBO successfully initialized." << std::endl;
 }
+
 void render_system::bind_light_buffer(shader& s)
 {
     unsigned int blockIndex = glGetUniformBlockIndex(s.ID, "LightBuffer");
@@ -71,6 +74,13 @@ void render_system::render(
     const glm::mat4& projection
 )
 {
+    // Mevcut bağlı olan FBO ve Viewport ayarlarını yedekle
+    GLint previousFBO = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFBO);
+
+    GLint previousViewport[4];
+    glGetIntegerv(GL_VIEWPORT, previousViewport);
+
     glm::mat4 viewProj = projection * view;
 
     glm::mat4 invView = glm::inverse(view);
@@ -96,8 +106,6 @@ void render_system::render(
     }
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
-
     // Frame başı render cache temizlenir
     m_RenderItemsCache.clear();
 
@@ -111,6 +119,53 @@ void render_system::render(
     for (const auto& item : m_RenderItemsCache)
         m_RenderQueueCache.batches[item.shader_id].push_back(item);
 
+    // ------------------------------------------------------------------------
+    // PASS 1: SHADOW MAP RENDER (Işığın Gözünden Derinlik Çizimi)
+    // ------------------------------------------------------------------------
+    glm::mat4 lightSpaceMatrix(1.0f);
+    bool hasDirectionalLight = false;
+
+    // Sahnedeki ilk yönlü ışığı (Type == 0) bulup matrisini hesaplıyoruz
+    for (int i = 0; i < lightCount; ++i)
+    {
+        if (lights[i].type == 0) // Directional Light
+        {
+            lightSpaceMatrix = calculate_light_space_matrix(lights[i]);
+            hasDirectionalLight = true;
+            break;
+        }
+    }
+
+    if (hasDirectionalLight)
+    {
+        // Gölge tuvalini bağla (glViewport otomatik 2048x2048 olur)
+        ctx.shadowFBO.bind();
+
+        // Gölge shader'ını çağır
+        shader& shadowShader = ctx.shaderManager.get(ctx.shadowShaderID);
+        shadowShader.use();
+        shadowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+        // Frustum culling'e takılmadan, sahnedeki tüm nesneleri ışık gözünden çiziyoruz
+        for (auto& [shaderID, batch] : m_RenderQueueCache.batches)
+        {
+            for (const auto& item : batch)
+            {
+                shadowShader.setMat4("model", item.model);
+                ctx.renderer.Draw(item, ctx.textureManager);
+            }
+        }
+
+        ctx.renderer.BindFramebuffer(previousFBO);
+    }
+
+    // ------------------------------------------------------------------------
+    // PASS 2: ANA RENDER PASS (Normal Sahne Çizimi)
+    // ------------------------------------------------------------------------
+    // ÖNEMLİ: Gölge pass'i viewport'u 2048x2048 yapmıştı. 
+    // Ana ekrana dönerken kendi ekran boyutlarımıza geri set etmeliyiz.
+    ctx.renderer.SetViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
+
     // Her shader grubu ayrı draw pass olur
     for (auto& [shaderID, batch] : m_RenderQueueCache.batches)
     {
@@ -122,6 +177,14 @@ void render_system::render(
         shader.setMat4("projection", projection);
 
         shader.setVec3("viewPos", cameraPosition);
+
+        // Işık uzayı matrisini ve ürettiğimiz Shadow Map dokusunu ana shader'a gönderiyoruz
+        shader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+        // Mevcut texture slotlarının çakışmaması için shadow map'i slot 2'ye bağlıyoruz
+        // (diffuse = slot 0, normal = slot 1 demiştin)
+        ctx.renderer.BindTextureSlot(2, ctx.shadowFBO.get_depth_texture());
+        shader.setInt("shadowMap", 2);
 
         for (const auto& item : batch)
         {
@@ -250,4 +313,24 @@ void render_system::extract(
         // Cache'e eklenir (allocation yok → performans odaklı)
         m_RenderItemsCache.push_back(item);
     }
+}
+
+glm::mat4 render_system::calculate_light_space_matrix(const light_data& light)
+{
+    // Sınırları sahneyi rahatça kaplasın diye genişletiyoruz
+    float near_plane = 0.1f, far_plane = 100.0f;
+    glm::mat4 lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, near_plane, far_plane);
+
+    glm::vec3 lightPos = light.position;
+
+    if (light.type == 0)
+    {
+        // Işığı sahneden biraz daha yukarı ve geriye taşıyoruz (30 birim kadar)
+        lightPos = glm::vec3(0.0f, 20.0f, 0.0f) - (glm::normalize(light.direction) * 30.0f);
+    }
+
+    glm::vec3 target = lightPos + light.direction;
+    glm::mat4 lightView = glm::lookAt(lightPos, target, glm::vec3(0.0f, 1.0f, 0.0f));
+
+    return lightProjection * lightView;
 }

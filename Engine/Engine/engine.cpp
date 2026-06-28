@@ -81,6 +81,11 @@ bool Engine::init(EngineContext& ctx)
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return false;
 
+    if (!ctx.shadowFBO.init(2048, 2048))
+    {
+        std::cout << "Gölge sistemi başlatılamadı!" << std::endl;
+    }
+
     ctx.textureManager.init();
     ctx.renderSystem.init();
 
@@ -108,6 +113,12 @@ bool Engine::init(EngineContext& ctx)
         "Shaders/default_fragment.glsl"
     );
     ctx.renderSystem.bind_light_buffer(ctx.shaderManager.get(mainShaderID));
+
+    //Gölge shader'ı yüklenir.
+    ctx.shadowShaderID = ctx.shaderManager.load(
+        "Shaders/shadow_vertex.glsl",
+        "Shaders/shadow_fragment.glsl"
+    );
 
 
     ctx.gridShaderID = ctx.shaderManager.load(

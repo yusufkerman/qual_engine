@@ -24,7 +24,8 @@
             },
             "mesh_component": {
                 "mesh_id": 0,
-                "model_path": "internal://primitive_cube"
+                "model_path": "internal://primitive_cube",
+                "source": "cube"
             },
             "name_component": {
                 "name": "Zemin (Static)"
@@ -39,7 +40,7 @@
                 "boundingRadius": 1.0,
                 "position": {
                     "x": 0.0,
-                    "y": -10.0,
+                    "y": 14.899999618530273,
                     "z": 0.0
                 },
                 "rotation": {
@@ -73,14 +74,13 @@
             },
             "id": 2,
             "material_component": {
-                "material_id": 1
-            },
-            "mesh_component": {
-                "mesh_id": 0,
-                "model_path": "internal://primitive_cube"
+                "material_id": 0
             },
             "name_component": {
                 "name": "Player"
+            },
+            "native_script_component": {
+                "script_name": "player_controller"
             },
             "rigidbody_component": {
                 "friction": 0.30000001192092896,
@@ -92,7 +92,7 @@
                 "boundingRadius": 1.0,
                 "position": {
                     "x": 0.0,
-                    "y": -5.0,
+                    "y": 20.899999618530273,
                     "z": 0.0
                 },
                 "rotation": {
@@ -118,6 +118,9 @@
             "id": 3,
             "name_component": {
                 "name": "MainCamera"
+            },
+            "native_script_component": {
+                "script_name": "camera_controller"
             },
             "transform_component": {
                 "boundingRadius": 1.0,
@@ -164,8 +167,72 @@
                     "z": 20.0
                 },
                 "rotation": {
-                    "x": -0.699999988079071,
-                    "y": 0.4000000059604645,
+                    "x": -1.2000000476837158,
+                    "y": 0.699999988079071,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "id": 5,
+            "material_component": {
+                "material_id": 1
+            },
+            "mesh_component": {
+                "mesh_id": 0,
+                "model_path": "internal://primitive_cube",
+                "source": "model"
+            },
+            "name_component": {
+                "name": "Obstacle1"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": 17.5,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 13.600000381469727,
+                    "y": 4.5,
+                    "z": 3.4000000953674316
+                }
+            }
+        },
+        {
+            "id": 6,
+            "material_component": {
+                "material_id": 2
+            },
+            "mesh_component": {
+                "mesh_id": 1,
+                "model_path": "internal://primitive_sphere",
+                "source": "sphere"
+            },
+            "name_component": {
+                "name": "Spshr1"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": 26.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
                     "z": 0.0
                 },
                 "scale": {
@@ -180,14 +247,16 @@
         {
             "data": {
                 "base_color": [
-                    0.5241408944129944,
-                    0.5784313678741455,
-                    0.5188869833946228
+                    0.47058817744255066,
+                    0.6666666269302368,
+                    0.562860369682312
                 ],
                 "diffuse_texture": 0,
                 "normal_strength": 1.0,
                 "normal_texture": 0,
                 "shader_id": 0,
+                "shininess": 32.0,
+                "specular_strength": 0.5,
                 "specular_texture": 0,
                 "texture_scale": [
                     1.0,
@@ -199,14 +268,16 @@
         {
             "data": {
                 "base_color": [
-                    0.29767394065856934,
-                    0.48936498165130615,
-                    0.7990195751190186
+                    0.23969146609306335,
+                    0.5792073011398315,
+                    0.6519607901573181
                 ],
                 "diffuse_texture": 0,
                 "normal_strength": 1.0,
                 "normal_texture": 0,
                 "shader_id": 0,
+                "shininess": 32.0,
+                "specular_strength": 0.5,
                 "specular_texture": 0,
                 "texture_scale": [
                     1.0,
@@ -214,6 +285,27 @@
                 ]
             },
             "id": 1
+        },
+        {
+            "data": {
+                "base_color": [
+                    1.0,
+                    0.0,
+                    0.5588235855102539
+                ],
+                "diffuse_texture": 0,
+                "normal_strength": 1.0,
+                "normal_texture": 0,
+                "shader_id": 0,
+                "shininess": 9.0,
+                "specular_strength": 0.7799999713897705,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 2
         }
     ],
     "scene_name": "PS1_Engine_Scene",

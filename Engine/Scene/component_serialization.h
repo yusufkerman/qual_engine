@@ -71,7 +71,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
         shader_id, base_color,
         diffuse_texture, normal_texture,
         specular_texture, normal_strength,
-        texture_scale)
+        texture_scale,
+        specular_strength, shininess)
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(name_component, name)
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(transform_component,

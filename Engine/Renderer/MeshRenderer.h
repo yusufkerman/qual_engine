@@ -1,5 +1,4 @@
 #pragma once
-
 #include "../Graphics/model.h"
 #include "../Renderer/render_item.h"
 #include "../Renderer/texture_manager.h"
@@ -10,6 +9,7 @@ enum RenderConstants : int
     DIFFUSE_TEXTURE_SLOT = 0,
     NORMAL_TEXTURE_SLOT = 1
 };
+
 class MeshRenderer
 {
 public:
@@ -21,4 +21,8 @@ public:
 
     void Clear();
 
+    // Render State Yönetim Soyutlamaları
+    void SetViewport(int x, int y, int width, int height);
+    void BindFramebuffer(unsigned int fboID);
+    void BindTextureSlot(unsigned int slot, unsigned int textureID);
 };

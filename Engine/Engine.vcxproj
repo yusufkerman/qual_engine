@@ -592,6 +592,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Renderer\render_item.h" />
     <ClInclude Include="Renderer\render_queue.h" />
     <ClInclude Include="Renderer\render_target.h" />
+    <ClInclude Include="Renderer\shadow_map_fbo.h" />
     <ClInclude Include="Renderer\texture_manager.h" />
     <ClInclude Include="Runtime\runtime_layer.h" />
     <ClInclude Include="Scene\component_serialization.h" />
@@ -799,6 +800,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClCompile Include="Renderer\Passes\skybox_pass.cpp" />
     <ClCompile Include="Renderer\Passes\ui_pass.cpp" />
     <ClCompile Include="Renderer\render_target.cpp" />
+    <ClCompile Include="Renderer\shadow_map_fbo.cpp" />
     <ClCompile Include="Renderer\texture_manager.cpp" />
     <ClCompile Include="Runtime\runtime_layer.cpp" />
     <ClCompile Include="Scene\scene.cpp" />

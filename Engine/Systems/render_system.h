@@ -1,10 +1,9 @@
 #pragma once
-
 #include <vector>
 #include <glm/glm.hpp>
 #include "../Renderer/render_queue.h"
+#include "../Systems/light_system.h"
 
-// Forward declarations ile compile-time bağımlılık azaltılır
 class registry;
 struct EngineContext;
 struct render_item;
@@ -13,8 +12,7 @@ class shader;
 
 /**
  * @brief Sahnedeki render işlemlerini yöneten ana sistem.
- *
- * Mesh toplama (extract), frustum culling, material çözümleme
+ * * Mesh toplama (extract), frustum culling, material çözümleme
  * ve shader batching işlemlerini gerçekleştirir.
  */
 class render_system
@@ -28,8 +26,7 @@ public:
 
     /**
      * @brief Sahneyi render eder.
-     *
-     * @param reg ECS registry (entity-component erişimi)
+     * * @param reg ECS registry (entity-component erişimi)
      * @param ctx Engine context (shader, renderer, asset manager)
      * @param view Kamera view matrisi
      * @param projection Kamera projection matrisi
@@ -54,12 +51,13 @@ private:
 
     /**
      * @brief Sahnedeki render edilebilir objeleri toplar.
-     *
-     * Frustum culling + material çözümleme burada yapılır.
+     * * Frustum culling + material çözümleme burada yapılır.
      */
     void extract(
         const registry& reg,
         struct EngineContext& ctx,
         const glm::mat4& viewProj
     );
+
+    glm::mat4 calculate_light_space_matrix(const light_data& light);
 };
