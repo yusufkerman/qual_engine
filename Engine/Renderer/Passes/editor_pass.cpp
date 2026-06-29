@@ -4,6 +4,10 @@
 #include "../../shader.h"
 #include "skybox_pass.h"
 
+#include "../../Systems/physics_api.h"
+
+#include <glm/gtc/matrix_transform.hpp>
+
 void editor_pass::render(EngineContext& ctx)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, ctx.editorTarget.fbo);
@@ -30,14 +34,70 @@ void editor_pass::render(EngineContext& ctx)
     );
 
     // ========================================================================
-    // GIZMO RENDERING (Immediate Mode Test)
+    // GIZMO SAHNE BAĞLANTISI
     // ========================================================================
+    auto& reg = ctx.session.editor_scene().get_registry();
+    int selectedID = ctx.editor.getSelectedEntity();
 
-    // Test Çizim İsteklerini Topla
-    ctx.gizmoSystem.DrawLine(glm::vec3(0.0f), glm::vec3(10.0f, 0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-    ctx.gizmoSystem.DrawWireCube(glm::vec3(0.0f), glm::vec3(10.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    if (selectedID != -1)
+    {
+        entity selectedEntity = (entity)selectedID;
 
+        auto* transform = reg.get_component<transform_component>(selectedEntity);
+        auto* collider = reg.get_component<collider_component>(selectedEntity);
+        auto* rb = reg.get_component<rigidbody_component>(selectedEntity);
+
+        if (transform && collider)
+        {
+            glm::mat4 modelMatrix = glm::mat4(1.0f);
+            bool physicsActive = false;
+
+            // PLAY modunda Jolt'tan pozisyon + rotasyonu al
+            if (rb && !rb->body_id.IsInvalid())
+            {
+                modelMatrix = ctx.physicsSystem.api().get_jolt_transform(selectedEntity);
+                physicsActive = true;
+            }
+
+            // EDITOR modunda Transform componentini kullan
+            if (!physicsActive)
+            {
+                modelMatrix = glm::translate(modelMatrix, transform->position);
+
+                modelMatrix = glm::rotate(modelMatrix, transform->rotation.x, glm::vec3(1, 0, 0));
+                modelMatrix = glm::rotate(modelMatrix, transform->rotation.y, glm::vec3(0, 1, 0));
+                modelMatrix = glm::rotate(modelMatrix, transform->rotation.z, glm::vec3(0, 0, 1));
+            }
+
+            glm::vec4 gizmoColor(0.0f, 1.0f, 0.0f, 1.0f);
+
+            switch (collider->type)
+            {
+            case collider_type::box:
+                ctx.gizmoSystem.DrawWireCube(
+                    modelMatrix,
+                    collider->extents,
+                    gizmoColor
+                );
+                break;
+
+            case collider_type::sphere:
+                ctx.gizmoSystem.DrawWireSphere(
+                    modelMatrix,
+                    collider->extents.x,   // Sphere yarıçapı
+                    gizmoColor
+                );
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+
+    // ========================================================================
     // Ekrana bas
+    // ========================================================================
     shader& gizmoShader = ctx.shaderManager.get(ctx.gizmoShaderID);
     ctx.gizmoSystem.Flush(editorView, editorProj, gizmoShader.ID);
 

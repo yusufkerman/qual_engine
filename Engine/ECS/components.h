@@ -21,8 +21,9 @@ enum class light_type
 enum class motion_type
 {
     static_body,
-    dynamic_body,
-    kinematic_body
+    kinematic_body,
+    dynamic_body
+    
 };
 
 // Çarpışma kutularının şekli
@@ -98,7 +99,7 @@ struct bounds_component
 //Physics
 struct rigidbody_component
 {
-    motion_type motion = motion_type::static_body;
+    motion_type motion = motion_type::dynamic_body;
     float mass = 1.0f;
     float friction = 0.5f;
     float restitution = 0.1f; // Zıplama/esneklik katsayısı (0 = hiç zıplamaz, 1 = tam zıplar)

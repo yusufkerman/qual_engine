@@ -20,6 +20,8 @@ public:
     // Anlık çizim emirleri (Immediate Mode API)
     void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color);
     void DrawWireCube(const glm::vec3& center, const glm::vec3& scale, const glm::vec4& color);
+    void DrawWireCube(const glm::mat4& transform, const glm::vec3& extents, const glm::vec4& color);
+    void DrawWireSphere(const glm::mat4& transform, float radius, const glm::vec4& color);
 
     // Frame sonunda buffer'ları boşaltıp ekrana çizen ana fonksiyon
     void Flush(const glm::mat4& view, const glm::mat4& projection, unsigned int shaderID);

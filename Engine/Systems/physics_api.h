@@ -15,7 +15,8 @@ public:
     glm::vec3 get_velocity(entity e);
 
     void move_kinematic(entity e, const glm::vec3& targetPos, float dt);
-    
+
+    glm::mat4 get_jolt_transform(entity e);
 
 private:
     physics_system* m_phys;

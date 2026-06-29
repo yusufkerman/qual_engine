@@ -48,6 +48,8 @@ public:
 
     void setScene(scene* s) { currentScene = s; }
 
+    int getSelectedEntity() const { return selectedEntity; }
+
     void toggleMode()
     {
         mode = (mode == EngineMode::EDITOR)

@@ -42,10 +42,15 @@ inline void render_collider_ui(entity e, registry& reg, EngineContext& engineCtx
     if (col->type == collider_type::box) {
         // Jolt Physics, kutu boyutları için "Half-Extents" (Merkezden kenara olan mesafe) bekler.
         // Kullanıcıyı bilgilendirmek adına gri renkte bir açıklama metni basıyoruz.
-        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Box Dimensions (Half-Extents)");
+        ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Box Dimensions (Full Size)");
 
-        // X, Y, Z eksenlerindeki yarı-uzunluk değerlerini 0.05'lik adımlarla manipüle ediyoruz
-        ImGui::DragFloat3("Extents", &col->extents.x, 0.05f, 0.01f, 100.0f, "%.2f");
+        glm::vec3 displayedSize = col->extents * 2.0f;
+
+        // Kullanıcı arayüzünde tam boyutu manipüle ediyor (Adım değerini 0.1 yaptık daha rahat olsun diye)
+        if (ImGui::DragFloat3("Size", &displayedSize.x, 0.1f, 0.01f, 100.0f, "%.2f")) {
+            // Kullanıcı değiştirdiği an, yeni tam boyutun yarısını alıp arkadaki half-extents'e yazıyoruz
+            col->extents = displayedSize * 0.5f;
+        }
     }
     else if (col->type == collider_type::sphere) {
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Sphere Dimensions");

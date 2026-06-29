@@ -1,5 +1,7 @@
 #include "gizmo_system.h"
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include <iostream>
 
@@ -79,7 +81,79 @@ void gizmo_system::DrawWireCube(const glm::vec3& center, const glm::vec3& scale,
     DrawLine(v[0], v[4], color); DrawLine(v[1], v[5], color);
     DrawLine(v[2], v[6], color); DrawLine(v[3], v[7], color);
 }
+void gizmo_system::DrawWireCube(const glm::mat4& transform, const glm::vec3& extents, const glm::vec4& color)
+{
+    // Jolt physics'den gelen extents half-extent (yarı boyut) olduğu için doğrudan kullanıyoruz.
+    // Eğer tüm boyut olsaydı extents * 0.5f yapardık.
+    glm::vec3 e = extents;
 
+    // 1. Lokal uzaydaki 8 köşe noktası tanımlanır
+    glm::vec4 localV[8] = {
+        glm::vec4(-e.x, -e.y, -e.z, 1.0f),
+        glm::vec4(e.x, -e.y, -e.z, 1.0f),
+        glm::vec4(e.x,  e.y, -e.z, 1.0f),
+        glm::vec4(-e.x,  e.y, -e.z, 1.0f),
+        glm::vec4(-e.x, -e.y,  e.z, 1.0f),
+        glm::vec4(e.x, -e.y,  e.z, 1.0f),
+        glm::vec4(e.x,  e.y,  e.z, 1.0f),
+        glm::vec4(-e.x,  e.y,  e.z, 1.0f)
+    };
+
+    // 2. Model matrisiyle (Transform) lokal köşeleri DÜNYA UZAYINA (World Space) taşıyoruz
+    glm::vec3 v[8];
+    for (int i = 0; i < 8; i++)
+    {
+        v[i] = glm::vec3(transform * localV[i]);
+    }
+
+    // 3. Dünya uzayındaki çizgileri birbirine bağlıyoruz
+    // Alt Taban
+    DrawLine(v[0], v[1], color); DrawLine(v[1], v[2], color);
+    DrawLine(v[2], v[3], color); DrawLine(v[3], v[0], color);
+
+    // Üst Tavan
+    DrawLine(v[4], v[5], color); DrawLine(v[5], v[6], color);
+    DrawLine(v[6], v[7], color); DrawLine(v[7], v[4], color);
+
+    // Dikey Sütunlar
+    DrawLine(v[0], v[4], color); DrawLine(v[1], v[5], color);
+    DrawLine(v[2], v[6], color); DrawLine(v[3], v[7], color);
+}
+void gizmo_system::DrawWireSphere(const glm::mat4& transform, float radius, const glm::vec4& color)
+{
+    constexpr int segments = 32;
+    constexpr float PI = glm::pi<float>();
+    float step = glm::two_pi<float>() / static_cast<float>(segments);
+
+    auto TransformPoint = [&](const glm::vec3& p)
+        {
+            return glm::vec3(transform * glm::vec4(p, 1.0f));
+        };
+
+    for (int i = 0; i < segments; i++)
+    {
+        float a0 = i * step;
+        float a1 = (i + 1) * step;
+
+        // XY
+        DrawLine(
+            TransformPoint(glm::vec3(cos(a0), sin(a0), 0.0f) * radius),
+            TransformPoint(glm::vec3(cos(a1), sin(a1), 0.0f) * radius),
+            color);
+
+        // XZ
+        DrawLine(
+            TransformPoint(glm::vec3(cos(a0), 0.0f, sin(a0)) * radius),
+            TransformPoint(glm::vec3(cos(a1), 0.0f, sin(a1)) * radius),
+            color);
+
+        // YZ
+        DrawLine(
+            TransformPoint(glm::vec3(0.0f, cos(a0), sin(a0)) * radius),
+            TransformPoint(glm::vec3(0.0f, cos(a1), sin(a1)) * radius),
+            color);
+    }
+}
 void gizmo_system::Flush(const glm::mat4& view, const glm::mat4& projection, unsigned int shaderID)
 {
 
