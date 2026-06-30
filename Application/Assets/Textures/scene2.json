@@ -1,0 +1,348 @@
+{
+    "active_camera": 3,
+    "entities": [
+        {
+            "bounds_component": {
+                "localCenter": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "localRadius": 0.8660253882408142
+            },
+            "collider_component": {
+                "extents": {
+                    "x": 500.0,
+                    "y": 0.5,
+                    "z": 500.0
+                },
+                "type": "box"
+            },
+            "id": 1,
+            "material_component": {
+                "material_id": 0
+            },
+            "mesh_component": {
+                "mesh_id": 0,
+                "model_path": "internal://primitive_cube",
+                "source": "cube"
+            },
+            "name_component": {
+                "name": "Zemin (Static)"
+            },
+            "rigidbody_component": {
+                "friction": 0.6000000238418579,
+                "mass": 0.0,
+                "motion": "static",
+                "restitution": 0.0
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": 14.899999618530273,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1000.0,
+                    "y": 1.0,
+                    "z": 1000.0
+                }
+            }
+        },
+        {
+            "bounds_component": {
+                "localCenter": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "localRadius": 0.8660253882408142
+            },
+            "collider_component": {
+                "extents": {
+                    "x": 1.0,
+                    "y": 2.5,
+                    "z": 1.0
+                },
+                "type": "box"
+            },
+            "id": 2,
+            "material_component": {
+                "material_id": 0
+            },
+            "name_component": {
+                "name": "Player"
+            },
+            "native_script_component": {
+                "script_name": "player_controller"
+            },
+            "rigidbody_component": {
+                "friction": 0.30000001192092896,
+                "mass": 70.0,
+                "motion": "dynamic",
+                "restitution": 0.0
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 48.0,
+                    "y": 20.700000762939453,
+                    "z": -20.200000762939453
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 2.0,
+                    "y": 5.0,
+                    "z": 2.0
+                }
+            }
+        },
+        {
+            "camera_component": {
+                "farPlane": 1000.0,
+                "fov": 45.0,
+                "nearPlane": 0.10000000149011612,
+                "primary": true,
+                "priority": 0
+            },
+            "id": 3,
+            "name_component": {
+                "name": "MainCamera"
+            },
+            "native_script_component": {
+                "script_name": "camera_controller"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 0.0,
+                    "y": 21.799999237060547,
+                    "z": 45.0
+                },
+                "rotation": {
+                    "x": 0.10000000149011612,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "id": 4,
+            "light_component": {
+                "cast_shadows": false,
+                "color": {
+                    "x": 0.9586132168769836,
+                    "y": 0.9754902124404907,
+                    "z": 0.7842176556587219
+                },
+                "inner_cone": 10.0,
+                "intensity": 1.0,
+                "outer_cone": 30.0,
+                "range": 200.0,
+                "type": "directional"
+            },
+            "name_component": {
+                "name": "Main Light"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 20.0,
+                    "y": 50.0,
+                    "z": 20.0
+                },
+                "rotation": {
+                    "x": -0.6000000238418579,
+                    "y": 0.699999988079071,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "bounds_component": {
+                "localCenter": {
+                    "x": -0.36028385162353516,
+                    "y": 5.83153772354126,
+                    "z": 0.00422358512878418
+                },
+                "localRadius": 8.544775009155273
+            },
+            "id": 8,
+            "material_component": {
+                "material_id": 5
+            },
+            "mesh_component": {
+                "mesh_id": 2,
+                "model_path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\wooden_house.obj",
+                "source": "model"
+            },
+            "name_component": {
+                "name": "House"
+            },
+            "transform_component": {
+                "boundingRadius": 1.0,
+                "position": {
+                    "x": 28.700000762939453,
+                    "y": 15.399999618530273,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 3.0,
+                    "y": 3.0,
+                    "z": 3.0
+                }
+            }
+        }
+    ],
+    "materials": [
+        {
+            "data": {
+                "base_color": [
+                    0.3680315315723419,
+                    0.5833333730697632,
+                    0.35457518696784973
+                ],
+                "diffuse_texture": 3,
+                "normal_strength": 1.0,
+                "normal_texture": 0,
+                "shader_id": 0,
+                "shininess": 73.0,
+                "specular_strength": 0.0,
+                "specular_texture": 0,
+                "texture_scale": [
+                    100.0,
+                    100.0
+                ]
+            },
+            "id": 0
+        },
+        {
+            "data": {
+                "base_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "diffuse_texture": 2,
+                "normal_strength": 1.0,
+                "normal_texture": 1,
+                "shader_id": 0,
+                "shininess": 32.0,
+                "specular_strength": 0.5099999904632568,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 5
+        },
+        {
+            "data": {
+                "base_color": [
+                    0.23969146609306335,
+                    0.5792073011398315,
+                    0.6519607901573181
+                ],
+                "diffuse_texture": 0,
+                "normal_strength": 1.0,
+                "normal_texture": 0,
+                "shader_id": 0,
+                "shininess": 32.0,
+                "specular_strength": 0.5,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 1
+        },
+        {
+            "data": {
+                "base_color": [
+                    1.0,
+                    0.0,
+                    0.5588235855102539
+                ],
+                "diffuse_texture": 0,
+                "normal_strength": 1.0,
+                "normal_texture": 0,
+                "shader_id": 0,
+                "shininess": 9.0,
+                "specular_strength": 0.7799999713897705,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 2
+        },
+        {
+            "data": {
+                "base_color": [
+                    0.6960784196853638,
+                    0.5355066657066345,
+                    0.15013454854488373
+                ],
+                "diffuse_texture": 0,
+                "normal_strength": 1.0,
+                "normal_texture": 0,
+                "shader_id": 0,
+                "shininess": 70.0,
+                "specular_strength": 0.5,
+                "specular_texture": 0,
+                "texture_scale": [
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 3
+        }
+    ],
+    "scene_name": "PS1_Engine_Scene",
+    "textures": [
+        {
+            "id": 0,
+            "path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\Textures\\wooden_houseBase.png"
+        },
+        {
+            "id": 1,
+            "path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\Textures\\wooden_houseNormal.png"
+        },
+        {
+            "id": 2,
+            "path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\Textures\\wooden_houseBase.png"
+        },
+        {
+            "id": 3,
+            "path": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Application\\Assets\\Textures\\Grass_02-512x512.png"
+        }
+    ]
+}

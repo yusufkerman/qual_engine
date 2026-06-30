@@ -59,5 +59,5 @@ private:
         const glm::mat4& viewProj
     );
 
-    glm::mat4 calculate_light_space_matrix(const light_data& light);
+    glm::mat4 calculate_light_space_matrix(const light_data& light, const glm::vec3& viewPos);
 };

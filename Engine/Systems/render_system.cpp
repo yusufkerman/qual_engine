@@ -130,7 +130,7 @@ void render_system::render(
     {
         if (lights[i].type == 0) // Directional Light
         {
-            lightSpaceMatrix = calculate_light_space_matrix(lights[i]);
+            lightSpaceMatrix = calculate_light_space_matrix(lights[i], cameraPosition);
             hasDirectionalLight = true;
             break;
         }
@@ -315,18 +315,28 @@ void render_system::extract(
     }
 }
 
-glm::mat4 render_system::calculate_light_space_matrix(const light_data& light)
+glm::mat4 render_system::calculate_light_space_matrix(const light_data& light, const glm::vec3& viewPos)
 {
-    // Sınırları sahneyi rahatça kaplasın diye genişletiyoruz
-    float near_plane = 0.1f, far_plane = 100.0f;
-    glm::mat4 lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, near_plane, far_plane);
+    // Projeksiyon kutusunu yeterli bir genişlikte tutuyoruz
+    float near_plane = 0.1f, far_plane = 500.0f;
+    glm::mat4 lightProjection = glm::ortho(-150.0f, 150.0f, -150.0f, 150.0f, near_plane, far_plane);
 
     glm::vec3 lightPos = light.position;
 
-    if (light.type == 0)
+    if (light.type == 0) // Directional Light
     {
-        // Işığı sahneden biraz daha yukarı ve geriye taşıyoruz (30 birim kadar)
-        lightPos = glm::vec3(0.0f, 20.0f, 0.0f) - (glm::normalize(light.direction) * 30.0f);
+        // ÇÖZÜM: Kameranın derinlik/yükseklik hareketinden etkilenmemek için 
+        // Işığın merkez noktasını kameranın YATAY ($X, Z$) koordinatlarına eşitliyoruz.
+        glm::vec3 shadowCenter = glm::vec3(viewPos.x, 0.0f, viewPos.z);
+
+        // Sabit bir yükseklik ($100.0f$) belirliyoruz ve ışık yönünün tersine çekiyoruz
+        lightPos = shadowCenter + glm::vec3(0.0f, 100.0f, 0.0f) - (glm::normalize(light.direction) * 150.0f);
+
+        // Işığın tam olarak bu yatay merkeze bakmasını sağlıyoruz
+        glm::vec3 target = shadowCenter + light.direction;
+        glm::mat4 lightView = glm::lookAt(lightPos, target, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        return lightProjection * lightView;
     }
 
     glm::vec3 target = lightPos + light.direction;

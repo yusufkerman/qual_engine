@@ -67,16 +67,29 @@ void Editor::renderUI(scene& scene, EngineContext& ctx, EditorContext& editorCtx
     // =========================
     // DELETE QUEUE
     // =========================
-    for (entity e : deleteQueue)
+    if (!deleteQueue.empty())
     {
-        if (selectedEntity == (int)e)
-            selectedEntity = -1;
+        // Sahne içindeki sıralı entity listesine erişiyoruz
+        auto& sceneEntities = const_cast<std::vector<entity>&>(scene.get_entities());
 
-        if (renamingEntity == (int)e)
-            renamingEntity = -1;
+        for (entity e : deleteQueue)
+        {
+            if (selectedEntity == (int)e)
+                selectedEntity = -1;
 
-        reg.remove_entity(e);
+            if (renamingEntity == (int)e)
+                renamingEntity = -1;
+
+            // 1. Registry ve komponent havuzlarından temizle
+            reg.remove_entity(e);
+
+            // 2. Sahne sıralama listesinden (std::vector) bu ID'yi tamamen kaldır
+            sceneEntities.erase(
+                std::remove(sceneEntities.begin(), sceneEntities.end(), e),
+                sceneEntities.end()
+            );
+        }
+
+        deleteQueue.clear();
     }
-
-    deleteQueue.clear();
 }

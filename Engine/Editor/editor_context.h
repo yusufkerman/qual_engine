@@ -36,4 +36,6 @@ struct EditorContext
 
 
     EngineMode* mode = nullptr;
+
+    int clipboardEntity = -1;
 };

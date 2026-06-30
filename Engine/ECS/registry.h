@@ -72,6 +72,7 @@ public:
     // CLONE SYSTEM
     // =========================
     void clone_entity(entity e, registry& dst) const;
+    entity duplicate_entity(entity source);
 
 private:
     entity next_entity = 1;
@@ -97,6 +98,9 @@ private:
 
     template<typename T>
     const std::unordered_map<entity, T>& pool() const;
+
+    void copy_components_internal(entity srcEntity, entity dstEntity, registry& dstRegistry) const;
+
 };
 
 // =========================

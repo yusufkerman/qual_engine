@@ -44,34 +44,69 @@ const std::unordered_set<entity>& registry::get_all_entities() const
 // =========================
 // CLONE SYSTEM
 // =========================
+void registry::copy_components_internal(entity srcEntity, entity dstEntity, registry& dstRegistry) const
+{
+    if (auto* c = get_component<transform_component>(srcEntity))
+        dstRegistry.add_component<transform_component>(dstEntity, *c);
+
+    if (auto* c = get_component<mesh_component>(srcEntity))
+        dstRegistry.add_component<mesh_component>(dstEntity, *c);
+
+    if (auto* c = get_component<camera_component>(srcEntity))
+        dstRegistry.add_component<camera_component>(dstEntity, *c);
+
+    if (auto* c = get_component<light_component>(srcEntity))
+        dstRegistry.add_component<light_component>(dstEntity, *c);
+
+    if (auto* c = get_component<material_component>(srcEntity))
+        dstRegistry.add_component<material_component>(dstEntity, *c);
+
+    if (auto* c = get_component<bounds_component>(srcEntity))
+        dstRegistry.add_component<bounds_component>(dstEntity, *c);
+
+    if (auto* c = get_component<rigidbody_component>(srcEntity))
+        dstRegistry.add_component<rigidbody_component>(dstEntity, *c);
+
+    if (auto* c = get_component<collider_component>(srcEntity))
+        dstRegistry.add_component<collider_component>(dstEntity, *c);
+
+    if (auto* c = get_component<native_script_component>(srcEntity))
+        dstRegistry.add_component<native_script_component>(dstEntity, *c);
+}
+
+// =================================================================
+// CLONE SYSTEM
+// =================================================================
 void registry::clone_entity(entity e, registry& dst) const
 {
     dst.add_entity(e);
 
-    if (auto* c = get_component<transform_component>(e))
-        dst.add_component<transform_component>(e, *c);
+    // Tüm standart komponentleri kopyala (ID değişmeden karşıya geçiyor)
+    copy_components_internal(e, e, dst);
 
-    if (auto* c = get_component<mesh_component>(e))
-        dst.add_component<mesh_component>(e, *c);
-
-    if (auto* c = get_component<camera_component>(e))
-        dst.add_component<camera_component>(e, *c);
-
-    if (auto* c = get_component<light_component>(e))
-        dst.add_component<light_component>(e, *c);
-
-    if (auto* c = get_component<material_component>(e))
-        dst.add_component<material_component>(e, *c);
-
-    if (auto* c = get_component<bounds_component>(e))
-        dst.add_component<bounds_component>(e, *c);
-
+    // İsim bileşenini clone özelinde olduğu gibi aktar
     if (auto* c = get_component<name_component>(e))
         dst.add_component<name_component>(e, *c);
+}
 
-    if (auto* c = get_component<rigidbody_component>(e)) dst.add_component<rigidbody_component>(e, *c);
-    if (auto* c = get_component<collider_component>(e)) dst.add_component<collider_component>(e, *c);
+entity registry::duplicate_entity(entity source)
+{
+    // 1. Benzersiz yeni bir entity ID'si üret
+    entity newEntity = create_entity();
 
-    if (auto* c = get_component<native_script_component>(e)) dst.add_component<native_script_component>(e, *c);
+    // 2. Ortak fonksiyon ile tüm fonksiyonel komponentleri yeni ID'ye kopyala
+    copy_components_internal(source, newEntity, *this);
 
+    // 3. İsim bileşenini kopyala ve duplicate kuralına göre sonuna "_Copy" ekle
+    if (auto* c = get_component<name_component>(source))
+    {
+        auto& nameComp = add_component<name_component>(newEntity, *c);
+        nameComp.name += "_Copy";
+    }
+    else
+    {
+        add_component<name_component>(newEntity, name_component{ "Entity_Copy" });
+    }
+
+    return newEntity;
 }
