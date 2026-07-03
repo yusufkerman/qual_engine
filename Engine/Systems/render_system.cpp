@@ -101,18 +101,12 @@ void render_system::render(
     glBindBuffer(GL_UNIFORM_BUFFER, m_LightUBO);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(int), &lightCount);
     if (lightCount > 0) {
-        std::cout << "[UBO WRITE] dir=("
-            << lights[0].direction.x << ","
-            << lights[0].direction.y << ","
-            << lights[0].direction.z << ") intensity="
-            << lights[0].intensity << std::endl;
-
+        
 
         glBufferSubData(GL_UNIFORM_BUFFER, 16, lightCount * sizeof(light_data), lights.data());
     }
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    std::cout << "[LIGHT DEBUG] lightCount=" << lightCount << std::endl;
 
 
     // Frame başı render cache temizlenir ve ECS'den objeler toplanır
@@ -180,21 +174,6 @@ void render_system::render(
 
         glGetIntegerv(GL_CURRENT_PROGRAM, &current);
 
-        std::cout
-            << "Current Program="
-            << current
-            << std::endl;
-
-        std::cout
-            << "model="
-            << glGetUniformLocation(gpuShaderID, "model")
-            << " view="
-            << glGetUniformLocation(gpuShaderID, "view")
-            << " projection="
-            << glGetUniformLocation(gpuShaderID, "projection")
-            << " baseColor="
-            << glGetUniformLocation(gpuShaderID, "baseColor")
-            << std::endl;
 
         // Uniform set işlemleri (senin tıkır tıkır çalışan fonksiyonların)
         glUniformMatrix4fv(glGetUniformLocation(gpuShaderID, "view"), 1, GL_FALSE, &view[0][0]);
@@ -249,11 +228,13 @@ void render_system::extract(
     {
         const auto* transform = reg.get_component<transform_component>(e);
         const auto* matComp = reg.get_component<material_component>(e);
-        const auto* bounds = reg.get_component<bounds_component>(e);
 
-        if (!transform) continue;
+        if (!transform)
+            continue;
 
-        // Model matrisi hesabı
+        // ------------------------------------------------------------
+        // Model Matrix
+        // ------------------------------------------------------------
         glm::mat4 model(1.0f);
         model = glm::translate(model, transform->position);
         model = glm::rotate(model, transform->rotation.x, glm::vec3(1, 0, 0));
@@ -261,53 +242,57 @@ void render_system::extract(
         model = glm::rotate(model, transform->rotation.z, glm::vec3(0, 0, 1));
         model = glm::scale(model, transform->scale);
 
-        // Frustum Culling
-        glm::vec3 localCenter = bounds ? bounds->localCenter : glm::vec3(0.0f);
-        glm::vec3 worldCenter = glm::vec3(model * glm::vec4(localCenter, 1.0f));
-        float maxScale = glm::max(transform->scale.x, glm::max(transform->scale.y, transform->scale.z));
-        float baseRadius = bounds ? bounds->localRadius : transform->boundingRadius;
-        float radius = baseRadius * maxScale + kCullBias;
+        // ------------------------------------------------------------
+        // Bounds artık doğrudan Aria Asset sisteminden geliyor
+        // ------------------------------------------------------------
+        aria::submesh_runtime_info meshInfo =
+            ctx.aria_system->get_submesh_info(
+                meshComp.model_handle,
+                meshComp.sub_mesh_index);
 
+        glm::vec3 localCenter = meshInfo.local_center;
+
+        glm::vec4 homogeneousCenter = model * glm::vec4(localCenter, 1.0f);
+        glm::vec3 worldCenter = glm::vec3(homogeneousCenter) / homogeneousCenter.w;
+
+        glm::vec3 absoluteScale = glm::abs(transform->scale);
+        float maxScale = glm::max(
+            absoluteScale.x,
+            glm::max(absoluteScale.y, absoluteScale.z));
+
+        float radius = (meshInfo.local_radius * maxScale) + kCullBias;
+
+        // Frustum dışında ise render kuyruğuna alma
         if (!f.is_inside(worldCenter, radius))
             continue;
 
-        // Yeni render_item yapısını dolduruyoruz
+        // ------------------------------------------------------------
+        // Render Item oluştur
+        // ------------------------------------------------------------
         render_item item;
         item.model = model;
 
-        // 🚀 Aria Model ve Submesh ataması
         item.model_handle = meshComp.model_handle;
         item.sub_mesh_index = meshComp.sub_mesh_index;
 
-        std::cout
-            << "[CHAIN] Entity=" << (int)e
-            << " model=(" << item.model_handle.index
-            << "," << item.model_handle.generation << ")"
-            << " submesh=" << item.sub_mesh_index
-            << std::endl;
-
-        // 🚀 Aria Material Çözümleme
         if (matComp && matComp->material_handle.is_valid())
         {
-            std::cout << "[EXTRACT DEBUG] material_handle VALID, index=" << matComp->material_handle.index
-                << " gen=" << matComp->material_handle.generation << "\n";
-
-            const auto* mat = ctx.aria_system->get_material_data(matComp->material_handle);
+            const auto* mat =
+                ctx.aria_system->get_material_data(matComp->material_handle);
 
             if (mat)
             {
-                std::cout << "[EXTRACT DEBUG] mat bulundu, shader_handle index=" << mat->shader_handle.index
-                    << " gen=" << mat->shader_handle.generation << " valid=" << mat->shader_handle.is_valid() << "\n";
-
-                // Shader handle geçersiz ise fallback shader kullan
-                if (mat->shader_handle.is_valid()) {
-                    item.gpu_shader_id = ctx.aria_system->get_shader_id(mat->shader_handle);
-                } else {
-                    std::cout << "[EXTRACT DEBUG] Shader handle INVALID, fallback shader kullanılıyor!\n";
-                    item.gpu_shader_id = ctx.aria_system->get_shader_id(aria::handle<aria::shader_asset>());
+                if (mat->shader_handle.is_valid())
+                {
+                    item.gpu_shader_id =
+                        ctx.aria_system->get_shader_id(mat->shader_handle);
                 }
-
-                std::cout << "[EXTRACT DEBUG] gpu_shader_id sonucu = " << item.gpu_shader_id << "\n";
+                else
+                {
+                    item.gpu_shader_id =
+                        ctx.aria_system->get_shader_id(
+                            aria::handle<aria::shader_asset>());
+                }
 
                 item.base_color = mat->base_color;
                 item.normal_strength = mat->normal_strength;
@@ -320,8 +305,10 @@ void render_system::extract(
             }
             else
             {
-                std::cout << "[EXTRACT DEBUG] get_material_data NULLPTR!\n";
-                item.gpu_shader_id = ctx.aria_system->get_shader_id(aria::handle<aria::shader_asset>());
+                item.gpu_shader_id =
+                    ctx.aria_system->get_shader_id(
+                        aria::handle<aria::shader_asset>());
+
                 item.base_color = glm::vec3(1.0f, 0.0f, 1.0f);
                 item.texture_scale = glm::vec2(1.0f);
                 item.specular_strength = 0.5f;
@@ -330,8 +317,10 @@ void render_system::extract(
         }
         else
         {
-            std::cout << "[EXTRACT DEBUG] material_handle INVALID! entity=" << (int)e << "\n";
-            item.gpu_shader_id = ctx.aria_system->get_shader_id(aria::handle<aria::shader_asset>());
+            item.gpu_shader_id =
+                ctx.aria_system->get_shader_id(
+                    aria::handle<aria::shader_asset>());
+
             item.base_color = glm::vec3(1.0f);
             item.texture_scale = glm::vec2(1.0f);
             item.specular_strength = 0.5f;

@@ -184,6 +184,10 @@ namespace aria::editor {
             if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
                 m_selected_path = path_str;
                 ctx.selectedAssetPath = path_str; // 🎯 Inspector paneli şimdi açılır!
+
+                if (ctx.editor) {
+                    ctx.editor->setSelectedEntity(-1);
+                }
             }
 
             // Olası bir sağ tık durumunda (Context Menu için) o ögeyi arka planda 

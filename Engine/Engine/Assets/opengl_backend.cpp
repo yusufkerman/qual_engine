@@ -48,23 +48,23 @@ namespace aria {
         return tex_id;
     }
 
-    std::vector<gpu_mesh_id> opengl_backend::create_model(const raw_model_data& raw_data) {
-        std::vector<gpu_mesh_id> out_ids;
-        out_ids.reserve(raw_data.sub_meshes.size());
+    std::vector<submesh_bridge> opengl_backend::create_model(const raw_model_data& raw_data) {
+        std::vector<submesh_bridge> out_submeshes;
+        out_submeshes.reserve(raw_data.sub_meshes.size());
 
         for (const auto& raw_mesh : raw_data.sub_meshes) {
-            gpu_mesh_id mesh_id;
+            submesh_bridge submesh;
 
-            glGenVertexArrays(1, &mesh_id.vao_or_buffer_id);
-            glGenBuffers(1, &mesh_id.vbo);
-            glGenBuffers(1, &mesh_id.ebo);
+            glGenVertexArrays(1, &submesh.gpu_data.vao_or_buffer_id);
+            glGenBuffers(1, &submesh.gpu_data.vbo);
+            glGenBuffers(1, &submesh.gpu_data.ebo);
 
-            glBindVertexArray(mesh_id.vao_or_buffer_id);
+            glBindVertexArray(submesh.gpu_data.vao_or_buffer_id);
 
-            glBindBuffer(GL_ARRAY_BUFFER, mesh_id.vbo);
+            glBindBuffer(GL_ARRAY_BUFFER, submesh.gpu_data.vbo);
             glBufferData(GL_ARRAY_BUFFER, raw_mesh.vertices.size() * sizeof(raw_vertex), raw_mesh.vertices.data(), GL_STATIC_DRAW);
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_id.ebo);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, submesh.gpu_data.ebo);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, raw_mesh.indices.size() * sizeof(uint32_t), raw_mesh.indices.data(), GL_STATIC_DRAW);
 
             glEnableVertexAttribArray(0);
@@ -79,24 +79,22 @@ namespace aria {
             glEnableVertexAttribArray(3);
             glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(raw_vertex), (void*)offsetof(raw_vertex, tangent));
 
+
+            submesh.bounds.local_center = raw_mesh.local_center;
+            submesh.bounds.local_radius = raw_mesh.local_radius;
+
             GLint enabled;
 
             for (int i = 0;i < 4;i++)
             {
                 glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
-
-                std::cout
-                    << "Attrib "
-                    << i
-                    << " enabled="
-                    << enabled
-                    << std::endl;
             }
 
             glBindVertexArray(0);
-            out_ids.push_back(mesh_id);
+            out_submeshes.push_back(submesh);
         }
-        return out_ids;
+
+        return out_submeshes;
     }
 
     gpu_texture_id opengl_backend::create_fallback_texture() {

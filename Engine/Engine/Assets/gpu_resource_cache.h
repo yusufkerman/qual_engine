@@ -6,13 +6,21 @@
 
 namespace aria {
 
+    struct submesh_runtime_info {
+        gpu_mesh_id gpu_id; // vao, vbo, ebo
+        glm::vec3 local_center{ 0.0f };
+        float local_radius{ 0.0f };
+    };
+
+
+
     class gpu_resource_cache {
     private:
         asset_registry* m_registry{ nullptr };
-        render_backend* m_backend{ nullptr }; // 🔥 Soyut backend bağımlılığı
+        render_backend* m_backend{ nullptr }; //  Soyut backend bağımlılığı
 
         std::map<handle<texture_asset>, gpu_texture_id> m_texture_cache;
-        std::map<handle<model_asset>, std::vector<gpu_mesh_id>> m_model_cache;
+        std::map<handle<model_asset>, std::vector<submesh_runtime_info>> m_model_cache;
 
         gpu_texture_id m_fallback_texture_id{ 0 };
 
@@ -27,7 +35,7 @@ namespace aria {
         void shutdown();
 
         gpu_texture_id get_texture_id(handle<texture_asset> h);
-        gpu_mesh_id get_mesh_gpu_id(handle<model_asset> h, size_t sub_mesh_index);
+        submesh_runtime_info get_submesh_info(handle<model_asset> h, size_t sub_mesh_index);
         gpu_shader_id get_shader_id(handle<shader_asset> h);
 
         void evict_texture(handle<texture_asset> h);

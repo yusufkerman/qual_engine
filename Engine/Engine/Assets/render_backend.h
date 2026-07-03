@@ -2,6 +2,7 @@
 
 #include "asset_raw_structures.h"
 #include <vector>
+#include <glm/glm.hpp>
 
 namespace aria {
 
@@ -16,6 +17,19 @@ namespace aria {
         unsigned int ebo{ 0 };
     };
 
+    // Sadece geometrik sınır verileri
+    struct mesh_bounds {
+        glm::vec3 local_center{ 0.0f };
+        float local_radius{ 0.0f };
+    };
+
+    // GPU ID'lerini ve CPU geometrik verilerini sarmalayan temiz köprü
+    struct submesh_bridge {
+        gpu_mesh_id gpu_data;   // VAO, VBO, EBO burada kalır
+        mesh_bounds bounds;     // CPU/Culling verisi burada kalır
+    };
+
+    
     class render_backend {
     public:
         virtual ~render_backend() = default;
@@ -25,7 +39,7 @@ namespace aria {
 
         // Soyut Yükleme Fonksiyonları
         [[nodiscard]] virtual gpu_texture_id create_texture(const raw_texture_data& raw_data) = 0;
-        [[nodiscard]] virtual std::vector<gpu_mesh_id> create_model(const raw_model_data& raw_data) = 0;
+        [[nodiscard]] virtual std::vector<submesh_bridge> create_model(const raw_model_data& raw_data) = 0;
         [[nodiscard]] virtual gpu_texture_id create_fallback_texture() = 0;
         [[nodiscard]] virtual gpu_shader_id create_shader(const raw_shader_data& raw_data) = 0;
         [[nodiscard]] virtual gpu_shader_id create_fallback_shader() = 0;

@@ -184,8 +184,8 @@
                         20.0
                     ],
                     "rotation": [
-                        -1.100000023841858,
                         -0.699999988079071,
+                        0.5,
                         0.0
                     ],
                     "scale": [
@@ -196,6 +196,48 @@
                 }
             },
             "uuid": "ca597886-e7fe-4d99-9894-a196e10f9817"
+        },
+        {
+            "components": {
+                "bounds_component": {
+                    "localCenter": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "localRadius": 1.0
+                },
+                "material_component": {
+                    "material_guid": "6fccddcb-968b-4b55-a661-19f237b964a7"
+                },
+                "mesh_component": {
+                    "model_guid": "6bcbe633-1b97-4c89-8dd0-6822aca25aff",
+                    "source": 0,
+                    "sub_mesh_index": 0
+                },
+                "name_component": {
+                    "name": "House"
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [
+                        -15.100000381469727,
+                        -9.600000381469727,
+                        3.299999952316284
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0
+                    ],
+                    "scale": [
+                        2.200000047683716,
+                        2.200000047683716,
+                        2.200000047683716
+                    ]
+                }
+            },
+            "uuid": "09904bf2-c555-4b6e-8243-c6517bd87302"
         }
     ],
     "scene_name": "Sera_Engine_Scene"

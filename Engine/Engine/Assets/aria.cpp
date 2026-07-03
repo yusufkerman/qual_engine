@@ -59,7 +59,7 @@ namespace aria {
         return m_registry.load_texture(guid);
     }
 
-    handle<model_asset> system::import_virtual_model(const asset_guid& guid, const std::string& file_path) {
+    handle<model_asset> system::import_model(const asset_guid& guid, const std::string& file_path) {
         register_asset_path(guid, file_path);
         return m_registry.load_model(guid, file_path);
     }
@@ -79,15 +79,15 @@ namespace aria {
         uuids::uuid_name_generator gen(aria_namespace_uuid);
         asset_guid virutal_guid = gen(file_path);
 
-        return import_virtual_model(virutal_guid, file_path);
+        return import_model(virutal_guid, file_path);
     }
 
     const material_asset* system::get_material_data(handle<material_asset> h) { return m_registry.get_material(h); }
     gpu_texture_id system::get_texture_id(handle<texture_asset> h) { return m_cache.get_texture_id(h); }
     gpu_shader_id system::get_shader_id(handle<shader_asset> h) { return m_cache.get_shader_id(h); }
 
-    gpu_mesh_id system::get_mesh_gpu_id(handle<model_asset> h, size_t sub_mesh_index) {
-        return m_cache.get_mesh_gpu_id(h, sub_mesh_index);
+    submesh_runtime_info system::get_submesh_info(handle<model_asset> h, size_t sub_mesh_index) {
+        return m_cache.get_submesh_info(h, sub_mesh_index);
     }
 
     size_t system::get_mesh_index_count(handle<model_asset> h, size_t sub_mesh_index) {

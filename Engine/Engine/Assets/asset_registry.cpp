@@ -306,7 +306,6 @@ namespace aria {
         }
 
         std::string path = m_database->resolve_path(guid);
-        std::cout << "[SHADER DEBUG] Resolved path for guid " << uuids::to_string(guid) << " = " << path << "\n";
 
         if (path.empty()) {
             std::cout << "[SHADER DEBUG] Path is empty, shader not found in database\n";
@@ -320,9 +319,7 @@ namespace aria {
             return {};
         }
 
-        std::cout << "[SHADER DEBUG] Successfully loaded from disk, path=" << path
-            << " vertex_source size=" << loaded->vertex_source.size() 
-            << " fragment_source size=" << loaded->fragment_source.size() << "\n";
+        std::cout << "[SHADER DEBUG] Successfully loaded from disk, path=" << path << "\n";
 
         // 4) Slot ayırma ve doldurma
         uint32_t idx;

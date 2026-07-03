@@ -1,0 +1,13 @@
+{
+  "type": "material",
+  "name": "houseMat",
+  "base_color": [1, 1, 1, 1],
+  "specular_strength": 0.5,
+  "shininess": 32,
+  "normal_strength": 1.4,
+  "texture_scale": [2, 2],
+  "shader_guid": "c10d2850-634a-4e41-bd53-add2e817e129",
+  "diffuse_texture_guid": "2f513748-0208-4b5a-9fbe-2854c7ecd0d1",
+  "normal_texture_guid": "35bbaf75-8b82-45cf-9fc4-54611e498b5a",
+  "specular_texture_guid": "00000000-0000-0000-0000-000000000000"
+}

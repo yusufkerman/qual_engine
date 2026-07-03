@@ -1,7 +1,7 @@
 #include "hierarchy_panel.h"
 #include "../../ECS/registry.h"
 #include <imgui.h>
-#include <algorithm> // std::find ve std::move için
+#include <algorithm> 
 
 static std::string getEntityName(registry& reg, entity e)
 {
@@ -20,7 +20,6 @@ void hierarchy_panel::render(scene& scene,
     EditorContext& ctx)
 {
     auto& reg = scene.get_registry();
-    // Sahne içi sıralı entity listesini referans olarak alıyoruz
     auto& sceneEntities = const_cast<std::vector<entity>&>(scene.get_entities());
 
     ImGui::Begin("Hierarchy");
@@ -45,19 +44,18 @@ void hierarchy_panel::render(scene& scene,
 
     ImGui::Separator();
 
-    // BOŞ ALANA SAĞ TIKLANDIĞINDA PASTE YAPABİLMEK İÇİN POPUP
     if (ImGui::BeginPopupContextWindow("Hierarchy_Window_Context", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
     {
         if (ImGui::MenuItem("Paste", "Ctrl+V", false, ctx.clipboardEntity != -1))
         {
             entity duplicated = reg.duplicate_entity((entity)ctx.clipboardEntity);
-            sceneEntities.push_back(duplicated); // Sahne listesine ekle
+            sceneEntities.push_back(duplicated);
             selectedEntity = (int)duplicated;
         }
         ImGui::EndPopup();
     }
 
-    // KEYBOARD SHORTCUTS (Klavye Kısayolları)
+    // KEYBOARD SHORTCUTS
     if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
     {
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl))
@@ -92,22 +90,22 @@ void hierarchy_panel::render(scene& scene,
 
         if (renamingEntity != (int)e)
         {
-            // Selectable yapısını Drag & Drop ile uyumlu hale getirmek için leaf flag'leri eklenebilir
             if (ImGui::Selectable(name.c_str(), isSelected, ImGuiSelectableFlags_AllowOverlap)) {
                 selectedEntity = (int)e;
+
+                // 🎯 KİLİT NOKTA: Entity seçildiği an asset izlerini KÖKTEN siliyoruz!
                 ctx.selectedAssetPath.clear();
             }
 
-            // DRAG AND DROP: SOURCE (Sürükleme Başlangıcı)
+            // DRAG AND DROP: SOURCE
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
             {
-                // Sürüklenen entity'nin indeksini (i) payload olarak gönderiyoruz
                 ImGui::SetDragDropPayload("HIERARCHY_REORDER", &i, sizeof(size_t));
                 ImGui::Text("Moving: %s", name.c_str());
                 ImGui::EndDragDropSource();
             }
 
-            // DRAG AND DROP: TARGET (Bırakılma Noktası)
+            // DRAG AND DROP: TARGET
             if (ImGui::BeginDragDropTarget())
             {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("HIERARCHY_REORDER"))
@@ -117,7 +115,6 @@ void hierarchy_panel::render(scene& scene,
 
                     if (sourceIndex != targetIndex)
                     {
-                        // Vektör içinde elemanın yerini kaydırıyoruz
                         entity movingEntity = sceneEntities[sourceIndex];
                         sceneEntities.erase(sceneEntities.begin() + sourceIndex);
                         sceneEntities.insert(sceneEntities.begin() + targetIndex, movingEntity);
@@ -126,7 +123,7 @@ void hierarchy_panel::render(scene& scene,
                 ImGui::EndDragDropTarget();
             }
 
-            // POPUP CONTEXT (Sağ Tık Menüsü)
+            // POPUP CONTEXT
             if (ImGui::BeginPopupContextItem())
             {
                 if (ImGui::MenuItem("Rename"))
@@ -143,7 +140,6 @@ void hierarchy_panel::render(scene& scene,
                 if (ImGui::MenuItem("Duplicate", "Ctrl+D"))
                 {
                     entity duplicated = reg.duplicate_entity(e);
-                    // Profesyonel yaklaşım: Duplicate edilen nesneyi hemen altına ekle
                     sceneEntities.insert(sceneEntities.begin() + i + 1, duplicated);
                     selectedEntity = (int)duplicated;
                 }
@@ -169,7 +165,6 @@ void hierarchy_panel::render(scene& scene,
         }
         else
         {
-            // Rename input alanı (Mevcut kodun aynen korunuyor)
             ImGui::SetNextItemWidth(160);
             bool enter = ImGui::InputText("##rename", renameBuffer, renameBufferSize, ImGuiInputTextFlags_EnterReturnsTrue);
             ImGui::SameLine();

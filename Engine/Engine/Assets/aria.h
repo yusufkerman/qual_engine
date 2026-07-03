@@ -56,7 +56,7 @@ namespace aria {
 
         // --- Low-Level API (Tam kontrollü yüklemeler için) ---
         handle<texture_asset>  import_texture(const asset_guid& guid, const std::string& file_path);
-        handle<model_asset>    import_virtual_model(const asset_guid& guid, const std::string& file_path);
+        handle<model_asset>    import_model(const asset_guid& guid, const std::string& file_path);
         handle<material_asset> import_material(const asset_guid& guid, const std::string& file_path);
         handle<shader_asset>   import_shader(const asset_guid& guid, const std::string& file_path);
 
@@ -66,7 +66,7 @@ namespace aria {
         // 🎨 GPU Kaynak API (MeshRenderer'ın Draw anında sorguladığı yer)
         [[nodiscard]] const material_asset* get_material_data(handle<material_asset> h);
         [[nodiscard]] gpu_texture_id        get_texture_id(handle<texture_asset> h);
-        [[nodiscard]] gpu_mesh_id           get_mesh_gpu_id(handle<model_asset> h, size_t sub_mesh_index);
+        [[nodiscard]] submesh_runtime_info get_submesh_info(handle<model_asset> h, size_t sub_mesh_index);
         [[nodiscard]] size_t                get_mesh_index_count(handle<model_asset> h, size_t sub_mesh_index);
         [[nodiscard]] gpu_shader_id         get_shader_id(handle<shader_asset> h);
 

@@ -19,7 +19,7 @@ namespace asset_pipeline
 
     // 🛠️ Sanal Yol (Virtual Path) kullanarak Aria üzerinden primitifleri üretir
     aria::handle<aria::model_asset>   create_cube_mesh(EngineContext& ctx);
-    aria::handle<aria::model_asset>   create_sphere_mesh(EngineContext& ctx, float radius = 1.0f);
+    aria::handle<aria::model_asset>   create_sphere_mesh(EngineContext& ctx);
 
 
 }

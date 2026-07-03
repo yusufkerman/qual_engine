@@ -287,17 +287,6 @@ namespace aria {
         raw.vertex_source = vStr.str();
         raw.fragment_source = fStr.str();
 
-        std::cout << "[Aria Loader] Loaded shader - vertex bytes: " << raw.vertex_source.size()
-                  << " fragment bytes: " << raw.fragment_source.size() << "\n";
-
-        // Ersten paar Zeichen zeigen, um sicherzustellen, dass es nicht leer ist
-        if (!raw.vertex_source.empty()) {
-            std::cout << "[Aria Loader] Vertex first 50 chars: " << raw.vertex_source.substr(0, 50) << "\n";
-        }
-        if (!raw.fragment_source.empty()) {
-            std::cout << "[Aria Loader] Fragment first 50 chars: " << raw.fragment_source.substr(0, 50) << "\n";
-        }
-
         vFile.close();
         fFile.close();
 

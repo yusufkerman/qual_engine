@@ -29,7 +29,6 @@ std::string inspector_panel::get_asset_type_from_file(const std::string& path) {
     file.read(buffer, sizeof(buffer) - 1);
     std::string content(buffer);
 
-    // 🚀 GÜVENCE: Önce "type" ara, bulamazsan "asset_type" ara! 
     size_t pos = content.find("\"type\"");
     if (pos == std::string::npos) {
         pos = content.find("\"asset_type\"");
@@ -48,8 +47,6 @@ std::string inspector_panel::get_asset_type_from_file(const std::string& path) {
             }
         }
     }
-
-    std::cout << "⚠️ [Inspector] JSON icinde tip belirteci bulunamadı!" << std::endl;
     return "";
 }
 
@@ -61,36 +58,32 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& en
     }
 
     // ========================================================================
-    // 🔥 AKILLI MODÜLER ASSET DAĞITIMI
+    // 📁 KESİN ÖNCELİK: ASSET SEÇİLİYSE DOĞRUDAN ASSET ÇİZ (Entity'yi Boşver)
     // ========================================================================
     std::string asset_path = editorCtx.selectedAssetPath;
 
     if (!asset_path.empty()) {
         std::filesystem::path p(asset_path);
         std::string ext = p.extension().string();
-
-        // Uzantıyı küçük harfe çevirerek Windows/Linux uyuşmazlığını çözüyoruz
         std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
         if (ext == ".json" && std::filesystem::exists(p)) {
-            // Dosyanın alt türünü doğrula
             std::string asset_type = get_asset_type_from_file(asset_path);
 
-            // Eğer bu dosya tipi sistemimize kayıtlı bir modül ise (örn: "material")
             auto it = m_asset_inspectors.find(asset_type);
             if (it != m_asset_inspectors.end()) {
                 it->second->on_render_inspector(asset_path, editorCtx, engineCtx);
                 ImGui::End();
-                return; // Çizimi bitir, alt taraftaki ECS katmanına geçme!
+                return; // Asset çizildi, ECS katmanına asla girme!
             }
         }
     }
 
-    // =========================================================
-    // ESKİ DOĞAL ECS ENTITY INSPECTOR KODLARI (Aynen korundu)
-    // =========================================================
+    // ========================================================================
+    // 📦 DOĞAL ECS ENTITY INSPECTOR KODLARI (Sadece Asset seçili değilse)
+    // ========================================================================
     if (selectedEntity == -1) {
-        ImGui::Text("No entity selected");
+        ImGui::Text("No entity or asset selected");
         ImGui::End();
         return;
     }

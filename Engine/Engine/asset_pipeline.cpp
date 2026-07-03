@@ -67,7 +67,7 @@ namespace asset_pipeline
 
         aria::asset_guid guid = get_or_create_meta_guid(path);
 
-        return ctx.aria_system->import_virtual_model(guid, path);
+        return ctx.aria_system->import_model(guid, path);
     }
 
     aria::handle<aria::texture_asset> import_texture(EngineContext& ctx, const std::string& path)
@@ -105,10 +105,9 @@ namespace asset_pipeline
         return ctx.aria_system->import_virtual_model("engine://builtin/cube");
     }
 
-    aria::handle<aria::model_asset> create_sphere_mesh(EngineContext& ctx, float radius)
+    aria::handle<aria::model_asset> create_sphere_mesh(EngineContext& ctx)
     {
         if (!ctx.aria_system) return {};
-        std::string sanal_path = "engine://builtin/sphere_" + std::to_string(radius);
-        return ctx.aria_system->import_virtual_model(sanal_path);
+        return ctx.aria_system->import_virtual_model("engine://builtin/sphere");
     }
 }

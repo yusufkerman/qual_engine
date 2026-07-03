@@ -17,20 +17,15 @@ void MeshRenderer::Draw(const render_item& item, aria::system* ariaSystem)
 
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &currentVAO);
     glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
-
-    std::cout
-        << "Program=" << currentProgram
-        << "  BoundVAO(before)=" << currentVAO
-        << std::endl;
+    
 
     // 🚀 1. MESH PAKETİNİ AL VE UNPACK ET
     // Aria bize VAO, VBO ve EBO bilgilerini bir paket (struct) olarak veriyor.
     // Biz buradan sadece VAO (vao_or_buffer_id) bilgisini çekiyoruz.
-    aria::gpu_mesh_id meshPackage = ariaSystem->get_mesh_gpu_id(item.model_handle, item.sub_mesh_index);
-   
+    aria::submesh_runtime_info meshInfo =
+        ariaSystem->get_submesh_info(item.model_handle, item.sub_mesh_index);
 
-    glBindVertexArray(meshPackage.vao_or_buffer_id);
-
+    glBindVertexArray(meshInfo.gpu_id.vao_or_buffer_id);
 
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &currentVAO);
 

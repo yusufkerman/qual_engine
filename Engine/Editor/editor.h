@@ -46,6 +46,7 @@ public:
     void setGameViewportSize(const glm::vec2& size) { gameViewportSize = size; }
     void setScene(scene* s) { currentScene = s; }
     int getSelectedEntity() const { return selectedEntity; }
+    void setSelectedEntity(int entity) { selectedEntity = entity; } 
 
     void toggleMode()
     {
