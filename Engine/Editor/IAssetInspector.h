@@ -2,6 +2,7 @@
 #include <string>
 
 struct EditorContext;
+struct EngineContext;
 
 namespace aria::editor {
 
@@ -18,7 +19,7 @@ namespace aria::editor {
          * @param asset_path Seçili asset dosyasının tam disk yolu.
          * @param editorCtx Editör çalışma zamanı bağlamı.
          */
-        virtual void on_render_inspector(const std::string& asset_path, EditorContext& editorCtx) = 0;
+        virtual void on_render_inspector(const std::string& asset_path, EditorContext& editorCtx, EngineContext& engineCtx) = 0;
     };
 
 } // namespace aria::editor

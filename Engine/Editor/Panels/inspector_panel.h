@@ -39,4 +39,5 @@ private:
 
     // JSON dosyalarının kafasındaki "asset_type" değerini yakalayan güvenli okuyucu
     std::string get_asset_type_from_file(const std::string& path);
+
 };

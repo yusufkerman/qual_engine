@@ -79,7 +79,7 @@ void inspector_panel::render(scene& scene, int selectedEntity, EngineContext& en
             // Eğer bu dosya tipi sistemimize kayıtlı bir modül ise (örn: "material")
             auto it = m_asset_inspectors.find(asset_type);
             if (it != m_asset_inspectors.end()) {
-                it->second->on_render_inspector(asset_path, editorCtx);
+                it->second->on_render_inspector(asset_path, editorCtx, engineCtx);
                 ImGui::End();
                 return; // Çizimi bitir, alt taraftaki ECS katmanına geçme!
             }

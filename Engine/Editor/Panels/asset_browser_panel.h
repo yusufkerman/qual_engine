@@ -18,7 +18,7 @@ namespace aria::editor {
 
         // Hiyerarşik ağacı ekrana recursive (özyinelemeli) çizen iç fonksiyon
         void draw_node(const asset_file_entry& entry, EditorContext& ctx);
-
+        
     public:
         // 🚀 Kurucu fonksiyona opsiyonel aria::system* enjeksiyonu eklendi
         asset_browser_panel(aria::system* aria_sys = nullptr);

@@ -1,12 +1,13 @@
 {
   "type": "material",
-  "name": "NewMaterial",
+  "name": "grassMat",
   "base_color": [0, 1, 0.0294116, 1],
-  "specular_strength": 0.5,
-  "shininess": 32,
+  "specular_strength": 0.08,
+  "shininess": 8.5,
   "normal_strength": 1,
+  "texture_scale": [12, 12],
   "shader_guid": "c10d2850-634a-4e41-bd53-add2e817e129",
-  "diffuse_texture_guid": "00000000-0000-0000-0000-000000000000",
+  "diffuse_texture_guid": "9a413a23-309e-40e7-9833-f456aecbea6d",
   "normal_texture_guid": "00000000-0000-0000-0000-000000000000",
   "specular_texture_guid": "00000000-0000-0000-0000-000000000000"
 }

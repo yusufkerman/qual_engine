@@ -1,6 +1,7 @@
 #pragma once
 #include "../IAssetInspector.h"
 #include "../../Engine/engine_context.h"
+#include "../../Engine/engine_context.h"
 #include <imgui.h>
 #include <string>
 #include <fstream>
@@ -8,8 +9,10 @@
 #include <filesystem>
 #include <iostream>
 #include "../../Engine/asset_pipeline.h"
+#include <glm/glm.hpp> // 🎯 texture_scale için eklendi
 
 struct EditorContext;
+struct EngineContext;
 
 namespace aria::editor {
 
@@ -62,8 +65,21 @@ namespace aria::editor {
             return content.substr(first_quote + 1, second_quote - first_quote - 1);
         }
 
+        // 🎯 ARIA ASSET DATABASE ÜZERİNDEN GÜNCEL DISK YOLUNU ÇÖZEN YARDIMCI METOT
+        std::string resolve_path_from_database(const std::string& guid_str, aria::system* aria_sys) {
+            if (guid_str == "00000000-0000-0000-0000-000000000000" || guid_str.empty() || !aria_sys) {
+                return "";
+            }
+            auto parsed_guid = uuids::uuid::from_string(guid_str);
+            if (parsed_guid) {
+                // Aria'nın kendi merkez veritabanına gidip diskteki en taze dosya yolunu kapıyoruz
+                return aria_sys->resolve_asset_path(*parsed_guid);
+            }
+            return "";
+        }
+
     public:
-        void on_render_inspector(const std::string& asset_path, EditorContext& editorCtx) override {
+        void on_render_inspector(const std::string& asset_path, EditorContext& editorCtx, EngineContext& engineContext) override {
             ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "📝 Aria Material Inspector");
             ImGui::Text("Config File: %s", std::filesystem::path(asset_path).filename().string().c_str());
             ImGui::Separator();
@@ -74,12 +90,16 @@ namespace aria::editor {
             static float specular_strength = 0.5f;
             static float shininess = 32.0f;
             static float normal_strength = 1.0f;
+            static float texture_scale[2] = { 1.0f, 1.0f };
 
-            // 🚀 Yeni eklenen shader ve doku yolları (Sürükle-Bırak ile dolacak)
+            // Sürükle-Bırak tamponları
             static char shader_path[256] = "";
             static char diffuse_texture_path[256] = "";
             static char normal_texture_path[256] = "";
             static char specular_texture_path[256] = "";
+
+            // 🎯 Referans olarak aldığın engineContext içerisindeki aria_system pointer'ını yakalıyoruz
+            aria::system* aria_sys = engineContext.aria_system;
 
             // CANLI DOSYA OKUMA
             if (last_loaded_path != asset_path) {
@@ -90,11 +110,25 @@ namespace aria::editor {
                     shininess = parse_single_float(content, "shininess", 32.0f);
                     normal_strength = parse_single_float(content, "normal_strength", 1.0f);
 
-                    // String tabanlı Aria kaynak yollarını parse et
-                    snprintf(shader_path, sizeof(shader_path), "%s", parse_string(content, "shader_path", "Shaders/default_shader").c_str());
-                    snprintf(diffuse_texture_path, sizeof(diffuse_texture_path), "%s", parse_string(content, "diffuse_texture_path", "").c_str());
-                    snprintf(normal_texture_path, sizeof(normal_texture_path), "%s", parse_string(content, "normal_texture_path", "").c_str());
-                    snprintf(specular_texture_path, sizeof(specular_texture_path), "%s", parse_string(content, "specular_texture_path", "").c_str());
+                    texture_scale[0] = 1.0f; texture_scale[1] = 1.0f;
+                    parse_float_array(content, "texture_scale", texture_scale, 2);
+
+                    // 🎯 1. ADIM: JSON'dan sadece kaydedilmiş ham GUID string'lerini ayıklıyoruz
+                    std::string shader_guid = parse_string(content, "shader_guid", "");
+                    std::string diffuse_guid = parse_string(content, "diffuse_texture_guid", "");
+                    std::string normal_guid = parse_string(content, "normal_texture_guid", "");
+                    std::string specular_guid = parse_string(content, "specular_texture_guid", "");
+
+                    // 🎯 2. ADIM: Ayıklanan GUID'leri veritabanına sorup UI isim tamponlarını güncel yollarla dolduruyoruz
+                    snprintf(shader_path, sizeof(shader_path), "%s", resolve_path_from_database(shader_guid, aria_sys).c_str());
+                    snprintf(diffuse_texture_path, sizeof(diffuse_texture_path), "%s", resolve_path_from_database(diffuse_guid, aria_sys).c_str());
+                    snprintf(normal_texture_path, sizeof(normal_texture_path), "%s", resolve_path_from_database(normal_guid, aria_sys).c_str());
+                    snprintf(specular_texture_path, sizeof(specular_texture_path), "%s", resolve_path_from_database(specular_guid, aria_sys).c_str());
+
+                    // Geriye dönük uyumluluk/Yedek mekanizma: Eğer database'de yoksa eski düz string mantığını dene
+                    if (strlen(shader_path) == 0) {
+                        snprintf(shader_path, sizeof(shader_path), "%s", parse_string(content, "shader_path", "Shaders/default_shader").c_str());
+                    }
                 }
                 last_loaded_path = asset_path;
             }
@@ -104,13 +138,14 @@ namespace aria::editor {
             ImGui::DragFloat("Specular Strength", &specular_strength, 0.01f, 0.0f, 1.0f);
             ImGui::DragFloat("Shininess", &shininess, 0.5f, 1.0f, 256.0f);
             ImGui::DragFloat("Normal Strength", &normal_strength, 0.01f, 0.0f, 5.0f);
+            ImGui::DragFloat2("Texture Scale (Tiling)", texture_scale, 0.05f, 0.001f, 100.0f);
 
             ImGui::Spacing();
             ImGui::TextColored(ImVec4(0.5f, 1.0f, 0.5f, 1.0f), "🛡️ Aria Resource Bindings");
             ImGui::Separator();
 
             // ---------------------------------------------------------
-            // 🔥 SHADER DROP ZONE
+            // SHADER DROP ZONE
             // ---------------------------------------------------------
             ImGui::Text("Custom Shader:");
             std::string shader_label = strlen(shader_path) > 0 ? shader_path : "Drag Shader Here (Default Used)";
@@ -118,14 +153,13 @@ namespace aria::editor {
             if (ImGui::BeginDragDropTarget()) {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ARIA_ASSET_PAYLOAD")) {
                     auto* data = static_cast<aria::editor::asset_drag_payload*>(payload->Data);
-                    // Projenizdeki shader uzantılarına göre kontrol edebilirsiniz (.glsl, .vert vb.)
                     snprintf(shader_path, sizeof(shader_path), "%s", data->path);
                 }
                 ImGui::EndDragDropTarget();
             }
 
             // ---------------------------------------------------------
-            // 🔥 DIFFUSE TEXTURE DROP ZONE
+            // DIFFUSE TEXTURE DROP ZONE
             // ---------------------------------------------------------
             ImGui::Text("Diffuse Texture (.png/.jpg):");
             std::string diffuse_label = strlen(diffuse_texture_path) > 0 ? diffuse_texture_path : "None (Drag Texture)";
@@ -141,7 +175,7 @@ namespace aria::editor {
             }
 
             // ---------------------------------------------------------
-            // 🔥 NORMAL TEXTURE DROP ZONE
+            // NORMAL TEXTURE DROP ZONE
             // ---------------------------------------------------------
             ImGui::Text("Normal Map Texture:");
             std::string normal_label = strlen(normal_texture_path) > 0 ? normal_texture_path : "None (Drag Texture)";
@@ -163,8 +197,6 @@ namespace aria::editor {
                 std::ofstream file(asset_path);
                 if (file.is_open()) {
 
-                    // Sürüklenen yollar boş değilse meta dosyalarından GUID'lerini çekiyoruz, 
-                    // Boşsa geçersiz/boş bir GUID string'i ("00000000-...") bırakıyoruz.
                     std::string shader_guid_str = (strlen(shader_path) > 0)
                         ? uuids::to_string(asset_pipeline::get_or_create_meta_guid(shader_path))
                         : "00000000-0000-0000-0000-000000000000";
@@ -188,6 +220,7 @@ namespace aria::editor {
                         << "  \"specular_strength\": " << specular_strength << ",\n"
                         << "  \"shininess\": " << shininess << ",\n"
                         << "  \"normal_strength\": " << normal_strength << ",\n"
+                        << "  \"texture_scale\": [" << texture_scale[0] << ", " << texture_scale[1] << "],\n"
                         << "  \"shader_guid\": \"" << shader_guid_str << "\",\n"
                         << "  \"diffuse_texture_guid\": \"" << diffuse_guid_str << "\",\n"
                         << "  \"normal_texture_guid\": \"" << normal_guid_str << "\",\n"

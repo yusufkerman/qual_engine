@@ -38,6 +38,7 @@ void hierarchy_panel::render(scene& scene,
         reg.add_component<name_component>(e, name_component{ "New Entity" });
 
         selectedEntity = (int)e;
+        ctx.selectedAssetPath.clear();
         renamingEntity = (int)e;
         strcpy_s(renameBuffer, renameBufferSize, "New Entity");
     }
@@ -92,8 +93,10 @@ void hierarchy_panel::render(scene& scene,
         if (renamingEntity != (int)e)
         {
             // Selectable yapısını Drag & Drop ile uyumlu hale getirmek için leaf flag'leri eklenebilir
-            if (ImGui::Selectable(name.c_str(), isSelected, ImGuiSelectableFlags_AllowOverlap))
+            if (ImGui::Selectable(name.c_str(), isSelected, ImGuiSelectableFlags_AllowOverlap)) {
                 selectedEntity = (int)e;
+                ctx.selectedAssetPath.clear();
+            }
 
             // DRAG AND DROP: SOURCE (Sürükleme Başlangıcı)
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))

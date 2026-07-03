@@ -36,9 +36,13 @@ namespace aria::editor {
 
         ImGui::Separator();
 
-        // Boş alana tıklanırsa seçimi sıfırla
-        if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered()) {
-            m_selected_path.clear();
+        //  YENİ KOD (Sadece gerçekten boş alana tıklanırsa sıfırla):
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup)) {
+            // Eğer bir item'ın (ağaç düğümünün) üzerine tıklanmadıysa ve pencere boşluğuna tıklandıysa
+            if (!ImGui::IsAnyItemHovered()) {
+                m_selected_path.clear();
+                ctx.selectedAssetPath.clear(); // Inspector'ı da temizle
+            }
         }
 
         // ========================================================================
@@ -172,12 +176,20 @@ namespace aria::editor {
         // ImGui'nin ağaç yapısını çiziyoruz
         bool is_open = ImGui::TreeNodeEx(label.c_str(), flags);
 
-        // 🚀 GÜVENLİ SEÇİM MANTIĞI:
+        // ========================================================================
+        // 🚀 GÜVENLİ ÇİFT TIKLAMA SEÇİM MANTIĞI
+        // ========================================================================
         if (ImGui::IsItemHovered()) {
-            if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+            // Sadece sol fare tuşu ile ÇİFT tıklandığında Inspector'ı tetikle
+            if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
                 m_selected_path = path_str;
-                ctx.selectedAssetPath = path_str; // 🎯 Inspector paneli anında tetiklenir!
-                std::cout << "🎯 [Asset Browser] Secilen Asset: " << path_str << std::endl;
+                ctx.selectedAssetPath = path_str; // 🎯 Inspector paneli şimdi açılır!
+            }
+
+            // Olası bir sağ tık durumunda (Context Menu için) o ögeyi arka planda 
+            // seçili bırakmak isteyebilirsin, istersen burası aynen kalabilir:
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+                m_selected_path = path_str;
             }
         }
 
