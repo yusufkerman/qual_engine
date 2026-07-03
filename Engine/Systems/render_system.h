@@ -8,13 +8,7 @@ class registry;
 struct EngineContext;
 struct render_item;
 struct light_batch;
-class shader;
 
-/**
- * @brief Sahnedeki render işlemlerini yöneten ana sistem.
- * * Mesh toplama (extract), frustum culling, material çözümleme
- * ve shader batching işlemlerini gerçekleştirir.
- */
 class render_system
 {
 public:
@@ -22,15 +16,8 @@ public:
     ~render_system();
 
     void init();
-    void bind_light_buffer(shader& s);
+    // 🗑️ bind_light_buffer(shader& s) UÇURULDU! UBO artık global binding noktası (0) üzerinden doğrudan bağlı.
 
-    /**
-     * @brief Sahneyi render eder.
-     * * @param reg ECS registry (entity-component erişimi)
-     * @param ctx Engine context (shader, renderer, asset manager)
-     * @param view Kamera view matrisi
-     * @param projection Kamera projection matrisi
-     */
     void render(
         const registry& reg,
         const light_batch& lightBatch,
@@ -40,19 +27,10 @@ public:
     );
 
 private:
-    /// Işık verileri için GPU taraflı Uniform Buffer Object
     unsigned int m_LightUBO = 0;
-
-    /// Frame başına render edilecek mesh listesi (allocation azaltmak için cache)
     std::vector<render_item> m_RenderItemsCache;
-
-    /// Shader bazlı batch render yapısı
     render_queue m_RenderQueueCache;
 
-    /**
-     * @brief Sahnedeki render edilebilir objeleri toplar.
-     * * Frustum culling + material çözümleme burada yapılır.
-     */
     void extract(
         const registry& reg,
         struct EngineContext& ctx,

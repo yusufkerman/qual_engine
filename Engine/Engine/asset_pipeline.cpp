@@ -1,205 +1,114 @@
 #include "asset_pipeline.h"
 #include "engine_context.h"
-#include "../Importers/ModelLoader.h"
 #include <iostream>
-#include "../Importers/mesh_generator.h"
+#include <fstream>
+#include <filesystem>
+#include "../Externals/uuid/uuid.h" 
+#include "../Externals/nlohmann/json.hpp" // JSON kütüphanen
 
-static std::unordered_map<std::string, imported_model_result> g_ModelCache;
-static std::unordered_map<std::string, asset_id> g_TextureCache;
+using json = nlohmann::json;
+namespace fs = std::filesystem;
 
-imported_model_result asset_pipeline::import_model(EngineContext& ctx, const std::string& path)
+namespace asset_pipeline
 {
-    // 🧠 1. KONTROL: Bu model dosyası daha önce yüklenmiş mi?
-    if (g_ModelCache.find(path) != g_ModelCache.end())
+    // Helper: Meta dosyasından UUID okur veya yoksa yenisini üretip kaydeder
+    aria::asset_guid get_or_create_meta_guid(const std::string& asset_path)
     {
-        std::cout << "[AssetPipeline] Model cache'den getirildi: " << path << std::endl;
-        return g_ModelCache[path]; // Hafızayı ve GPU'yu şişirmeden eski sonucu dön!
+        std::string meta_path = asset_path + ".meta";
+
+        // 1. Eğer .meta dosyası zaten varsa içindeki UUID'yi oku
+        if (fs::exists(meta_path)) {
+            try {
+                std::ifstream file(meta_path);
+                json meta_json;
+                file >> meta_json;
+                file.close();
+
+                std::string guid_str = meta_json.value("guid", "");
+                auto parsed_guid = uuids::uuid::from_string(guid_str);
+                if (parsed_guid) {
+                    return *parsed_guid; // Geçerli meta UUID'sini döndür
+                }
+            }
+            catch (...) {
+                std::cout << "[AssetPipeline] Uyari: Meta dosyasi okunurken hata olustu, yeniden uretilecek: " << meta_path << "\n";
+            }
+        }
+
+        // 2. Meta dosyası yoksa veya bozuksa: SIFIRDAN UUID v4 ÜRET
+        std::random_device rd;
+        auto seed_data = std::array<int, std::numeric_limits<int>::digits>{};
+        std::generate(std::begin(seed_data), std::end(seed_data), std::ref(rd));
+        std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+        std::mt19937 engine(seq);
+        uuids::uuid_random_generator gen(engine);
+        aria::asset_guid yeni_guid = gen();
+
+        // 3. Yeni üretilen UUID'yi .meta dosyası olarak diske kilitle
+        try {
+            json meta_json;
+            meta_json["guid"] = uuids::to_string(yeni_guid); // stduuid string serialization
+
+            std::ofstream file(meta_path);
+            file << meta_json.dump(4); // Okunabilir şekilde 4 tab boşlukla yaz
+            file.close();
+            std::cout << "[AssetPipeline] Yeni .meta dosyasi olusturuldu: " << meta_path << "\n";
+        }
+        catch (...) {
+            std::cout << "[AssetPipeline] Hata: .meta dosyasi diske yazilamadi!\n";
+        }
+
+        return yeni_guid;
     }
 
-    imported_model_result result;
-
-    // Diskten ham veriyi oku
-    Model model = ModelLoader::Load(path);
-
-    if (model.meshes.empty())
-        return result;
-
-    // Modeli GPU'ya yüklüyoruz ve MeshRenderer bize base GPU ID'sini dönüyor.
-    int baseGPUMeshID = ctx.renderer.UploadModel(model);
-
-    result.mesh_ids.reserve(model.meshes.size());
-
-    // CPU tarafındaki assetManager kaydı
-    for (auto& m : model.meshes)
+    aria::handle<aria::model_asset> import_model(EngineContext& ctx, const std::string& path)
     {
-        ctx.assetManager.add(m);
+        if (!ctx.aria_system) return {};
+
+        aria::asset_guid guid = get_or_create_meta_guid(path);
+
+        return ctx.aria_system->import_virtual_model(guid, path);
     }
 
-    // mesh_ids içine MeshRenderer'ın ürettiği gerçek GPU mesh ID'lerini dolduruyoruz!
-    for (size_t i = 0; i < model.meshes.size(); ++i)
+    aria::handle<aria::texture_asset> import_texture(EngineContext& ctx, const std::string& path)
     {
-        result.mesh_ids.push_back(baseGPUMeshID + static_cast<uint32_t>(i));
+        if (!ctx.aria_system) return {};
+
+        aria::asset_guid guid = get_or_create_meta_guid(path);
+
+        return ctx.aria_system->import_texture(guid, path);
     }
 
-    result.boundsCenter = model.meshes.front().localCenter;
-    result.boundsRadius = model.meshes.front().localRadius;
-
-    // 🧠 2. KAYIT: Bir daha çağrılırsa diske gitmesin diye cache tablosuna ekliyoruz
-    g_ModelCache[path] = result;
-
-    std::cout << "[AssetPipeline] Model ilk kez yuklendi ve cache'e alindi: " << path << std::endl;
-
-    return result;
-}
-asset_id asset_pipeline::import_texture(EngineContext& ctx, const std::string& path)
-{
-    // 🧠 1. Kontrol: Bu dosya yolu daha önce yüklenmiş mi?
-    if (g_TextureCache.find(path) != g_TextureCache.end())
+    aria::handle<aria::material_asset> import_material(EngineContext& ctx, const std::string& path)
     {
-        return g_TextureCache[path]; // Varsa direkt texture_manager ID'sini dön
+        if (!ctx.aria_system) return {};
+
+        aria::asset_guid guid = get_or_create_meta_guid(path);
+
+        return ctx.aria_system->import_material(guid, path);
     }
 
-    // 🔄 2. Yükleme: İlk defa geliyorsa senin texture_manager üzerinden yüklüyoruz!
-    // NOT: ctx içerisindeki texture_manager değişkeninin adının 'textureManager' olduğunu varsayıyorum.
-    unsigned int managerTextureID = ctx.textureManager.load(path);
-
-    if (managerTextureID == 0)
+    // 🚀 Yeni Eklenen Shader Import Kapısı
+    aria::handle<aria::shader_asset> import_shader(EngineContext& ctx, const std::string& path)
     {
-        std::cout << "[AssetPipeline] Texture Manager yukleme basarisiz: " << path << std::endl;
-        return 0;
+        if (!ctx.aria_system) return {};
+
+        aria::asset_guid guid = get_or_create_meta_guid(path);
+
+        return ctx.aria_system->import_shader(guid, path);
     }
 
-    // 🧠 3. Kayıt: Bir daha basıldığında sıfırdan yüklemesin diye Cache'e ekle
-    g_TextureCache[path] = managerTextureID;
-
-    std::cout << "[AssetPipeline] Texture loaded via TextureManager. Path: "
-        << path << " -> Manager ID: " << managerTextureID << std::endl;
-
-    return managerTextureID;
-}
-
-
-// Yardımcı Fonksiyon: generator_vertex verilerini senin motorunun iç Vertex formatına dönüştürür.
-// ModelLoader.cpp içindeki ComputeBounds yapısını taklit ederek bounds hesaplamasını da el ile yaparız.
-static Mesh convert_to_engine_mesh(const generated_mesh_data& generated)
-{
-    Mesh out;
-    out.vertices.reserve(generated.vertices.size());
-    out.indices = generated.indices;
-
-    glm::vec3 minB(std::numeric_limits<float>::max());
-    glm::vec3 maxB(std::numeric_limits<float>::lowest());
-
-    for (const auto& g_vert : generated.vertices)
+    // --- Primitifler (Sanal yollar adres defterine yazılmaz, çünkü diske bağımlı değiller) ---
+    aria::handle<aria::model_asset> create_cube_mesh(EngineContext& ctx)
     {
-        Vertex v;
-        // Position
-        v.Position[0] = g_vert.position.x;
-        v.Position[1] = g_vert.position.y;
-        v.Position[2] = g_vert.position.z;
-
-        // Normal
-        v.Normal[0] = g_vert.normal.x;
-        v.Normal[1] = g_vert.normal.y;
-        v.Normal[2] = g_vert.normal.z;
-
-        // TexCoord
-        v.TexCoord[0] = g_vert.tex_coords.x;
-        v.TexCoord[1] = g_vert.tex_coords.y;
-
-        // Tangent (Şimdilik primitive için boş geçiyoruz, gerekirse sıfırlanabilir)
-        v.Tangent[0] = v.Tangent[1] = v.Tangent[2] = 0.0f;
-
-        out.vertices.push_back(v);
-
-        minB = glm::min(minB, g_vert.position);
-        maxB = glm::max(maxB, g_vert.position);
+        if (!ctx.aria_system) return {};
+        return ctx.aria_system->import_virtual_model("engine://builtin/cube");
     }
 
-    // ModelLoader.cpp içindeki akışa sadık kalıyoruz
-    out.localCenter = (minB + maxB) * 0.5f;
-
-    float maxDistSq = 0.0f;
-    for (const auto& g_vert : generated.vertices)
+    aria::handle<aria::model_asset> create_sphere_mesh(EngineContext& ctx, float radius)
     {
-        glm::vec3 diff = g_vert.position - out.localCenter;
-        maxDistSq = glm::max(maxDistSq, glm::dot(diff, diff));
+        if (!ctx.aria_system) return {};
+        std::string sanal_path = "engine://builtin/sphere_" + std::to_string(radius);
+        return ctx.aria_system->import_virtual_model(sanal_path);
     }
-    out.localRadius = glm::sqrt(maxDistSq);
-
-    return out;
-}
-
-imported_model_result asset_pipeline::create_cube_mesh(EngineContext& ctx)
-{
-    // Sanal bir path belirleyip cache kontrolü yapıyoruz
-    std::string internal_path = "internal://primitive_cube";
-    if (g_ModelCache.find(internal_path) != g_ModelCache.end())
-    {
-        return g_ModelCache[internal_path];
-    }
-
-    // 1. Ham veriyi üret ve motor formatına çevir
-    generated_mesh_data raw_cube = mesh_generator::generate_cube();
-    Mesh cube_mesh = convert_to_engine_mesh(raw_cube);
-
-    // 2. Senin motorunun mevcut Model yapısına sar (UploadModel tek parça da olsa Model bekliyor)
-    Model model;
-    model.meshes.push_back(cube_mesh);
-
-    // 3. GPU'ya yükle ve ID'leri topla
-    int baseGPUMeshID = ctx.renderer.UploadModel(model);
-
-    imported_model_result result;
-    result.mesh_ids.push_back(static_cast<uint32_t>(baseGPUMeshID));
-    result.boundsCenter = cube_mesh.localCenter;
-    result.boundsRadius = cube_mesh.localRadius;
-
-    // 4. CPU AssetManager kaydı
-    ctx.assetManager.add(cube_mesh);
-
-    // Cache kaydı
-    g_ModelCache[internal_path] = result;
-    std::cout << "[AssetPipeline] Motor ici Primitve Cube uretildi ve yuklendi." << std::endl;
-
-    return result;
-}
-
-imported_model_result asset_pipeline::create_sphere_mesh(EngineContext& ctx, float radius)
-{
-    // Yarıçapa göre benzersiz bir cache key oluşturuyoruz (Örn: internal://primitive_sphere_1.0)
-    std::string internal_path = "internal://primitive_sphere_" + std::to_string(radius);
-    if (g_ModelCache.find(internal_path) != g_ModelCache.end())
-    {
-        return g_ModelCache[internal_path];
-    }
-
-    // 1. Ham veriyi üret ve motor formatına çevir
-    generated_mesh_data raw_sphere = mesh_generator::generate_sphere(radius, 36, 18);
-    Mesh sphere_mesh = convert_to_engine_mesh(raw_sphere);
-
-    // 2. Model yapısına sar
-    Model model;
-    model.meshes.push_back(sphere_mesh);
-
-    // 3. GPU'ya yükle
-    int baseGPUMeshID = ctx.renderer.UploadModel(model);
-
-    imported_model_result result;
-    result.mesh_ids.push_back(static_cast<uint32_t>(baseGPUMeshID));
-    result.boundsCenter = sphere_mesh.localCenter;
-    result.boundsRadius = sphere_mesh.localRadius;
-
-    // 4. CPU AssetManager kaydı
-    ctx.assetManager.add(sphere_mesh);
-
-    g_ModelCache[internal_path] = result;
-    std::cout << "[AssetPipeline] Motor ici Primitve Sphere uretildi (Radius: " << radius << ")." << std::endl;
-
-    return result;
-}
-void asset_pipeline::clear_cache()
-{
-    g_ModelCache.clear();
-    g_TextureCache.clear();
 }

@@ -8,6 +8,7 @@ class shader {
 public:
     unsigned int ID;
 
+    shader(unsigned int programID) : ID(programID) {}
     shader(const char* vertexPath, const char* fragmentPath);
     void use();
     void setFloat(const std::string& name, float value);

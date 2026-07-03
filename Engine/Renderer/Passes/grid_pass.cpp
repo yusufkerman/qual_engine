@@ -1,9 +1,9 @@
 #include "grid_pass.h"
-
 #include "../../Engine/engine_context.h"
 #include "../../Engine/fly_camera.h"
-
 #include <glm/gtc/matrix_transform.hpp>
+#include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 void grid_pass::render(EngineContext& ctx)
 {
@@ -13,11 +13,12 @@ void grid_pass::render(EngineContext& ctx)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // =========================
-    // SHADER (NEW SYSTEM)
-    // =========================
-    shader& shader = ctx.shaderManager.get(ctx.gridShaderID);
-    shader.use();
+    // ========================================================================
+    // 🚀 ARIA SHADER KATMANI
+    // ========================================================================
+    // Eski shaderManager yerine Aria Cache'den GPU üzerindeki hazır shader ID'sini çekiyoruz
+    unsigned int gridGLShaderID = ctx.aria_system->get_shader_id(ctx.gridShaderHandle);
+    glUseProgram(gridGLShaderID);
 
     const glm::vec3& camPos = ctx.editor.editorCamera.position;
     const glm::vec3 gridForward = calc_forward(ctx.editor.editorCamera.rotation);
@@ -37,11 +38,15 @@ void grid_pass::render(EngineContext& ctx)
 
     const glm::mat4 invViewProj = glm::inverse(gridProj * gridView);
 
-    shader.setMat4("invViewProj", invViewProj);
-    shader.setVec3("cameraPos", camPos);
+    // 🚀 Doğrudan OpenGL uniform çağrıları ile performans kazanıyoruz
+    glUniformMatrix4fv(glGetUniformLocation(gridGLShaderID, "invViewProj"), 1, GL_FALSE, glm::value_ptr(invViewProj));
+    glUniform3fv(glGetUniformLocation(gridGLShaderID, "cameraPos"), 1, glm::value_ptr(camPos));
 
     ctx.grid.draw();
 
+    glUseProgram(0); // Temizlik
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
+
+    glEnable(GL_DEPTH_TEST);
 }

@@ -37,6 +37,7 @@ std::vector<light_data> light_system::extract(const registry& reg)
         data.position = transform->position;
         data.direction = get_forward_from_rotation(transform->rotation);
 
+
         if (light.type == light_type::directional)
             data.type = 0;
         else if (light.type == light_type::point)

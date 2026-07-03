@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <string>
 
 class Editor;
 class EditorCamera;
@@ -14,7 +15,8 @@ enum class FocusedPanel {
 	SceneViewport,
 	GameViewport,
 	Inspector,
-	Hierarchy
+	Hierarchy,
+    AssetBrowser
 };
 
 struct EditorContext
@@ -38,4 +40,5 @@ struct EditorContext
     EngineMode* mode = nullptr;
 
     int clipboardEntity = -1;
+    std::string selectedAssetPath;
 };

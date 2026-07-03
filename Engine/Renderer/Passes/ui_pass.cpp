@@ -21,4 +21,6 @@ void ui_pass::render(EngineContext& ctx, EditorContext& editorCtx)
     ctx.editor.renderUI(uiScene,ctx, editorCtx);
 
     ctx.uiManager.endFrame();
+
+    glEnable(GL_DEPTH_TEST);
 }

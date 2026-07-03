@@ -1,12 +1,36 @@
 #include "editor.h"
 #include "../Scene/scene.h"
 #include "../Engine/engine_context.h"
-
 #include <imgui.h>
 #include <string>
 #include <imgui_internal.h>
+#include "Panels/asset_browser_panel.h"
 
-void Editor::init(GLFWwindow*) {}
+// ========================================================================
+// 🔥 CONSTRUCTOR & DESTRUCTOR
+// Sınıf belleğe çıktığı an panel pointer'ını güvenli bir şekilde oluşturuyoruz.
+// Böylece init() çağrılmasa bile pointer asla null kalıp motoru çökertemez.
+// ========================================================================
+Editor::Editor()
+{
+    // 🎯 Başlangıçta null veriyoruz çünkü elimizde aria_system yok.
+    assetBrowserPanel = nullptr;
+}
+
+
+Editor::~Editor()
+{
+    if (assetBrowserPanel)
+    {
+        delete assetBrowserPanel;
+        assetBrowserPanel = nullptr;
+    }
+}
+
+void Editor::init(GLFWwindow*)
+{
+    // Boş kalabilir, renderUI içinde ilk karede hallediyoruz.
+}
 
 void Editor::update(scene&) {}
 
@@ -15,6 +39,12 @@ void Editor::update(scene&) {}
 // =========================
 void Editor::renderUI(scene& scene, EngineContext& ctx, EditorContext& editorCtx)
 {
+    if (assetBrowserPanel == nullptr && ctx.aria_system != nullptr)
+    {
+        assetBrowserPanel = new aria::editor::asset_browser_panel(ctx.aria_system);
+        assetBrowserPanel->init();
+    }
+
     auto& reg = scene.get_registry();
 
     editorCtx.focusedPanel = FocusedPanel::None;
@@ -55,6 +85,16 @@ void Editor::renderUI(scene& scene, EngineContext& ctx, EditorContext& editorCtx
         gameViewportHovered,
         editorCtx);
 
+
+    if (assetBrowserPanel != nullptr)
+    {
+        editorCtx.selectedAssetPath = assetBrowserPanel->get_selected_path();
+    }
+    else
+    {
+        editorCtx.selectedAssetPath = "";
+    }
+
     // =========================
     // INSPECTOR
     // =========================
@@ -63,6 +103,15 @@ void Editor::renderUI(scene& scene, EngineContext& ctx, EditorContext& editorCtx
         selectedEntity,
         ctx,
         editorCtx);
+
+    // =========================
+    // 🔥 ASSET BROWSER PANEL
+    // =========================
+    // GÜVENLİK KONTROLÜ: Pointer'ın geçerli olduğundan emin olup öyle çizdiriyoruz
+    if (assetBrowserPanel != nullptr)
+    {
+        assetBrowserPanel->render(editorCtx);
+    }
 
     // =========================
     // DELETE QUEUE

@@ -1,11 +1,7 @@
 #include "editor_pass.h"
-
 #include "../../Engine/engine_context.h"
-#include "../../shader.h"
 #include "skybox_pass.h"
-
 #include "../../Systems/physics_api.h"
-
 #include <glm/gtc/matrix_transform.hpp>
 
 void editor_pass::render(EngineContext& ctx)
@@ -32,6 +28,7 @@ void editor_pass::render(EngineContext& ctx)
         editorView,
         editorProj
     );
+
 
     // ========================================================================
     // GIZMO SAHNE BAĞLANTISI
@@ -96,9 +93,11 @@ void editor_pass::render(EngineContext& ctx)
     }
 
     // ========================================================================
-    // Ekrana bas
+    // 🚀 ARIA GIZMO FLUSH KATMANI
     // ========================================================================
-    shader& gizmoShader = ctx.shaderManager.get(ctx.gizmoShaderID);
-    ctx.gizmoSystem.Flush(editorView, editorProj, gizmoShader.ID);
+    // Eski manager yerine doğrudan Aria Cache'e gidip GPU üzerindeki hazır shader ID'sini çekiyoruz
+    unsigned int gizmoGLShaderID = ctx.aria_system->get_shader_id(ctx.gizmoShaderHandle);
 
+    // Çizim komutlarını GPU'ya fırlatıyoruz
+    ctx.gizmoSystem.Flush(editorView, editorProj, gizmoGLShaderID);
 }

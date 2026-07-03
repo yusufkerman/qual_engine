@@ -13,6 +13,13 @@
 // MeshRenderer enum/sabitleri (mesh id vb.)
 #include "../Renderer/MeshRenderer.h"
 
+
+namespace {
+    bool compare_by_gpu_shader(const render_item& a, const render_item& b) {
+        return a.gpu_shader_id < b.gpu_shader_id;
+    }
+}
+
 // Constructor artık tamamen temiz ve güvenli
 render_system::render_system()
     : m_LightUBO(0)
@@ -28,22 +35,22 @@ void render_system::init()
 
     size_t uboSize = 16 + (sizeof(light_data) * MAX_LIGHT_COUNT);
 
+    // === YENİ EKLENEN DEBUG SATIRI ===
+    std::cout << "[UBO CHECK] Allocated uboSize = " << uboSize
+        << " sizeof(light_data) = " << sizeof(light_data) << "\n";
+    // ==================================
+
     // Not: UBO sistemin kendi iç yönetimi olduğu için buradaki ham çağrılar kalmıştır.
     glGenBuffers(1, &m_LightUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, m_LightUBO);
     glBufferData(GL_UNIFORM_BUFFER, uboSize, nullptr, GL_DYNAMIC_DRAW);
+
+
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_LightUBO);
 
     std::cout << "[RenderSystem] Light UBO successfully initialized." << std::endl;
-}
-
-void render_system::bind_light_buffer(shader& s)
-{
-    unsigned int blockIndex = glGetUniformBlockIndex(s.ID, "LightBuffer");
-    if (blockIndex != GL_INVALID_INDEX)
-        glUniformBlockBinding(s.ID, blockIndex, 0);
 }
 
 /**
@@ -81,130 +88,141 @@ void render_system::render(
     GLint previousViewport[4];
     glGetIntegerv(GL_VIEWPORT, previousViewport);
 
-    glm::mat4 viewProj = projection * view;
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_LightUBO);
 
+    glm::mat4 viewProj = projection * view;
     glm::mat4 invView = glm::inverse(view);
     glm::vec3 cameraPosition = glm::vec3(invView[3]);
 
-    // Scene içindeki ışık listesi alınır
+    // Işık UBO işlemleri
     const auto& lights = lightBatch.lights;
+    int lightCount = std::min(static_cast<int>(lights.size()), static_cast<int>(MAX_LIGHT_COUNT));
 
-    int lightCount = (int)lights.size();
-    if (lightCount > MAX_LIGHT_COUNT)
-        lightCount = MAX_LIGHT_COUNT;
-
-    // Işık sayısı GPU'ya yazılır
     glBindBuffer(GL_UNIFORM_BUFFER, m_LightUBO);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(int), &lightCount);
+    if (lightCount > 0) {
+        std::cout << "[UBO WRITE] dir=("
+            << lights[0].direction.x << ","
+            << lights[0].direction.y << ","
+            << lights[0].direction.z << ") intensity="
+            << lights[0].intensity << std::endl;
 
-    // Işık verileri GPU'ya yazılır
-    if (lightCount > 0)
-    {
-        glBufferSubData(GL_UNIFORM_BUFFER, 16,
-            lightCount * sizeof(light_data),
-            lights.data());
+
+        glBufferSubData(GL_UNIFORM_BUFFER, 16, lightCount * sizeof(light_data), lights.data());
     }
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // Frame başı render cache temizlenir
-    m_RenderItemsCache.clear();
+    std::cout << "[LIGHT DEBUG] lightCount=" << lightCount << std::endl;
 
-    // ECS → render item extraction
+
+    // Frame başı render cache temizlenir ve ECS'den objeler toplanır
+    m_RenderItemsCache.clear();
     extract(reg, ctx, viewProj);
 
     // Shader bazlı batch map temizlenir
     m_RenderQueueCache.batches.clear();
 
-    // Render item'lar shader ID'ye göre gruplanır
+    // 🚀 DOĞRU GRUPLAMA: Nesneler Aria'dan gelen ham gpu_shader_id'ye göre kuyruğa (map'e) eklenir
     for (const auto& item : m_RenderItemsCache)
-        m_RenderQueueCache.batches[item.shader_id].push_back(item);
+        m_RenderQueueCache.batches[item.gpu_shader_id].push_back(item);
 
-    // ------------------------------------------------------------------------
-    // PASS 1: SHADOW MAP RENDER (Işığın Gözünden Derinlik Çizimi)
-    // ------------------------------------------------------------------------
+    // Shadow Map Matris Hesabı
     glm::mat4 lightSpaceMatrix(1.0f);
     bool hasDirectionalLight = false;
-
-    // Sahnedeki ilk yönlü ışığı (Type == 0) bulup matrisini hesaplıyoruz
-    for (int i = 0; i < lightCount; ++i)
-    {
-        if (lights[i].type == 0) // Directional Light
-        {
+    for (int i = 0; i < lightCount; ++i) {
+        if (lights[i].type == 0) {
             lightSpaceMatrix = calculate_light_space_matrix(lights[i], cameraPosition);
             hasDirectionalLight = true;
             break;
         }
     }
 
+    // ------------------------------------------------------------------------
+    // PASS 1: SHADOW MAP RENDER (Gölge Pass'i)
+    // ------------------------------------------------------------------------
     if (hasDirectionalLight)
     {
-        // Gölge tuvalini bağla (glViewport otomatik 2048x2048 olur)
         ctx.shadowFBO.bind();
 
-        // Gölge shader'ını çağır
-        shader& shadowShader = ctx.shaderManager.get(ctx.shadowShaderID);
-        shadowShader.use();
-        shadowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        // ========================================================================
+        // 🚀 ARIA SHADOW SHADER KATMANI
+        // ========================================================================
+        // Eski shadowShaderID yerine Aria Cache'den GPU üzerindeki hazır shader ID'sini çekiyoruz
+        unsigned int shadowGLShaderID = ctx.aria_system->get_shader_id(ctx.shadowShaderHandle);
+        glUseProgram(shadowGLShaderID);
 
-        // Frustum culling'e takılmadan, sahnedeki tüm nesneleri ışık gözünden çiziyoruz
-        for (auto& [shaderID, batch] : m_RenderQueueCache.batches)
+        glUniformMatrix4fv(glGetUniformLocation(shadowGLShaderID, "lightSpaceMatrix"), 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+
+        for (auto& [gpuShaderID, batch] : m_RenderQueueCache.batches)
         {
             for (const auto& item : batch)
             {
-                shadowShader.setMat4("model", item.model);
-                ctx.renderer.Draw(item, ctx.textureManager);
+                glUniformMatrix4fv(glGetUniformLocation(shadowGLShaderID, "model"), 1, GL_FALSE, &item.model[0][0]);
+
+                // 🚀 ARIA İLE ÇİZİM (Sıfır ek yük, tamamen optimize)
+                ctx.renderer.Draw(item, ctx.aria_system);
             }
         }
-
         ctx.renderer.BindFramebuffer(previousFBO);
     }
-
     // ------------------------------------------------------------------------
-    // PASS 2: ANA RENDER PASS (Normal Sahne Çizimi)
+    // PASS 2: ANA RENDER PASS
     // ------------------------------------------------------------------------
-    // ÖNEMLİ: Gölge pass'i viewport'u 2048x2048 yapmıştı. 
-    // Ana ekrana dönerken kendi ekran boyutlarımıza geri set etmeliyiz.
     ctx.renderer.SetViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
 
-    // Her shader grubu ayrı draw pass olur
-    for (auto& [shaderID, batch] : m_RenderQueueCache.batches)
+    for (auto& [gpuShaderID, batch] : m_RenderQueueCache.batches)
     {
-        shader& shader = ctx.shaderManager.get(shaderID);
-        shader.use();
+        // 🚀 Shader ID'yi doğrudan GL'e veriyoruz, "shader" sınıfı sarmalayıcısı 
+        // gerekiyorsa burada sadece ID'sini geçiriyoruz.
+        glUseProgram(gpuShaderID);
 
-        // Kamera matrisleri
-        shader.setMat4("view", view);
-        shader.setMat4("projection", projection);
+        GLint current;
 
-        shader.setVec3("viewPos", cameraPosition);
+        glGetIntegerv(GL_CURRENT_PROGRAM, &current);
 
-        // Işık uzayı matrisini ve ürettiğimiz Shadow Map dokusunu ana shader'a gönderiyoruz
-        shader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        std::cout
+            << "Current Program="
+            << current
+            << std::endl;
 
-        // Mevcut texture slotlarının çakışmaması için shadow map'i slot 2'ye bağlıyoruz
-        // (diffuse = slot 0, normal = slot 1 demiştin)
+        std::cout
+            << "model="
+            << glGetUniformLocation(gpuShaderID, "model")
+            << " view="
+            << glGetUniformLocation(gpuShaderID, "view")
+            << " projection="
+            << glGetUniformLocation(gpuShaderID, "projection")
+            << " baseColor="
+            << glGetUniformLocation(gpuShaderID, "baseColor")
+            << std::endl;
+
+        // Uniform set işlemleri (senin tıkır tıkır çalışan fonksiyonların)
+        glUniformMatrix4fv(glGetUniformLocation(gpuShaderID, "view"), 1, GL_FALSE, &view[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(gpuShaderID, "projection"), 1, GL_FALSE, &projection[0][0]);
+        glUniform3fv(glGetUniformLocation(gpuShaderID, "viewPos"), 1, &cameraPosition[0]);
+        glUniformMatrix4fv(glGetUniformLocation(gpuShaderID, "lightSpaceMatrix"), 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+
+        // Shadow Map bağlama (Renderer üzerinden)
         ctx.renderer.BindTextureSlot(2, ctx.shadowFBO.get_depth_texture());
-        shader.setInt("shadowMap", 2);
+        glUniform1i(glGetUniformLocation(gpuShaderID, "shadowMap"), 2);
 
         for (const auto& item : batch)
         {
-            shader.setMat4("model", item.model);
-            shader.setVec3("baseColor", item.base_color);
-            shader.setVec2("u_TextureScale", item.texture_scale);
+            glUniformMatrix4fv(glGetUniformLocation(gpuShaderID, "model"), 1, GL_FALSE, &item.model[0][0]);
+            glUniform3fv(glGetUniformLocation(gpuShaderID, "baseColor"), 1, &item.base_color[0]);
+            glUniform2fv(glGetUniformLocation(gpuShaderID, "u_TextureScale"), 1, &item.texture_scale[0]);
 
-            shader.setInt("useTexture", item.diffuse_texture != 0);
-            shader.setInt("useNormalMap", item.normal_texture != 0);
+            glUniform1i(glGetUniformLocation(gpuShaderID, "useTexture"), item.diffuse_handle.is_valid());
+            glUniform1i(glGetUniformLocation(gpuShaderID, "useNormalMap"), item.normal_handle.is_valid());
 
-            if (item.normal_texture != 0)
-            {
-                shader.setFloat("normalStrength", item.normal_strength);
+            if (item.normal_handle.is_valid()) {
+                glUniform1f(glGetUniformLocation(gpuShaderID, "normalStrength"), item.normal_strength);
             }
+            glUniform1f(glGetUniformLocation(gpuShaderID, "specularStrength"), item.specular_strength);
+            glUniform1f(glGetUniformLocation(gpuShaderID, "shininess"), item.shininess);
 
-            shader.setFloat("specularStrength", item.specular_strength);
-            shader.setFloat("shininess", item.shininess);
-
-            // Mesh draw call (renderer + texture manager üzerinden)
-            ctx.renderer.Draw(item, ctx.textureManager);
+            // 🚀 ÇİZİM TETİKLENİYOR
+            ctx.renderer.Draw(item, ctx.aria_system);
         }
     }
 }
@@ -224,21 +242,18 @@ void render_system::extract(
     const glm::mat4& viewProj
 )
 {
-    // Kamera görüş hacmi oluşturulur
     frustum f = buildFrustum(viewProj);
-
-    // Culling hatalarını azaltmak için küçük bias
     constexpr float kCullBias = 0.01f;
 
-    for (const auto& [e, mesh] : reg.get_all<mesh_component>())
+    for (const auto& [e, meshComp] : reg.get_all<mesh_component>())
     {
         const auto* transform = reg.get_component<transform_component>(e);
-        const material_component* matComp = reg.get_component<material_component>(e);
+        const auto* matComp = reg.get_component<material_component>(e);
         const auto* bounds = reg.get_component<bounds_component>(e);
 
         if (!transform) continue;
 
-        // Model matrix (T * R * S)
+        // Model matrisi hesabı
         glm::mat4 model(1.0f);
         model = glm::translate(model, transform->position);
         model = glm::rotate(model, transform->rotation.x, glm::vec3(1, 0, 0));
@@ -246,71 +261,83 @@ void render_system::extract(
         model = glm::rotate(model, transform->rotation.z, glm::vec3(0, 0, 1));
         model = glm::scale(model, transform->scale);
 
-        // Bounding sphere world space'e taşınır
+        // Frustum Culling
         glm::vec3 localCenter = bounds ? bounds->localCenter : glm::vec3(0.0f);
         glm::vec3 worldCenter = glm::vec3(model * glm::vec4(localCenter, 1.0f));
-
-        // Scale'e göre bounding radius hesaplanır
-        float maxScale = glm::max(transform->scale.x,
-            glm::max(transform->scale.y, transform->scale.z));
-
+        float maxScale = glm::max(transform->scale.x, glm::max(transform->scale.y, transform->scale.z));
         float baseRadius = bounds ? bounds->localRadius : transform->boundingRadius;
         float radius = baseRadius * maxScale + kCullBias;
 
-        // Frustum dışındaysa render edilmez
         if (!f.is_inside(worldCenter, radius))
             continue;
 
-        // Render item oluşturulur
+        // Yeni render_item yapısını dolduruyoruz
         render_item item;
         item.model = model;
-        item.mesh_id = mesh.mesh_id;
 
-        // Material çözümleme
-        if (matComp)
+        // 🚀 Aria Model ve Submesh ataması
+        item.model_handle = meshComp.model_handle;
+        item.sub_mesh_index = meshComp.sub_mesh_index;
+
+        std::cout
+            << "[CHAIN] Entity=" << (int)e
+            << " model=(" << item.model_handle.index
+            << "," << item.model_handle.generation << ")"
+            << " submesh=" << item.sub_mesh_index
+            << std::endl;
+
+        // 🚀 Aria Material Çözümleme
+        if (matComp && matComp->material_handle.is_valid())
         {
-            const material* mat =
-                ctx.assetManager.try_get<material>(matComp->material_id);
+            std::cout << "[EXTRACT DEBUG] material_handle VALID, index=" << matComp->material_handle.index
+                << " gen=" << matComp->material_handle.generation << "\n";
+
+            const auto* mat = ctx.aria_system->get_material_data(matComp->material_handle);
 
             if (mat)
             {
-                item.shader_id = mat->shader_id;
+                std::cout << "[EXTRACT DEBUG] mat bulundu, shader_handle index=" << mat->shader_handle.index
+                    << " gen=" << mat->shader_handle.generation << " valid=" << mat->shader_handle.is_valid() << "\n";
+
+                // Shader handle geçersiz ise fallback shader kullan
+                if (mat->shader_handle.is_valid()) {
+                    item.gpu_shader_id = ctx.aria_system->get_shader_id(mat->shader_handle);
+                } else {
+                    std::cout << "[EXTRACT DEBUG] Shader handle INVALID, fallback shader kullanılıyor!\n";
+                    item.gpu_shader_id = ctx.aria_system->get_shader_id(aria::handle<aria::shader_asset>());
+                }
+
+                std::cout << "[EXTRACT DEBUG] gpu_shader_id sonucu = " << item.gpu_shader_id << "\n";
+
                 item.base_color = mat->base_color;
                 item.normal_strength = mat->normal_strength;
                 item.texture_scale = mat->texture_scale;
-                item.diffuse_texture = mat->diffuse_texture;
-                item.normal_texture = mat->normal_texture;
-
+                item.diffuse_handle = mat->diffuse_texture_handle;
+                item.normal_handle = mat->normal_texture_handle;
+                item.specular_handle = mat->specular_texture_handle;
                 item.specular_strength = mat->specular_strength;
                 item.shininess = mat->shininess;
             }
             else
             {
-                // Fallback material (debug magenta)
-                item.shader_id = 0;
+                std::cout << "[EXTRACT DEBUG] get_material_data NULLPTR!\n";
+                item.gpu_shader_id = ctx.aria_system->get_shader_id(aria::handle<aria::shader_asset>());
                 item.base_color = glm::vec3(1.0f, 0.0f, 1.0f);
-                item.diffuse_texture = 0;
-                item.normal_texture = 0;
                 item.texture_scale = glm::vec2(1.0f);
-
                 item.specular_strength = 0.5f;
                 item.shininess = 32.0f;
             }
         }
         else
         {
-            // Material yoksa default değerler
-            item.shader_id = 0;
+            std::cout << "[EXTRACT DEBUG] material_handle INVALID! entity=" << (int)e << "\n";
+            item.gpu_shader_id = ctx.aria_system->get_shader_id(aria::handle<aria::shader_asset>());
             item.base_color = glm::vec3(1.0f);
-            item.diffuse_texture = 0;
-            item.normal_texture = 0;
             item.texture_scale = glm::vec2(1.0f);
-
             item.specular_strength = 0.5f;
             item.shininess = 32.0f;
         }
 
-        // Cache'e eklenir (allocation yok → performans odaklı)
         m_RenderItemsCache.push_back(item);
     }
 }

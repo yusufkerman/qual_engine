@@ -1,37 +1,42 @@
 /**
  * @file inspector_panel.h
- * @brief Seçili varlığa (entity) ait bileşenleri dinamik olarak listeleyen ana editör paneli.
- *
- * Bu panel; `component_ui_registry` içinde kayıtlı olan tüm bileşen arayüz sistemlerini
- * tarayarak, seçili varlığın sahip olduğu bileşenleri çalışma zamanında (runtime) tespit eder
- * ve ilgili ImGui çizim fonksiyonlarını ardışık olarak çağırır.
+ * @brief Seçili varlığa (entity) ait bileşenleri veya seçili asset dosyalarını dinamik olarak listeleyen ana editör paneli.
  */
-
 #pragma once
 #include "../../Scene/scene.h"
+#include <unordered_map>
+#include <string>
+#include <memory>
 
- // Forward declarations (Ön Bildirimler) - Sıfır Derleme Bağımlılığı kuralı
+ // Forward declarations
 struct EngineContext;
 struct EditorContext;
 
+namespace aria::editor {
+    class IAssetInspector; // Ön bildirim
+}
+
 /**
- * @brief Editörün sağ veya sol tarafında konumlanan Nesne Özellikleri (Inspector) panel sınıfı.
+ * @brief Editörün Nesne Özellikleri (Inspector) panel sınıfı. Hem ECS Varlıklarını hem modüler Assetleri yönetir.
  */
 class inspector_panel
 {
 public:
+    inspector_panel();
+    ~inspector_panel();
+
     /**
-     * @brief Aktif sahne üzerindeki seçili varlığın tüm bileşen arayüzlerini çizer.
-     * * Fonksiyon, arka planda veri odaklı haritayı (`get_registry`) dönerek, şablon (template)
-     * krizlerine girmeden tamamen tip-gizlenmiş (type-erased) fonksiyon göstergeleri üzerinden çalışır.
-     *
-     * @param scene Üzerinde arama yapılacak ve registry referansı barındıran aktif sahne nesnesi.
-     * @param selectedEntity Hiyerarşi panelinden seçilmiş olan mevcut varlığın benzersiz kimliği (ID).
-     * @param engineCtx Motorun genel çalışma zamanı bağlamı ve alt sistemleri (EngineContext).
-     * @param editorCtx Editörün arayüz durumu ve panel odak bilgileri (EditorContext).
+     * @brief Aktif sahne üzerindeki seçili varlığın bileşenlerini VEYA seçili asset'in modüler editörünü çizer.
      */
     void render(scene& scene,
         int selectedEntity,
         EngineContext& engineCtx,
         EditorContext& editorCtx);
+
+private:
+    // Kayıtlı alt asset editörlerinin modüler listesi
+    std::unordered_map<std::string, std::unique_ptr<aria::editor::IAssetInspector>> m_asset_inspectors;
+
+    // JSON dosyalarının kafasındaki "asset_type" değerini yakalayan güvenli okuyucu
+    std::string get_asset_type_from_file(const std::string& path);
 };

@@ -31,8 +31,14 @@
 #include "../Renderer/shadow_map_fbo.h"
 #include "../Renderer/Debug/gizmo_system.h"
 
+#include "Assets/aria.h"
+
 struct GLFWwindow;
 
+namespace sera
+{
+    class sera;
+}
 
 struct EngineContext
 {
@@ -53,6 +59,8 @@ struct EngineContext
     InputSystem inputSystem;
 
     scene_session session;
+
+    sera::sera* sera = nullptr;
 
     // ---------------- EDITOR ----------------
     Editor editor;
@@ -75,6 +83,7 @@ struct EngineContext
     render_system renderSystem;
     camera_system cameraSystem;
     physics_system physicsSystem;
+    aria::system* aria_system = nullptr;
 
     gizmo_system gizmoSystem;
 
@@ -83,11 +92,17 @@ struct EngineContext
     shadow_map_fbo shadowFBO;
 
     // runtime
-    unsigned int gridShaderID = 0;
-    unsigned int skyboxShaderID = 0;
+    /*unsigned int gridShaderID = 0;*/
+    //unsigned int skyboxShaderID = 0;
     unsigned int skyboxTexture = 0;
-    unsigned int shadowShaderID = 0;
-    unsigned int gizmoShaderID = 0;
+    //unsigned int shadowShaderID = 0;
+    //unsigned int gizmoShaderID = 0;
+
+	aria::handle<aria::shader_asset> gridShaderHandle;
+    aria::handle<aria::shader_asset> skyboxShaderHandle;
+    aria::handle<aria::shader_asset> defaultShaderHandle;
+    aria::handle<aria::shader_asset> gizmoShaderHandle;
+    aria::handle<aria::shader_asset> shadowShaderHandle;
 
     fly_camera_state runtimeCameraState;
 

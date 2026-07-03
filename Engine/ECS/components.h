@@ -5,6 +5,9 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 
+#include "../Engine/Assets/aria.h"
+#include "../Sera/sera_component_codec.h"
+
 class scriptable_entity;
 
 //Contains all components that can be attached to an entity
@@ -50,17 +53,26 @@ struct transform_component {
 
 };
 
+//struct mesh_component {
+//    unsigned int mesh_id;
+//
+//    std::string model_path = "None";   // Inspector'da hangi dosyanın yüklü olduğunu görmek için
+//
+//    mesh_source_type source = mesh_source_type::model;
+//};
 struct mesh_component {
-    unsigned int mesh_id;
-
-    std::string model_path = "None";   // Inspector'da hangi dosyanın yüklü olduğunu görmek için
+    aria::handle<aria::model_asset> model_handle;
+    size_t sub_mesh_index{ 0 };
 
     mesh_source_type source = mesh_source_type::model;
 };
 
-struct material_component
-{
-    unsigned int material_id = 0;
+//struct material_component
+//{
+//    unsigned int material_id = 0;
+//};
+struct material_component {
+    aria::handle<aria::material_asset> material_handle; // Artık handle kullanıyoruz
 };
 
 struct camera_component
@@ -143,3 +155,68 @@ struct native_script_component {
         bind_destroy = [](native_script_component* nsc) { delete (T*)nsc->instance; nsc->instance = nullptr; };
     }
 };
+
+// ============================================================================
+// 🔥 SERA REFLECTION REGISTRATION FOR ENGINE COMPONENTS
+// ============================================================================
+
+// 1. Name Component
+DESCRIBE_COMPONENT(name_component,
+    SERA_FIELD(name)
+)
+
+// 2. Transform Component
+DESCRIBE_COMPONENT(transform_component,
+    SERA_FIELD(position),
+    SERA_FIELD(rotation),
+    SERA_FIELD(scale),
+    SERA_FIELD(boundingRadius)
+)
+
+// 3. Camera Component
+DESCRIBE_COMPONENT(camera_component,
+    SERA_FIELD(fov),
+    SERA_FIELD(nearPlane),
+    SERA_FIELD(farPlane),
+    SERA_FIELD(primary),
+    SERA_FIELD(priority)
+)
+
+// 4. Light Component
+DESCRIBE_COMPONENT(light_component,
+    SERA_FIELD(type), // enum sınıfları integer olarak nlohmann::json tarafından otomatik serileştirilir
+    SERA_FIELD(color),
+    SERA_FIELD(intensity),
+    SERA_FIELD(range),
+    SERA_FIELD(inner_cone),
+    SERA_FIELD(outer_cone),
+    SERA_FIELD(cast_shadows)
+)
+
+// 5. Bounds Component
+DESCRIBE_COMPONENT(bounds_component,
+    SERA_FIELD(localCenter),
+    SERA_FIELD(localRadius)
+)
+
+// 6. Rigidbody Component (Jolt BodyID diske yazılmaz, sadece ayarlar kaydedilir)
+DESCRIBE_COMPONENT(rigidbody_component,
+    SERA_FIELD(motion),
+    SERA_FIELD(mass),
+    SERA_FIELD(friction),
+    SERA_FIELD(restitution),
+    SERA_FIELD(freeze_rotation_x),
+    SERA_FIELD(freeze_rotation_y),
+    SERA_FIELD(freeze_rotation_z)
+)
+
+// 7. Collider Component
+DESCRIBE_COMPONENT(collider_component,
+    SERA_FIELD(type),
+    SERA_FIELD(extents)
+)
+
+// 8. Native Script Component (Sadece yüklü olan script'in adı kaydedilir)
+DESCRIBE_COMPONENT(native_script_component,
+    SERA_FIELD(script_name)
+)

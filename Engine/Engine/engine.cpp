@@ -1,10 +1,7 @@
 #include "engine.h"
-
 #include <iostream>
-
 #include "../Renderer/passes/game_pass.h"
 #include "../Renderer/Passes/editor_pass.h"
-
 #include "../Editor/editor_layer.h"
 #include "../Runtime/runtime_layer.h"
 #include "../Systems/physics_bridge.h"
@@ -12,7 +9,8 @@
 #include "../Externals/nfd/nfd.h"
 #include "../Renderer/Passes/ui_pass.h"
 #include "../Renderer/Passes/grid_pass.h"
-
+#include "../Engine/asset_pipeline.h"
+#include "../Sera/sera.h"
 
 namespace
 {
@@ -78,17 +76,32 @@ bool Engine::init(EngineContext& ctx)
 
     glfwMakeContextCurrent(ctx.window);
 
+    // 🚀 1. GRAPHICS DICTIONARY AYAĞA KALKIYOR
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return false;
+
+    // 🚀 2. ARIA SİSTEMİNİ ILKLENDIR (ÇOK KRİTİK: GLAD'den hemen sonra olmalı!)
+    if (!ctx.aria_system) {
+        ctx.aria_system = new aria::system();
+    }
+    ctx.aria_system->init(); // 🔥 Fallback shader ve dokular GPU'ya uçuyor!
+
+    // ----------------------
+    // SERA
+    // ----------------------
+    ctx.sera = new sera::sera();
+    ctx.sera->init(ctx);
+
+
 
     if (!ctx.shadowFBO.init(2048, 2048))
     {
         std::cout << "Gölge sistemi başlatılamadı!" << std::endl;
     }
 
-    ctx.textureManager.init();
     ctx.renderSystem.init();
 
+    // textureManager.init() kaldırıldı, Aria hepsini yönetiyor!
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
@@ -100,47 +113,31 @@ bool Engine::init(EngineContext& ctx)
     ctx.grid.init();
     ctx.gizmoSystem.init();
 
-
     if (!ctx.physicsSystem.init(ctx.session.game_scene()))
     {
         std::cout << "[Physics] init failed\n";
         return false;
     }
 
-   
+    // 🚀 3. SHADER'LARI ARIA ÜZERİNDEN YÜKLE
+    // Not: Buradaki her çağırma arkada deterministik v5 UUID üretip registry'ye kaydeder.
+    // .vert ve .frag uzantılarını Aria Loader kendi eklediği için yalın dosya adını veriyoruz.
+    ctx.defaultShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/default_shader");
+    ctx.gizmoShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Debug/gizmo");
+    ctx.shadowShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/shadow");
+    ctx.gridShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Debug/grid");
+    ctx.skyboxShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Skybox/skybox");
 
-    unsigned int mainShaderID = ctx.shaderManager.load(
-        "Shaders/default_vertex.glsl",
-        "Shaders/default_fragment.glsl"
-    );
-    ctx.renderSystem.bind_light_buffer(ctx.shaderManager.get(mainShaderID));
-
-    ctx.gizmoShaderID = ctx.shaderManager.load(
-        "Shaders/Debug/gizmo_vertex.glsl",
-        "Shaders/Debug/gizmo_fragment.glsl"
-    );
-
-    //Gölge shader'ı yüklenir.
-    ctx.shadowShaderID = ctx.shaderManager.load(
-        "Shaders/shadow_vertex.glsl",
-        "Shaders/shadow_fragment.glsl"
-    );
-
-
-    ctx.gridShaderID = ctx.shaderManager.load(
-        "Shaders/Debug/grid.vert",
-        "Shaders/Debug/grid.frag"
-    );
-
-    ctx.skyboxShaderID = ctx.shaderManager.load(
-        "Shaders/Skybox/skybox.vert",
-        "Shaders/Skybox/skybox.frag"
-    );
-
-    auto& s = ctx.shaderManager.get(mainShaderID);
-    s.use();
-    s.setInt("diffuseTex", 0);
-    s.setInt("normalTex", 1);
+    // 🚀 4. İLK SHADER UNIFORM AYARLARI
+    // Aria'dan ham opengl program id'sini isteyip uniform'ları bağlıyoruz
+    unsigned int mainGLid = ctx.aria_system->get_shader_id(ctx.defaultShaderHandle);
+    if (mainGLid != 0)
+    {
+        glUseProgram(mainGLid);
+        glUniform1i(glGetUniformLocation(mainGLid, "diffuseTex"), 0);
+        glUniform1i(glGetUniformLocation(mainGLid, "normalTex"), 1);
+        glUseProgram(0);
+    }
 
     ctx.editorTarget.create(1, 1);
     ctx.gameTarget.create(1, 1);
@@ -149,10 +146,18 @@ bool Engine::init(EngineContext& ctx)
 
     ctx.prevMode = ctx.editor.mode;
 
+    // Cubemap loader'ı da ileride Aria'ya taşıyacağız ama şimdilik mevcut haliyle kalabilir
     ctx.skyboxTexture = cubemap_loader::load_atlas("Assets/sky/skybox1.png");
 
     if (NFD_Init() != NFD_OKAY)
         std::cout << "[NFD] init failed\n";
+
+    std::cout
+        << "Default handle index="
+        << ctx.defaultShaderHandle.index
+        << " gen="
+        << ctx.defaultShaderHandle.generation
+        << std::endl;
 
     return true;
 }
@@ -160,25 +165,20 @@ bool Engine::init(EngineContext& ctx)
 void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 {
     ctx.inputSystem.update(ctx, editorCtx);
-
     handle_mode_transition(ctx);
 
-    // runtime her zaman çalışır
     runtime_layer::update(ctx);
 
     if (ctx.editor.mode == EngineMode::PLAY)
     {
-        float dt = 0.016f; //Geçici
-
+        float dt = 0.016f;
         ctx.inputState.active = (!ctx.isEditorBuild) || (editorCtx.focusedPanel == FocusedPanel::GameViewport);
-
         ctx.session.game_scene().on_update_runtime(dt);
     }
 
     ctx.session.game_scene().update_light_batch();
     ctx.cameraSystem.update(ctx.session.game_scene());
 
-    // editor sadece editor build’de
     if (ctx.isEditorBuild)
     {
         editor_layer::update(ctx, editorCtx);
@@ -189,14 +189,13 @@ void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 void Engine::render(EngineContext& ctx, EditorContext& editorCtx)
 {
     glfwPollEvents();
-
     game_pass::render(ctx);
 
     if (ctx.isEditorBuild)
     {
         editor_pass::render(ctx);
         grid_pass::render(ctx);
-        editor_layer::render(ctx, editorCtx); // ← bunu ekle, ui_pass'ı kaldır
+        editor_layer::render(ctx, editorCtx);
     }
 
     glfwSwapBuffers(ctx.window);
@@ -205,14 +204,20 @@ void Engine::render(EngineContext& ctx, EditorContext& editorCtx)
 void Engine::shutdown(EngineContext& ctx)
 {
     ctx.session.game_scene().clean_up_scripts();
-
     ctx.uiManager.shutdown();
 
     ctx.editorTarget.destroy();
     ctx.gameTarget.destroy();
     ctx.grid.shutdown();
-
     ctx.physicsSystem.shutdown();
+
+    // 🚀 5. ARIA'NIN TÜM GPU VE MEMORY BEKÇİLERİNİ KAPAT
+    if (ctx.aria_system) {
+        ctx.aria_system->clear_all_resources();
+        ctx.aria_system->shutdown();
+        delete ctx.aria_system;
+        ctx.aria_system = nullptr;
+    }
 
     glfwDestroyWindow(ctx.window);
     ctx.window = nullptr;

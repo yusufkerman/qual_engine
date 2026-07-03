@@ -1,10 +1,9 @@
 #include "scene_serializer.h"
 #include "scene.h"
-#include "../Renderer/material_manager.h" 
 #include "component_serialization.h"
 #include "../Engine/engine.h" 
 #include "../ECS/components.h" 
-#include "../Importers/ModelLoader.h" // Model yükleyici için
+#include "../Importers/ModelLoader.h"
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
@@ -13,45 +12,8 @@
 
 using json = nlohmann::json;
 
-// ============================================================================
-// 🔥 JSON DÖNÜŞÜM FONKSİYONLARI (nlohmann/json için material desteği)
-// ============================================================================
-void to_json(json& j, const material& m) {
-    j = json{
-        {"shader_id", m.shader_id},
-        {"base_color", {m.base_color.x, m.base_color.y, m.base_color.z}},
-        {"diffuse_texture", m.diffuse_texture},
-        {"normal_texture", m.normal_texture},
-        {"specular_texture", m.specular_texture},
-        {"normal_strength", m.normal_strength},
-        {"texture_scale", {m.texture_scale.x, m.texture_scale.y}},
-        { "specular_strength", m.specular_strength },
-        {"shininess", m.shininess}
-    };
-}
-
-void from_json(const json& j, material& m) {
-    j.at("shader_id").get_to(m.shader_id);
-
-    if (j.contains("base_color")) {
-        m.base_color.x = j["base_color"][0];
-        m.base_color.y = j["base_color"][1];
-        m.base_color.z = j["base_color"][2];
-    }
-
-    j.at("diffuse_texture").get_to(m.diffuse_texture);
-    j.at("normal_texture").get_to(m.normal_texture);
-    j.at("specular_texture").get_to(m.specular_texture);
-    j.at("normal_strength").get_to(m.normal_strength);
-
-    if (j.contains("texture_scale")) {
-        m.texture_scale.x = j["texture_scale"][0];
-        m.texture_scale.y = j["texture_scale"][1];
-    }
-
-    m.specular_strength = j.value("specular_strength", 0.5f);
-    m.shininess = j.value("shininess", 32.0f);
-}
+// 💡 NOT: Ham 'material' yapısı için yazılan manuel to_json ve from_json fonksiyonları 
+// artık materyaller sahne dışına çıkarıldığı için bu dosyadan TEMİZLENDİ.
 
 bool scene_serializer::serialize(const std::string& filepath, const scene& currentScene, EngineContext& ctx)
 {
@@ -59,11 +21,11 @@ bool scene_serializer::serialize(const std::string& filepath, const scene& curre
     const auto& allEntities = reg.get_all_entities();
 
     json sceneJson;
-    sceneJson["scene_name"] = "PS1_Engine_Scene";
+    sceneJson["scene_name"] = "Aria_Engine_Scene";
     sceneJson["active_camera"] = currentScene.get_active_camera();
 
     // ============================================================================
-    // 1. 🖼️ ASSET SERİLEŞTİRME (TEXTURES & MATERIALS)
+    // 1. 🖼️ ASSET SERİLEŞTİRME (SADECE TEXTURES)
     // ============================================================================
     sceneJson["textures"] = json::array();
     const auto& allTexturePaths = ctx.textureManager.get_all_paths();
@@ -75,56 +37,9 @@ bool scene_serializer::serialize(const std::string& filepath, const scene& curre
         sceneJson["textures"].push_back(texJson);
     }
 
-    sceneJson["materials"] = json::array();
+    // 🔥 ESKİ MATERYAL DÖNGÜLERİ VE HAM VERİ KAYDETME KISMI BAĞIMSIZ .JSON 
+    // SİSTEMİNE GEÇİLDİĞİ İÇİN TAMAMEN KALDIRILDI.
 
-    // 🔥 KESİN ÇÖZÜM: ID'si 0 olan dokusuz materyalleri de zorla içeri alıyoruz!
-    std::unordered_map<unsigned int, material> finalMaterials;
-
-    // Adım A: Sahnedeki tüm objeleri tara (ID 0 olsa bile yakala!)
-    for (entity e : allEntities)
-    {
-        if (reg.has_component<material_component>(e))
-        {
-            auto* matComp = reg.get_component<material_component>(e);
-            if (matComp) // 🚨 matComp->material_id != 0 şartını kaldırdık!
-            {
-                unsigned int matId = matComp->material_id;
-                
-                if (finalMaterials.find(matId) == finalMaterials.end())
-                {
-                    try {
-                        // assetManager'dan ID'si 0 olan materyali çekmeye zorla
-                        material mData = ctx.assetManager.get<material>(matId);
-                        finalMaterials[matId] = mData;
-                    }
-                    catch (...) {
-                        // Eğer assetManager'da o an yoksa bile varsayılan bir kalıp yazalım
-                        material defaultMat;
-                        finalMaterials[matId] = defaultMat;
-                    }
-                }
-            }
-        }
-    }
-
-    // Adım B: materialManager havuzundaki diğer materyalleri güvenle lokal kopyayla çek
-    auto managerMats = ctx.materialManager.get_all_materials();
-    for (auto const& [matId, matData] : managerMats)
-    {
-        // Sahne taramasında gözden kaçan bir manager materyali varsa ekle
-        if (finalMaterials.find(matId) == finalMaterials.end()) {
-            finalMaterials[matId] = matData;
-        }
-    }
-
-    // Adım C: Havuzda toplanan tüm materyalleri (ID 0 dahil) JSON'a yaz
-    for (const auto& [matId, matData] : finalMaterials)
-    {
-        json matJson;
-        matJson["id"] = matId;
-        matJson["data"] = matData;
-        sceneJson["materials"].push_back(matJson);
-    }
     // ============================================================================
     // 2. 👾 ENTITY & COMPONENT SERİLEŞTİRME
     // ============================================================================
@@ -137,15 +52,16 @@ bool scene_serializer::serialize(const std::string& filepath, const scene& curre
         serialize_component_if_exists<name_component>(e, reg, entityJson, "name_component");
         serialize_component_if_exists<transform_component>(e, reg, entityJson, "transform_component");
         serialize_component_if_exists<mesh_component>(e, reg, entityJson, "mesh_component");
+
+        // 💡 Makro ve eklediğimiz şablon fonksiyonları sayesinde material_handle 
+        // otomatik olarak indeks ve jenerasyon olarak hafifçe buraya basılacak.
         serialize_component_if_exists<material_component>(e, reg, entityJson, "material_component");
+
         serialize_component_if_exists<camera_component>(e, reg, entityJson, "camera_component");
         serialize_component_if_exists<light_component>(e, reg, entityJson, "light_component");
         serialize_component_if_exists<bounds_component>(e, reg, entityJson, "bounds_component");
-
-        // Fizik Bileşenleri
         serialize_component_if_exists<rigidbody_component>(e, reg, entityJson, "rigidbody_component");
         serialize_component_if_exists<collider_component>(e, reg, entityJson, "collider_component");
-
         serialize_component_if_exists<native_script_component>(e, reg, entityJson, "native_script_component");
 
         sceneJson["entities"].push_back(entityJson);
@@ -156,211 +72,46 @@ bool scene_serializer::serialize(const std::string& filepath, const scene& curre
     file << sceneJson.dump(4);
     file.close();
 
-    std::cout << "[Serializer] Sahne ve tum Asset verileri basariyla kaydedildi: " << filepath << std::endl;
+    std::cout << "[Serializer] Sahne ve Aria Handle referanslari basariyla kaydedildi: " << filepath << std::endl;
     return true;
 }
 
 bool scene_serializer::deserialize(const std::string& filepath, scene& currentScene, EngineContext& ctx)
 {
     std::ifstream file(filepath);
-    if (!file.is_open())
-    {
-        std::cout << "[Serializer] Sahne dosyasi acilamadi: " << filepath << std::endl;
-        return false;
-    }
+    if (!file.is_open()) return false;
 
     json sceneJson;
     try { file >> sceneJson; }
-    catch (const json::parse_error& e) {
-        std::cout << "[Serializer] JSON Ayristirma hatasi: " << e.what() << std::endl;
-        file.close();
-        return false;
-    }
+    catch (const json::parse_error&) { file.close(); return false; }
     file.close();
 
-    // 🚨 ESKİ SAHNEYİ TEMİZLE
+    // Sahneyi ve sistemleri temizle
     currentScene.new_scene();
-
-    ctx.renderer.Clear();            // Tüm VAO/VBO'lar silindi
-    asset_pipeline::clear_cache();
-    ctx.textureManager.clear();      // Tüm Dokular silindi
+    ctx.aria_system->clear_all_resources();
+    ctx.textureManager.clear();
     ctx.materialManager.clear();
     ctx.assetManager.clear();
 
-    //Fizik temizliği
     ctx.physicsSystem.shutdown();
-    if (!ctx.physicsSystem.init(ctx.session.editor_scene()))
-    {
-        std::cout << "[Jolt Error] Sahne yuklenirken fizik sistemi yeniden baslatilamadi!" << std::endl;
-        return false;
-    }
+    ctx.physicsSystem.init(ctx.session.editor_scene());
 
-    // ============================================================================
-    // 1. 🗺️ ID TERCÜME TABLOLARI (CRASH ÖNLEYİCİLER)
-    // ============================================================================
-    std::unordered_map<unsigned int, unsigned int> textureIdMap;
-    std::unordered_map<unsigned int, unsigned int> materialIdMap;
-    std::unordered_map<unsigned int, unsigned int> meshIdMap;
-    std::unordered_map<unsigned int, unsigned int> entityIdMap;
-
-    textureIdMap[0] = 0;
-    materialIdMap[0] = 0;
-    entityIdMap[0] = 0;
-
-    // 2. 🖼️ DOKULARI DISKTEN YENİDEN YÜKLE
-    if (sceneJson.contains("textures") && sceneJson["textures"].is_array())
-    {
-        for (const auto& texJson : sceneJson["textures"])
-        {
-            if (!texJson.contains("id") || !texJson.contains("path")) continue;
-
-            unsigned int oldTexId = texJson["id"];
-            std::string texPath = texJson["path"];
-
-            unsigned int newTexId = ctx.textureManager.load(texPath);
-            textureIdMap[oldTexId] = (newTexId == 0) ? 0 : newTexId;
-        }
-    }
-
-    // 3. 🎨 MATERYALLERİ YENİDEN İNŞA ET
-    if (sceneJson.contains("materials") && sceneJson["materials"].is_array())
-    {
-        for (const auto& matJson : sceneJson["materials"])
-        {
-            if (!matJson.contains("id") || !matJson.contains("data")) continue;
-
-            unsigned int oldMatId = matJson["id"];
-            material matData = matJson["data"].get<material>(); // Yukarıdaki from_json tetiklenecek
-
-            auto itDiff = textureIdMap.find(matData.diffuse_texture);
-            matData.diffuse_texture = (itDiff != textureIdMap.end()) ? itDiff->second : 0;
-
-            auto itNorm = textureIdMap.find(matData.normal_texture);
-            matData.normal_texture = (itNorm != textureIdMap.end()) ? itNorm->second : 0;
-
-            auto itSpec = textureIdMap.find(matData.specular_texture);
-            matData.specular_texture = (itSpec != textureIdMap.end()) ? itSpec->second : 0;
-
-            unsigned int newMatId = ctx.assetManager.add<material>(matData);
-            ctx.materialManager.create(matData);
-
-            materialIdMap[oldMatId] = newMatId;
-        }
-    }
-
-    // ============================================================================
-    // 4. 📐 MODELLERİ (MESH) LOAD - FIXED VERSION
-    // ============================================================================
-
-    if (sceneJson.contains("entities") && sceneJson["entities"].is_array())
-    {
-        // 1. PASS: Primitive meshleri önceden üret (sphere bug fix burada)
-        for (const auto& entityJson : sceneJson["entities"])
-        {
-            if (!entityJson.contains("mesh_component")) continue;
-            if (entityJson["mesh_component"].is_null()) continue;
-
-            mesh_component meshComp =
-                entityJson["mesh_component"].get<mesh_component>();
-
-            // sadece primitive sphere/cube preload
-            if (meshComp.mesh_id == 0)
-            {
-                if (meshComp.source == mesh_source_type::primitive_cube)
-                {
-                    auto res = asset_pipeline::create_cube_mesh(ctx);
-                    if (!res.mesh_ids.empty())
-                        meshIdMap[0] = res.mesh_ids[0];
-                }
-                else if (meshComp.source == mesh_source_type::primitive_sphere)
-                {
-  
-                    auto res = asset_pipeline::create_sphere_mesh(ctx, 1.0f);
-
-                    if (!res.mesh_ids.empty())
-                        meshIdMap[0] = res.mesh_ids[0];
-                }
-            }
-        }
-
-        // 2. PASS: gerçek model / internal mesh çözümleme
-        for (const auto& entityJson : sceneJson["entities"])
-        {
-            if (!entityJson.contains("mesh_component")) continue;
-            if (entityJson["mesh_component"].is_null()) continue;
-
-            mesh_component meshComp =
-                entityJson["mesh_component"].get<mesh_component>();
-
-            int newMeshId = 0;
-
-            // already resolved primitive
-            if (meshComp.source == mesh_source_type::primitive_cube)
-            {
-                auto res = asset_pipeline::create_cube_mesh(ctx);
-                if (!res.mesh_ids.empty())
-                    newMeshId = res.mesh_ids[0];
-            }
-            else if (meshComp.source == mesh_source_type::primitive_sphere)
-            {
-                // ⚠️ SAFE: radius parse sadece VALID ise
-                float radius = 1.0f;
-
-                size_t pos = meshComp.model_path.rfind('_');
-                if (pos != std::string::npos)
-                {
-                    try
-                    {
-                        radius = std::stof(meshComp.model_path.substr(pos + 1));
-                        if (radius <= 0.0001f) radius = 1.0f;
-                    }
-                    catch (...)
-                    {
-                        radius = 1.0f;
-                    }
-                }
-
-                auto res = asset_pipeline::create_sphere_mesh(ctx, radius);
-                if (!res.mesh_ids.empty())
-                    newMeshId = res.mesh_ids[0];
-            }
-            else if (meshComp.source == mesh_source_type::model)
-            {
-                if (meshComp.model_path != "None")
-                {
-                    Model loaded = ModelLoader::Load(meshComp.model_path);
-
-                    if (!loaded.meshes.empty())
-                        newMeshId = ctx.renderer.UploadModel(loaded);
-                }
-            }
-
-            meshIdMap[meshComp.mesh_id] = newMeshId;
-        }
-    }
-
-    // ============================================================================
-    // 5. 👾 ENTITY VE BİLEŞENLERİ SAHNEYE DÖŞEME
-    // ============================================================================
+    std::unordered_map<unsigned int, entity> entityIdMap;
     registry& reg = currentScene.get_registry();
 
-    if (sceneJson.contains("entities") && sceneJson["entities"].is_array())
+    // 1. ADIM: Entity'leri yarat
+    if (sceneJson.contains("entities"))
     {
         for (const auto& entityJson : sceneJson["entities"])
         {
-            if (!entityJson.contains("id")) continue;
-
-            unsigned int oldEntityId = entityJson["id"];
             entity newE = currentScene.create_entity();
-            entityIdMap[oldEntityId] = newE;
+            entityIdMap[entityJson["id"]] = newE;
         }
 
+        // 2. ADIM: Komponentleri yükle
         for (const auto& entityJson : sceneJson["entities"])
         {
-            if (!entityJson.contains("id")) continue;
-
-            unsigned int oldEntityId = entityJson["id"];
-            entity newE = entityIdMap[oldEntityId];
+            entity newE = entityIdMap[entityJson["id"]];
 
             deserialize_component_if_exists<name_component>(newE, reg, entityJson, "name_component");
             deserialize_component_if_exists<transform_component>(newE, reg, entityJson, "transform_component");
@@ -370,56 +121,36 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
             deserialize_component_if_exists<rigidbody_component>(newE, reg, entityJson, "rigidbody_component");
             deserialize_component_if_exists<collider_component>(newE, reg, entityJson, "collider_component");
 
-            //  OTOMATİK SCRIPT YÜKLEME VE BAĞLAMA KATMANI
-            if (entityJson.contains("native_script_component") && !entityJson["native_script_component"].is_null())
+            // Native Script
+            if (entityJson.contains("native_script_component"))
             {
                 std::string s_name = entityJson["native_script_component"].value("script_name", "None");
-
-                if (s_name != "None")
-                {
-                    // Fabrikaya sor: "Bu isimde bir script kayıtlı mı? Kayıtlıysa entity'ye bind et."
-                    if (!script_factory::instantiate_script(s_name, newE, reg))
-                    {
-                        std::cout << "[Serializer Warning] Diskten '" << s_name
-                            << "' okundu fakat Sandbox bu scripti motora kaydetmemis!" << std::endl;
-                    }
-                }
+                if (s_name != "None") script_factory::instantiate_script(s_name, newE, reg);
             }
 
-            if (entityJson.contains("mesh_component") && !entityJson["mesh_component"].is_null())
+            // 🔥 YENİ SİSTEM: Mesh Component (Artık sadece handle)
+            if (entityJson.contains("mesh_component"))
             {
                 mesh_component meshComp = entityJson["mesh_component"].get<mesh_component>();
-                auto itMesh = meshIdMap.find(meshComp.mesh_id);
-                meshComp.mesh_id = (itMesh != meshIdMap.end()) ? itMesh->second : 0;
                 reg.add_component<mesh_component>(newE, meshComp);
             }
 
-            if (entityJson.contains("material_component") && !entityJson["material_component"].is_null())
+            // 🔥 YENİ SİSTEM: Material Component
+            if (entityJson.contains("material_component"))
             {
                 material_component matComp = entityJson["material_component"].get<material_component>();
-                auto itMat = materialIdMap.find(matComp.material_id);
-                matComp.material_id = (itMat != materialIdMap.end()) ? itMat->second : 0;
                 reg.add_component<material_component>(newE, matComp);
             }
-
-
         }
     }
 
+    // Kamera ve Işık güncellemeleri
     if (sceneJson.contains("active_camera"))
     {
         unsigned int oldCamId = sceneJson["active_camera"];
-        if (entityIdMap.find(oldCamId) != entityIdMap.end())
-        {
-            entity newCamId = entityIdMap[oldCamId];
-            if (newCamId != 0) {
-                currentScene.set_active_camera(newCamId);
-            }
-        }
+        if (entityIdMap.count(oldCamId)) currentScene.set_active_camera(entityIdMap[oldCamId]);
     }
 
     currentScene.update_light_batch();
-
-    std::cout << "[Serializer] Sahne tamamen basariyla yuklendi!" << std::endl;
     return true;
 }

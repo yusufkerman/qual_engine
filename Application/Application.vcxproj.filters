@@ -43,15 +43,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\default_fragment.glsl" />
-    <None Include="Shaders\default_vertex.glsl" />
+    <None Include="Shaders\default_shader.vert" />
+    <None Include="Shaders\default_shader.frag" />
     <None Include="Shaders\fragment.glsl" />
     <None Include="Shaders\vertex.glsl" />
-    <None Include="Shaders\shadow_fragment.glsl" />
-    <None Include="Shaders\shadow_vertex.glsl" />
-    <None Include="Shaders\Debug\gizmo_fragment.glsl" />
-    <None Include="Shaders\Debug\gizmo_vertex.glsl" />
+    <None Include="Shaders\shadow.frag" />
+    <None Include="Shaders\shadow.vert" />
+    <None Include="Shaders\Debug\gizmo.frag" />
+    <None Include="Shaders\Debug\gizmo.vert" />
     <None Include="Shaders\Debug\grid.frag" />
     <None Include="Shaders\Debug\grid.vert" />
+    <None Include="Shaders\Skybox\skybox.frag" />
+    <None Include="Shaders\Skybox\skybox.vert" />
   </ItemGroup>
 </Project>

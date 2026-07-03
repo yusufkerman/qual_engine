@@ -1,15 +1,58 @@
 #pragma once
 
 #include "../Externals/nlohmann/json.hpp"
-#include "../ECS/components.h"
 #include "../ECS/entity.h"
 #include "../ECS/registry.h"
 #include <glm/glm.hpp>
+#include "../Externals/uuid/uuid.h"
+#include "../Renderer/material.h"
 
 using json = nlohmann::json;
 
 // ======================================================
-// 1. GLM SERIALIZATION (SADECE MATH, COMPONENT YOK)
+// 🔥 0. FORWARD DECLARATIONS (KRİTİK HATA ÇÖZÜCÜ)
+// ======================================================
+// Derleyici components.h yükleme sırasından dolayı material ve componentleri 
+// göremezse diye burada ön bildirim yapıyoruz.
+struct material;
+struct name_component;
+struct transform_component;
+struct mesh_component;
+struct material_component;
+struct camera_component;
+struct light_component;
+struct bounds_component;
+struct rigidbody_component;
+struct collider_component;
+struct native_script_component;
+
+// Aria namespace'ini ve handle yapısını da önceden bildiriyoruz
+namespace aria {
+    template<typename T> struct handle;
+}
+
+// Şimdi asıl components.h dosyasını güvenle çağırabiliriz
+#include "../ECS/components.h"
+
+// ======================================================
+// 1. KÖK NLOHMANN NAMESPACE ENJEKSİYONU (ŞABLON TAM TANIMI)
+// ======================================================
+namespace nlohmann {
+    template <typename T>
+    struct adl_serializer<aria::handle<T>> {
+        static void to_json(json& j, const aria::handle<T>& h) {
+            j = json{ {"index", h.index}, {"generation", h.generation} };
+        }
+
+        static void from_json(const json& j, aria::handle<T>& h) {
+            h.index = j.value("index", 0u);
+            h.generation = j.value("generation", 0u);
+        }
+    };
+}
+
+// ======================================================
+// 2. GLM SERIALIZATION (SADECE MATH, COMPONENT YOK)
 // ======================================================
 namespace glm {
 
@@ -39,7 +82,7 @@ namespace glm {
 } // glm
 
 // ======================================================
-// 2. ENUM SERIALIZATION
+// 3. ENUM SERIALIZATION
 // ======================================================
 NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     {light_type::directional, "directional"},
@@ -65,7 +108,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
         })
 
     // ======================================================
-    // 3. COMPONENT SERIALIZATION
+    // 4. COMPONENT SERIALIZATION
     // ======================================================
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material,
         shader_id, base_color,
@@ -78,10 +121,11 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(transform_component,
         position, rotation, scale, boundingRadius)
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(mesh_component,
-        mesh_id, model_path, source)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(mesh_component, 
+        model_handle, sub_mesh_index)
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material_component, material_id)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material_component, material_handle)
+
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(camera_component,
         fov, nearPlane, farPlane, primary, priority)
 
@@ -98,10 +142,10 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(collider_component,
         type, extents)
 
-// ======================================================
-// 4. NATIVE SCRIPT
-// ======================================================
-inline void to_json(json& j, const native_script_component& nsc)
+    // ======================================================
+    // 5. NATIVE SCRIPT
+    // ======================================================
+    inline void to_json(json& j, const native_script_component& nsc)
 {
     j = json{ {"script_name", nsc.script_name} };
 }
@@ -112,7 +156,7 @@ inline void from_json(const json& j, native_script_component& nsc)
 }
 
 // ======================================================
-// 5. ENGINE HELPERS
+// 6. ENGINE HELPERS
 // ======================================================
 using EngineComponentList = std::tuple<
     name_component,
@@ -127,7 +171,7 @@ using EngineComponentList = std::tuple<
 >;
 
 // ======================================================
-// 6. GENERIC SERIALIZER
+// 7. GENERIC SERIALIZER
 // ======================================================
 template <typename T>
 void serialize_component_if_exists(entity e, const registry& reg,
