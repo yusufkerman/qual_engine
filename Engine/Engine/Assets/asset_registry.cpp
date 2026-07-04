@@ -200,15 +200,17 @@ namespace aria {
         slot.is_allocated = true;
         slot.asset.guid = guid;
         slot.asset.name = loaded->name;
+
+		slot.asset.mode = loaded->mode;
+		slot.asset.alpha_threshold = loaded->alpha_threshold;
+
         slot.asset.base_color = loaded->base_color;
         slot.asset.specular_strength = loaded->specular_strength;
         slot.asset.shininess = loaded->shininess;
         slot.asset.normal_strength = loaded->normal_strength;
         slot.asset.texture_scale = loaded->texture_scale;
 
-        // ========================================================================
-        // 🚀 CLAUDE'UN REVERT EDİLMİŞ/GÜNCELLENMİŞ SİSTEMİNE TAM UYUM
-        // ========================================================================
+       
 
         // A. Diffuse Texture Bağlantısı
         if (!loaded->diffuse_texture_guid.is_nil())

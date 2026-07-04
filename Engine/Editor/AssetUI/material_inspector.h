@@ -52,6 +52,16 @@ namespace aria::editor {
             try { return std::stof(val_str); }
             catch (...) { return default_val; }
         }
+        int parse_single_int(const std::string& content, const std::string& key, int default_val) {
+            size_t pos = content.find("\"" + key + "\"");
+            if (pos == std::string::npos) return default_val;
+            size_t colon = content.find(":", pos);
+            if (colon == std::string::npos) return default_val;
+            size_t end_pos = content.find_first_of(",}\n", colon);
+            std::string val_str = content.substr(colon + 1, end_pos - colon - 1);
+            try { return std::stoi(val_str); }
+            catch (...) { return default_val; }
+        }
 
         std::string parse_string(const std::string& content, const std::string& key, const std::string& default_val) {
             size_t pos = content.find("\"" + key + "\"");
@@ -92,6 +102,9 @@ namespace aria::editor {
             static float normal_strength = 1.0f;
             static float texture_scale[2] = { 1.0f, 1.0f };
 
+            static int render_mode = 0;         // 0: Opaque, 1: Cutout, 2: Transparent
+            static float alpha_threshold = 0.1f;
+
             // Sürükle-Bırak tamponları
             static char shader_path[256] = "";
             static char diffuse_texture_path[256] = "";
@@ -113,6 +126,9 @@ namespace aria::editor {
                     texture_scale[0] = 1.0f; texture_scale[1] = 1.0f;
                     parse_float_array(content, "texture_scale", texture_scale, 2);
 
+                    render_mode = parse_single_int(content, "render_mode", 0);
+                    alpha_threshold = parse_single_float(content, "alpha_threshold", 0.1f);
+
                     // 🎯 1. ADIM: JSON'dan sadece kaydedilmiş ham GUID string'lerini ayıklıyoruz
                     std::string shader_guid = parse_string(content, "shader_guid", "");
                     std::string diffuse_guid = parse_string(content, "diffuse_texture_guid", "");
@@ -132,6 +148,19 @@ namespace aria::editor {
                 }
                 last_loaded_path = asset_path;
             }
+
+            // YENİ UI ELEMANLARI: Render Ayarları Katmanı
+            ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.2f, 1.0f), "🎨 Render Settings");
+            ImGui::Separator();
+
+            const char* render_modes[] = { "Opaque (0)", "Cutout / Alpha Test (1)", "Transparent (2)" };
+            ImGui::Combo("Render Mode", &render_mode, render_modes, IM_ARRAYSIZE(render_modes));
+
+            // Eğer mod Cutout seçildiyse eşik değeri slider'ını göster
+            if (render_mode == 1) {
+                ImGui::SliderFloat("Alpha Threshold", &alpha_threshold, 0.0f, 1.0f, "%.2f");
+            }
+            ImGui::Spacing();
 
             // Standart Parametreler
             ImGui::ColorEdit4("Base Color", base_color);
@@ -221,6 +250,8 @@ namespace aria::editor {
                         << "  \"shininess\": " << shininess << ",\n"
                         << "  \"normal_strength\": " << normal_strength << ",\n"
                         << "  \"texture_scale\": [" << texture_scale[0] << ", " << texture_scale[1] << "],\n"
+                        << "  \"render_mode\": " << render_mode << ",\n"
+                        << "  \"alpha_threshold\": " << alpha_threshold << ",\n"
                         << "  \"shader_guid\": \"" << shader_guid_str << "\",\n"
                         << "  \"diffuse_texture_guid\": \"" << diffuse_guid_str << "\",\n"
                         << "  \"normal_texture_guid\": \"" << normal_guid_str << "\",\n"

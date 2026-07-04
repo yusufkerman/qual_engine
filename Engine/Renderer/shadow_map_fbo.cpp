@@ -26,8 +26,8 @@ bool shadow_map_fbo::init(unsigned int width, unsigned int height)
         width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 
     // Gölge haritalarında kenar piksellerin taşmasını önlemek için filtreleme ayarları
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Işık alanının dışındaki yerlerin gölgede kalmaması için kenarları beyaz (gölgesiz) kabul et
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);

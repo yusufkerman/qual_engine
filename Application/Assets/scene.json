@@ -13,9 +13,9 @@
                 },
                 "collider_component": {
                     "extents": [
-                        75.0,
+                        750.0,
                         0.5,
-                        75.0
+                        750.0
                     ],
                     "type": 0
                 },
@@ -52,9 +52,9 @@
                         0.0
                     ],
                     "scale": [
-                        150.0,
+                        1500.0,
                         1.0,
-                        150.0
+                        1500.0
                     ]
                 }
             },
@@ -77,14 +77,6 @@
                         1.0
                     ],
                     "type": 0
-                },
-                "material_component": {
-                    "material_guid": "93f89b33-630a-488c-9ca0-8c7fe6babee2"
-                },
-                "mesh_component": {
-                    "model_guid": "d23a0aff-3fdc-5851-a6c3-e9623da3cd11",
-                    "source": 0,
-                    "sub_mesh_index": 0
                 },
                 "name_component": {
                     "name": "Player"
@@ -238,6 +230,216 @@
                 }
             },
             "uuid": "09904bf2-c555-4b6e-8243-c6517bd87302"
+        },
+        {
+            "components": {
+                "bounds_component": {
+                    "localCenter": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "localRadius": 1.0
+                },
+                "material_component": {
+                    "material_guid": "564abdec-569f-4fca-81a0-e7f56248778c"
+                },
+                "mesh_component": {
+                    "model_guid": "851cc59a-b02a-47aa-9502-d863183bf99e",
+                    "source": 0,
+                    "sub_mesh_index": 0
+                },
+                "name_component": {
+                    "name": "Tree"
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [
+                        20.899999618530273,
+                        -8.600000381469727,
+                        0.0
+                    ],
+                    "rotation": [
+                        -1.600000023841858,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            },
+            "uuid": "1032df19-d1b1-4ddd-82f8-07d841880f72"
+        },
+        {
+            "components": {
+                "bounds_component": {
+                    "localCenter": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "localRadius": 1.0
+                },
+                "material_component": {
+                    "material_guid": "564abdec-569f-4fca-81a0-e7f56248778c"
+                },
+                "mesh_component": {
+                    "model_guid": "851cc59a-b02a-47aa-9502-d863183bf99e",
+                    "source": 0,
+                    "sub_mesh_index": 0
+                },
+                "name_component": {
+                    "name": "Tree_Copy"
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [
+                        35.0,
+                        -9.300000190734863,
+                        4.199999809265137
+                    ],
+                    "rotation": [
+                        -1.600000023841858,
+                        0.10000000149011612,
+                        4.400000095367432
+                    ],
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            },
+            "uuid": "1e001dea-b3a3-416c-90e2-9edc66a01e6d"
+        },
+        {
+            "components": {
+                "bounds_component": {
+                    "localCenter": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "localRadius": 1.0
+                },
+                "material_component": {
+                    "material_guid": "564abdec-569f-4fca-81a0-e7f56248778c"
+                },
+                "mesh_component": {
+                    "model_guid": "851cc59a-b02a-47aa-9502-d863183bf99e",
+                    "source": 0,
+                    "sub_mesh_index": 0
+                },
+                "name_component": {
+                    "name": "Tree_Copy_Copy"
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [
+                        32.0,
+                        -8.0,
+                        -22.100000381469727
+                    ],
+                    "rotation": [
+                        -1.600000023841858,
+                        0.10000000149011612,
+                        4.400000095367432
+                    ],
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            },
+            "uuid": "233f84a9-777e-4024-bf22-4e92e4309cce"
+        },
+        {
+            "components": {
+                "bounds_component": {
+                    "localCenter": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "localRadius": 1.0
+                },
+                "material_component": {
+                    "material_guid": "564abdec-569f-4fca-81a0-e7f56248778c"
+                },
+                "mesh_component": {
+                    "model_guid": "851cc59a-b02a-47aa-9502-d863183bf99e",
+                    "source": 0,
+                    "sub_mesh_index": 0
+                },
+                "name_component": {
+                    "name": "Tree_Copy_Copy_Copy"
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [
+                        46.400001525878906,
+                        -9.300000190734863,
+                        -22.100000381469727
+                    ],
+                    "rotation": [
+                        -1.600000023841858,
+                        0.10000000149011612,
+                        4.400000095367432
+                    ],
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            },
+            "uuid": "114d67c6-e20e-4162-b33c-6448ac2fd6d4"
+        },
+        {
+            "components": {
+                "bounds_component": {
+                    "localCenter": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "localRadius": 1.0
+                },
+                "material_component": {
+                    "material_guid": "564abdec-569f-4fca-81a0-e7f56248778c"
+                },
+                "mesh_component": {
+                    "model_guid": "851cc59a-b02a-47aa-9502-d863183bf99e",
+                    "source": 0,
+                    "sub_mesh_index": 0
+                },
+                "name_component": {
+                    "name": "Tree_Copy_Copy_Copy_Copy"
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [
+                        9.899999618530273,
+                        -9.300000190734863,
+                        -22.100000381469727
+                    ],
+                    "rotation": [
+                        -1.600000023841858,
+                        0.10000000149011612,
+                        4.400000095367432
+                    ],
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            },
+            "uuid": "395a0549-87e4-4431-a1ff-8e35f6f768eb"
         }
     ],
     "scene_name": "Sera_Engine_Scene"

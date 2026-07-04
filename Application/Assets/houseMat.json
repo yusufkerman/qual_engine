@@ -6,6 +6,8 @@
   "shininess": 32,
   "normal_strength": 1.4,
   "texture_scale": [2, 2],
+  "render_mode": 0,
+  "alpha_threshold": 0.1,
   "shader_guid": "c10d2850-634a-4e41-bd53-add2e817e129",
   "diffuse_texture_guid": "2f513748-0208-4b5a-9fbe-2854c7ecd0d1",
   "normal_texture_guid": "35bbaf75-8b82-45cf-9fc4-54611e498b5a",

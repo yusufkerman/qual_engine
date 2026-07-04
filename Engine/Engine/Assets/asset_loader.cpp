@@ -188,6 +188,28 @@ namespace aria {
             out_raw_data.debug_path = file_path;
             out_raw_data.name = material_json.value("name", "Unnamed_Material");
 
+            // RENDER MODE OKUMA (String -> Enum Dönüşümü)
+            if (material_json.contains("render_mode")) {
+                // JSON içindeki sayısal değeri int olarak güvenle çekiyoruz (Varsayılan 0 yani Opaque)
+                int mode_int = material_json.value("render_mode", 0);
+
+                if (mode_int == 1) {
+                    out_raw_data.mode = render_mode::cutout;
+                }
+                else if (mode_int == 2) {
+                    out_raw_data.mode = render_mode::transparent;
+                }
+                else {
+                    out_raw_data.mode = render_mode::opaque;
+                }
+            }
+            else {
+                out_raw_data.mode = render_mode::opaque; // JSON'da yoksa varsayılan opak
+            }
+
+            // ALPHA THRESHOLD OKUMA
+            out_raw_data.alpha_threshold = material_json.value("alpha_threshold", 0.1f);
+
             // 🎯 RENGİ GÜVENLİ OKUMA (Aynen korundu)
             if (material_json.contains("base_color")) {
                 auto& bc = material_json["base_color"];
@@ -239,7 +261,7 @@ namespace aria {
                 return parsed ? *parsed : aria::asset_guid{};
                 };
 
-            // 🎯 ARTIK PATH DEĞİL, GEÇERLİ GUID'LERİ SİSTEME DOLDURUYORUZ
+            // GEÇERLİ GUID'LERİ SİSTEME DOLDURUYORUZ
             out_raw_data.shader_guid = parse_guid_helper(material_json, "shader_guid");
             out_raw_data.diffuse_texture_guid = parse_guid_helper(material_json, "diffuse_texture_guid");
             out_raw_data.normal_texture_guid = parse_guid_helper(material_json, "normal_texture_guid");

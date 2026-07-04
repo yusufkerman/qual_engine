@@ -1,0 +1,15 @@
+{
+  "type": "material",
+  "name": "treeMat",
+  "base_color": [1, 1, 1, 1],
+  "specular_strength": 0.5,
+  "shininess": 32,
+  "normal_strength": 1,
+  "texture_scale": [1, 1],
+  "render_mode": 1,
+  "alpha_threshold": 0.1,
+  "shader_guid": "c10d2850-634a-4e41-bd53-add2e817e129",
+  "diffuse_texture_guid": "6b61a191-8d9d-42d6-89f4-bbf17492ee7c",
+  "normal_texture_guid": "00000000-0000-0000-0000-000000000000",
+  "specular_texture_guid": "00000000-0000-0000-0000-000000000000"
+}

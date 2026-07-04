@@ -40,9 +40,14 @@ namespace aria {
         raw_shader_data raw_data;
     };
 
+	// Material asset yapısı, bir malzemenin özelliklerini ve ilişkili kaynaklarını temsil eder
     struct material_asset {
         asset_guid guid;
         std::string name;
+
+        render_mode mode{ render_mode::opaque };
+        float alpha_threshold{ 0.1f };
+
         glm::vec3 base_color{ 1.0f };
         float specular_strength{ 0.5f };
         float shininess{ 32.0f };

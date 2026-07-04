@@ -24,6 +24,9 @@ uniform float shininess;
 uniform vec3 viewPos;
 uniform sampler2D shadowMap;
 
+uniform int u_RenderMode;       // 0: Opaque, 1: Cutout
+uniform float u_AlphaThreshold;
+
 // ============================================================================
 // UBO YAPISI (std140) - HİZALAMA (Tam 80 Byte / 5 adet vec4)
 // ============================================================================
@@ -62,24 +65,28 @@ float CalculateShadow(vec4 fragPosLightSpace, vec3 N, vec3 L)
     if(projCoords.z > 1.0)
         return 0.0;
 
-    // 🛠️ YENİ HESAPLAMA: Normal Bias (Dünya koordinatını yüzey normaline göre modifiye etme)
-    // Işık açısı eğildikçe bias'ı hafifçe artırıyoruz ama çok küçük tutuyoruz.
-    float shadowMapSize = 2048.0; // Gölge haritandaki çözünürlük (Örn: 2048)
-    float texelSize = 1.0 / shadowMapSize;
+    float bias = max(0.0015 * (1.0 - dot(N,L)), 0.0003);
 
-    // Sabit bir bias yerine, yüzey normaline bağlı çok küçük bir ofset
-    float bias = max(0.002 * (1.0 - dot(N, L)), 0.0008);  
+    vec2 texelSize = 1.0 / textureSize(shadowMap,0);
 
-    // Shadow Map'ten derinliği oku
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    float currentDepth = projCoords.z;
+    float shadow = 0.0;
 
-    // Işığa arkasını dönen yüzeyleri doğrudan gölgede bırak
-    if(dot(N, L) < 0.0) 
-        return 1.0;
+    for(int x=-1;x<=1;x++)
+    {
+        for(int y=-1;y<=1;y++)
+        {
+            float depth = texture(
+                shadowMap,
+                projCoords.xy + vec2(x,y)*texelSize
+            ).r;
 
-    // Karşılaştırma
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+            shadow +=
+                (projCoords.z-bias>depth)
+                ?1.0:0.0;
+        }
+    }
+
+    shadow/=9.0;
 
     return shadow;
 }
@@ -87,6 +94,17 @@ void main()
 {
     
     vec2 tiledUV = vUV * u_TextureScale;
+
+    vec4 texColor = useTexture ? texture(diffuseTex, tiledUV) : vec4(baseColor, 1.0);
+    if (u_RenderMode == 1)
+    {
+        if (texColor.a < u_AlphaThreshold)
+        {
+            discard; // Bu komut çalıştığı an shader aşağıya devam etmez, pikseller şeffaf olur!
+        }
+    }
+
+    vec3 albedo = texColor.rgb;
     vec3 N = normalize(vNormal);
 
     if (useNormalMap)
@@ -96,7 +114,6 @@ void main()
         N = normalize(vTBN * normalize(tangentNormal));
     }
 
-    vec3 albedo = useTexture ? texture(diffuseTex, tiledUV).rgb : baseColor;
 
     vec3 result = vec3(0.0);
     float ambient = 0.15;
@@ -172,5 +189,7 @@ void main()
         result += (1.0 - shadow) * (diffuse + specular);    
     }
 
-    FragColor = vec4(result, 1.0);
+    float finalAlpha = (u_RenderMode == 2) ? texColor.a : 1.0;
+
+    FragColor = vec4(result, finalAlpha);
 }

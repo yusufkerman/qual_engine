@@ -200,6 +200,9 @@ void render_system::render(
             glUniform1f(glGetUniformLocation(gpuShaderID, "specularStrength"), item.specular_strength);
             glUniform1f(glGetUniformLocation(gpuShaderID, "shininess"), item.shininess);
 
+            glUniform1i(glGetUniformLocation(gpuShaderID, "u_RenderMode"), static_cast<int>(item.mode));
+            glUniform1f(glGetUniformLocation(gpuShaderID, "u_AlphaThreshold"), item.alpha_threshold);
+
             // 🚀 ÇİZİM TETİKLENİYOR
             ctx.renderer.Draw(item, ctx.aria_system);
         }
@@ -294,6 +297,9 @@ void render_system::extract(
                             aria::handle<aria::shader_asset>());
                 }
 
+                item.mode = mat->mode;
+                item.alpha_threshold = mat->alpha_threshold;
+
                 item.base_color = mat->base_color;
                 item.normal_strength = mat->normal_strength;
                 item.texture_scale = mat->texture_scale;
@@ -309,6 +315,9 @@ void render_system::extract(
                     ctx.aria_system->get_shader_id(
                         aria::handle<aria::shader_asset>());
 
+                item.mode = aria::render_mode::opaque;
+                item.alpha_threshold = 0.1f;
+
                 item.base_color = glm::vec3(1.0f, 0.0f, 1.0f);
                 item.texture_scale = glm::vec2(1.0f);
                 item.specular_strength = 0.5f;
@@ -320,6 +329,9 @@ void render_system::extract(
             item.gpu_shader_id =
                 ctx.aria_system->get_shader_id(
                     aria::handle<aria::shader_asset>());
+
+            item.mode = aria::render_mode::opaque;
+            item.alpha_threshold = 0.1f;
 
             item.base_color = glm::vec3(1.0f);
             item.texture_scale = glm::vec2(1.0f);

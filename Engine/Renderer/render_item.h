@@ -23,4 +23,8 @@ struct render_item {
     float normal_strength{ 1.0f };
     float specular_strength{ 0.5f };
     float shininess{ 32.0f };
+
+    //Alpha ayarları
+    aria::render_mode mode{ aria::render_mode::opaque };
+    float alpha_threshold{ 0.1f };
 };

@@ -19,6 +19,13 @@ namespace aria {
     // asset_guid takma adını global güvenli hale getiriyoruz
     using asset_guid = uuids::uuid;
 
+
+    enum class render_mode : int {
+        opaque = 0,      // Düz nesneler (Ev, taş)
+        cutout = 1,      // Keskin şeffaflık (Ağaç yaprağı, çimen)
+        transparent = 2  // Yarı şeffaflık (Cam, su)
+    };
+
     // Doku kurye yapısı (Orijinal güvenli hali)
     struct raw_texture_data {
         std::string debug_path;
@@ -71,17 +78,21 @@ namespace aria {
         }
     };
 
-    // 🎯 MATERYAL KURYE YAPISI (Aşama 2 ile %100 Senkronize GUID Yapısı)
+	// Doğrudan okunacak ham malzeme (material) yapısı
     struct raw_material_data {
         std::string debug_path;
         std::string name;
+
+        render_mode mode{ render_mode::opaque };
+        float alpha_threshold{ 0.1f };
+
         glm::vec3 base_color{ 1.0f };
         float specular_strength{ 0.5f };
         float shininess{ 32.0f };
         float normal_strength{ 1.0f };
         glm::vec2 texture_scale{ 1.0f };
 
-        // 🚀 Okunan GUID'lerin saklanacağı Aria Tipleri
+        // Okunan GUID'lerin saklanacağı Aria Tipleri
         aria::asset_guid shader_guid;
         aria::asset_guid diffuse_texture_guid;
         aria::asset_guid normal_texture_guid;
