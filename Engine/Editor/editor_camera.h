@@ -29,7 +29,8 @@ public:
         GLFWwindow* window,
         InputState& input,
         float sensitivity,
-        float moveSpeed
+        float moveSpeed,
+        bool hoverGate
     );
 
     glm::mat4 getViewMatrix() const;

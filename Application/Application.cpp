@@ -1,4 +1,5 @@
 ﻿#include <Engine/engine.h>
+#include <Editor/editor_context.h>
 #include "sandbox.h"
 #include <iostream>
 #include <Scene/scene_serializer.h>
@@ -14,14 +15,14 @@ int main()
 
     // OpenGL, GLFW, ImGui, shaderlar ve render target'lar oluşturulur.
     // Başarısız olursa program sonlandırılır.
-    if (!Engine::init(ctx))
+    if (!Engine::init(ctx, editorCtx))
         return -1;
 
     // Varsayılan test/sandbox sahnesini yükler.
     // Önemli:
     // Motor artık hangi modeli veya sahneyi yükleyeceğini bilmez.
     // İçerik oluşturma sorumluluğu Sandbox katmanındadır.
-    sandbox_load_demo_game(ctx);
+    sandbox_load_demo_game(ctx, editorCtx);
     std::cout << "mat size: " << ctx.materialManager.get_all_materials().size() << "\n";
 
     bool sceneLoaded = false;
@@ -30,7 +31,7 @@ int main()
     if (!ctx.isEditorBuild)
     {
         ctx.session.play(ctx);
-        ctx.editor.mode = EngineMode::PLAY;
+        editorCtx.mode = EngineMode::PLAY;
         ctx.prevMode = EngineMode::EDITOR;
     }
 
@@ -48,7 +49,7 @@ int main()
 
     // GPU kaynakları, render target'lar,
     // ImGui ve pencere sistemi temizlenir.
-    Engine::shutdown(ctx);
+    Engine::shutdown(ctx, editorCtx);
 
     return 0;
 }

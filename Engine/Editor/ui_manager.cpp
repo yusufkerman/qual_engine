@@ -1,14 +1,5 @@
 #include "ui_manager.h"
 
-#include "ComponentUI/transform_component_ui.h"
-#include "ComponentUI/camera_component_ui.h"
-#include "ComponentUI/light_component_ui.h"
-#include "ComponentUI/name_component_ui.h"
-#include "ComponentUI/mesh_component_ui.h"
-#include "ComponentUI/material_component_ui.h"
-#include "ComponentUI/rigidbody_component_ui.h"
-#include "ComponentUI/collider_component_ui.h"
-#include "ComponentUI/native_script_component_ui.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -71,17 +62,7 @@ void ui_manager::init(GLFWwindow* window_)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    //Yeni sisteme kayıtların yapıldığı yer.
-    register_transform_ui_system();
-    register_camera_ui_system();
-    register_light_ui_system();
-    register_name_ui_system();
-    register_mesh_ui_system();
-    register_material_ui_system();
-    register_rigidbody_ui_system();
-    register_collider_ui_system();
-
-    register_native_script_ui_system();
+    
 }
 
 void ui_manager::beginFrame()

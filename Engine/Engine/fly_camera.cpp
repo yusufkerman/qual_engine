@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 glm::vec3 calc_forward(const glm::vec3& rot)
 {
@@ -61,6 +62,9 @@ void update_fly_camera(
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
 
+    std::cout << "Cursor : " << xpos << " " << ypos << std::endl;
+    std::cout << "First  : " << state.firstMouse << std::endl;
+
     if (state.firstMouse)
     {
         state.lastX = xpos;
@@ -70,6 +74,8 @@ void update_fly_camera(
 
     const float xoffset = static_cast<float>(xpos - state.lastX);
     const float yoffset = static_cast<float>(state.lastY - ypos);
+
+  
 
     state.lastX = xpos;
     state.lastY = ypos;

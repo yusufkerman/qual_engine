@@ -1,6 +1,7 @@
 #include "ui_pass.h"
 
 #include "../../Engine/engine_context.h"
+#include "../../Editor/editor_context.h"
 
 void ui_pass::render(EngineContext& ctx, EditorContext& editorCtx)
 {
@@ -9,8 +10,8 @@ void ui_pass::render(EngineContext& ctx, EditorContext& editorCtx)
     glDisable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    ctx.editor.setSceneTexture(ctx.editorTarget.tex);
-    ctx.editor.setGameTexture(ctx.gameTarget.tex);
+    editorCtx.setSceneTexture(ctx.editorTarget.tex);
+    editorCtx.setGameTexture(ctx.gameTarget.tex);
 
     ctx.uiManager.beginFrame();
 
@@ -18,7 +19,7 @@ void ui_pass::render(EngineContext& ctx, EditorContext& editorCtx)
         ? ctx.session.runtime_scene()
         : ctx.session.editor_scene();
 
-    ctx.editor.renderUI(uiScene,ctx, editorCtx);
+    //ctx.editor.renderUI(uiScene,ctx, editorCtx);
 
     ctx.uiManager.endFrame();
 

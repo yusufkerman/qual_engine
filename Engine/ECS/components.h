@@ -53,6 +53,13 @@ struct transform_component {
 
 };
 
+struct hierarchy_component {
+    entity parent{ 0 };        // 0 = Root (Ebeveyni yok)
+    entity first_child{ 0 };  // İlk çocuğun ID'si
+    entity next_sibling{ 0 }; // Aynı parent'a bağlı sıradaki kardeşin ID'si
+    entity prev_sibling{ 0 }; // Bir önceki kardeşin ID'si (Çift yönlü bağlı liste - kolay silme için)
+};
+
 //struct mesh_component {
 //    unsigned int mesh_id;
 //
@@ -172,7 +179,12 @@ DESCRIBE_COMPONENT(transform_component,
     SERA_FIELD(scale),
     SERA_FIELD(boundingRadius)
 )
-
+DESCRIBE_COMPONENT(hierarchy_component,
+    SERA_FIELD(parent),
+    SERA_FIELD(first_child),
+    SERA_FIELD(next_sibling),
+    SERA_FIELD(prev_sibling)
+)
 // 3. Camera Component
 DESCRIBE_COMPONENT(camera_component,
     SERA_FIELD(fov),

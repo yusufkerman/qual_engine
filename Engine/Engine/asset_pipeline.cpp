@@ -61,13 +61,13 @@ namespace asset_pipeline
         return yeni_guid;
     }
 
-    aria::handle<aria::model_asset> import_model(EngineContext& ctx, const std::string& path)
+    aria::handle<aria::model_asset> import_model(aria::system* aria_system, const std::string& path)
     {
-        if (!ctx.aria_system) return {};
+        if (!aria_system) return {};
 
         aria::asset_guid guid = get_or_create_meta_guid(path);
 
-        return ctx.aria_system->import_model(guid, path);
+        return aria_system->import_model(guid, path);
     }
 
     aria::handle<aria::texture_asset> import_texture(EngineContext& ctx, const std::string& path)
@@ -79,13 +79,13 @@ namespace asset_pipeline
         return ctx.aria_system->import_texture(guid, path);
     }
 
-    aria::handle<aria::material_asset> import_material(EngineContext& ctx, const std::string& path)
+    aria::handle<aria::material_asset> import_material(aria::system* aria_system, const std::string& path)
     {
-        if (!ctx.aria_system) return {};
+        if (!aria_system) return {};
 
         aria::asset_guid guid = get_or_create_meta_guid(path);
 
-        return ctx.aria_system->import_material(guid, path);
+        return aria_system->import_material(guid, path);
     }
 
     // 🚀 Yeni Eklenen Shader Import Kapısı
@@ -99,15 +99,15 @@ namespace asset_pipeline
     }
 
     // --- Primitifler (Sanal yollar adres defterine yazılmaz, çünkü diske bağımlı değiller) ---
-    aria::handle<aria::model_asset> create_cube_mesh(EngineContext& ctx)
+    aria::handle<aria::model_asset> create_cube_mesh(aria::system* aria_system)
     {
-        if (!ctx.aria_system) return {};
-        return ctx.aria_system->import_virtual_model("engine://builtin/cube");
+        if (!aria_system) return {};
+        return aria_system->import_virtual_model("engine://builtin/cube");
     }
 
-    aria::handle<aria::model_asset> create_sphere_mesh(EngineContext& ctx)
+    aria::handle<aria::model_asset> create_sphere_mesh(aria::system* aria_system)
     {
-        if (!ctx.aria_system) return {};
-        return ctx.aria_system->import_virtual_model("engine://builtin/sphere");
+        if (!aria_system) return {};
+        return aria_system->import_virtual_model("engine://builtin/sphere");
     }
 }

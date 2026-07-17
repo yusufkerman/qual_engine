@@ -12,20 +12,35 @@
 #include "../Engine/asset_pipeline.h"
 #include "../Sera/sera.h"
 
+#include "../Editor/editor_context.h"
+#include "../Editor/editor_camera.h"
+
 namespace
 {
+    struct WindowUserData
+    {
+        EngineContext* engineCtx = nullptr;
+        EditorContext* editorCtx = nullptr;
+    };
+
     static void framebuffer_size_callback(GLFWwindow* window, int w, int h)
     {
-        auto* ctx = static_cast<EngineContext*>(glfwGetWindowUserPointer(window));
-        ctx->screenW = w;
-        ctx->screenH = h;
-        glViewport(0, 0, w, h);
+        auto* data = static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
+        if (data && data->engineCtx)
+        {
+            data->engineCtx->screenW = w;
+            data->engineCtx->screenH = h;
+            glViewport(0, 0, w, h);
+        }
     }
 
     static void scroll_callback(GLFWwindow* window, double, double yoffset)
     {
-        auto* ctx = static_cast<EngineContext*>(glfwGetWindowUserPointer(window));
-        ctx->editor.editorCamera.scrollStep += (float)(5.0 * yoffset);
+        auto* data = static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
+        if (data && data->editorCtx && data->editorCtx->camera)
+        {
+            data->editorCtx->camera->scrollStep += (float)(5.0 * yoffset);
+        }
     }
 
     static void init_input(EngineContext& ctx)
@@ -36,17 +51,23 @@ namespace
         ctx.inputMap.bind(GLFW_KEY_D, InputAction::MoveRight);
     }
 
-    static void handle_mode_transition(EngineContext& ctx)
+    static void handle_mode_transition(EngineContext& ctx, EditorContext& editorCtx)
     {
-        if (ctx.editor.mode == ctx.prevMode)
+       
+        // Mod kontrolünü de artık editorCtx üzerinden yapıyoruz
+        if (editorCtx.mode == ctx.prevMode)
             return;
 
-        ctx.editor.editorCamera.resetMouseState();
-        ctx.runtimeCameraState = fly_camera_state{};
+        // EditorContext içindeki kamera pointer'ını güvenle kontrol edip çağırıyoruz
+        if (editorCtx.camera)
+        {
+            editorCtx.camera->resetMouseState();
+        }
 
+        ctx.runtimeCameraState = fly_camera_state{};
         glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-        if (ctx.editor.mode == EngineMode::PLAY)
+        if (editorCtx.mode == EngineMode::PLAY)
         {
             ctx.session.play(ctx);
             physics_bridge::create_physics_world(ctx, ctx.session.game_scene());
@@ -57,11 +78,11 @@ namespace
             ctx.session.stop();
         }
 
-        ctx.prevMode = ctx.editor.mode;
+        ctx.prevMode = editorCtx.mode;
     }
 }
 
-bool Engine::init(EngineContext& ctx)
+bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
 {
     if (!glfwInit())
         return false;
@@ -92,8 +113,6 @@ bool Engine::init(EngineContext& ctx)
     ctx.sera = new sera::sera();
     ctx.sera->init(ctx);
 
-
-
     if (!ctx.shadowFBO.init(2048, 2048))
     {
         std::cout << "Gölge sistemi başlatılamadı!" << std::endl;
@@ -101,11 +120,15 @@ bool Engine::init(EngineContext& ctx)
 
     ctx.renderSystem.init();
 
-    // textureManager.init() kaldırıldı, Aria hepsini yönetiyor!
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    glfwSetWindowUserPointer(ctx.window, &ctx);
+    // 🔗 KÖPRÜ KURULUMU: StatikUserData motor ömrü boyunca bellekte yaşar
+    static WindowUserData userData;
+    userData.engineCtx = &ctx;
+    userData.editorCtx = &editorCtx;
+
+    glfwSetWindowUserPointer(ctx.window, &userData);
     glfwSetFramebufferSizeCallback(ctx.window, framebuffer_size_callback);
     glfwSetScrollCallback(ctx.window, scroll_callback);
 
@@ -119,9 +142,8 @@ bool Engine::init(EngineContext& ctx)
         return false;
     }
 
+
     // 🚀 3. SHADER'LARI ARIA ÜZERİNDEN YÜKLE
-    // Not: Buradaki her çağırma arkada deterministik v5 UUID üretip registry'ye kaydeder.
-    // .vert ve .frag uzantılarını Aria Loader kendi eklediği için yalın dosya adını veriyoruz.
     ctx.defaultShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/default_shader");
     ctx.gizmoShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Debug/gizmo");
     ctx.shadowShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/shadow");
@@ -129,7 +151,6 @@ bool Engine::init(EngineContext& ctx)
     ctx.skyboxShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Skybox/skybox");
 
     // 🚀 4. İLK SHADER UNIFORM AYARLARI
-    // Aria'dan ham opengl program id'sini isteyip uniform'ları bağlıyoruz
     unsigned int mainGLid = ctx.aria_system->get_shader_id(ctx.defaultShaderHandle);
     if (mainGLid != 0)
     {
@@ -142,11 +163,19 @@ bool Engine::init(EngineContext& ctx)
     ctx.editorTarget.create(1, 1);
     ctx.gameTarget.create(1, 1);
 
+    ctx.vestaSys.init(ctx.aria_system, ctx, editorCtx);
+
+
+    // Editör kamerasını belleğe çıkart ve context'e bağla!
+    if (ctx.isEditorBuild && !editorCtx.camera)
+    {
+        editorCtx.camera = new EditorCamera();
+    }
+
     init_input(ctx);
 
-    ctx.prevMode = ctx.editor.mode;
+    ctx.prevMode = editorCtx.mode;
 
-    // Cubemap loader'ı da ileride Aria'ya taşıyacağız ama şimdilik mevcut haliyle kalabilir
     ctx.skyboxTexture = cubemap_loader::load_atlas("Assets/sky/skybox1.png");
 
     if (NFD_Init() != NFD_OKAY)
@@ -165,14 +194,14 @@ bool Engine::init(EngineContext& ctx)
 void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 {
     ctx.inputSystem.update(ctx, editorCtx);
-    handle_mode_transition(ctx);
+    handle_mode_transition(ctx, editorCtx);
 
-    runtime_layer::update(ctx);
+    runtime_layer::update(ctx, editorCtx);
 
-    if (ctx.editor.mode == EngineMode::PLAY)
+    if (editorCtx.mode == EngineMode::PLAY)
     {
         float dt = 0.016f;
-        ctx.inputState.active = (!ctx.isEditorBuild) || (editorCtx.focusedPanel == FocusedPanel::GameViewport);
+        ctx.inputState.active = (!ctx.isEditorBuild) || (ctx.vestaSys.viewport_state().game().focused);
         ctx.session.game_scene().on_update_runtime(dt);
     }
 
@@ -193,15 +222,15 @@ void Engine::render(EngineContext& ctx, EditorContext& editorCtx)
 
     if (ctx.isEditorBuild)
     {
-        editor_pass::render(ctx);
-        grid_pass::render(ctx);
+        editor_pass::render(ctx, editorCtx);
+        grid_pass::render(ctx, editorCtx);
         editor_layer::render(ctx, editorCtx);
     }
 
     glfwSwapBuffers(ctx.window);
 }
 
-void Engine::shutdown(EngineContext& ctx)
+void Engine::shutdown(EngineContext& ctx, EditorContext& editorCtx)
 {
     ctx.session.game_scene().clean_up_scripts();
     ctx.uiManager.shutdown();
@@ -210,6 +239,12 @@ void Engine::shutdown(EngineContext& ctx)
     ctx.gameTarget.destroy();
     ctx.grid.shutdown();
     ctx.physicsSystem.shutdown();
+
+    if (editorCtx.camera) // Bu parametreyi shutdown'a eklemen veya ctx üzerinden çözmen gerekebilir
+    {
+        delete editorCtx.camera;
+        editorCtx.camera = nullptr;
+    }
 
     // 🚀 5. ARIA'NIN TÜM GPU VE MEMORY BEKÇİLERİNİ KAPAT
     if (ctx.aria_system) {

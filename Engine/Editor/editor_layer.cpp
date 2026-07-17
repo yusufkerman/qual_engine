@@ -1,47 +1,60 @@
 #include "editor_layer.h"
 #include "../Engine/engine_context.h"
+#include "../Editor/editor_context.h"
+
+#include "editor_camera.h"
+
 #include <iostream>
 
-static void update_editor_camera(EngineContext& ctx)
+static void update_editor_camera(EngineContext& ctx, EditorContext& editorCtx)
 {
-    ctx.editor.editorCamera.update(
+    if (!editorCtx.camera)
+        return;
+
+    editorCtx.camera->update(
         ctx.window,
         ctx.inputState,
         ctx.sensitivity,
-        ctx.moveSpeed
+        ctx.moveSpeed,
+        ctx.vestaSys.viewport_state().scene().focused
     );
 }
 
 static void update_viewports(EngineContext& ctx)
 {
-    if (ctx.editor.sceneViewportSize.x > 1 && ctx.editor.sceneViewportSize.y > 1)
+    auto& viewportState = ctx.vestaSys.viewport_state();
+
+    const auto& scene = viewportState.scene();
+    if (scene.size.x > 1.0f && scene.size.y > 1.0f)
     {
         ctx.editorTarget.resize(
-            (int)ctx.editor.sceneViewportSize.x,
-            (int)ctx.editor.sceneViewportSize.y
+            static_cast<int>(scene.size.x),
+            static_cast<int>(scene.size.y)
         );
     }
 
-    if (ctx.editor.gameViewportSize.x > 1 && ctx.editor.gameViewportSize.y > 1)
+    const auto& game = viewportState.game();
+    if (game.size.x > 1.0f && game.size.y > 1.0f)
     {
         ctx.gameTarget.resize(
-            (int)ctx.editor.gameViewportSize.x,
-            (int)ctx.editor.gameViewportSize.y
+            static_cast<int>(game.size.x),
+            static_cast<int>(game.size.y)
         );
     }
 }
 
 void editor_layer::update(EngineContext& ctx, EditorContext& editorCtx)
 {
-    if (editorCtx.focusedPanel == FocusedPanel::SceneViewport) 
+    auto& viewportState = ctx.vestaSys.viewport_state();
+
+    if (viewportState.scene().focused)
     {
-        update_editor_camera(ctx);
+        update_editor_camera(ctx, editorCtx);
     }
 
     update_viewports(ctx);
-
-    ctx.editor.update(ctx.session.editor_scene());
 }
+
 void editor_layer::render(EngineContext& ctx, EditorContext& editorCtx)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -50,16 +63,12 @@ void editor_layer::render(EngineContext& ctx, EditorContext& editorCtx)
     glDisable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    ctx.editor.setSceneTexture(ctx.editorTarget.tex);
-    ctx.editor.setGameTexture(ctx.gameTarget.tex);
+    editorCtx.sceneTarget = &ctx.editorTarget;
+    editorCtx.gameTarget = &ctx.gameTarget;
 
     ctx.uiManager.beginFrame();
 
-    scene& uiScene = ctx.session.is_playing()
-        ? ctx.session.runtime_scene()
-        : ctx.session.editor_scene();
-
-    ctx.editor.renderUI(uiScene, ctx, editorCtx);
+    ctx.vestaSys.update();
 
     ctx.uiManager.endFrame();
 }

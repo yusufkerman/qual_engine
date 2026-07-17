@@ -13,10 +13,11 @@ public:
 
     void set_velocity(entity e, const glm::vec3& v);
     glm::vec3 get_velocity(entity e);
-
     void move_kinematic(entity e, const glm::vec3& targetPos, float dt);
-
     glm::mat4 get_jolt_transform(entity e);
+
+    void destroy_body(entity e);
+    void remove_collider_shape(entity e);
 
 private:
     physics_system* m_phys;

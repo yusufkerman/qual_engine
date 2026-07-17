@@ -22,10 +22,10 @@ void sandbox_load_scene2_directly(EngineContext& ctx)
 // =========================================================
 // 🎮 NEW FUNCTION: SANDBOX DEMO GAME
 // =========================================================
-void sandbox_load_demo_game(EngineContext& ctx)
+void sandbox_load_demo_game(EngineContext& ctx, EditorContext& edtitorCtx)
 {
     scene& editorScene = ctx.session.editor_scene();
-    ctx.editor.setScene(&editorScene);
+    //edtitorCtx->setScene(&editorScene);
 
     // ---------------------------------------------------------
     // 🛠️ MATERYAL DÜZELTMESİ (ARIA HANDLE ENTEGRASYONU)
@@ -35,7 +35,7 @@ void sandbox_load_demo_game(EngineContext& ctx)
     aria::handle<aria::material_asset> matHandle{};
 
     // 🚀 YENİ ARIA API: Cube handle üretiliyor
-    aria::handle<aria::model_asset> cubeHandle = asset_pipeline::create_cube_mesh(ctx);
+    aria::handle<aria::model_asset> cubeHandle = asset_pipeline::create_cube_mesh(ctx.aria_system);
 
     // ---------------------------------------------------------
     // 1. STATIC FLOOR

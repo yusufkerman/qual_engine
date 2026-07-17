@@ -1,11 +1,13 @@
 #include "grid_pass.h"
 #include "../../Engine/engine_context.h"
+#include "../../Editor/editor_context.h"
+#include "../../Editor/editor_camera.h"
 #include "../../Engine/fly_camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
-void grid_pass::render(EngineContext& ctx)
+void grid_pass::render(EngineContext& ctx, EditorContext& editorCtx)
 {
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
@@ -20,8 +22,8 @@ void grid_pass::render(EngineContext& ctx)
     unsigned int gridGLShaderID = ctx.aria_system->get_shader_id(ctx.gridShaderHandle);
     glUseProgram(gridGLShaderID);
 
-    const glm::vec3& camPos = ctx.editor.editorCamera.position;
-    const glm::vec3 gridForward = calc_forward(ctx.editor.editorCamera.rotation);
+	const glm::vec3& camPos = editorCtx.camera->position;
+    const glm::vec3 gridForward = calc_forward(editorCtx.camera->rotation);
 
     const glm::mat4 gridView = glm::lookAt(
         camPos,
@@ -30,10 +32,10 @@ void grid_pass::render(EngineContext& ctx)
     );
 
     const glm::mat4 gridProj = glm::perspective(
-        glm::radians(ctx.editor.editorCamera.fov),
+        glm::radians(editorCtx.camera->fov),
         (float)ctx.editorTarget.width / (float)ctx.editorTarget.height,
-        ctx.editor.editorCamera.nearPlane,
-        ctx.editor.editorCamera.farPlane
+        editorCtx.camera->nearPlane,
+        editorCtx.camera->farPlane
     );
 
     const glm::mat4 invViewProj = glm::inverse(gridProj * gridView);

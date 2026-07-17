@@ -3,7 +3,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "../Editor/editor.h"
 #include "../Editor/editor_layer.h"
 
 #include "../Renderer/render_target.h"
@@ -31,7 +30,12 @@
 #include "../Renderer/shadow_map_fbo.h"
 #include "../Renderer/Debug/gizmo_system.h"
 
+#include "../Editor/Vesta/vesta.h"
+
+
 #include "Assets/aria.h"
+#include "../Editor/engine_mode.h"
+#include "fly_camera.h"
 
 struct GLFWwindow;
 
@@ -63,7 +67,6 @@ struct EngineContext
     sera::sera* sera = nullptr;
 
     // ---------------- EDITOR ----------------
-    Editor editor;
     ui_manager uiManager;
 
     RenderTarget editorTarget;
@@ -83,6 +86,8 @@ struct EngineContext
     render_system renderSystem;
     camera_system cameraSystem;
     physics_system physicsSystem;
+
+    vesta::vesta_system vestaSys;
     aria::system* aria_system = nullptr;
 
     gizmo_system gizmoSystem;

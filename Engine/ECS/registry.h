@@ -92,6 +92,8 @@ private:
 
     std::unordered_map<entity, native_script_component> scriptable_components;
 
+    std::unordered_map<entity, hierarchy_component> hierarchies;
+
 
     template<typename T>
     std::unordered_map<entity, T>& pool();
@@ -122,6 +124,8 @@ std::unordered_map<entity, T>& registry::pool()
 
     if constexpr (std::is_same_v<T, native_script_component>) return scriptable_components;
 
+    if constexpr (std::is_same_v<T, hierarchy_component>) return hierarchies;
+
 
     static std::unordered_map<entity, T> dummy;
     return dummy;
@@ -142,6 +146,8 @@ const std::unordered_map<entity, T>& registry::pool() const
     if constexpr (std::is_same_v<T, collider_component>) return colliders;
 
     if constexpr (std::is_same_v<T, native_script_component>) return scriptable_components;
+
+    if constexpr (std::is_same_v<T, hierarchy_component>) return hierarchies;
 
 
     static std::unordered_map<entity, T> dummy;

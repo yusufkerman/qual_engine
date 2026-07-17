@@ -12,8 +12,10 @@ static bool s_LastCursorLockState = false;
 void InputSystem::update(EngineContext& ctx, EditorContext& editorCtx)
 {
 
-    ctx.inputState.gameViewportSize = editorCtx.gameViewportSize;
-    ctx.inputState.gameViewportPos = editorCtx.gameViewportPos;
+    auto& game = ctx.vestaSys.viewport_state().game();
+
+    ctx.inputState.gameViewportSize = game.size;
+    ctx.inputState.gameViewportPos = game.position;
 
     GLFWwindow* window = ctx.window;
     InputState& state = ctx.inputState;

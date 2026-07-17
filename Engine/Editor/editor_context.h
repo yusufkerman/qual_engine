@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <string>
 
+#include "../Editor/engine_mode.h"
+
 class Editor;
 class EditorCamera;
 class ui_manager;
@@ -21,8 +23,6 @@ enum class FocusedPanel {
 
 struct EditorContext
 {
-    Editor* editor = nullptr;
-
     EditorCamera* camera = nullptr;
 
     ui_manager* ui = nullptr;
@@ -32,12 +32,15 @@ struct EditorContext
 
     FocusedPanel focusedPanel = FocusedPanel::None;
 
-    glm::vec2 sceneViewportSize{ 800, 600 };
-    glm::vec2 gameViewportSize{ 800, 600 };
-    glm::vec2 gameViewportPos = { 0.0f, 0.0f };
+
+    unsigned int sceneTexture = 0;
+    unsigned int gameTexture = 0;
+
+    void setSceneTexture(unsigned int tex) { sceneTexture = tex; }
+    void setGameTexture(unsigned int tex) { gameTexture = tex; }
 
 
-    EngineMode* mode = nullptr;
+    EngineMode mode = EngineMode::EDITOR;
 
     int clipboardEntity = -1;
     std::string selectedAssetPath;

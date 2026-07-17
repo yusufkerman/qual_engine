@@ -2,15 +2,15 @@
 #include <imgui.h>
 #include <string>
 #include <functional>
-#include "asset_entry.h"
+#include "Vesta/Services/asset_entry.h"
 
-namespace aria::UI {
+namespace vesta {
 
     inline void DrawAssetDropSlot(
         const char* label,
         const std::string& current_name,
-        aria::editor::asset_payload_type expected_type,
-        std::function<void(const aria::editor::asset_drag_payload&)> on_drop)
+        vesta::asset_payload_type expected_type,
+        std::function<void(const vesta::asset_drag_payload&)> on_drop)
     {
         ImGui::Text("%s", label);
 
@@ -28,7 +28,7 @@ namespace aria::UI {
             if (const ImGuiPayload* p =
                 ImGui::AcceptDragDropPayload("ARIA_ASSET_PAYLOAD"))
             {
-                auto* payload = (const aria::editor::asset_drag_payload*)p->Data;
+                auto* payload = (const vesta::asset_drag_payload*)p->Data;
 
                 if (payload->type == expected_type)
                     on_drop(*payload);

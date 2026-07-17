@@ -31,6 +31,7 @@ private:
     std::vector<render_item> m_RenderItemsCache;
     render_queue m_RenderQueueCache;
 
+
     void extract(
         const registry& reg,
         struct EngineContext& ctx,

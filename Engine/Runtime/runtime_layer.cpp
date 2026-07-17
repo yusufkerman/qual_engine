@@ -1,5 +1,6 @@
 #include "runtime_layer.h"
 #include "../Engine/engine_context.h"
+#include "../Editor/editor_context.h"
 #include "../Systems/physics_bridge.h"
 
 static void update_runtime_camera(EngineContext& ctx)
@@ -19,9 +20,9 @@ static void update_runtime_camera(EngineContext& ctx)
     
 }
 
-void runtime_layer::update(EngineContext& ctx)
+void runtime_layer::update(EngineContext& ctx, EditorContext& editorCtx)
 {
-    if (ctx.editor.mode != EngineMode::PLAY)
+    if (editorCtx.mode != EngineMode::PLAY)
         return;
 
     update_runtime_camera(ctx);

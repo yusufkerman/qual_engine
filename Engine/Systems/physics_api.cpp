@@ -85,3 +85,36 @@ glm::mat4 physics_api::get_jolt_transform(entity e)
 
     return modelMatrix;
 }
+
+void physics_api::destroy_body(entity e)
+{
+    rigidbody_component* rb = m_reg->get_component<rigidbody_component>(e);
+    if (!rb || rb->body_id.IsInvalid()) return;
+
+    // API motor moduna bakmaz, doğrudan emri uygular!
+    auto& bodyInterface = m_phys->get_jolt_system()->GetBodyInterface();
+    bodyInterface.RemoveBody(rb->body_id);
+    bodyInterface.DestroyBody(rb->body_id);
+
+    // Body ID'yi sıfırla
+    rb->body_id = JPH::BodyID();
+}
+void physics_api::remove_collider_shape(entity e)
+{
+    rigidbody_component* rb = m_reg->get_component<rigidbody_component>(e);
+
+    // Eğer Rigidbody yoksa veya Jolt dünyasında karşılığı yoksa işlem yapmaya gerek yok
+    if (!rb || rb->body_id.IsInvalid()) return;
+
+    auto& bodyInterface = m_phys->get_jolt_system()->GetBodyInterface();
+
+    // 🎯 Jolt Dünyasında Şekli Sıfırlama:
+    // nullptr geçerek cismin çarpışma hacmini (Shape) kaldırıyoruz. 
+    // Sondaki parametreler: Nesneyi uyar (Activate) ve kütle merkezini/inertia ayarlarını koru/güncelle.
+    bodyInterface.SetShape(
+        rb->body_id,
+        nullptr,
+        true,
+        JPH::EActivation::Activate
+    );
+}

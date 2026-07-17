@@ -2,6 +2,7 @@
 #include "../Engine/engine_context.h" 
 #include "../ECS/registry.h"
 #include "../ECS/components.h"
+#include "../ECS/transform_utils.h"
 #include "../Renderer/frustum.h"
 #include "../Renderer/material.h"
 #include "../shader.h"
@@ -209,6 +210,8 @@ void render_system::render(
     }
 }
 
+
+
 /**
  * @brief ECS içinden render edilebilir objeleri toplar.
  *
@@ -238,12 +241,7 @@ void render_system::extract(
         // ------------------------------------------------------------
         // Model Matrix
         // ------------------------------------------------------------
-        glm::mat4 model(1.0f);
-        model = glm::translate(model, transform->position);
-        model = glm::rotate(model, transform->rotation.x, glm::vec3(1, 0, 0));
-        model = glm::rotate(model, transform->rotation.y, glm::vec3(0, 1, 0));
-        model = glm::rotate(model, transform->rotation.z, glm::vec3(0, 0, 1));
-        model = glm::scale(model, transform->scale);
+        glm::mat4 model = ecs_transform::get_world_matrix(e, reg);
 
         // ------------------------------------------------------------
         // Bounds artık doğrudan Aria Asset sisteminden geliyor

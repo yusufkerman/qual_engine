@@ -1,9 +1,11 @@
 #include "editor_camera.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 void EditorCamera::resetMouseState()
 {
+
     flyState = fly_camera_state{};
     scrollStep = 0.0f;
 }
@@ -12,9 +14,11 @@ void EditorCamera::update(
     GLFWwindow* window,
     InputState& input,
     float sensitivity,
-    float moveSpeed
+    float moveSpeed,
+    bool hoverGate
 )
 {
+
     update_fly_camera(
         window,
         input,
@@ -23,9 +27,10 @@ void EditorCamera::update(
         rotation,
         sensitivity,
         moveSpeed,
-        sceneHovered,
+        hoverGate,
         &scrollStep
     );
+
 }
 
 glm::mat4 EditorCamera::getViewMatrix() const
