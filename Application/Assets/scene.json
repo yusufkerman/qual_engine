@@ -96,14 +96,14 @@
                 "transform_component": {
                     "boundingRadius": 1.0,
                     "position": [
-                        0.0,
-                        -5.0,
-                        0.0
+                        7.635384559631348,
+                        -7.0199995040893555,
+                        -56.555667877197266
                     ],
                     "rotation": [
+                        -0.0,
                         0.0,
-                        0.0,
-                        0.0
+                        -0.0
                     ],
                     "scale": [
                         2.0,
@@ -132,13 +132,13 @@
                 "transform_component": {
                     "boundingRadius": 1.0,
                     "position": [
-                        0.0,
-                        0.0,
-                        0.0
+                        7.635384559631348,
+                        -3.3199994564056396,
+                        -56.555667877197266
                     ],
                     "rotation": [
-                        0.0,
-                        0.0,
+                        1.1150003671646118,
+                        0.6100073456764221,
                         0.0
                     ],
                     "scale": [
@@ -156,8 +156,8 @@
                     "cast_shadows": false,
                     "color": [
                         1.0,
-                        1.0,
-                        1.0
+                        0.9299308061599731,
+                        0.6029411554336548
                     ],
                     "inner_cone": 10.0,
                     "intensity": 0.800000011920929,
@@ -176,8 +176,8 @@
                         20.0
                     ],
                     "rotation": [
-                        -0.699999988079071,
-                        0.5,
+                        -0.10000000149011612,
+                        1.100000023841858,
                         0.0
                     ],
                     "scale": [
@@ -255,9 +255,9 @@
                 "transform_component": {
                     "boundingRadius": 1.0,
                     "position": [
-                        20.899999618530273,
+                        20.5,
                         -8.600000381469727,
-                        0.0
+                        2.200000047683716
                     ],
                     "rotation": [
                         -1.600000023841858,
@@ -297,7 +297,7 @@
                 "transform_component": {
                     "boundingRadius": 1.0,
                     "position": [
-                        35.0,
+                        35.599998474121094,
                         -9.300000190734863,
                         4.199999809265137
                     ],
@@ -423,7 +423,7 @@
                 "transform_component": {
                     "boundingRadius": 1.0,
                     "position": [
-                        9.899999618530273,
+                        10.199999809265137,
                         -9.300000190734863,
                         -22.100000381469727
                     ],
@@ -440,6 +440,48 @@
                 }
             },
             "uuid": "395a0549-87e4-4431-a1ff-8e35f6f768eb"
+        },
+        {
+            "components": {
+                "bounds_component": {
+                    "localCenter": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "localRadius": 1.0
+                },
+                "material_component": {
+                    "material_guid": "564abdec-569f-4fca-81a0-e7f56248778c"
+                },
+                "mesh_component": {
+                    "model_guid": "851cc59a-b02a-47aa-9502-d863183bf99e",
+                    "source": 0,
+                    "sub_mesh_index": 0
+                },
+                "name_component": {
+                    "name": "TreeManuel"
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [
+                        0.0,
+                        -9.199999809265137,
+                        89.5999984741211
+                    ],
+                    "rotation": [
+                        -1.600000023841858,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            },
+            "uuid": "d58495a8-68d2-42b8-a894-0d9385b48d0f"
         }
     ],
     "scene_name": "Sera_Engine_Scene"

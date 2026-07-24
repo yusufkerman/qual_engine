@@ -6,6 +6,8 @@
 #include "../../Systems/physics_api.h"
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../../Editor/Vesta/vesta.h"
+
 void editor_pass::render(EngineContext& ctx, EditorContext& editorCtx)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, ctx.editorTarget.fbo);
@@ -35,71 +37,71 @@ void editor_pass::render(EngineContext& ctx, EditorContext& editorCtx)
     // ========================================================================
     // GIZMO SAHNE BAĞLANTISI
     // ========================================================================
-    //auto& reg = ctx.session.editor_scene().get_registry();
-    //int selectedID = ctx.editor.getSelectedEntity();
+    auto& reg = ctx.session.editor_scene().get_registry();
+    int selectedID = ctx.vestaSys.selection().get_first_selected_entity();
 
-    //if (selectedID != -1)
-    //{
-    //    entity selectedEntity = (entity)selectedID;
+    if (selectedID != -1)
+    {
+        entity selectedEntity = (entity)selectedID;
 
-    //    auto* transform = reg.get_component<transform_component>(selectedEntity);
-    //    auto* collider = reg.get_component<collider_component>(selectedEntity);
-    //    auto* rb = reg.get_component<rigidbody_component>(selectedEntity);
+        auto* transform = reg.get_component<transform_component>(selectedEntity);
+        auto* collider = reg.get_component<collider_component>(selectedEntity);
+        auto* rb = reg.get_component<rigidbody_component>(selectedEntity);
 
-    //    if (transform && collider)
-    //    {
-    //        glm::mat4 modelMatrix = glm::mat4(1.0f);
-    //        bool physicsActive = false;
+        if (transform && collider)
+        {
+            glm::mat4 modelMatrix = glm::mat4(1.0f);
+            bool physicsActive = false;
 
-    //        // PLAY modunda Jolt'tan pozisyon + rotasyonu al
-    //        if (rb && !rb->body_id.IsInvalid())
-    //        {
-    //            modelMatrix = ctx.physicsSystem.api().get_jolt_transform(selectedEntity);
-    //            physicsActive = true;
-    //        }
+            // PLAY modunda Jolt'tan pozisyon + rotasyonu al
+            if (rb && !rb->body_id.IsInvalid())
+            {
+                modelMatrix = ctx.physicsSystem.api().get_jolt_transform(selectedEntity);
+                physicsActive = true;
+            }
 
-    //        // EDITOR modunda Transform componentini kullan
-    //        if (!physicsActive)
-    //        {
-    //            modelMatrix = glm::translate(modelMatrix, transform->position);
+            // EDITOR modunda Transform componentini kullan
+            if (!physicsActive)
+            {
+                modelMatrix = glm::translate(modelMatrix, transform->position);
 
-    //            modelMatrix = glm::rotate(modelMatrix, transform->rotation.x, glm::vec3(1, 0, 0));
-    //            modelMatrix = glm::rotate(modelMatrix, transform->rotation.y, glm::vec3(0, 1, 0));
-    //            modelMatrix = glm::rotate(modelMatrix, transform->rotation.z, glm::vec3(0, 0, 1));
-    //        }
+                modelMatrix = glm::rotate(modelMatrix, transform->rotation.x, glm::vec3(1, 0, 0));
+                modelMatrix = glm::rotate(modelMatrix, transform->rotation.y, glm::vec3(0, 1, 0));
+                modelMatrix = glm::rotate(modelMatrix, transform->rotation.z, glm::vec3(0, 0, 1));
+            }
 
-    //        glm::vec4 gizmoColor(0.0f, 1.0f, 0.0f, 1.0f);
+            glm::vec4 gizmoColor(0.0f, 1.0f, 0.0f, 1.0f);
 
-    //        switch (collider->type)
-    //        {
-    //        case collider_type::box:
-    //            ctx.gizmoSystem.DrawWireCube(
-    //                modelMatrix,
-    //                collider->extents,
-    //                gizmoColor
-    //            );
-    //            break;
+            switch (collider->type)
+            {
+            case collider_type::box:
+                ctx.gizmoSystem.DrawWireCube(
+                    modelMatrix,
+                    collider->extents,
+                    gizmoColor
+                );
+                break;
 
-    //        case collider_type::sphere:
-    //            ctx.gizmoSystem.DrawWireSphere(
-    //                modelMatrix,
-    //                collider->extents.x,   // Sphere yarıçapı
-    //                gizmoColor
-    //            );
-    //            break;
+            case collider_type::sphere:
+                ctx.gizmoSystem.DrawWireSphere(
+                    modelMatrix,
+                    collider->extents.x,   // Sphere yarıçapı
+                    gizmoColor
+                );
+                break;
 
-    //        default:
-    //            break;
-    //        }
-    //    }
-    //}
+            default:
+                break;
+            }
+        }
+    }
 
-    //// ========================================================================
-    //// 🚀 ARIA GIZMO FLUSH KATMANI
-    //// ========================================================================
-    //// Eski manager yerine doğrudan Aria Cache'e gidip GPU üzerindeki hazır shader ID'sini çekiyoruz
-    //unsigned int gizmoGLShaderID = ctx.aria_system->get_shader_id(ctx.gizmoShaderHandle);
+    // ========================================================================
+    // 🚀 ARIA GIZMO FLUSH KATMANI
+    // ========================================================================
+    // Eski manager yerine doğrudan Aria Cache'e gidip GPU üzerindeki hazır shader ID'sini çekiyoruz
+    unsigned int gizmoGLShaderID = ctx.aria_system->get_shader_id(ctx.gizmoShaderHandle);
 
-    //// Çizim komutlarını GPU'ya fırlatıyoruz
-    //ctx.gizmoSystem.Flush(editorView, editorProj, gizmoGLShaderID);
+    // Çizim komutlarını GPU'ya fırlatıyoruz
+    ctx.gizmoSystem.Flush(editorView, editorProj, gizmoGLShaderID);
 }

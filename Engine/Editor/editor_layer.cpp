@@ -36,9 +36,19 @@ static void update_viewports(EngineContext& ctx)
     const auto& game = viewportState.game();
     if (game.size.x > 1.0f && game.size.y > 1.0f)
     {
+        auto& gameState = viewportState.game();
+
+        constexpr float renderScale = 1.0f;
+
+        gameState.render_size.x =
+            std::max(1, (int)(gameState.size.x * renderScale));
+
+        gameState.render_size.y =
+            std::max(1, (int)(gameState.size.y * renderScale));
+
         ctx.gameTarget.resize(
-            static_cast<int>(game.size.x),
-            static_cast<int>(game.size.y)
+            gameState.render_size.x,
+            gameState.render_size.y
         );
     }
 }

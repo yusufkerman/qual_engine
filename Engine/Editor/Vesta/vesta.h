@@ -46,15 +46,11 @@ namespace vesta {
         void update();
         void register_panel(IEditorPanel* panel);
 
-        editor_viewport_state& viewport_state()
-        {
-            return m_viewport_state;
-        }
+        editor_viewport_state& viewport_state() { return m_viewport_state; }
+        const editor_viewport_state& viewport_state() const{ return m_viewport_state; }
 
-        const editor_viewport_state& viewport_state() const
-        {
-            return m_viewport_state;
-        }
+        editor_selection_manager& selection() { return *m_selection_manager; }
+        const editor_selection_manager& selection() const { return *m_selection_manager; }
 
     private:
 

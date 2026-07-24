@@ -173,8 +173,8 @@ namespace aria {
 
     handle<material_asset> asset_registry::load_material(const asset_guid& guid, const std::string& file_path)
     {
-         /*if (auto it = m_material_map.find(guid); it != m_material_map.end())
-             return it->second;*/
+         if (auto it = m_material_map.find(guid); it != m_material_map.end())
+             return it->second;
 
         // 2. Dosyayı CPU'ya yükle
         auto loaded = asset_loader::load_material_to_cpu(file_path);
