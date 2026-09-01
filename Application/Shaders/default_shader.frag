@@ -28,6 +28,14 @@ uniform int u_RenderMode;       // 0: Opaque, 1: Cutout
 uniform float u_AlphaThreshold;
 
 // ============================================================================
+// FOG
+// ============================================================================
+uniform bool u_FogEnabled;
+uniform vec3 u_FogColor;
+uniform float u_FogDensity;
+// ============================================================================
+
+// ============================================================================
 // UBO YAPISI (std140) - HİZALAMA (Tam 80 Byte / 5 adet vec4)
 // ============================================================================
 struct Light
@@ -188,6 +196,23 @@ void main()
         // Nihai sonuca diffuse'un yanına parlama (specular) efektini de ekliyoruz
         result += (1.0 - shadow) * (diffuse + specular);    
     }
+
+    // ============================================================================
+    // EXPONENTIAL FOG
+    // ============================================================================
+    if (u_FogEnabled)
+    {
+        // Pikselin kameraya olan gerçek dünyadaki mesafesi
+        float distance = length(viewPos - vWorldPos);
+
+        // Exponential (Üstel) Sis Formülü: e^(-density * distance)
+        float fogFactor = exp(-u_FogDensity * distance);
+        fogFactor = clamp(fogFactor, 0.0, 1.0);
+
+        // Işıklandırılmış rengi sis rengi ile mix et
+        result = mix(u_FogColor, result, fogFactor);
+    }
+    // ============================================================================
 
     float finalAlpha = (u_RenderMode == 2) ? texColor.a : 1.0;
 

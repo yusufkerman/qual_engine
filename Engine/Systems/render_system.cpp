@@ -182,6 +182,20 @@ void render_system::render(
         glUniform3fv(glGetUniformLocation(gpuShaderID, "viewPos"), 1, &cameraPosition[0]);
         glUniformMatrix4fv(glGetUniformLocation(gpuShaderID, "lightSpaceMatrix"), 1, GL_FALSE, &lightSpaceMatrix[0][0]);
 
+
+        // ========================================================================
+        // 🚀 FOG UNIFORMS
+        // ========================================================================
+        // NOT: İleride bu değerleri ctx.environment veya EngineContext üzerinden dinamik çekebilirsin.
+        bool fogEnabled = true; // ctx.fog_enabled
+        glm::vec3 fogColor = glm::vec3(0.7f, 0.8f, 0.9f); // Açık mavi/gri gökyüzü rengi
+        float fogDensity = 0.008f; // Sahne ölçeğine göre ayarlayabilirsin (0.001 - 0.02 arası)
+
+        glUniform1i(glGetUniformLocation(gpuShaderID, "u_FogEnabled"), fogEnabled);
+        glUniform3fv(glGetUniformLocation(gpuShaderID, "u_FogColor"), 1, &fogColor[0]);
+        glUniform1f(glGetUniformLocation(gpuShaderID, "u_FogDensity"), fogDensity);
+        // ========================================================================
+
         // Shadow Map bağlama (Renderer üzerinden)
         ctx.renderer.BindTextureSlot(2, ctx.shadowFBO.get_depth_texture());
         glUniform1i(glGetUniformLocation(gpuShaderID, "shadowMap"), 2);

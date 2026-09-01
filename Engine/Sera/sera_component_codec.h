@@ -14,7 +14,7 @@ using json = nlohmann::json;
 namespace sera {
 
     // ============================================================================
-    // 1. TRAFİK POLİSİ (SERIALIZER DISPATCH): Tiplere göre otomatik yönlendirme
+    // 1. (SERIALIZER DISPATCH): Tiplere göre otomatik yönlendirme
     // ============================================================================
     struct serializer_dispatch {
 
@@ -50,7 +50,7 @@ namespace sera {
     };
 
     // ============================================================================
-    // 2. SİHİRLİ MAKROLAR: Sınıf/Struct içini amelelik yapmadan dışarıya haritalayan kısım
+    // 2. Sınıf/Struct içini amelelik yapmadan dışarıya haritalayan kısım
     // ============================================================================
 
     // Her bir değişken alanı (field) için ismi ve kendisini paketleyen yardımcı makro
