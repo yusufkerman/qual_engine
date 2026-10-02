@@ -7,16 +7,12 @@
 //#include "Panels/asset_browser_panel.h"
 //
 //// ========================================================================
-//// 🔥 CONSTRUCTOR & DESTRUCTOR
-//// Sınıf belleğe çıktığı an panel pointer'ını güvenli bir şekilde oluşturuyoruz.
-//// Böylece init() çağrılmasa bile pointer asla null kalıp motoru çökertemez.
+//// LIFECYCLE (CONSTRUCTOR & DESTRUCTOR)
 //// ========================================================================
 //Editor::Editor()
 //{
-//    // 🎯 Başlangıçta null veriyoruz çünkü elimizde aria_system yok.
 //    assetBrowserPanel = nullptr;
 //}
-//
 //
 //Editor::~Editor()
 //{
@@ -29,14 +25,13 @@
 //
 //void Editor::init(GLFWwindow*)
 //{
-//    // Boş kalabilir, renderUI içinde ilk karede hallediyoruz.
 //}
 //
 //void Editor::update(scene&) {}
 //
-//// =========================
-//// MAIN UI
-//// =========================
+//// ========================================================================
+//// MAIN UI RENDERING
+//// ========================================================================
 //void Editor::renderUI(scene& scene, EngineContext& ctx, EditorContext& editorCtx)
 //{
 //    if (assetBrowserPanel == nullptr && ctx.aria_system != nullptr)
@@ -49,14 +44,10 @@
 //
 //    editorCtx.focusedPanel = FocusedPanel::None;
 //
-//    // =========================
-//    // TOP BAR
-//    // =========================
+//    // --- Top Bar ---
 //    topBarPanel.render(mode, scene, ctx);
 //
-//    // =========================
-//    // HIERARCHY
-//    // =========================
+//    // --- Hierarchy ---
 //    hierarchyPanel.render(
 //        scene,
 //        selectedEntity,
@@ -66,9 +57,7 @@
 //        deleteQueue,
 //        editorCtx);
 //
-//    // =========================
-//    // SCENE VIEWPORT
-//    // =========================
+//    // --- Scene Viewport ---
 //    sceneViewportPanel.render(
 //        sceneTexture,
 //        sceneViewportSize,
@@ -76,15 +65,12 @@
 //        editorCamera,
 //        editorCtx);
 //
-//    // =========================
-//    // GAME VIEWPORT
-//    // =========================
+//    // --- Game Viewport ---
 //    gameViewportPanel.render(
 //        gameTexture,
 //        gameViewportSize,
 //        gameViewportHovered,
 //        editorCtx);
-//
 //
 //    if (assetBrowserPanel != nullptr)
 //    {
@@ -95,30 +81,22 @@
 //        editorCtx.selectedAssetPath = "";
 //    }
 //
-//    // =========================
-//    // INSPECTOR
-//    // =========================
+//    // --- Inspector ---
 //    inspectorPanel.render(
 //        scene,
 //        selectedEntity,
 //        ctx,
 //        editorCtx);
 //
-//    // =========================
-//    // 🔥 ASSET BROWSER PANEL
-//    // =========================
-//    // GÜVENLİK KONTROLÜ: Pointer'ın geçerli olduğundan emin olup öyle çizdiriyoruz
+//    // --- Asset Browser ---
 //    if (assetBrowserPanel != nullptr)
 //    {
 //        assetBrowserPanel->render(editorCtx);
 //    }
 //
-//    // =========================
-//    // DELETE QUEUE
-//    // =========================
+//    // --- Entity Deletion Processing ---
 //    if (!deleteQueue.empty())
 //    {
-//        // Sahne içindeki sıralı entity listesine erişiyoruz
 //        auto& sceneEntities = const_cast<std::vector<entity>&>(scene.get_entities());
 //
 //        for (entity e : deleteQueue)
@@ -129,10 +107,8 @@
 //            if (renamingEntity == (int)e)
 //                renamingEntity = -1;
 //
-//            // 1. Registry ve komponent havuzlarından temizle
 //            reg.remove_entity(e);
 //
-//            // 2. Sahne sıralama listesinden (std::vector) bu ID'yi tamamen kaldır
 //            sceneEntities.erase(
 //                std::remove(sceneEntities.begin(), sceneEntities.end(), e),
 //                sceneEntities.end()

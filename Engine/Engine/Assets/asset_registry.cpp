@@ -1,13 +1,22 @@
+/**
+ * @file asset_registry.cpp
+ * @brief Varlıkların CPU üzerindeki tahsis/serbest bırakma işlemlerini ve nesilsel (generational) kayıt defterini yönetir.
+ */
+
 #include "asset_registry.h"
 #include "asset_loader.h"
 #include "../Importers/mesh_generator.h"
 #include <iostream>
 #include "asset_database.h"
 
-
 namespace aria {
 
-    // Helper: Eski Mesh üretecini Aria'nın dahili raw formatına dönüştürür ve Bounds hesaplar
+    /**
+     * @brief Prosedürel olarak üretilmiş eski tip mesh verisini, Aria'nın dahili ham (raw) formatına dönüştürür ve sınırlarını hesaplar.
+     *
+     * @param generated Üretilmiş olan kaynak mesh verisi.
+     * @return raw_mesh_data Dönüştürülmüş ve yerel sınırları hesaplanmış ham mesh verisi.
+     */
     static raw_mesh_data convert_generator_to_raw_mesh(const generated_mesh_data& generated) {
         raw_mesh_data out;
         out.vertices.reserve(generated.vertices.size());
@@ -43,7 +52,7 @@ namespace aria {
     }
 
     handle<model_asset> asset_registry::load_model(const asset_guid& guid, const std::string& file_path) {
-        // Cache kontrolü
+        // Önbellek (Cache) kontrolü
         if (auto it = m_model_map.find(guid); it != m_model_map.end()) {
             return it->second;
         }
@@ -51,14 +60,14 @@ namespace aria {
         raw_model_data modelData;
         modelData.debug_path = file_path;
 
-        // 🧠 SANAL YOL KONTROLÜ (Virtual File System)
+        // Sanal Yol (Virtual File System) Kontrolü
         if (file_path == "engine://builtin/cube") {
             generated_mesh_data raw_cube = mesh_generator::generate_cube();
             modelData.sub_meshes.push_back(convert_generator_to_raw_mesh(raw_cube));
             return add_procedural_model(guid, modelData);
         }
         else if (file_path.rfind("engine://builtin/sphere_", 0) == 0) {
-            // Yoldan yarıçap değerini güvenli bir şekilde çekiyoruz
+            // Yoldan yarıçap değerini güvenli bir şekilde ayrıştır
             std::string radius_str = file_path.substr(24); // "engine://builtin/sphere_" uzunluğu
             float radius = std::stof(radius_str);
 
@@ -67,7 +76,7 @@ namespace aria {
             return add_procedural_model(guid, modelData);
         }
 
-        // --- GERÇEK DOSYA YÜKLEME SÜRECİ ---
+        // Gerçek Dosya Yükleme Süreci
         auto loaded = asset_loader::load_model_to_cpu(file_path);
         if (!loaded) return handle<model_asset>{};
 
@@ -93,7 +102,7 @@ namespace aria {
         slot.asset.guid = guid;
         slot.asset.raw_data = raw_data;
 
-        // Mesh metadata paketini (sub_meshes dizisini) kuryeden ayıklayıp dolduruyoruz
+        // Mesh meta veri paketini (sub_meshes dizisini) kuryeden ayıklayıp dolduruyoruz
         slot.asset.sub_meshes.resize(raw_data.sub_meshes.size());
         for (size_t i = 0; i < raw_data.sub_meshes.size(); ++i) {
             slot.asset.sub_meshes[i].index_count = static_cast<unsigned int>(raw_data.sub_meshes[i].indices.size());
@@ -124,151 +133,128 @@ namespace aria {
         }
     }
 
-    // --- DOKU, MATERYAL VE SHADER FONKSİYONLARI (MEVCUT HALİYLE KORUNDU) ---
+    // ========================================================================
+    // DOKU (TEXTURE) YÖNETİMİ
+    // ========================================================================
+
     handle<texture_asset> asset_registry::load_texture(const asset_guid& guid) {
-        // 1) Cache kontrolü
         if (auto it = m_texture_map.find(guid); it != m_texture_map.end())
             return it->second;
 
         if (guid.is_nil()) return {};
 
-        // 2) 🚀 ARTIK DOĞRUDAN KENDİ DATABASE'İMİZDEN ÇÖZÜYORUZ!
         if (!m_database) {
-            std::cout << "[ARIA Registry] Error: Asset database is null!\n";
+            std::cout << "[ARIA Registry] Hata: Varlik veritabani (asset_database) tanimsiz!\n";
             return {};
         }
+
         std::string path = m_database->resolve_path(guid);
 
         if (path.empty()) {
-            std::cout << "[ARIA Registry] Warning: Texture GUID not found in database.\n";
+            std::cout << "[ARIA Registry] Uyari: Doku GUID'si veritabaninda bulunamadi.\n";
             return {};
         }
 
-        // 3) Diskten CPU'ya yükle
         auto loaded = asset_loader::load_texture_to_cpu(path);
         if (!loaded) return {};
 
-        // 4) Slot ayırma ve doldurma mantığı (Senin orijinal kodun)
-        uint32_t idx = m_texture_free_slots.empty() ? (m_texture_slots.emplace_back(), m_texture_slots.size() - 1) : (m_texture_free_slots.back());
+        uint32_t idx = m_texture_free_slots.empty()
+            ? (m_texture_slots.emplace_back(), m_texture_slots.size() - 1)
+            : (m_texture_free_slots.back());
+
         if (!m_texture_free_slots.empty()) m_texture_free_slots.pop_back();
 
         auto& slot = m_texture_slots[idx];
-        slot.is_allocated = true; slot.asset.guid = guid; slot.asset.raw_data = *loaded;
-        slot.asset.width = loaded->width; slot.asset.height = loaded->height; slot.asset.channels = loaded->channels;
+        slot.is_allocated = true;
+        slot.asset.guid = guid;
+        slot.asset.raw_data = *loaded;
+        slot.asset.width = loaded->width;
+        slot.asset.height = loaded->height;
+        slot.asset.channels = loaded->channels;
+
         return m_texture_map[guid] = handle<texture_asset>{ idx, slot.generation };
     }
 
     texture_asset* asset_registry::get_texture(handle<texture_asset> h) {
-        return (h.index < m_texture_slots.size() && m_texture_slots[h.index].generation == h.generation && m_texture_slots[h.index].is_allocated) ? &m_texture_slots[h.index].asset : nullptr;
+        return (h.index < m_texture_slots.size() && m_texture_slots[h.index].generation == h.generation && m_texture_slots[h.index].is_allocated)
+            ? &m_texture_slots[h.index].asset
+            : nullptr;
     }
 
     void asset_registry::destroy_texture(handle<texture_asset> h) {
         if (h.index < m_texture_slots.size() && m_texture_slots[h.index].generation == h.generation && m_texture_slots[h.index].is_allocated) {
             m_texture_map.erase(m_texture_slots[h.index].asset.guid);
             m_texture_slots[h.index].asset.raw_data.clear_raw_data();
-            m_texture_slots[h.index].is_allocated = false; m_texture_slots[h.index].generation++;
+            m_texture_slots[h.index].is_allocated = false;
+            m_texture_slots[h.index].generation++;
             m_texture_free_slots.push_back(h.index);
         }
     }
 
-    handle<material_asset> asset_registry::load_material(const asset_guid& guid, const std::string& file_path)
-    {
-         if (auto it = m_material_map.find(guid); it != m_material_map.end())
-             return it->second;
+    // ========================================================================
+    // MATERYAL (MATERIAL) YÖNETİMİ
+    // ========================================================================
 
-        // 2. Dosyayı CPU'ya yükle
+    handle<material_asset> asset_registry::load_material(const asset_guid& guid, const std::string& file_path) {
+        if (auto it = m_material_map.find(guid); it != m_material_map.end())
+            return it->second;
+
         auto loaded = asset_loader::load_material_to_cpu(file_path);
         if (!loaded)
             return {};
 
-        // 3. Slot bulma/açma mantığı
         uint32_t idx;
-        if (m_material_free_slots.empty())
-        {
+        if (m_material_free_slots.empty()) {
             m_material_slots.emplace_back();
             idx = static_cast<uint32_t>(m_material_slots.size() - 1);
         }
-        else
-        {
+        else {
             idx = m_material_free_slots.back();
             m_material_free_slots.pop_back();
         }
 
         auto& slot = m_material_slots[idx];
 
-        // Verileri kopyala
+        // Temel Verileri Kopyala
         slot.is_allocated = true;
         slot.asset.guid = guid;
         slot.asset.name = loaded->name;
-
-		slot.asset.mode = loaded->mode;
-		slot.asset.alpha_threshold = loaded->alpha_threshold;
-
+        slot.asset.mode = loaded->mode;
+        slot.asset.alpha_threshold = loaded->alpha_threshold;
         slot.asset.base_color = loaded->base_color;
         slot.asset.specular_strength = loaded->specular_strength;
         slot.asset.shininess = loaded->shininess;
         slot.asset.normal_strength = loaded->normal_strength;
         slot.asset.texture_scale = loaded->texture_scale;
 
-       
+        // Bağımlı Varlıkları Yükle (Doku ve Shader)
+        slot.asset.diffuse_texture_handle = (!loaded->diffuse_texture_guid.is_nil())
+            ? this->load_texture(loaded->diffuse_texture_guid) : handle<texture_asset>{};
 
-        // A. Diffuse Texture Bağlantısı
-        if (!loaded->diffuse_texture_guid.is_nil())
-        {
-            // load_texture artık tek parametre (GUID) alıyor, mis gibi!
-            slot.asset.diffuse_texture_handle = this->load_texture(loaded->diffuse_texture_guid);
-        }
-        else
-        {
-            slot.asset.diffuse_texture_handle = {};
-        }
+        slot.asset.normal_texture_handle = (!loaded->normal_texture_guid.is_nil())
+            ? this->load_texture(loaded->normal_texture_guid) : handle<texture_asset>{};
 
-        // B. Normal Texture Bağlantısı
-        if (!loaded->normal_texture_guid.is_nil())
-        {
-            slot.asset.normal_texture_handle = this->load_texture(loaded->normal_texture_guid);
-        }
-        else
-        {
-            slot.asset.normal_texture_handle = {};
-        }
-
-        // C. Shader Bağlantısı
-        if (!loaded->shader_guid.is_nil())
-        {
-            // load_shader fonksiyonunu da aynı mantıkta tek parametreli (GUID) yaparsın
-            slot.asset.shader_handle = this->load_shader(loaded->shader_guid);
-           
-        }
-        else
-        {
-            slot.asset.shader_handle = {};
-        }
-        // ========================================================================
+        slot.asset.shader_handle = (!loaded->shader_guid.is_nil())
+            ? this->load_shader(loaded->shader_guid) : handle<shader_asset>{};
 
         handle<material_asset> h{ idx, slot.generation };
         m_material_map[guid] = h;
 
         return h;
     }
-    
-    material_asset* asset_registry::get_material(handle<material_asset> h)
-    {
+
+    material_asset* asset_registry::get_material(handle<material_asset> h) {
         if (h.index >= m_material_slots.size()) return nullptr;
 
         auto& slot = m_material_slots[h.index];
 
-        if (!slot.is_allocated || slot.generation != h.generation)
-            return nullptr;
-
-        if (slot.asset.guid.is_nil())
+        if (!slot.is_allocated || slot.generation != h.generation || slot.asset.guid.is_nil())
             return nullptr;
 
         return &slot.asset;
     }
 
-    void asset_registry::destroy_material(handle<material_asset> h)
-    {
+    void asset_registry::destroy_material(handle<material_asset> h) {
         if (h.index >= m_material_slots.size())
             return;
 
@@ -278,52 +264,46 @@ namespace aria {
             return;
 
         m_material_map.erase(slot.asset.guid);
-
         slot.asset = material_asset{};
-
         slot.is_allocated = false;
         slot.generation++;
 
-        std::cout << "[DESTROY MAT] index=" << h.index << " gen=" << h.generation << "\n";
+        std::cout << "[ARIA Registry] Materyal serbest birakildi: index=" << h.index << " gen=" << h.generation << "\n";
 
         m_material_free_slots.push_back(h.index);
     }
 
+    // ========================================================================
+    // SHADER YÖNETİMİ
+    // ========================================================================
+
     handle<shader_asset> asset_registry::load_shader(const asset_guid& guid) {
-        // 1) Cache kontrolü
         if (auto it = m_shader_map.find(guid); it != m_shader_map.end()) {
-            std::cout << "[SHADER DEBUG] Cache HIT, guid=" << uuids::to_string(guid) << "\n";
             return it->second;
         }
 
         if (guid.is_nil()) {
-            std::cout << "[SHADER DEBUG] GUID is nil, returning empty handle\n";
             return {};
         }
 
-        // 2) 🚀 DOĞRUDAN KENDİ DATABASE'İMİZDEN ÇÖZÜYORUZ!
         if (!m_database) {
-            std::cout << "[SHADER DEBUG] Database is null!\n";
+            std::cout << "[ARIA Registry] Hata: Veritabani tanimsiz!\n";
             return {};
         }
 
         std::string path = m_database->resolve_path(guid);
 
         if (path.empty()) {
-            std::cout << "[SHADER DEBUG] Path is empty, shader not found in database\n";
+            std::cout << "[ARIA Registry] Uyari: Shader dosya yolu veritabaninda bulunamadi.\n";
             return {};
         }
 
-        // 3) Diskten CPU'ya yükle
         auto loaded = asset_loader::load_shader_to_cpu(path);
         if (!loaded) {
-            std::cout << "[SHADER DEBUG] load_shader_to_cpu FAILED, path=" << path << "\n";
+            std::cout << "[ARIA Registry] Hata: Shader yuklenemedi (load_shader_to_cpu basarisiz), path=" << path << "\n";
             return {};
         }
 
-        std::cout << "[SHADER DEBUG] Successfully loaded from disk, path=" << path << "\n";
-
-        // 4) Slot ayırma ve doldurma
         uint32_t idx;
         uint32_t generation;
 
@@ -331,7 +311,8 @@ namespace aria {
             m_shader_slots.emplace_back();
             idx = static_cast<uint32_t>(m_shader_slots.size() - 1);
             generation = m_shader_slots[idx].generation;
-        } else {
+        }
+        else {
             idx = m_shader_free_slots.back();
             m_shader_free_slots.pop_back();
             generation = m_shader_slots[idx].generation;
@@ -342,24 +323,30 @@ namespace aria {
         slot.asset.guid = guid;
         slot.asset.raw_data = *loaded;
 
-
         handle<shader_asset> h{ idx, generation };
         m_shader_map[guid] = h;
         return h;
     }
 
     shader_asset* asset_registry::get_shader(handle<shader_asset> h) {
-        return (h.index < m_shader_slots.size() && m_shader_slots[h.index].generation == h.generation && m_shader_slots[h.index].is_allocated) ? &m_shader_slots[h.index].asset : nullptr;
+        return (h.index < m_shader_slots.size() && m_shader_slots[h.index].generation == h.generation && m_shader_slots[h.index].is_allocated)
+            ? &m_shader_slots[h.index].asset
+            : nullptr;
     }
 
     void asset_registry::destroy_shader(handle<shader_asset> h) {
         if (h.index < m_shader_slots.size() && m_shader_slots[h.index].generation == h.generation && m_shader_slots[h.index].is_allocated) {
             m_shader_map.erase(m_shader_slots[h.index].asset.guid);
             m_shader_slots[h.index].asset.raw_data.clear_raw_data();
-            m_shader_slots[h.index].is_allocated = false; m_shader_slots[h.index].generation++;
+            m_shader_slots[h.index].is_allocated = false;
+            m_shader_slots[h.index].generation++;
             m_shader_free_slots.push_back(h.index);
         }
     }
+
+    // ========================================================================
+    // SİSTEM YÖNETİMİ
+    // ========================================================================
 
     void asset_registry::clear_registry() {
         m_texture_slots.clear(); m_texture_free_slots.clear(); m_texture_map.clear();

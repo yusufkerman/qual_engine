@@ -1,16 +1,19 @@
+/**
+ * @file inspector_view_model.cpp
+ * @brief Inspector (Özellikler) görünüm modelinin mantıksal uygulaması.
+ */
+
 #include "inspector_view_model.h"
 
 namespace vesta
 {
-
     inspector_view_model::inspector_view_model(
         IEditableWorld& world,
         registry& reg,
         editor_selection_manager& selection)
-        :
-        m_world(world),
-        m_registry(reg),
-        m_selection(selection)
+        : m_world(world)
+        , m_registry(reg)
+        , m_selection(selection)
     {
     }
 
@@ -54,19 +57,15 @@ namespace vesta
         for (const auto& [hash, info] : m_world.get_component_registry())
         {
             if (m_world.has_component_by_hash(e, hash))
-                continue; // Zaten varsa listeye ekleme
+                continue;
 
-            out.push_back({
-                hash,
-                &info
-                });
+            out.push_back({ hash, &info });
         }
 
         return out;
     }
 
-    asset_inspector_data
-        inspector_view_model::get_asset_data() const
+    asset_inspector_data inspector_view_model::get_asset_data() const
     {
         asset_inspector_data data;
 
@@ -90,6 +89,7 @@ namespace vesta
     {
         return m_selection.has_entity_selection();
     }
+
     entity inspector_view_model::get_selected_entity() const
     {
         return m_selection.get_first_selected_entity();
@@ -99,6 +99,7 @@ namespace vesta
     {
         return m_selection.has_asset_selection();
     }
+
     std::string inspector_view_model::get_selected_asset() const
     {
         return m_selection.get_first_selected_asset();
@@ -113,14 +114,13 @@ namespace vesta
 
         entity e = get_selected_entity();
 
-        // 🎯 DOĞRU ÇALIŞMA: UI Registry'deki tüm kayıtlı arayüzleri dönüyoruz
+        // UI Registry'deki tüm kayıtlı arayüzleri tara
         for (const auto& [hash, info] : m_world.get_component_registry())
         {
-            // Varlık gerçekten bu bileşene sahip mi? (ECS Operasyon kontrolü)
+            // Varlık gerçekten bu bileşene sahipse UI verisini hazırla
             if (m_world.has_component_by_hash(e, hash))
             {
                 inspector_component_data data;
-
                 data.hash = hash;
                 data.ui = &info;
                 data.display_name = info.display_name;
@@ -140,9 +140,7 @@ namespace vesta
         if (!has_selected_entity())
             return false;
 
-        return !m_world.has_component_by_hash(
-            get_selected_entity(),
-            hash);
+        return !m_world.has_component_by_hash(get_selected_entity(), hash);
     }
 
     bool inspector_view_model::can_remove(size_t hash) const
@@ -150,24 +148,20 @@ namespace vesta
         if (!has_selected_entity())
             return false;
 
-        if (!m_world.has_component_by_hash(
-            get_selected_entity(),
-            hash))
+        if (!m_world.has_component_by_hash(get_selected_entity(), hash))
         {
             return false;
         }
 
         const ComponentUIInfo* info = m_world.get_component_ui(hash);
-
         if (!info)
             return false;
 
         std::string name = info->display_name;
 
-        if (name == "Transform")
-            return false;
-
-        if (name == "Name")
+        // TODO: (Mimari Not) İsim üzerinden kontrol etmek yerine, ileride bileşen kaydı sırasında 
+        // "is_removable" gibi bir bayrak (flag) tanımlanması daha güvenli olacaktır.
+        if (name == "Transform" || name == "Name")
             return false;
 
         return true;
@@ -178,9 +172,7 @@ namespace vesta
         if (!can_add(hash))
             return;
 
-        m_world.add_component_by_hash(
-            get_selected_entity(),
-            hash);
+        m_world.add_component_by_hash(get_selected_entity(), hash);
     }
 
     void inspector_view_model::request_remove_component(size_t hash)
@@ -188,9 +180,7 @@ namespace vesta
         if (!can_remove(hash))
             return;
 
-        m_world.remove_component_by_hash(
-            get_selected_entity(),
-            hash);
+        m_world.remove_component_by_hash(get_selected_entity(), hash);
     }
 
-}
+} // namespace vesta

@@ -1,11 +1,13 @@
-#include "editor_camera.h"
+/**
+ * @file editor_camera.cpp
+ * @brief Editör serbest uçuş kamerası hesaplamalarını ve girdi yönetimini içerir.
+ */
 
+#include "editor_camera.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
 
 void EditorCamera::resetMouseState()
 {
-
     flyState = fly_camera_state{};
     scrollStep = 0.0f;
 }
@@ -18,7 +20,6 @@ void EditorCamera::update(
     bool hoverGate
 )
 {
-
     update_fly_camera(
         window,
         input,
@@ -30,13 +31,12 @@ void EditorCamera::update(
         hoverGate,
         &scrollStep
     );
-
 }
 
 glm::mat4 EditorCamera::getViewMatrix() const
 {
     const glm::vec3 forward = calc_forward(rotation);
-    return glm::lookAt(position, position + forward, glm::vec3(0, 1, 0));
+    return glm::lookAt(position, position + forward, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 glm::mat4 EditorCamera::getProjectionMatrix(float aspect) const

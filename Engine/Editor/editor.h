@@ -1,7 +1,8 @@
 //#pragma once
+//
 //#include <glm/glm.hpp>
 //#include <vector>
-//#include <string.h>
+//#include <cstring>
 //#include "editor_camera.h"
 //#include "engine_mode.h"
 //#include "../ECS/entity.h"
@@ -11,7 +12,6 @@
 //#include "Panels/scene_viewport_panel.h"
 //#include "Panels/game_viewport_panel.h"
 //#include "Panels/inspector_panel.h"
-//
 //
 //class GLFWwindow;
 //class EngineContext;
@@ -37,7 +37,7 @@
 //
 //    EngineMode mode = EngineMode::EDITOR;
 //
-//    void init(GLFWwindow* window, EngineContext& ctx); // 🎯 Dokunmadık!
+//    void init(GLFWwindow* window, EngineContext& ctx);
 //    void update(scene& scene);
 //    void renderUI(scene& scene, EngineContext& ctx, EditorContext& editorCtx);
 //
@@ -47,7 +47,7 @@
 //    void setGameViewportSize(const glm::vec2& size) { gameViewportSize = size; }
 //    void setScene(scene* s) { currentScene = s; }
 //    int getSelectedEntity() const { return selectedEntity; }
-//    void setSelectedEntity(int entity) { selectedEntity = entity; } 
+//    void setSelectedEntity(int entity) { selectedEntity = entity; }
 //
 //    void toggleMode()
 //    {

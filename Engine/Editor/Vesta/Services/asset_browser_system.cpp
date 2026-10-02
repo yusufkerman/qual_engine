@@ -1,9 +1,13 @@
+/**
+ * @file asset_browser_system.cpp
+ * @brief Varlık tarayıcısının disk okuma ve modifikasyon işlevlerinin mantıksal uygulaması.
+ */
+
 #include "asset_browser_system.h"
 #include "material_service.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-
 #include "../Engine/asset_pipeline.h"
 
 namespace vesta {
@@ -45,6 +49,7 @@ namespace vesta {
     {
         for (const auto& entry : std::filesystem::directory_iterator(dir_path))
         {
+            // .meta dosyaları arayüzde gösterilmez, doğrudan ait oldukları dosya ile okunur.
             if (entry.path().extension() == ".meta")
                 continue;
 
@@ -54,18 +59,22 @@ namespace vesta {
             file_item.name = entry.path().filename().string();
             file_item.type = get_type_from_extension(entry.path());
 
+            // Varlık (Asset) boru hattından GUID sorgulanır (Yoksa yeni .meta oluşturulur)
             file_item.guid = asset_pipeline::get_or_create_meta_guid(entry.path().string());
 
+            // Klasör değilse ve geçerli bir GUID'si varsa motorun adres defterine (registry) kaydet
             if (file_item.type != asset_type::folder && m_aria_system && !file_item.guid.is_nil()) {
                 m_aria_system->register_asset_path(file_item.guid, entry.path().string());
             }
 
-            if (file_item.type == asset_type::folder)
+            if (file_item.type == asset_type::folder) {
                 scan_directory(entry.path(), file_item);
+            }
 
             out_entry.children.push_back(file_item);
         }
 
+        // Sıralama Mantığı: Klasörler her zaman üstte (A-Z), dosyalar altta (A-Z)
         std::sort(out_entry.children.begin(), out_entry.children.end(),
             [](const asset_file_entry& a, const asset_file_entry& b)
             {
@@ -83,7 +92,8 @@ namespace vesta {
             }
             return ok;
         }
-        catch (...) {
+        catch (const std::exception& e) {
+            std::cerr << "[asset_browser_system] Dosya silme hatasi (" << path << "): " << e.what() << "\n";
             return false;
         }
     }
@@ -96,14 +106,16 @@ namespace vesta {
                 return true;
             }
         }
-        catch (...) {}
+        catch (const std::exception& e) {
+            std::cerr << "[asset_browser_system] Dosya isimlendirme hatasi (" << path << "): " << e.what() << "\n";
+        }
         return false;
     }
 
     bool asset_browser_system::duplicate_asset(const std::filesystem::path& path) {
         asset_type type = get_type_from_extension(path);
 
-        // 🚀 Materyal ise işi material_service'e devret
+        // Materyal işlemleri, içindeki GUID referanslarının da kopyalanması gerektiği için özel servise yönlendirilir.
         if (type == asset_type::material && m_material_service) {
             aria::asset_guid source_guid = asset_pipeline::get_or_create_meta_guid(path.string());
             if (source_guid.is_nil()) return false;
@@ -112,7 +124,7 @@ namespace vesta {
             return !new_guid.is_nil();
         }
 
-        // Materyal değilse eski genel dosya kopyalama mantığı aynen kalıyor
+        // Standart dosya (doku, model vb.) kopyalama mantığı
         try {
             std::filesystem::path ext = path.extension();
             std::filesystem::path dest = path.parent_path() / (path.stem().string() + "_Copy" + ext.string());
@@ -122,20 +134,25 @@ namespace vesta {
                 dest = path.parent_path() / (path.stem().string() + "_Copy_" + std::to_string(count++) + ext.string());
             }
 
-            if (std::filesystem::is_directory(path)) std::filesystem::copy(path, dest, std::filesystem::copy_options::recursive);
-            else std::filesystem::copy_file(path, dest);
+            if (std::filesystem::is_directory(path)) {
+                std::filesystem::copy(path, dest, std::filesystem::copy_options::recursive);
+            }
+            else {
+                std::filesystem::copy_file(path, dest);
+            }
+
             return true;
         }
-        catch (...) { return false; }
+        catch (const std::exception& e) {
+            std::cerr << "[asset_browser_system] Dosya cogaltma hatasi (" << path << "): " << e.what() << "\n";
+            return false;
+        }
     }
 
-    bool asset_browser_system::create_material(
-        const std::filesystem::path& folder_path,
-        const std::string& name)
+    bool asset_browser_system::create_material(const std::filesystem::path& folder_path, const std::string& name)
     {
-        // 🚀 Materyal oluşturma artık tamamen material_service'in sorumluluğunda
         if (!m_material_service) {
-            std::cerr << "[asset_browser_system] material_service bağlı değil, materyal oluşturulamadı.\n";
+            std::cerr << "[asset_browser_system] material_service bagli degil, materyal olusturulamadi.\n";
             return false;
         }
 

@@ -1,16 +1,20 @@
-// Dosya Yolu: Systems/physics_bridge.cpp
+/**
+ * @file physics_bridge.cpp
+ * @brief Fizik dünyası oluşturma, yıkma ve çift yönlü (ECS <-> Jolt) dönüşüm (Transform) eşzamanlama uygulamaları.
+ */
 
 #define GLM_ENABLE_EXPERIMENTAL
-
 #include "physics_bridge.h"
 #include "../Engine/engine_context.h" 
 #include "../Scene/scene.h"
 #include "../ECS/components.h"
+
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp> // 🎯 EKLENDİ: Güvenli Euler çevirisi için
+#include <glm/gtx/euler_angles.hpp> 
 
 namespace physics_bridge
 {
@@ -27,7 +31,10 @@ namespace physics_bridge
             auto* transform = reg.get_component<transform_component>(ent);
             auto* collider = reg.get_component<collider_component>(ent);
 
-            if (!transform || !collider) continue;
+            if (!transform || !collider)
+            {
+                continue;
+            }
 
             JPH::ShapeRefC shape;
             if (collider->type == collider_type::box)
@@ -53,14 +60,14 @@ namespace physics_bridge
                 jolt_layer = layers::MOVING;
             }
 
-            // Doğru sıra: X -> Y -> Z
+            // Euler rotasyon değerlerinden dönüşüm matrisi üzerinden güvenli kuaterniyon eldesi (Sıra: X -> Y -> Z)
             glm::mat4 rotMatrix = glm::mat4(1.0f);
-            rotMatrix = glm::rotate(rotMatrix, transform->rotation.x, glm::vec3(1, 0, 0));
-            rotMatrix = glm::rotate(rotMatrix, transform->rotation.y, glm::vec3(0, 1, 0));
-            rotMatrix = glm::rotate(rotMatrix, transform->rotation.z, glm::vec3(0, 0, 1));
-            glm::quat q = glm::quat_cast(rotMatrix);
+            rotMatrix = glm::rotate(rotMatrix, transform->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+            rotMatrix = glm::rotate(rotMatrix, transform->rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+            rotMatrix = glm::rotate(rotMatrix, transform->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 
-            JPH::Quat jolt_quat(q.x, q.y, q.z, q.w);
+            const glm::quat q = glm::quat_cast(rotMatrix);
+            const JPH::Quat jolt_quat(q.x, q.y, q.z, q.w);
 
             JPH::BodyCreationSettings body_settings(
                 shape,
@@ -96,7 +103,7 @@ namespace physics_bridge
         jolt_system->OptimizeBroadPhase();
     }
 
-    void physics_bridge::sync_physics_to_ecs(EngineContext& ctx, scene& current_scene)
+    void sync_physics_to_ecs(EngineContext& ctx, scene& current_scene)
     {
         auto* jolt_system = ctx.physicsSystem.get_jolt_system();
         auto& body_interface = jolt_system->GetBodyInterface();
@@ -112,21 +119,21 @@ namespace physics_bridge
             auto* transform = reg.get_component<transform_component>(ent);
             if (!transform) continue;
 
-            // Pozisyon Eşitleme
-            JPH::RVec3 post_sim_pos = body_interface.GetPosition(rb.body_id);
+            // Konum eşitleme
+            const JPH::RVec3 post_sim_pos = body_interface.GetPosition(rb.body_id);
             transform->position = glm::vec3(post_sim_pos.GetX(), post_sim_pos.GetY(), post_sim_pos.GetZ());
 
-            // 🎯 ÇÖZÜM: Render sistemine dokunmamak için rotasyonu GÜVENLİ şekilde geri yazıyoruz
+            // Rotasyon eşitleme (Render altyapısı ile uyumluluk için güvenli Euler çıkarımı)
             if (rb.motion == motion_type::dynamic_body)
             {
-                JPH::Quat post_sim_quat = body_interface.GetRotation(rb.body_id);
-                // GLM Kuaterniyon kurucusu: w, x, y, z
-                glm::quat q(post_sim_quat.GetW(), post_sim_quat.GetX(), post_sim_quat.GetY(), post_sim_quat.GetZ());
+                const JPH::Quat post_sim_quat = body_interface.GetRotation(rb.body_id);
 
-                glm::mat4 rotMatrix = glm::mat4_cast(q);
+                // GLM Kuaterniyon kurucusu sıralaması: w, x, y, z
+                const glm::quat q(post_sim_quat.GetW(), post_sim_quat.GetX(), post_sim_quat.GetY(), post_sim_quat.GetZ());
+                const glm::mat4 rotMatrix = glm::mat4_cast(q);
 
                 float rotX, rotY, rotZ;
-                // Bizim X -> Y -> Z matris kurgumuzun BİREBİR ters (çözüm) işlemidir
+                // Motorun genel X -> Y -> Z matris kurgusu ile uyumlu ters(çözüm) işlemidir
                 glm::extractEulerAngleXYZ(rotMatrix, rotX, rotY, rotZ);
 
                 transform->rotation = glm::vec3(rotX, rotY, rotZ);
@@ -134,7 +141,7 @@ namespace physics_bridge
         }
     }
 
-    void physics_bridge::sync_ecs_to_physics(EngineContext& ctx, scene& current_scene)
+    void sync_ecs_to_physics(EngineContext& ctx, scene& current_scene)
     {
         auto* jolt_system = ctx.physicsSystem.get_jolt_system();
         auto& body_interface = jolt_system->GetBodyInterface();
@@ -151,18 +158,18 @@ namespace physics_bridge
             auto* transform = reg.get_component<transform_component>(ent);
             if (!transform) continue;
 
-            JPH::RVec3 jolt_pos = body_interface.GetPosition(rb.body_id);
-            glm::vec3 ecs_pos = transform->position;
+            const JPH::RVec3 jolt_pos = body_interface.GetPosition(rb.body_id);
+            const glm::vec3 ecs_pos = transform->position;
 
             if (glm::distance(glm::vec3(jolt_pos.GetX(), jolt_pos.GetY(), jolt_pos.GetZ()), ecs_pos) > 0.005f)
             {
                 glm::mat4 rotMatrix = glm::mat4(1.0f);
-                rotMatrix = glm::rotate(rotMatrix, transform->rotation.x, glm::vec3(1, 0, 0));
-                rotMatrix = glm::rotate(rotMatrix, transform->rotation.y, glm::vec3(0, 1, 0));
-                rotMatrix = glm::rotate(rotMatrix, transform->rotation.z, glm::vec3(0, 0, 1));
-                glm::quat q = glm::quat_cast(rotMatrix);
+                rotMatrix = glm::rotate(rotMatrix, transform->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+                rotMatrix = glm::rotate(rotMatrix, transform->rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+                rotMatrix = glm::rotate(rotMatrix, transform->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 
-                JPH::Quat jolt_quat(q.x, q.y, q.z, q.w);
+                const glm::quat q = glm::quat_cast(rotMatrix);
+                const JPH::Quat jolt_quat(q.x, q.y, q.z, q.w);
 
                 body_interface.SetPositionAndRotation(
                     rb.body_id,
@@ -181,6 +188,7 @@ namespace physics_bridge
         if (any_static_or_kinematic_moved)
         {
             jolt_system->OptimizeBroadPhase();
+
             for (auto& [ent, rb] : rb_pool)
             {
                 if (rb.body_id.IsInvalid()) continue;
@@ -209,4 +217,4 @@ namespace physics_bridge
             rb.body_id = JPH::BodyID();
         }
     }
-}
+} // namespace physics_bridge

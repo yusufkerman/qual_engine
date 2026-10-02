@@ -1,9 +1,18 @@
-// opengl_backend.h
 #pragma once
+
+/**
+ * @file opengl_backend.h
+ * @brief OpenGL grafik API'sine özel donanım arka uç (backend) arayüzü uygulamasını tanımlar.
+ */
+
 #include "render_backend.h"
 
 namespace aria {
 
+    /**
+     * @class opengl_backend
+     * @brief Varlıkların (asset) OpenGL spesifik API çağrılarıyla GPU'ya yüklenmesi ve silinmesinden sorumludur.
+     */
     class opengl_backend : public render_backend {
     public:
         void init() override;
@@ -20,7 +29,6 @@ namespace aria {
         void destroy_shader(gpu_shader_id id) override;
 
         void reset_state() override;
-
     };
 
 } // namespace aria

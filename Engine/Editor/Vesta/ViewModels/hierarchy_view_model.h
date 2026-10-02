@@ -1,27 +1,39 @@
 #pragma once
+
+/**
+ * @file hierarchy_view_model.h
+ * @brief Sahne Hiyerarşisi (Scene Hierarchy) paneli için Model-View-ViewModel (MVVM) yapısının görünüm modeli katmanını tanımlar.
+ */
+
 #include "../../ECS/entity.h"
 #include "../../ECS/components.h"
 #include "../Adapters/IEditableWorld.h"
 #include "../CoreState/editor_selection_manager.h"
 #include "../../../ECS/registry.h"
-
 #include <string>
 #include <vector>
 
 namespace vesta {
 
-    // L5 Panelinin hiçbir mantık yürütmeden doğrudan çizmesi için tasarlanmış düz veri yapısı
+    /**
+     * @struct hierarchy_node_data
+     * @brief Arayüz (UI) panelinin hiçbir mantık yürütmeden doğrudan çizebilmesi için tasarlanmış veri taşıyıcı (DTO) yapı.
+     */
     struct hierarchy_node_data {
-        entity id{ 0 };
-        std::string name;
-        bool is_selected{ false };
-        bool has_children{ false };
-        entity parent_id{ 0 };
+        entity id{ 0 };                 ///< Entity'nin benzersiz kimliği.
+        std::string name;               ///< Entity'nin arayüzde gösterilecek adı.
+        bool is_selected{ false };      ///< Arayüzde seçili olarak işaretlenip işaretlenmediği.
+        bool has_children{ false };     ///< Alt öğelerinin (çocuklarının) olup olmadığı.
+        entity parent_id{ 0 };          ///< Bağlı olduğu ebeveynin (parent) kimliği.
 
-        // L5'teki bağlı listeyi dolaşabilmek için çocuk entity'ler
+        /// Ağaç yapısında hiyerarşiyi dolaşabilmek için doğrudan alt öğelerin (çocukların) listesi.
         std::vector<entity> children;
     };
 
+    /**
+     * @class hierarchy_view_model
+     * @brief Sahne hiyerarşisini UI paneline sunan, entity oluşturma, silme, ebeveyn atama ve yeniden adlandırma eylemlerini yöneten ViewModel sınıfı.
+     */
     class hierarchy_view_model {
     private:
         IEditableWorld& m_world;
@@ -32,24 +44,33 @@ namespace vesta {
         std::string m_rename_buffer;
         entity m_clipboard_entity{ 0 };
 
+        /**
+         * @brief Bir entity'nin doğrudan çocuklarını (kardeş zinciri üzerinden) toplar.
+         * @note İsminde 'recursive' geçmesine rağmen mimari gereği sadece birinci derece çocukları toplar.
+         *       Alt düğümler UI tarafından istendikçe çözümlenir.
+         */
         void gather_children_recursive(entity parent, std::vector<entity>& out_children) const;
 
     public:
-        hierarchy_view_model(IEditableWorld& world,
-            registry& reg,
-            editor_selection_manager& selection);
-
+        hierarchy_view_model(IEditableWorld& world, registry& reg, editor_selection_manager& selection);
         ~hierarchy_view_model() = default;
 
         // ==========================================
-        // DATA PREPARATION (READ ONLY)
+        // VERİ HAZIRLIĞI (SADECE OKUMA / READ ONLY)
         // ==========================================
 
+        /**
+         * @brief Sahnedeki kök (parent değeri 0 olan) entity'leri getirir.
+         */
         std::vector<hierarchy_node_data> get_root_nodes() const;
+
+        /**
+         * @brief Belirli bir entity'nin UI tarafında gösterilecek verilerini derler.
+         */
         hierarchy_node_data get_node_data(entity e) const;
 
         // ==========================================
-        // INTENT ACTIONS (WRITE)
+        // KULLANICI EYLEMLERİ (WRITE / INTENT)
         // ==========================================
 
         void request_create_entity(const std::string& default_name = "New Entity");
@@ -64,7 +85,7 @@ namespace vesta {
         void request_duplicate(entity e);
 
         // ==========================================
-        // SELECTION
+        // SEÇİM DURUMU YÖNETİMİ (SELECTION)
         // ==========================================
 
         bool has_selection() const;
@@ -72,27 +93,26 @@ namespace vesta {
         bool is_selected(entity e) const;
 
         // ==========================================
-        // RENAME STATE
+        // YENİDEN ADLANDIRMA (RENAME) YÖNETİMİ
         // ==========================================
 
         bool is_renaming(entity e) const;
         void start_rename(entity e);
         void cancel_rename();
+        void commit_rename();
 
         entity get_renaming_entity() const;
         std::string& get_rename_buffer();
         const std::string& get_rename_buffer() const;
 
-        void commit_rename();
-
         // ==========================================
-        // CLIPBOARD
+        // PANO (CLIPBOARD) DURUMU
         // ==========================================
 
         bool has_clipboard() const;
 
         // ==========================================
-        // VALIDATION
+        // EYLEM DOĞRULAMA (VALIDATION)
         // ==========================================
 
         bool can_copy() const;
@@ -101,7 +121,7 @@ namespace vesta {
         bool can_paste() const;
 
         // ==========================================
-        // HIGH LEVEL ACTIONS
+        // YÜKSEK SEVİYELİ (SEÇİLİ NESNE) EYLEMLERİ
         // ==========================================
 
         void request_copy_selected();

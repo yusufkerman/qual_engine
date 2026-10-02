@@ -1,3 +1,8 @@
+/**
+ * @file asset_browser_panel.cpp
+ * @brief Varlık Tarayıcısı (Asset Browser) panelinin ImGui ile çizim işlemlerini barındırır.
+ */
+
 #include "asset_browser_panel.h"
 #include "../ViewModels/asset_browser_view_model.h"
 #include <imgui.h>
@@ -19,14 +24,14 @@ namespace vesta {
     void asset_browser_panel::render() {
         ImGui::Begin("Asset Browser");
 
-        // 🔄 REFRESH BAR
+        // Yenileme (Refresh) Butonu
         if (ImGui::Button("Refresh")) {
             m_vm.refresh();
         }
 
         ImGui::Separator();
 
-        // Boş alana sol tıklanınca seçimi temizle
+        // Boş alana sol tıklanınca mevcut seçimi temizle
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup)) {
             if (!ImGui::IsAnyItemHovered()) {
                 m_vm.clear_selection();
@@ -34,7 +39,7 @@ namespace vesta {
         }
 
         // ========================================================================
-        // 🔥 BOŞ ALANA SAĞ TIKLANDIĞINDA (KÖK DİZİNE YENİ ASSET OLUŞTURMA)
+        // BOŞ ALANA SAĞ TIK MENÜSÜ (KÖK DİZİNE VARLIK EKLEME)
         // ========================================================================
         if (ImGui::BeginPopupContextWindow("AssetBrowserContextMenu", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)) {
             if (ImGui::MenuItem("➕ Create Material...")) {
@@ -45,10 +50,15 @@ namespace vesta {
             ImGui::EndPopup();
         }
 
-        // 🔥 ROOT DÜĞÜMÜNÜ ÇİZ
+        // ========================================================================
+        // KÖK (ROOT) DÜĞÜMÜN ÇİZİMİ
+        // ========================================================================
         const auto& root = m_vm.root();
         ImGuiTreeNodeFlags root_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
-        if (m_vm.is_selected("Assets")) root_flags |= ImGuiTreeNodeFlags_Selected;
+
+        if (m_vm.is_selected("Assets")) {
+            root_flags |= ImGuiTreeNodeFlags_Selected;
+        }
 
         bool root_open = ImGui::TreeNodeEx("📁 Assets", root_flags);
         if (ImGui::IsItemClicked()) {
@@ -63,7 +73,7 @@ namespace vesta {
         }
 
         // ========================================================================
-        // 🛠️ MODAL POPUP: YENİ ASSET OLUŞTURMA (İSİM SORARAK)
+        // MODAL POPUP: YENİ MATERYAL OLUŞTURMA
         // ========================================================================
         if (m_open_create_popup) {
             ImGui::OpenPopup("Create Asset Name");
@@ -90,7 +100,7 @@ namespace vesta {
         }
 
         // ========================================================================
-        // 🛠️ MODAL POPUP: RENAME (YENİDEN ADLANDIRMA)
+        // MODAL POPUP: YENİDEN ADLANDIRMA (RENAME)
         // ========================================================================
         if (m_open_rename_popup) {
             ImGui::OpenPopup("Rename Asset");
@@ -121,6 +131,8 @@ namespace vesta {
 
     void asset_browser_panel::draw_node(const asset_file_entry& entry) {
         std::string path_str = entry.full_path.string();
+
+        // Aynı isimde klasörler olabileceği için ImGui state karışmasını engelliyoruz
         ImGui::PushID(path_str.c_str());
 
         std::string prefix = (entry.type == asset_type::folder) ? "📁 " : "📄 ";
@@ -128,13 +140,17 @@ namespace vesta {
         bool is_selected = m_vm.is_selected(path_str);
 
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-        if (entry.type != asset_type::folder) flags |= ImGuiTreeNodeFlags_Leaf;
-        if (is_selected) flags |= ImGuiTreeNodeFlags_Selected;
+        if (entry.type != asset_type::folder) {
+            flags |= ImGuiTreeNodeFlags_Leaf;
+        }
+        if (is_selected) {
+            flags |= ImGuiTreeNodeFlags_Selected;
+        }
 
         bool is_open = ImGui::TreeNodeEx(label.c_str(), flags);
 
         // ========================================================================
-        // 🚀 GÜVENLİ ÇİFT TIKLAMA SEÇİM MANTIĞI
+        // FARE ETKİLEŞİMLERİ (ÇİFT TIKLAMA VE SAĞ TIK SEÇİMİ)
         // ========================================================================
         if (ImGui::IsItemHovered()) {
             if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
@@ -147,7 +163,7 @@ namespace vesta {
         }
 
         // ========================================================================
-        // 🔥 ÖĞEYE ÖZEL SAĞ TIK MENÜSÜ (CONTEXT MENU)
+        // ÖĞEYE ÖZEL İÇERİK MENÜSÜ (CONTEXT MENU)
         // ========================================================================
         if (ImGui::BeginPopupContextItem("ItemContextMenu")) {
             m_vm.select_and_notify(path_str);
@@ -181,7 +197,7 @@ namespace vesta {
         }
 
         // ========================================================================
-        // 🚀 SÜRÜKLEME KAYNAĞI (DRAG SOURCE)
+        // SÜRÜKLE VE BIRAK (DRAG & DROP) KAYNAĞI
         // ========================================================================
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
@@ -189,30 +205,32 @@ namespace vesta {
             std::string ext = entry.full_path.extension().string();
             std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-            if (ext == ".json") {
+            if (ext == ".json" || ext == ".amat") {
                 payload.type = vesta::asset_payload_type::material;
             }
-            else if (ext == ".png" || ext == ".jpg" || ext == ".tga") {
+            else if (ext == ".png" || ext == ".jpg" || ext == ".tga" || ext == ".dds") {
                 payload.type = vesta::asset_payload_type::texture;
             }
-            else if (ext == ".obj" || ext == ".fbx" || ext == ".gltf") {
+            else if (ext == ".obj" || ext == ".fbx" || ext == ".gltf" || ext == ".dae") {
                 payload.type = vesta::asset_payload_type::model;
             }
             else {
-                payload.type = vesta::asset_payload_type::model;
+                payload.type = vesta::asset_payload_type::model; // Fallback
             }
 
+            // Dosya yolunu bellekte kopyalanabilir (POD) bir şekilde pakete ekle
             snprintf(payload.path, sizeof(payload.path), "%s", path_str.c_str());
             payload.guid = entry.guid;
 
             ImGui::SetDragDropPayload("ARIA_ASSET_PAYLOAD", &payload, sizeof(payload));
 
+            // Sürüklerken farenin altında görünecek olan önizleme metni
             ImGui::Text("%s %s", (entry.type == asset_type::folder ? "📁" : "📄"), entry.name.c_str());
             ImGui::EndDragDropSource();
         }
 
         // ========================================================================
-        // BIRAKMA HEDEFİ (DROP TARGET)
+        // SÜRÜKLE VE BIRAK (DRAG & DROP) HEDEFİ
         // ========================================================================
         if (entry.type == asset_type::folder) {
             if (ImGui::BeginDragDropTarget())
@@ -221,6 +239,8 @@ namespace vesta {
                 {
                     auto* data = (const vesta::asset_drag_payload*)imgui_payload->Data;
                     std::filesystem::path src(data->path);
+
+                    // ViewModel üzerinden dosya taşıma (move) isteği yolla
                     m_vm.request_move(src, entry.full_path);
                 }
                 ImGui::EndDragDropTarget();

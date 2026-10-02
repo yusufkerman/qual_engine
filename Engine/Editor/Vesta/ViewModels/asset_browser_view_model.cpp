@@ -1,6 +1,11 @@
-// asset_browser_view_model.cpp
+/**
+ * @file asset_browser_view_model.cpp
+ * @brief Varlık Tarayıcısı (Asset Browser) görünüm modelinin mantıksal uygulaması.
+ */
+
 #include "asset_browser_view_model.h"
 #include "../Services/asset_browser_system.h"
+#include <iostream>
 
 namespace vesta {
 
@@ -30,22 +35,33 @@ namespace vesta {
 
     void asset_browser_view_model::select_and_notify(const std::string& path) {
         m_selected_path = path;
-        if (m_on_asset_selected) m_on_asset_selected(path);
-        if (m_on_entity_deselect_requested) m_on_entity_deselect_requested();
+
+        if (m_on_asset_selected) {
+            m_on_asset_selected(path);
+        }
+
+        // Bir varlık (asset) seçildiğinde sahnedeki aktif nesne seçimini kaldır.
+        if (m_on_entity_deselect_requested) {
+            m_on_entity_deselect_requested();
+        }
     }
 
     void asset_browser_view_model::clear_selection() {
         m_selected_path.clear();
-        if (m_on_asset_selected) m_on_asset_selected("");
+        if (m_on_asset_selected) {
+            m_on_asset_selected("");
+        }
     }
 
     void asset_browser_view_model::request_create_material(
         const std::filesystem::path& target_dir, const std::string& name)
     {
+        // Eğer hedeflenen yol bir klasör değilse, bir üst dizinini (parent) baz al
         std::filesystem::path dir = std::filesystem::is_directory(target_dir)
             ? target_dir
             : target_dir.parent_path();
 
+        // İsim çakışmalarını önlemek için sonuna numara ekle (örnek: YeniMateryal_1)
         std::string unique_name = name;
         int counter = 1;
         while (std::filesystem::exists(dir / (unique_name + ".json"))) {
@@ -66,6 +82,7 @@ namespace vesta {
 
             refresh();
 
+            // Eğer yeniden adlandırılan dosya şu an seçiliyse, seçim yolunu da güncelle
             if (m_selected_path == target.string()) {
                 select(new_path.string());
             }
@@ -79,7 +96,7 @@ namespace vesta {
     }
 
     void asset_browser_view_model::request_delete(const std::filesystem::path& target) {
-        // TODO: command_stack entegre edilince buraya taşınacak
+        // Not: İleride Undo/Redo mekanizması için Command Stack'e entegre edilebilir.
         if (m_browser_system.delete_asset(target)) {
             if (m_selected_path == target.string()) {
                 clear_selection();
@@ -97,7 +114,9 @@ namespace vesta {
                 refresh();
             }
         }
-        catch (const std::exception&) {
+        catch (const std::exception& e) {
+            // Sessizce yutulan hata düzeltildi. Dosya kilidi (lock) veya izin sorunlarında uyarır.
+            std::cout << "[Vesta AssetBrowser] Hata: Dosya tasinirken bir sorun olustu: " << e.what() << "\n";
         }
     }
 

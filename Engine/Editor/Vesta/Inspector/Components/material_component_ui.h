@@ -1,32 +1,36 @@
+#pragma once
+
 /**
  * @file material_component_ui.h
- * @brief Materyal bileşeni (material_component) için editör kullanıcı arayüzü yönetim sistemi.
+ * @brief Materyal bileşeni (material_component) için editör kullanıcı arayüzü ve sürükle-bırak slot sistemi.
  */
-#pragma once
+
 #include "../../Services/component_operation_registry.h"
 #include "../Vesta/Services/component_ui_registry.h"
 #include "../../../UIHelper.h"
 #include "../../ECS/registry.h"
 #include "../../Engine/asset_pipeline.h"
 #include "../../Renderer/material.h"
-#include "../../Externals/nfd/nfd.hpp"
-#include "../../Externals/nfd/nfd.h"
 #include <imgui.h>
 #include <iostream>
 
-inline void render_material_ui(entity e,
-    registry& reg,
-    aria::system& ariaSys)
+ /**
+  * @brief Seçili varlığın materyal slotunu ve sürükle-bırak (Drag & Drop) etkileşimini çizer.
+  * @param e Materyal atanacak varlık.
+  * @param reg İlgili ECS kayıt defteri referansı.
+  * @param ariaSys Varlık çözümleme için Aria çekirdek sistemi referansı.
+  */
+inline void render_material_ui(entity e, registry& reg, aria::system& ariaSys)
 {
     auto* matComp = reg.get_component<material_component>(e);
     if (!matComp) return;
 
     aria::material_asset* current = nullptr;
 
-    if (matComp->material_handle.is_valid())
+    if (matComp->material_handle.is_valid()) {
         current = ariaSys.registry()->get_material(matComp->material_handle);
+    }
 
-    // İlk başta label'ı güvenle alıyoruz
     std::string label = current ? current->name : "";
 
     vesta::DrawAssetDropSlot(
@@ -35,26 +39,19 @@ inline void render_material_ui(entity e,
         vesta::asset_payload_type::material,
         [&](const vesta::asset_drag_payload& payload)
         {
-            std::cout << "[MAT UI DEBUG] Drop callback TETIKLENDI, path=" << payload.path << "\n";
-
             auto handle = asset_pipeline::import_material(&ariaSys, payload.path);
 
             if (handle.is_valid()) {
                 matComp->material_handle = handle;
-                std::cout << "[MAT UI DEBUG] material_handle ATANDI!\n";
-
-                // Eski materyal silinmiş olabileceği için 
-                // Lambda içinde 'current' pointer'ını yeni handle ile hemen güncelliyoruz!
                 current = ariaSys.registry()->get_material(handle);
             }
             else {
-                std::cout << "[MAT UI DEBUG] Handle INVALID, atama YAPILMADI!\n";
+                std::cerr << "[Vesta MaterialUI] Materyal ice aktarilamadi: " << payload.path << "\n";
             }
         }
     );
 
-    // Lambda çalıştıktan sonra eğer hafıza silindiyse 
-    // veya handle değiştiyse pointer'ı bir kez daha teyit ediyoruz.
+    // Drop işlemi sonrası handle geçerliliğini ve pointer bütünlüğünü doğrula
     if (matComp->material_handle.is_valid()) {
         current = ariaSys.registry()->get_material(matComp->material_handle);
     }
@@ -62,22 +59,31 @@ inline void render_material_ui(entity e,
         current = nullptr;
     }
 
-    // Artık 'current' pointer'ının güncel ve güvenli olduğundan %100 eminiz.
-    if (current)
+    if (current) {
         ImGui::Text("Material: %s", current->name.c_str());
-    else
+    }
+    else {
         ImGui::Text("Material: None");
+    }
 }
 
+/**
+ * @brief Bir varlığa varsayılan material_component ekler.
+ */
 inline void add_material_component(entity e, registry& reg) {
     if (!reg.has_component<material_component>(e)) {
         reg.add_component<material_component>(e);
     }
 }
 
+/**
+ * @brief Materyal bileşeni arayüz ve operasyon kayıtlarını gerçekleştirir.
+ * @param ariaSys Çizim fonksiyonuna closure ile bağlanacak olan Aria sistemi referansı.
+ */
 inline void register_material_ui_system(aria::system& ariaSys) {
+    size_t comp_hash = typeid(material_component).hash_code();
 
-    // --- Mantık kısmı (component_registry): ARIA bilmez ---
+    // 1. ECS Operasyon Kaydı
     vesta::ComponentOperationInfo logic;
     logic.add_fn = add_material_component;
 
@@ -89,14 +95,14 @@ inline void register_material_ui_system(aria::system& ariaSys) {
         reg.remove_component<material_component>(e);
         };
 
-    vesta::component_operation_registry::register_component(typeid(material_component).hash_code(), logic);
+    vesta::component_operation_registry::register_component(comp_hash, logic);
 
-    // --- UI kısmı (component_ui_registry): ARIA'yı capture eder ---
+    // 2. UI Çizim Kaydı (Aria sistemi closure içerisine yakalanır)
     vesta::ComponentUIInfo ui;
     ui.display_name = "Material";
     ui.render_fn = [&ariaSys](entity e, registry& reg) {
         render_material_ui(e, reg, ariaSys);
         };
 
-    vesta::component_ui_registry::register_component(typeid(material_component).hash_code(), ui);
+    vesta::component_ui_registry::register_component(comp_hash, ui);
 }

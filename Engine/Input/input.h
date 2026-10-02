@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file input.h
+ * @brief Girdi alt sisteminin tüm başlık dosyalarını toplayan şemsiye (umbrella) başlık.
+ */
+
 #include "input_action.h"
 #include "input_state.h"
 #include "input_map.h"

@@ -20,7 +20,7 @@ void sandbox_load_scene2_directly(EngineContext& ctx)
 }
 
 // =========================================================
-// 🎮 NEW FUNCTION: SANDBOX DEMO GAME
+// SANDBOX DEMO GAME
 // =========================================================
 void sandbox_load_demo_game(EngineContext& ctx, EditorContext& edtitorCtx)
 {
@@ -28,13 +28,13 @@ void sandbox_load_demo_game(EngineContext& ctx, EditorContext& edtitorCtx)
     //edtitorCtx->setScene(&editorScene);
 
     // ---------------------------------------------------------
-    // 🛠️ MATERYAL DÜZELTMESİ (ARIA HANDLE ENTEGRASYONU)
+    // MATERYAL DÜZELTMESİ (ARIA HANDLE ENTEGRASYONU)
     // ---------------------------------------------------------
     // Eski materialManager'dan üretilen ID'yi component kabul etmediği için,
     // doğrudan varsayılan, temiz bir Aria Handle oluşturuyoruz.
     aria::handle<aria::material_asset> matHandle{};
 
-    // 🚀 YENİ ARIA API: Cube handle üretiliyor
+    // YENİ ARIA API: Cube handle üretiliyor
     aria::handle<aria::model_asset> cubeHandle = asset_pipeline::create_cube_mesh(ctx.aria_system);
 
     // ---------------------------------------------------------
@@ -44,7 +44,7 @@ void sandbox_load_demo_game(EngineContext& ctx, EditorContext& edtitorCtx)
     editorScene.get_registry().add_component<name_component>(floorEntity, name_component{ "Zemin (Static)" });
     editorScene.get_registry().add_component<mesh_component>(floorEntity, mesh_component{ cubeHandle });
 
-    // 🚀 Artık hata vermeyen Aria tabanlı matHandle paslanıyor
+    // Artık hata vermeyen Aria tabanlı matHandle paslanıyor
     editorScene.get_registry().add_component<material_component>(floorEntity, material_component{ matHandle });
     editorScene.get_registry().add_component<bounds_component>(floorEntity, bounds_component{ glm::vec3(0.0f), 1.0f });
 
@@ -79,7 +79,7 @@ void sandbox_load_demo_game(EngineContext& ctx, EditorContext& edtitorCtx)
         mesh_component{ cubeHandle }
     );
 
-    // 🚀 Aynı şekilde oyuncu için de Aria tabanlı matHandle paslanıyor
+    // Aynı şekilde oyuncu için de Aria tabanlı matHandle paslanıyor
     editorScene.get_registry().add_component<material_component>(
         playerEntity,
         material_component{ matHandle });

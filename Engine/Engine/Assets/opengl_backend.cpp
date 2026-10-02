@@ -1,23 +1,14 @@
+/**
+ * @file opengl_backend.cpp
+ * @brief OpenGL spesifik render arka ucu (backend) uygulaması.
+ */
+
 #include "opengl_backend.h"
 #include <glad/glad.h>
 #include <glm/common.hpp>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 
 namespace aria {
-
-    // Yardımcı dosya okuyucu (Eski kodundan aktarıldı)
-    static std::string loadShaderFile(const std::string& path) {
-        std::ifstream file(path);
-        if (!file.is_open()) {
-            std::cout << "[Aria OpenGL] SHADER FILE NOT FOUND: " << path << std::endl;
-            return "";
-        }
-        std::stringstream ss;
-        ss << file.rdbuf();
-        return ss.str();
-    }
 
     void opengl_backend::init() {}
     void opengl_backend::shutdown() {}
@@ -35,13 +26,15 @@ namespace aria {
         glTexImage2D(GL_TEXTURE_2D, 0, format, raw_data.width, raw_data.height, 0, format, GL_UNSIGNED_BYTE, raw_data.pixels.data());
         glGenerateMipmap(GL_TEXTURE_2D);
 
+        // Doku Filtreleme Ayarları
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+        // Anizotropik Filtreleme
         float max_aniso = 0.0f;
-        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &max_aniso); // İsim düzeltmesi
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &max_aniso);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, glm::min(8.0f, max_aniso));
 
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -67,28 +60,24 @@ namespace aria {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, submesh.gpu_data.ebo);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, raw_mesh.indices.size() * sizeof(uint32_t), raw_mesh.indices.data(), GL_STATIC_DRAW);
 
+            // Pozisyon (location = 0)
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(raw_vertex), (void*)offsetof(raw_vertex, position));
 
+            // Normal (location = 1)
             glEnableVertexAttribArray(1);
             glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(raw_vertex), (void*)offsetof(raw_vertex, normal));
 
+            // UV Koordinatları (location = 2)
             glEnableVertexAttribArray(2);
             glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(raw_vertex), (void*)offsetof(raw_vertex, tex_coord));
 
+            // Tanjant (location = 3)
             glEnableVertexAttribArray(3);
             glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(raw_vertex), (void*)offsetof(raw_vertex, tangent));
 
-
             submesh.bounds.local_center = raw_mesh.local_center;
             submesh.bounds.local_radius = raw_mesh.local_radius;
-
-            GLint enabled;
-
-            for (int i = 0;i < 4;i++)
-            {
-                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
-            }
 
             glBindVertexArray(0);
             out_submeshes.push_back(submesh);
@@ -124,13 +113,9 @@ namespace aria {
         }
     }
 
-    // 🔥 ESKİ SHADER SINIFI MANTIĞININ ARIA BACKEND'E ENJEKTE EDİLMİŞ HALİ
     gpu_shader_id opengl_backend::create_shader(const raw_shader_data& raw_data) {
-        std::cout << "[ARIA OpenGL] create_shader called - vertex size: " << raw_data.vertex_source.size()
-            << " fragment size: " << raw_data.fragment_source.size() << "\n";
-
         if (raw_data.vertex_source.empty() || raw_data.fragment_source.empty()) {
-            std::cout << "[ARIA OpenGL] ERROR: Shader source is empty!\n";
+            std::cout << "[ARIA OpenGL] Hata: Shader kaynak kodlari bos!\n";
             return 0;
         }
 
@@ -140,32 +125,32 @@ namespace aria {
         int success;
         char infoLog[512];
 
-        // Vertex Shader
+        // Vertex Shader Derleme
         unsigned int vs = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vs, 1, &vShaderCode, NULL);
         glCompileShader(vs);
         glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(vs, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] VERTEX SHADER COMPILE ERROR:\n" << infoLog << "\n";
+            std::cout << "[ARIA OpenGL] Vertex Shader Derleme Hatasi:\n" << infoLog << "\n";
             glDeleteShader(vs);
             return 0;
         }
 
-        // Fragment Shader
+        // Fragment Shader Derleme
         unsigned int fs = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fs, 1, &fShaderCode, NULL);
         glCompileShader(fs);
         glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(fs, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] FRAGMENT SHADER COMPILE ERROR:\n" << infoLog << "\n";
+            std::cout << "[ARIA OpenGL] Fragment Shader Derleme Hatasi:\n" << infoLog << "\n";
             glDeleteShader(vs);
             glDeleteShader(fs);
             return 0;
         }
 
-        // Program Linking
+        // Program Baglama (Linking)
         GLuint programID = glCreateProgram();
         glAttachShader(programID, vs);
         glAttachShader(programID, fs);
@@ -174,43 +159,32 @@ namespace aria {
         glGetProgramiv(programID, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(programID, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] PROGRAM LINK ERROR:\n" << infoLog << "\n";
+            std::cout << "[ARIA OpenGL] Program Baglama Hatasi:\n" << infoLog << "\n";
             glDeleteShader(vs);
             glDeleteShader(fs);
             glDeleteProgram(programID);
             return 0;
         }
 
-        // UBO ENTEGRASYONU
-        // Shader içinde "layout (std140) uniform LightBuffer" tanımlıysa 0. yuvaya bağla
+        // UBO (Uniform Buffer Object) Entegrasyonu
         unsigned int blockIndex = glGetUniformBlockIndex(programID, "LightBuffer");
         if (blockIndex != GL_INVALID_INDEX) {
             glUniformBlockBinding(programID, blockIndex, 0);
-            std::cout << "[ARIA OpenGL] LightBuffer bound to binding point 0 for program " << programID << "\n";
-            
-            // === YENİ EKLENEN DEBUG SATIRLARI ===
-            GLint blockSize = 0;
-            glGetActiveUniformBlockiv(programID, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-            std::cout << "[UBO CHECK] Program " << programID << " LightBuffer expects " << blockSize << " bytes\n";
-            // =====================================
-        
         }
         else {
-            std::cout << "[ARIA OpenGL] WARNING: LightBuffer uniform block NOT found in shader " << programID << "!\n";
+            std::cout << "[ARIA OpenGL] Uyari: LightBuffer uniform blogu shader (" << programID << ") icinde bulunamadi!\n";
         }
-
 
         glDeleteShader(vs);
         glDeleteShader(fs);
 
-        std::cout << "[ARIA OpenGL] Shader successfully created with GPU ID: " << programID << "\n";
         return programID;
     }
 
-    // 🔥 Hata durumlarında motorun patlamaması için basit magenta/pembe basan emniyet shader'ı
     gpu_shader_id opengl_backend::create_fallback_shader() {
+        // Hata durumunda sahneyi pembe (magenta) boyayan basit yedek gölgelendirici
         const char* vsSource = "#version 330 core\nlayout (location = 0) in vec3 aPos;\nuniform mat4 model;\nuniform mat4 view;\nuniform mat4 projection;\nvoid main() { gl_Position = projection * view * model * vec4(aPos, 1.0); }";
-        const char* fsSource = "#version 330 core\nout vec4 FragColor;\nvoid main() { FragColor = vec4(1.0, 0.0, 1.0, 1.0); }"; // Fallback magenta color for error detection
+        const char* fsSource = "#version 330 core\nout vec4 FragColor;\nvoid main() { FragColor = vec4(1.0, 0.0, 1.0, 1.0); }";
 
         int success;
         char infoLog[512];
@@ -221,7 +195,7 @@ namespace aria {
         glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(vs, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] FALLBACK VERTEX SHADER ERROR:\n" << infoLog << "\n";
+            std::cout << "[ARIA OpenGL] Yedek (Fallback) Vertex Shader Hatasi:\n" << infoLog << "\n";
         }
 
         unsigned int fs = glCreateShader(GL_FRAGMENT_SHADER);
@@ -230,7 +204,7 @@ namespace aria {
         glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(fs, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] FALLBACK FRAGMENT SHADER ERROR:\n" << infoLog << "\n";
+            std::cout << "[ARIA OpenGL] Yedek (Fallback) Fragment Shader Hatasi:\n" << infoLog << "\n";
         }
 
         GLuint programID = glCreateProgram();
@@ -241,10 +215,8 @@ namespace aria {
         glGetProgramiv(programID, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(programID, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] FALLBACK PROGRAM LINK ERROR:\n" << infoLog << "\n";
+            std::cout << "[ARIA OpenGL] Yedek (Fallback) Program Baglama Hatasi:\n" << infoLog << "\n";
         }
-
-        std::cout << "[ARIA OpenGL] Fallback shader created with ID: " << programID << "\n";
 
         glDeleteShader(vs);
         glDeleteShader(fs);
@@ -256,15 +228,14 @@ namespace aria {
         if (id != 0) glDeleteProgram(id);
     }
 
-
-    void aria::opengl_backend::reset_state() {
-        // OpenGL state makinesini varsayılana döndür
+    void opengl_backend::reset_state() {
+        // OpenGL durum makinesini (state machine) varsayılana döndür
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glUseProgram(0);
 
-        // Gerekirse texture slotlarını sıfırla
+        // Doku (Texture) yuvalarını sıfırla
         for (int i = 0; i < 16; ++i) {
             glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_2D, 0);

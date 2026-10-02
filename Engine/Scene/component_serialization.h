@@ -1,58 +1,49 @@
 #pragma once
 
+/**
+ * @file scene_serializer.h
+ * @brief ECS bileşenleri, GLM vektörleri ve Aria varlık tanıtıcıları için JSON serileştirme tanımları.
+ */
+
+#include <tuple>
+#include <string>
+#include <glm/glm.hpp>
 #include "../Externals/nlohmann/json.hpp"
 #include "../ECS/entity.h"
 #include "../ECS/registry.h"
-#include <glm/glm.hpp>
-#include "../Externals/uuid/uuid.h"
+#include "../ECS/components.h"
 #include "../Renderer/material.h"
+#include "../Engine/Assets/aria.h"
 
 using json = nlohmann::json;
 
 // ======================================================
-// 🔥 0. FORWARD DECLARATIONS (KRİTİK HATA ÇÖZÜCÜ)
-// ======================================================
-// Derleyici components.h yükleme sırasından dolayı material ve componentleri 
-// göremezse diye burada ön bildirim yapıyoruz.
-struct material;
-struct name_component;
-struct transform_component;
-struct mesh_component;
-struct material_component;
-struct camera_component;
-struct light_component;
-struct bounds_component;
-struct rigidbody_component;
-struct collider_component;
-struct native_script_component;
-
-// Aria namespace'ini ve handle yapısını da önceden bildiriyoruz
-namespace aria {
-    template<typename T> struct handle;
-}
-
-// Şimdi asıl components.h dosyasını güvenle çağırabiliriz
-#include "../ECS/components.h"
-
-// ======================================================
-// 1. KÖK NLOHMANN NAMESPACE ENJEKSİYONU (ŞABLON TAM TANIMI)
+// 1. ARIA HANDLE SERIALIZATION (NLOHMANN ADL SERIALIZER)
 // ======================================================
 namespace nlohmann {
+
+    /**
+     * @brief Aria varlık tanıtıcıları (handle) için JSON serileştirme uzmanlaşımı (ADL serializer).
+     */
     template <typename T>
-    struct adl_serializer<aria::handle<T>> {
-        static void to_json(json& j, const aria::handle<T>& h) {
+    struct adl_serializer<aria::handle<T>>
+    {
+        static void to_json(json& j, const aria::handle<T>& h)
+        {
             j = json{ {"index", h.index}, {"generation", h.generation} };
         }
 
-        static void from_json(const json& j, aria::handle<T>& h) {
+        static void from_json(const json& j, aria::handle<T>& h)
+        {
             h.index = j.value("index", 0u);
             h.generation = j.value("generation", 0u);
         }
     };
-}
+
+} // namespace nlohmann
 
 // ======================================================
-// 2. GLM SERIALIZATION (SADECE MATH, COMPONENT YOK)
+// 2. GLM SERIALIZATION
 // ======================================================
 namespace glm {
 
@@ -79,7 +70,7 @@ namespace glm {
         v.y = j.value("y", 0.0f);
     }
 
-} // glm
+} // namespace glm
 
 // ======================================================
 // 3. ENUM SERIALIZATION
@@ -118,10 +109,11 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
         specular_strength, shininess)
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(name_component, name)
+
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(transform_component,
         position, rotation, scale, boundingRadius)
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(mesh_component, 
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(mesh_component,
         model_handle, sub_mesh_index)
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(material_component, material_handle)
@@ -143,7 +135,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
         type, extents)
 
     // ======================================================
-    // 5. NATIVE SCRIPT
+    // 5. NATIVE SCRIPT COMPONENT
     // ======================================================
     inline void to_json(json& j, const native_script_component& nsc)
 {
@@ -156,7 +148,7 @@ inline void from_json(const json& j, native_script_component& nsc)
 }
 
 // ======================================================
-// 6. ENGINE HELPERS
+// 6. ENGINE COMPONENT TUPLE REGISTRY
 // ======================================================
 using EngineComponentList = std::tuple<
     name_component,
@@ -171,21 +163,31 @@ using EngineComponentList = std::tuple<
 >;
 
 // ======================================================
-// 7. GENERIC SERIALIZER
+// 7. GENERIC COMPONENT SERIALIZATION HELPERS
 // ======================================================
+
+/**
+ * @brief Varlıkta belirtilen bileşen mevcutsa JSON nesnesine yazar.
+ */
 template <typename T>
-void serialize_component_if_exists(entity e, const registry& reg,
-    json& entityJson, const std::string& key)
+void serialize_component_if_exists(entity e, const registry& reg, json& entityJson, const std::string& key)
 {
-    if (reg.has_component<T>(e))
-        entityJson[key] = *reg.get_component<T>(e);
+    if (const T* comp = reg.get_component<T>(e))
+    {
+        entityJson[key] = *comp;
+    }
 }
 
+/**
+ * @brief JSON nesnesinde anahtar mevcutsa bileşeni çözüp varlığa ekler.
+ */
 template <typename T>
-void deserialize_component_if_exists(entity e, registry& reg,
-    const json& entityJson, const std::string& key)
+void deserialize_component_if_exists(entity e, registry& reg, const json& entityJson, const std::string& key)
 {
-    if (!entityJson.contains(key)) return;
+    if (!entityJson.contains(key))
+    {
+        return;
+    }
 
     T comp = entityJson.at(key).get<T>();
     reg.add_component<T>(e, comp);

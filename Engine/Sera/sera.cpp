@@ -1,6 +1,10 @@
+/**
+ * @file sera.cpp
+ * @brief SERA sistemi arayüz fonksiyonlarının uygulaması.
+ */
+
 #include "sera.h"
 #include "../Engine/engine_context.h"
-
 
 namespace sera {
 

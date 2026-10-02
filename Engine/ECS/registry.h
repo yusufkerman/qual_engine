@@ -1,25 +1,48 @@
 #pragma once
 
+/**
+ * @file registry.h
+ * @brief Varlıkları (Entity) ve bileşen havuzlarını (Component Pools) yöneten ECS veri tabanı.
+ */
+
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <type_traits>
 #include <utility>
-
 #include "entity.h"
 #include "components.h"
 
-class registry {
+class registry
+{
 public:
+    registry() = default;
+    ~registry() = default;
+
+    /**
+     * @brief Yeni ve benzersiz bir varlık (Entity) oluşturur.
+     */
     entity create_entity();
+
+    /**
+     * @brief Var olan bir varlık kimliğini sisteme ekler (Örn: Serileştirme sırasında).
+     */
     void add_entity(entity e);
+
+    /**
+     * @brief Varlığı ve ona bağlı olan tüm bileşenleri bellekten siler.
+     */
     void remove_entity(entity e);
 
-    const std::unordered_set<entity>& get_all_entities() const;
+    /**
+     * @brief Kayıtlı tüm varlıkların kümesini döner.
+     */
+    [[nodiscard]] const std::unordered_set<entity>& get_all_entities() const;
 
     // =========================
     // COMPONENT API
     // =========================
+
     template<typename T, typename... Args>
     T& add_component(entity e, Args&&... args)
     {
@@ -71,11 +94,19 @@ public:
     // =========================
     // CLONE SYSTEM
     // =========================
+
+    /**
+     * @brief Belirtilen varlığı aynı kimlikle hedef kayıt defterine kopyalar (Örn: Scene play/stop geçişleri).
+     */
     void clone_entity(entity e, registry& dst) const;
+
+    /**
+     * @brief Belirtilen varlığın yeni bir kimlikle tam bir kopyasını oluşturur.
+     */
     entity duplicate_entity(entity source);
 
 private:
-    entity next_entity = 1;
+    entity next_entity = 1; ///< Bir sonraki üretilecek varlık kimliği sayacı.
 
     std::unordered_set<entity> entities;
 
@@ -84,16 +115,12 @@ private:
     std::unordered_map<entity, camera_component> cameras;
     std::unordered_map<entity, light_component> lights;
     std::unordered_map<entity, name_component> names;
-    std::unordered_map<entity, bounds_component> bounds;     
-    std::unordered_map<entity, material_component> materials; 
-
+    std::unordered_map<entity, bounds_component> bounds;
+    std::unordered_map<entity, material_component> materials;
     std::unordered_map<entity, rigidbody_component> rigidbodies;
     std::unordered_map<entity, collider_component> colliders;
-
     std::unordered_map<entity, native_script_component> scriptable_components;
-
     std::unordered_map<entity, hierarchy_component> hierarchies;
-
 
     template<typename T>
     std::unordered_map<entity, T>& pool();
@@ -101,54 +128,49 @@ private:
     template<typename T>
     const std::unordered_map<entity, T>& pool() const;
 
+    /**
+     * @brief Hedef varlığa kaynak varlığın bileşenlerinin kopyalarını aktarır.
+     */
     void copy_components_internal(entity srcEntity, entity dstEntity, registry& dstRegistry) const;
-
 };
 
 // =========================
-// POOL DEFINITIONS
+// POOL DEFINITIONS (INLINE)
 // =========================
+
 template<typename T>
-std::unordered_map<entity, T>& registry::pool()
+inline std::unordered_map<entity, T>& registry::pool()
 {
     if constexpr (std::is_same_v<T, transform_component>) return transforms;
     if constexpr (std::is_same_v<T, mesh_component>) return meshes;
     if constexpr (std::is_same_v<T, camera_component>) return cameras;
     if constexpr (std::is_same_v<T, light_component>) return lights;
     if constexpr (std::is_same_v<T, name_component>) return names;
-    if constexpr (std::is_same_v<T, bounds_component>) return bounds;     
-    if constexpr (std::is_same_v<T, material_component>) return materials; 
-
+    if constexpr (std::is_same_v<T, bounds_component>) return bounds;
+    if constexpr (std::is_same_v<T, material_component>) return materials;
     if constexpr (std::is_same_v<T, rigidbody_component>) return rigidbodies;
     if constexpr (std::is_same_v<T, collider_component>) return colliders;
-
     if constexpr (std::is_same_v<T, native_script_component>) return scriptable_components;
-
     if constexpr (std::is_same_v<T, hierarchy_component>) return hierarchies;
-
 
     static std::unordered_map<entity, T> dummy;
     return dummy;
 }
 
 template<typename T>
-const std::unordered_map<entity, T>& registry::pool() const
+inline const std::unordered_map<entity, T>& registry::pool() const
 {
     if constexpr (std::is_same_v<T, transform_component>) return transforms;
     if constexpr (std::is_same_v<T, mesh_component>) return meshes;
     if constexpr (std::is_same_v<T, camera_component>) return cameras;
     if constexpr (std::is_same_v<T, light_component>) return lights;
     if constexpr (std::is_same_v<T, name_component>) return names;
-    if constexpr (std::is_same_v<T, bounds_component>) return bounds;     
+    if constexpr (std::is_same_v<T, bounds_component>) return bounds;
     if constexpr (std::is_same_v<T, material_component>) return materials;
-
     if constexpr (std::is_same_v<T, rigidbody_component>) return rigidbodies;
     if constexpr (std::is_same_v<T, collider_component>) return colliders;
-
     if constexpr (std::is_same_v<T, native_script_component>) return scriptable_components;
-
     if constexpr (std::is_same_v<T, hierarchy_component>) return hierarchies;
-
 
     static std::unordered_map<entity, T> dummy;
     return dummy;

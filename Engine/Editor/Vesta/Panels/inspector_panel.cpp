@@ -1,3 +1,8 @@
+/**
+ * @file inspector_panel.cpp
+ * @brief Inspector panelinin ImGui ile bileşen ve varlık çizim işlemlerini barındırır.
+ */
+
 #include "inspector_panel.h"
 #include <imgui.h>
 
@@ -7,6 +12,8 @@ namespace vesta
         : m_vm(std::move(vm))
     {
     }
+
+    inspector_panel::~inspector_panel() = default;
 
     void inspector_panel::render()
     {
@@ -19,22 +26,24 @@ namespace vesta
 
         switch (m_vm->get_mode())
         {
-            //--------------------------------------------------------
-            // Nothing Selected
-            //--------------------------------------------------------
+            // ========================================================
+            // 1. SEÇİLİ ÖĞE YOK (NOTHING SELECTED)
+            // ========================================================
         case inspector_mode::none:
         {
             ImGui::TextDisabled("Nothing selected.");
             break;
         }
 
-        //--------------------------------------------------------
-        // Entity Inspector
-        //--------------------------------------------------------
+        // ========================================================
+        // 2. SAHNE NESNESİ DENETİMİ (ENTITY INSPECTOR)
+        // ========================================================
         case inspector_mode::entity:
         {
             if (ImGui::Button("Add Component"))
+            {
                 ImGui::OpenPopup("AddComponentPopup");
+            }
 
             if (ImGui::BeginPopup("AddComponentPopup"))
             {
@@ -55,8 +64,7 @@ namespace vesta
             {
                 ImGui::PushID(static_cast<int>(component.hash));
 
-                // ImGui Hilesi: Remove butonunun Header ile aynı satıra düzgünce basılması 
-                // ve çökme/çizim bugı yapmaması için hiyerarşiyi koruyoruz.
+                // Başlık çubuğu ve açılır/kapanır sekme kontrolü
                 bool opened = ImGui::CollapsingHeader(
                     component.display_name.c_str(),
                     component.default_open ? ImGuiTreeNodeFlags_DefaultOpen : 0
@@ -64,19 +72,18 @@ namespace vesta
 
                 if (component.removable)
                 {
-                    // Butonu sağ tarafa hizala
+                    // Silme butonunu başlığın sağ kenarına hizala
                     ImGui::SameLine(ImGui::GetWindowWidth() - 80.0f);
                     if (ImGui::SmallButton("Remove"))
                     {
                         m_vm->request_remove_component(component.hash);
                         ImGui::PopID();
-                        continue; // Silinen componenti bu kare çizme, döngüyü atlat
+                        continue; // Silinen bileşenin kalan arayüzünü bu kare çizmeden atla
                     }
                 }
 
                 if (opened && component.ui && component.ui->render_fn)
                 {
-                    // Yenilenen saf render_fn artık tam istediğin gibi 2 parametre alarak çalışıyor!
                     component.ui->render_fn(
                         m_vm->get_selected_entity(),
                         m_vm->get_registry()
@@ -89,16 +96,16 @@ namespace vesta
             break;
         }
 
-        //--------------------------------------------------------
-        // Asset Inspector
-        //--------------------------------------------------------
+        // ========================================================
+        // 3. DOSYA/VARLIK DENETİMİ (ASSET INSPECTOR)
+        // ========================================================
         case inspector_mode::asset:
         {
             auto asset = m_vm->get_asset_data();
 
-            if (!asset.ui)
+            if (!asset.ui || !asset.ui->render_fn)
             {
-                ImGui::TextDisabled("No inspector registered.");
+                ImGui::TextDisabled("No inspector registered for this asset type.");
                 break;
             }
 
@@ -110,6 +117,4 @@ namespace vesta
         ImGui::End();
     }
 
-    inspector_panel::~inspector_panel() = default; 
-
-}
+} // namespace vesta

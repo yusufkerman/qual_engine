@@ -1,22 +1,40 @@
+/**
+ * @file hierarchy_panel.cpp
+ * @brief Sahne hiyerarşisi panelinin ImGui çizim ve kısayol dinleme işlemlerini barındırır.
+ */
+
 #include "hierarchy_panel.h"
 #include <imgui.h>
+#include <cstdio> // snprintf için
 
 namespace vesta {
 
-    void draw_entity_node(hierarchy_view_model* vm, const hierarchy_node_data& node)
+    hierarchy_panel::hierarchy_panel(IEditableWorld& world, registry& reg, editor_selection_manager& selection)
+        : m_vm(std::make_unique<hierarchy_view_model>(world, reg, selection))
     {
-        ImGuiTreeNodeFlags flags =
-            ImGuiTreeNodeFlags_OpenOnArrow |
-            ImGuiTreeNodeFlags_SpanAvailWidth;
+    }
 
-        if (!node.has_children)
+    /**
+     * @brief Ağaç yapısındaki tekil bir varlığı (Entity) çizer.
+     * @note Static tanımlanarak sadece bu derleme birimine (translation unit) özel hale getirilmiştir.
+     */
+    static void draw_entity_node(hierarchy_view_model* vm, const hierarchy_node_data& node)
+    {
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+        if (!node.has_children) {
             flags |= ImGuiTreeNodeFlags_Leaf;
+        }
 
-        if (node.is_selected)
+        if (node.is_selected) {
             flags |= ImGuiTreeNodeFlags_Selected;
+        }
 
         bool opened = false;
 
+        // ==========================================
+        // YENİDEN ADLANDIRMA (RENAME) MODU
+        // ==========================================
         if (vm->is_renaming(node.id))
         {
             static char rename_buffer[256];
@@ -26,11 +44,8 @@ namespace vesta {
             {
                 editing_entity = node.id;
 
-                strncpy_s(
-                    rename_buffer,
-                    vm->get_rename_buffer().c_str(),
-                    sizeof(rename_buffer));
-
+                // Güvenli ve cross-platform (MSVC/GCC/Clang) metin kopyalama
+                snprintf(rename_buffer, sizeof(rename_buffer), "%s", vm->get_rename_buffer().c_str());
                 ImGui::SetKeyboardFocusHere();
             }
 
@@ -40,8 +55,8 @@ namespace vesta {
                 "##Rename",
                 rename_buffer,
                 sizeof(rename_buffer),
-                ImGuiInputTextFlags_EnterReturnsTrue |
-                ImGuiInputTextFlags_AutoSelectAll);
+                ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll
+            );
 
             if (commit)
             {
@@ -50,8 +65,7 @@ namespace vesta {
                 editing_entity = 0;
             }
 
-            if (ImGui::IsItemActive() &&
-                ImGui::IsKeyPressed(ImGuiKey_Escape))
+            if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGuiKey_Escape))
             {
                 vm->cancel_rename();
                 editing_entity = 0;
@@ -64,7 +78,7 @@ namespace vesta {
                 editing_entity = 0;
             }
 
-            return;
+            return; // Düzenleme modundayken alt hiyerarşiyi çizmeye devam etme
         }
         else
         {
@@ -75,229 +89,165 @@ namespace vesta {
                 node.name.c_str());
         }
 
-        //---------------------------------------------------
-        // Selection
-        //---------------------------------------------------
-
-        if (ImGui::IsItemClicked())
-        {
+        // ==========================================
+        // SEÇİM (SELECTION)
+        // ==========================================
+        if (ImGui::IsItemClicked()) {
             vm->request_select(node.id, ImGui::GetIO().KeyCtrl);
         }
 
-        //---------------------------------------------------
-        // Drag Source
-        //---------------------------------------------------
-
-        if (ImGui::BeginDragDropSource())
-        {
-            ImGui::SetDragDropPayload(
-                "VESTA_ENTITY",
-                &node.id,
-                sizeof(entity));
-
+        // ==========================================
+        // SÜRÜKLEME KAYNAĞI (DRAG SOURCE)
+        // ==========================================
+        if (ImGui::BeginDragDropSource()) {
+            ImGui::SetDragDropPayload("VESTA_ENTITY", &node.id, sizeof(entity));
             ImGui::Text("%s", node.name.c_str());
-
             ImGui::EndDragDropSource();
         }
 
-        //---------------------------------------------------
-        // Drag Target
-        //---------------------------------------------------
-
-        if (ImGui::BeginDragDropTarget())
-        {
-            if (const ImGuiPayload* payload =
-                ImGui::AcceptDragDropPayload("VESTA_ENTITY"))
-            {
-                entity dragged =
-                    *static_cast<const entity*>(payload->Data);
-
-                if (dragged != node.id)
-                {
+        // ==========================================
+        // BIRAKMA HEDEFİ (DROP TARGET)
+        // ==========================================
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("VESTA_ENTITY")) {
+                entity dragged = *static_cast<const entity*>(payload->Data);
+                if (dragged != node.id) {
                     vm->request_set_parent(dragged, node.id);
                 }
             }
-
             ImGui::EndDragDropTarget();
         }
 
-        //---------------------------------------------------
-        // Double Click Rename
-        //---------------------------------------------------
-
-        if (ImGui::IsItemHovered() &&
-            ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-        {
+        // ==========================================
+        // ÇİFT TIKLA YENİDEN ADLANDIR
+        // ==========================================
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
             vm->start_rename(node.id);
         }
 
-        //---------------------------------------------------
-        // Context Menu
-        //---------------------------------------------------
-
-        if (ImGui::BeginPopupContextItem())
-        {
-            if (ImGui::MenuItem("Rename"))
-            {
+        // ==========================================
+        // İÇERİK MENÜSÜ (CONTEXT MENU)
+        // ==========================================
+        if (ImGui::BeginPopupContextItem()) {
+            if (ImGui::MenuItem("Rename")) {
                 vm->start_rename(node.id);
             }
-
             ImGui::Separator();
-
-            if (ImGui::MenuItem("Copy"))
-            {
+            if (ImGui::MenuItem("Copy")) {
                 vm->request_copy(node.id);
             }
-
-            if (ImGui::MenuItem("Duplicate"))
-            {
+            if (ImGui::MenuItem("Duplicate")) {
                 vm->request_duplicate(node.id);
             }
-
             ImGui::Separator();
-
-            if (ImGui::MenuItem("Delete"))
-            {
+            if (ImGui::MenuItem("Delete")) {
                 vm->request_destroy_entity(node.id);
             }
-
             ImGui::EndPopup();
         }
 
-        //---------------------------------------------------
-        // Children
-        //---------------------------------------------------
-
-        if (opened)
-        {
-            for (entity child : node.children)
-            {
-                draw_entity_node(
-                    vm,
-                    vm->get_node_data(child));
+        // ==========================================
+        // ALT DÜĞÜMLERİN ÇİZİMİ (CHILDREN)
+        // ==========================================
+        if (opened) {
+            for (entity child : node.children) {
+                draw_entity_node(vm, vm->get_node_data(child));
             }
-
             ImGui::TreePop();
         }
-
     }
 
     void hierarchy_panel::render()
     {
-        if (!m_is_open)
-            return;
+        if (!m_is_open) return;
 
         ImGui::Begin(m_title.c_str(), &m_is_open);
 
-        //-------------------------------------------------------
-        // Shortcuts
-        //-------------------------------------------------------
-
+        // ==========================================
+        // KISAYOLLAR (SHORTCUTS)
+        // ==========================================
         if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
         {
-            bool ctrl =
-                ImGui::IsKeyDown(ImGuiKey_LeftCtrl) ||
-                ImGui::IsKeyDown(ImGuiKey_RightCtrl);
+            bool ctrl = ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl);
 
-            if (ctrl)
-            {
-                if (ImGui::IsKeyPressed(ImGuiKey_C))
-                    m_vm->request_copy_selected();
-
-                if (ImGui::IsKeyPressed(ImGuiKey_D))
-                    m_vm->request_duplicate_selected();
-
-                if (ImGui::IsKeyPressed(ImGuiKey_V))
-                    m_vm->request_paste();
+            if (ctrl) {
+                if (ImGui::IsKeyPressed(ImGuiKey_C)) m_vm->request_copy_selected();
+                if (ImGui::IsKeyPressed(ImGuiKey_D)) m_vm->request_duplicate_selected();
+                if (ImGui::IsKeyPressed(ImGuiKey_V)) m_vm->request_paste();
             }
 
-            if (ImGui::IsKeyPressed(ImGuiKey_Delete))
-            {
+            if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
                 m_vm->request_delete_selected();
             }
 
-            if (ImGui::IsKeyPressed(ImGuiKey_F2))
-            {
+            if (ImGui::IsKeyPressed(ImGuiKey_F2)) {
                 entity selected = m_vm->get_selected_entity();
-
-                if (selected != 0)
+                if (selected != 0) {
                     m_vm->start_rename(selected);
+                }
             }
-            if (ImGui::IsKeyPressed(ImGuiKey_Escape))
-            {
-                if (m_vm->get_renaming_entity() != 0)
+
+            if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+                if (m_vm->get_renaming_entity() != 0) {
                     m_vm->cancel_rename();
+                }
             }
         }
 
-        //-------------------------------------------------------
-        // Toolbar
-        //-------------------------------------------------------
-
-        if (ImGui::Button("Create Object"))
-        {
+        // ==========================================
+        // ÜST ARAÇ ÇUBUĞU (TOOLBAR)
+        // ==========================================
+        if (ImGui::Button("Create Object")) {
             m_vm->request_create_entity();
         }
 
         ImGui::Separator();
 
-        //-------------------------------------------------------
-        // Empty Area Context Menu
-        //-------------------------------------------------------
-
-        if (ImGui::BeginPopupContextWindow(
-            "Hierarchy_Context",
-            ImGuiPopupFlags_MouseButtonRight |
-            ImGuiPopupFlags_NoOpenOverItems))
+        // ==========================================
+        // BOŞ ALAN İÇERİK MENÜSÜ (EMPTY AREA CONTEXT)
+        // ==========================================
+        if (ImGui::BeginPopupContextWindow("Hierarchy_Context", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
         {
-            if (ImGui::MenuItem(
-                "Paste",
-                nullptr,
-                false,
-                m_vm->can_paste()))
-            {
+            if (ImGui::MenuItem("Paste", nullptr, false, m_vm->can_paste())) {
                 m_vm->request_paste();
             }
-
             ImGui::EndPopup();
         }
 
-        //-------------------------------------------------------
-        // Draw Hierarchy
-        //-------------------------------------------------------
-
+        // ==========================================
+        // AĞAÇ ÇİZİMİ (DRAW HIERARCHY)
+        // ==========================================
         const auto root_nodes = m_vm->get_root_nodes();
-
-        for (const auto& node : root_nodes)
-        {
-            draw_entity_node(
-                m_vm.get(),
-                node);
+        for (const auto& node : root_nodes) {
+            draw_entity_node(m_vm.get(), node);
         }
 
-        //-------------------------------------------------------
-        // Drop To Root
-        //-------------------------------------------------------
+        // ==========================================
+        // KÖKE BIRAKMA ALANI (DROP TO ROOT)
+        // ==========================================
+        ImGui::InvisibleButton("##HierarchyRootDropZone", ImGui::GetContentRegionAvail());
 
-        ImGui::InvisibleButton(
-            "##HierarchyRootDropZone",
-            ImGui::GetContentRegionAvail());
-
-        if (ImGui::BeginDragDropTarget())
-        {
-            if (const ImGuiPayload* payload =
-                ImGui::AcceptDragDropPayload("VESTA_ENTITY"))
-            {
-                entity dragged =
-                    *static_cast<const entity*>(payload->Data);
-
-                m_vm->request_set_parent(dragged, 0);
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("VESTA_ENTITY")) {
+                entity dragged = *static_cast<const entity*>(payload->Data);
+                m_vm->request_set_parent(dragged, 0); // 0 (Kök/Root) ebeveyne ata
             }
-
             ImGui::EndDragDropTarget();
         }
 
         ImGui::End();
     }
 
-}
+    const std::string& hierarchy_panel::get_title() const {
+        return m_title;
+    }
+
+    bool hierarchy_panel::is_open() const {
+        return m_is_open;
+    }
+
+    void hierarchy_panel::set_open(bool open) {
+        m_is_open = open;
+    }
+
+} // namespace vesta

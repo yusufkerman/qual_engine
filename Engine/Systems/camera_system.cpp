@@ -1,7 +1,11 @@
+/**
+ * @file camera_system.cpp
+ * @brief Kamera bileşeni doğrulama, birincil kamera seçimi ve geçiş loglama uygulaması.
+ */
+
 #include "camera_system.h"
 #include "../Scene/scene.h"
 #include "../ECS/components.h"
-
 #include <iostream>
 
 void camera_system::update(scene& scn)
@@ -11,11 +15,13 @@ void camera_system::update(scene& scn)
     entity bestCamera = 0;
     bool foundPrimary = false;
 
-    // 1. PRIMARY FIX + FIND
-    for (auto e : scn.get_entities())
+    // 1. Birincil kamerayı bul ve birden fazla primary varsa fazlalıkları sıfırla
+    for (const entity e : scn.get_entities())
     {
         if (!reg.has_component<camera_component>(e))
+        {
             continue;
+        }
 
         auto* cam = reg.get_component<camera_component>(e);
 
@@ -33,13 +39,15 @@ void camera_system::update(scene& scn)
         }
     }
 
-    // 2. fallback
+    // 2. Birincil kamera atanmamışsa bulunan ilk kamerayı birincil yap
     if (!foundPrimary)
     {
-        for (auto e : scn.get_entities())
+        for (const entity e : scn.get_entities())
         {
             if (!reg.has_component<camera_component>(e))
+            {
                 continue;
+            }
 
             reg.get_component<camera_component>(e)->primary = true;
             bestCamera = e;
@@ -47,8 +55,8 @@ void camera_system::update(scene& scn)
         }
     }
 
-    // 3. change detection (LOG HERE)
-    entity prev = m_lastCamera;
+    // 3. Değişiklik tespiti ve aktif kameranın atanması
+    const entity prev = m_lastCamera;
 
     if (bestCamera != 0)
     {
@@ -57,8 +65,8 @@ void camera_system::update(scene& scn)
 
     if (bestCamera != prev)
     {
-        std::cout << "[CameraSystem] Active camera changed: "
-            << prev << " -> " << bestCamera << "\n";
+        std::cout << "[CameraSystem] Aktif kamera degisti: "
+            << prev << " -> " << bestCamera << '\n';
         m_lastCamera = bestCamera;
     }
 }

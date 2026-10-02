@@ -1,12 +1,13 @@
+/**
+ * @file ui_manager.cpp
+ * @brief ImGui arka uç entegrasyonu ve DockSpace düğüm bölme işlemlerini içerir.
+ */
+
 #include "ui_manager.h"
-
-
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <imgui_internal.h>
-
-
 
 void ui_manager::setupDockLayout(ImGuiID dockspace_id, const ImVec2& size)
 {
@@ -26,18 +27,19 @@ void ui_manager::setupDockLayout(ImGuiID dockspace_id, const ImVec2& size)
 
     center = dockspace_id;
 
-    // Top bar
+    // Üst kontrol çubuğu
     ImGui::DockBuilderSplitNode(center, ImGuiDir_Up, 0.08f, &top, &center);
 
-    // Inspector
+    // Inspector (Sol panel)
     ImGui::DockBuilderSplitNode(center, ImGuiDir_Left, 0.22f, &left, &center);
 
-    // Hierarchy
+    // Hierarchy (Sağ panel)
     ImGui::DockBuilderSplitNode(center, ImGuiDir_Right, 0.22f, &right, &center);
 
-    // Game view
+    // Game Viewport (Alt panel)
     ImGui::DockBuilderSplitNode(center, ImGuiDir_Down, 0.30f, &bottom, &center);
 
+    // Panelleri kimliklerine göre yuvalarına sabitle
     ImGui::DockBuilderDockWindow("TopBar", top);
     ImGui::DockBuilderDockWindow("Inspector", left);
     ImGui::DockBuilderDockWindow("Hierarchy", right);
@@ -47,9 +49,9 @@ void ui_manager::setupDockLayout(ImGuiID dockspace_id, const ImVec2& size)
     ImGui::DockBuilderFinish(dockspace_id);
 }
 
-void ui_manager::init(GLFWwindow* window_)
+void ui_manager::init(GLFWwindow* window)
 {
-    window = window_;
+    m_window = window;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -59,21 +61,20 @@ void ui_manager::init(GLFWwindow* window_)
 
     ImGui::StyleColorsDark();
 
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(m_window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-
-    
 }
 
 void ui_manager::beginFrame()
 {
-    int w, h;
-    glfwGetFramebufferSize(window, &w, &h);
+    int w = 0;
+    int h = 0;
+    glfwGetFramebufferSize(m_window, &w, &h);
     if (w <= 0) w = 1;
     if (h <= 0) h = 1;
 
     ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = ImVec2((float)w, (float)h);
+    io.DisplaySize = ImVec2(static_cast<float>(w), static_cast<float>(h));
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 
     ImGui_ImplOpenGL3_NewFrame();
@@ -82,13 +83,14 @@ void ui_manager::beginFrame()
 
     ImGuiID dockspace_id = ImGui::GetID("MainDock");
 
-    static bool first = true;
-    if (first)
+    static bool first_launch = true;
+    if (first_launch)
     {
-        first = false;
+        first_launch = false;
         setupDockLayout(dockspace_id, io.DisplaySize);
     }
 
+    // Ana arka plan penceresini tam ekran olarak sabitle
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(io.DisplaySize);
 
@@ -121,4 +123,5 @@ void ui_manager::shutdown()
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+    m_window = nullptr;
 }

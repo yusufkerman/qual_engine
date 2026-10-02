@@ -1,54 +1,60 @@
+/**
+ * @file grid_pass.cpp
+ * @brief Sonsuz ızgara render geçişi, alfa karışımı ve uniform matris aktarım uygulaması.
+ */
+
 #include "grid_pass.h"
 #include "../../Engine/engine_context.h"
 #include "../../Editor/editor_context.h"
 #include "../../Editor/editor_camera.h"
-#include "../../Engine/fly_camera.h"
-#include <glm/gtc/matrix_transform.hpp>
 #include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <algorithm>
 
 void grid_pass::render(EngineContext& ctx, EditorContext& editorCtx)
 {
+    if (!editorCtx.camera || !ctx.aria_system) {
+        return;
+    }
+
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // ========================================================================
-    // 🚀 ARIA SHADER KATMANI
-    // ========================================================================
-    // Eski shaderManager yerine Aria Cache'den GPU üzerindeki hazır shader ID'sini çekiyoruz
-    unsigned int gridGLShaderID = ctx.aria_system->get_shader_id(ctx.gridShaderHandle);
+    // 1. Aria önbelleğinden ızgara shader tanıtıcısını al ve bağla
+    const unsigned int gridGLShaderID = ctx.aria_system->get_shader_id(ctx.gridShaderHandle);
     glUseProgram(gridGLShaderID);
 
-	const glm::vec3& camPos = editorCtx.camera->position;
-    const glm::vec3 gridForward = calc_forward(editorCtx.camera->rotation);
+    // 2. Kamera ve ters projeksiyon matrislerini hazırla
+    const glm::vec3& camPos = editorCtx.camera->position;
+    const glm::mat4 gridView = editorCtx.camera->getViewMatrix();
 
-    const glm::mat4 gridView = glm::lookAt(
-        camPos,
-        camPos + gridForward,
-        glm::vec3(0, 1, 0)
-    );
+    const float aspect = static_cast<float>(ctx.editorTarget.width) /
+        static_cast<float>(std::max(1, ctx.editorTarget.height));
 
-    const glm::mat4 gridProj = glm::perspective(
-        glm::radians(editorCtx.camera->fov),
-        (float)ctx.editorTarget.width / (float)ctx.editorTarget.height,
-        editorCtx.camera->nearPlane,
-        editorCtx.camera->farPlane
-    );
-
+    const glm::mat4 gridProj = editorCtx.camera->getProjectionMatrix(aspect);
     const glm::mat4 invViewProj = glm::inverse(gridProj * gridView);
 
-    // 🚀 Doğrudan OpenGL uniform çağrıları ile performans kazanıyoruz
-    glUniformMatrix4fv(glGetUniformLocation(gridGLShaderID, "invViewProj"), 1, GL_FALSE, glm::value_ptr(invViewProj));
-    glUniform3fv(glGetUniformLocation(gridGLShaderID, "cameraPos"), 1, glm::value_ptr(camPos));
+    // 3. Shader uniform değişkenlerini güncelle
+    const GLint invViewProjLoc = glGetUniformLocation(gridGLShaderID, "invViewProj");
+    if (invViewProjLoc != -1) {
+        glUniformMatrix4fv(invViewProjLoc, 1, GL_FALSE, glm::value_ptr(invViewProj));
+    }
 
+    const GLint camPosLoc = glGetUniformLocation(gridGLShaderID, "cameraPos");
+    if (camPosLoc != -1) {
+        glUniform3fv(camPosLoc, 1, glm::value_ptr(camPos));
+    }
+
+    // 4. Quad geometrisini çiz
     ctx.grid.draw();
 
-    glUseProgram(0); // Temizlik
+    // 5. OpenGL durumlarını varsayılana geri yükle
+    glUseProgram(0);
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
-
     glEnable(GL_DEPTH_TEST);
 }

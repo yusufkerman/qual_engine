@@ -1,16 +1,29 @@
 #pragma once
+
+/**
+ * @file asset_registry.h
+ * @brief Varlıkların (asset) CPU belleğindeki tahsislerini ve nesilsel (generational) kayıtlarını tutan yönetici sınıf.
+ */
+
 #include "asset_structures.h"
 #include <vector>
 #include <map>
-
 #include <string>
-
 #include "asset_database.h"
 
 namespace aria {
 
+    /**
+     * @class asset_registry
+     * @brief Varlıkları türlerine göre yuvalarda (slots) saklar, önbellekler ve GUID üzerinden erişim sağlar.
+     */
     class asset_registry {
     private:
+        /**
+         * @struct registry_slot
+         * @brief Varlıkları nesilsel indeks (generational index) mantığıyla saklayan bellek yuvası.
+         * @tparam T Saklanacak varlığın türü.
+         */
         template<typename T>
         struct registry_slot {
             T asset;
@@ -36,19 +49,40 @@ namespace aria {
         std::vector<uint32_t> m_shader_free_slots;
         std::map<asset_guid, handle<shader_asset>> m_shader_map;
 
+        /**
+         * @brief Type trait: static_assert için derleme zamanında her zaman false döndüren yardımcı yapı.
+         */
+        template<typename> inline static constexpr bool always_false_v = false;
+
+        /**
+         * @brief İstenen varlık türüne ait GUID -> Handle haritasının referansını döndürür.
+         * @tparam T Varlık türü (texture_asset, model_asset vb.)
+         * @return const auto& İlgili std::map yapısına salt okunur referans.
+         */
         template <typename T>
         [[nodiscard]] const auto& get_asset_map() const {
-            if constexpr (std::is_same_v<T, texture_asset>)   return m_texture_map;
-            if constexpr (std::is_same_v<T, model_asset>)     return m_model_map;
-            if constexpr (std::is_same_v<T, material_asset>)  return m_material_map;
-            if constexpr (std::is_same_v<T, shader_asset>)    return m_shader_map;
+            if constexpr (std::is_same_v<T, texture_asset>)        return m_texture_map;
+            else if constexpr (std::is_same_v<T, model_asset>)     return m_model_map;
+            else if constexpr (std::is_same_v<T, material_asset>)  return m_material_map;
+            else if constexpr (std::is_same_v<T, shader_asset>)    return m_shader_map;
+            else static_assert(always_false_v<T>, "Desteklenmeyen varlik turu (get_asset_map)!");
         }
 
     public:
 
         /**
-         * @brief Canlı bir handle verip, haritalardan tersten arayarak GUID'sini (string) bulur.
-         * @note Sadece kaydetme (Save) anında çağrılacağı için bellek şişirmeyen Linear Search kullanır.
+         * @brief Kayıt defterini başlatır ve veritabanı bağlantısını kurar.
+         * @param database Kullanılacak varlık veritabanı işaretçisi.
+         */
+        asset_registry(asset_database* database);
+
+        /**
+         * @brief Canlı bir handle referansını kullanarak, haritalardan tersten arama yapar ve varlığın GUID'sini bulur.
+         * @note Sadece serileştirme (kaydetme) anında çağrılacağı için Linear Search (Doğrusal Arama) kullanır.
+         *
+         * @tparam T Varlık türü.
+         * @param h Aranacak handle.
+         * @return asset_guid Varlığın GUID değeri. Bulunamazsa boş/geçersiz (nil) GUID döner.
          */
         template <typename T>
         [[nodiscard]] asset_guid find_guid_by_handle(handle<T> h) const
@@ -60,8 +94,7 @@ namespace aria {
 
             for (const auto& [guid, map_handle] : target_map)
             {
-                if (map_handle.index == h.index &&
-                    map_handle.generation == h.generation)
+                if (map_handle.index == h.index && map_handle.generation == h.generation)
                 {
                     return guid;
                 }
@@ -71,8 +104,12 @@ namespace aria {
         }
 
         /**
-         * @brief Diskten gelen GUID'ye göre doğru yükleme metodunu (`load_texture`, `load_model` vb.) tetikler.
-         * @note Model ve Material için database üzerinden dosya yolunu (path) otomatik çözer.
+         * @brief Diskten gelen GUID'ye göre doğru yükleme fonksiyonunu otomatik olarak tetikler.
+         * @note Model ve Material türleri için veritabanı üzerinden dosya yolunu (path) otomatik çözer.
+         *
+         * @tparam T Yüklenecek varlığın türü.
+         * @param guid Varlığın benzersiz kimliği.
+         * @return handle<T> Varlığa ait bellek tanıtıcısı.
          */
         template<typename T>
         handle<T> load_asset_by_guid(const asset_guid& guid)
@@ -90,56 +127,54 @@ namespace aria {
             }
             else if constexpr (std::is_same_v<T, model_asset>)
             {
-                if (!m_database)
-                    return {};
-
+                if (!m_database) return {};
                 std::string path = m_database->resolve_path(guid);
-
-                if (path.empty())
-                    return {};
+                if (path.empty()) return {};
 
                 return load_model(guid, path);
             }
             else if constexpr (std::is_same_v<T, material_asset>)
             {
-                if (!m_database)
-                    return {};
-
+                if (!m_database) return {};
                 std::string path = m_database->resolve_path(guid);
-
-                if (path.empty())
-                    return {};
+                if (path.empty()) return {};
 
                 return load_material(guid, path);
             }
-
-            return {};
+            else
+            {
+                static_assert(always_false_v<T>, "Desteklenmeyen varlik turu (load_asset_by_guid)!");
+            }
         }
 
-
-
-        asset_registry(asset_database* database);
-
-
+        // --- Doku (Texture) ---
         handle<texture_asset> load_texture(const asset_guid& guid);
         [[nodiscard]] texture_asset* get_texture(handle<texture_asset> h);
         void destroy_texture(handle<texture_asset> h);
 
+        // --- Model (Mesh) ---
         handle<model_asset> load_model(const asset_guid& guid, const std::string& file_path);
         [[nodiscard]] model_asset* get_model(handle<model_asset> h);
         void destroy_model(handle<model_asset> h);
 
-        // 🚀 PROSEDÜREL (SANAL) YÜKLEME KAPISI: Hazır veriyi doğrudan slota yazar
+        /**
+         * @brief Prosedürel olarak (kod ile) üretilmiş model verisini doğrudan kayıt defterine yazar.
+         */
         handle<model_asset> add_procedural_model(const asset_guid& guid, const raw_model_data& raw_data);
 
+        // --- Materyal (Material) ---
         handle<material_asset> load_material(const asset_guid& guid, const std::string& file_path);
         [[nodiscard]] material_asset* get_material(handle<material_asset> h);
         void destroy_material(handle<material_asset> h);
 
+        // --- Shader ---
         handle<shader_asset> load_shader(const asset_guid& guid);
         [[nodiscard]] shader_asset* get_shader(handle<shader_asset> h);
         void destroy_shader(handle<shader_asset> h);
 
+        /**
+         * @brief Tüm varlık slotlarını, haritaları ve serbest yuva listelerini temizler.
+         */
         void clear_registry();
     };
 

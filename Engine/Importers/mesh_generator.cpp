@@ -1,6 +1,11 @@
-// Dosya Yolu: Importers/mesh_generator.cpp
+/**
+ * @file mesh_generator.cpp
+ * @brief Prosedürel ağ üretim algoritmalarının matematiksel uygulaması.
+ */
+
 #include "mesh_generator.h"
 #include <glm/gtc/constants.hpp>
+#include <cmath>
 
 namespace mesh_generator
 {
@@ -8,7 +13,7 @@ namespace mesh_generator
     {
         generated_mesh_data data;
 
-        // Tam olarak 24 Vertex (6 yüzey * 4 vertex)
+        // 6 yüzey * 4 tepe noktası = 24 Vertex (Her yüzeyin bağımsız normal vektörü bulunur)
         data.vertices = {
             // Ön Yüz (Vertices: 0-3, Normal: 0, 0, 1)
             { {-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f} },
@@ -47,8 +52,7 @@ namespace mesh_generator
             { {-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f} }
         };
 
-        // Tam olarak 36 İndis (6 yüzey * 2 üçgen * 3 indeks)
-        // Saat yönünün tersi (Counter-Clockwise - CCW) kuralına göre sıralandı
+        // 6 yüzey * 2 üçgen * 3 indeks = 36 İndis (Saat yönünün tersi - CCW)
         data.indices = {
             0,  1,  2,  2,  3,  0,  // Ön
             4,  5,  6,  6,  7,  4,  // Arka
@@ -65,51 +69,47 @@ namespace mesh_generator
     {
         generated_mesh_data data;
 
-        float x, y, z, xy;                              // vertex konumları
-        float nx, ny, nz, length_inv = 1.0f / radius;    // vertex normalleri
-        float s, t;                                     // vertex UV'leri
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float xy = 0.0f;
 
-        float sector_step = 2 * glm::pi<float>() / sector_count;
-        float stack_step = glm::pi<float>() / stack_count;
-        float sector_angle, stack_angle;
+        const float length_inv = 1.0f / radius;
+        const float sector_step = 2.0f * glm::pi<float>() / static_cast<float>(sector_count);
+        const float stack_step = glm::pi<float>() / static_cast<float>(stack_count);
 
         for (unsigned int i = 0; i <= stack_count; ++i)
         {
-            stack_angle = glm::pi<float>() / 2 - i * stack_step; // pi/2 den -pi/2 ye
-            xy = radius * cosf(stack_angle);
-            z = radius * sinf(stack_angle);
+            const float stack_angle = (glm::pi<float>() * 0.5f) - (static_cast<float>(i) * stack_step);
+            xy = radius * std::cos(stack_angle);
+            z = radius * std::sin(stack_angle);
 
             for (unsigned int j = 0; j <= sector_count; ++j)
             {
-                sector_angle = j * sector_step;
+                const float sector_angle = static_cast<float>(j) * sector_step;
 
-                // Pozisyon
-                x = xy * cosf(sector_angle);
-                y = xy * sinf(sector_angle);
+                x = xy * std::cos(sector_angle);
+                y = xy * std::sin(sector_angle);
 
-                // Normal
-                nx = x * length_inv;
-                ny = y * length_inv;
-                nz = z * length_inv;
+                const float nx = x * length_inv;
+                const float ny = y * length_inv;
+                const float nz = z * length_inv;
 
-                // UV koordinatları
-                s = (float)j / sector_count;
-                t = (float)i / stack_count;
+                const float s = static_cast<float>(j) / static_cast<float>(sector_count);
+                const float t = static_cast<float>(i) / static_cast<float>(stack_count);
 
                 data.vertices.push_back({ {x, y, z}, {nx, ny, nz}, {s, t} });
             }
         }
 
-        // Index üretimi (Üçgen tanımları)
-        unsigned int k1, k2;
+        // İndis üretimi (Üçgen yüzey tanımlamaları)
         for (unsigned int i = 0; i < stack_count; ++i)
         {
-            k1 = i * (sector_count + 1);     // mevcut stack başlangıcı
-            k2 = k1 + sector_count + 1;     // sonraki stack başlangıcı
+            unsigned int k1 = i * (sector_count + 1);
+            unsigned int k2 = k1 + sector_count + 1;
 
             for (unsigned int j = 0; j < sector_count; ++j, ++k1, ++k2)
             {
-                // Kutup noktaları harici her quadrant için 2 üçgen oluşturuyoruz
                 if (i != 0)
                 {
                     data.indices.push_back(k1);

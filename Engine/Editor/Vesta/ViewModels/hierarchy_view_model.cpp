@@ -1,3 +1,8 @@
+/**
+ * @file hierarchy_view_model.cpp
+ * @brief Sahne Hiyerarşisi (Hierarchy) görünüm modelinin mantıksal uygulaması.
+ */
+
 #include "hierarchy_view_model.h"
 
 namespace vesta {
@@ -9,6 +14,8 @@ namespace vesta {
     void hierarchy_view_model::gather_children_recursive(entity parent, std::vector<entity>& out_children) const {
         if (auto* hc = m_registry.get_component<hierarchy_component>(parent)) {
             entity current_child = hc->first_child;
+
+            // Kardeş (sibling) zincirini dolaşarak tüm doğrudan çocukları topla
             while (current_child != 0) {
                 out_children.push_back(current_child);
                 if (auto* child_hc = m_registry.get_component<hierarchy_component>(current_child)) {
@@ -62,8 +69,9 @@ namespace vesta {
     }
 
     // ==========================================
-    // MUTATION DISPATCHERS
+    // MUTATION DISPATCHERS (YAZMA İŞLEMLERİ)
     // ==========================================
+
     void hierarchy_view_model::request_create_entity(const std::string& default_name) {
         entity e = m_world.spawn_entity(default_name);
         m_selection_manager.select_entity(e, false);
@@ -94,11 +102,14 @@ namespace vesta {
     }
 
     void hierarchy_view_model::request_copy(entity e) {
-        if (e != 0) m_clipboard_entity = e;
+        if (e != 0) {
+            m_clipboard_entity = e;
+        }
     }
 
     void hierarchy_view_model::request_paste() {
         if (m_clipboard_entity == 0) return;
+
         entity duplicated = m_registry.duplicate_entity(m_clipboard_entity);
         m_selection_manager.select_entity(duplicated, false);
         m_world.mark_scene_dirty();
@@ -106,6 +117,7 @@ namespace vesta {
 
     void hierarchy_view_model::request_duplicate(entity e) {
         if (e == 0) return;
+
         entity duplicated = m_registry.duplicate_entity(e);
 
         if (auto* hc = m_registry.get_component<hierarchy_component>(e)) {
@@ -117,7 +129,7 @@ namespace vesta {
     }
 
     // ==========================================
-    // SELECTION
+    // SELECTION (SEÇİM DURUMU)
     // ==========================================
 
     bool hierarchy_view_model::has_selection() const {
@@ -133,38 +145,30 @@ namespace vesta {
     }
 
     // ==========================================
-    // RENAME STATE
+    // RENAME STATE (YENİDEN ADLANDIRMA)
     // ==========================================
 
     bool hierarchy_view_model::is_renaming(entity e) const {
         return m_renaming_entity == e;
     }
 
-    void hierarchy_view_model::start_rename(entity e)
-    {
+    void hierarchy_view_model::start_rename(entity e) {
         m_renaming_entity = e;
-
         m_rename_buffer.clear();
 
-        if (auto* name = m_registry.get_component<name_component>(e))
-        {
+        if (auto* name = m_registry.get_component<name_component>(e)) {
             m_rename_buffer = name->name;
         }
     }
-    void hierarchy_view_model::commit_rename()
-    {
-        if (m_renaming_entity == 0)
-            return;
 
-        request_rename_entity(
-            m_renaming_entity,
-            m_rename_buffer);
+    void hierarchy_view_model::commit_rename() {
+        if (m_renaming_entity == 0) return;
 
+        request_rename_entity(m_renaming_entity, m_rename_buffer);
         m_renaming_entity = 0;
     }
 
-    void hierarchy_view_model::cancel_rename()
-    {
+    void hierarchy_view_model::cancel_rename() {
         m_renaming_entity = 0;
         m_rename_buffer.clear();
     }
@@ -173,18 +177,16 @@ namespace vesta {
         return m_renaming_entity;
     }
 
-    std::string& hierarchy_view_model::get_rename_buffer()
-    {
+    std::string& hierarchy_view_model::get_rename_buffer() {
         return m_rename_buffer;
     }
 
-    const std::string& hierarchy_view_model::get_rename_buffer() const
-    {
+    const std::string& hierarchy_view_model::get_rename_buffer() const {
         return m_rename_buffer;
     }
 
     // ==========================================
-    // CLIPBOARD
+    // CLIPBOARD (PANO DURUMU)
     // ==========================================
 
     bool hierarchy_view_model::has_clipboard() const {
@@ -192,7 +194,7 @@ namespace vesta {
     }
 
     // ==========================================
-    // VALIDATION
+    // VALIDATION (DOĞRULAMA)
     // ==========================================
 
     bool hierarchy_view_model::can_copy() const {
@@ -212,7 +214,7 @@ namespace vesta {
     }
 
     // ==========================================
-    // HIGH LEVEL ACTIONS
+    // HIGH LEVEL ACTIONS (YÜKSEK SEVİYELİ İŞLEMLER)
     // ==========================================
 
     void hierarchy_view_model::request_copy_selected() {

@@ -1,42 +1,46 @@
-// Dosya Yolu: Systems/physics_system.cpp
+/**
+ * @file physics_system.cpp
+ * @brief Jolt Physics motoru yaşam döngüsü, bellek yönetimi ve sistem ilerletme uygulaması.
+ */
+
 #include "physics_system.h"
 #include <Jolt/Core/IssueReporting.h>
 #include <iostream>
-
 #include "physics_api.h"
 
-// Jolt için gerekli temel global macro kayıtları
+ // Jolt makro uyarılarını yerel olarak bastırmak için
 JPH_SUPPRESS_WARNINGS
 
 physics_system::physics_system() = default;
 
+// API sınıfının tam tanımı bu dosyada olduğu için unique_ptr gereksinimi karşılanır.
+physics_system::~physics_system() = default;
 
 bool physics_system::init(scene& s)
 {
-	// physics_api nesnesini oluşturur ve physics_system ile ilişkilendirir
-    m_api = std::make_unique<physics_api>(this,&s.get_registry());
+    // Fizik komut arayüzünü (API) oluştur ve mevcut sahnenin kayıt defterine bağla
+    m_api = std::make_unique<physics_api>(this, &s.get_registry());
 
-    // Jolt bellek allocator yapısını kurar
+    // Jolt bellek ayırıcı (allocator) altyapısını ilklendir
     JPH::RegisterDefaultAllocator();
 
-    // Factory nesnesini oluşturur (Jolt içi nesne üretimleri için)
+    // Jolt nesne üretimi için genel fabrika (Factory) örneğini ayarla
     JPH::Factory::sInstance = new JPH::Factory();
 
-    // Jolt'un temel veri tiplerini kayıt eder
+    // Jolt temel çarpışma veri tiplerini sisteme tanıt
     JPH::RegisterTypes();
 
-    // Simülasyon esnasında geçici bellek tahsisleri için allocator (10MB)
+    // Simülasyon döngüsündeki geçici hesaplamalar için bellek ayırıcı (10 MB ayrılmıştır)
     mTempAllocator = std::make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024);
 
-    // Çoklu iş parçacığı (Multithreading) için iş havuzu. 
-    // Jolt'un ağır yükleri arkada işlemesi için (Mevcut thread sayısından 1 eksik kuruyoruz)
+    // Fizik hesaplamalarını paralelleştirmek için çoklu iş parçacığı havuzu (Mevcut donanım sınırının 1 eksiği)
     mJobSystem = std::make_unique<JPH::JobSystemThreadPool>(
         JPH::cMaxPhysicsJobs,
         JPH::cMaxPhysicsBarriers,
         std::thread::hardware_concurrency() - 1
     );
 
-    // Jolt ana sistemini ayağa kaldırıyoruz
+    // Ana fizik sistemini ayrılan sınırlar ve kurulan filtreler eşliğinde başlat
     mPhysicsSystem = std::make_unique<JPH::PhysicsSystem>();
     mPhysicsSystem->Init(
         mMaxBodies,
@@ -53,26 +57,24 @@ bool physics_system::init(scene& s)
 
 void physics_system::update(float delta_time)
 {
-    // Çarpışmaları çözmesi ve fiziği ilerletmesi için Jolt'u tetikliyoruz.
-    // Gelişmiş motorlarda sabit adımlı (Fixed Update) olması istenir, şimdilik doğrudan delta_time veriyoruz.
-    // Jolt adımları genellikle 1/60 oranında ideal çalışır.
-    int collision_steps = 1;
+    // Jolt simülasyonunu belirtilen zaman adımı kadar ilerletir.
+    // İdeal senaryolarda sabit adım (fixed time step) veya çarpışma adım parametreleri artırılabilir.
+    constexpr int collision_steps = 1;
     mPhysicsSystem->Update(delta_time, collision_steps, mTempAllocator.get(), mJobSystem.get());
 }
 
 void physics_system::shutdown()
 {
     if (mPhysicsSystem)
+    {
         mPhysicsSystem.reset();
+    }
 
     mJobSystem.reset();
     mTempAllocator.reset();
 
-    JPH::UnregisterTypes(); 
+    JPH::UnregisterTypes();
 
     delete JPH::Factory::sInstance;
     JPH::Factory::sInstance = nullptr;
 }
-
-
-physics_system::~physics_system() = default;

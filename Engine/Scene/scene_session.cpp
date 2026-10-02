@@ -1,3 +1,8 @@
+/**
+ * @file scene_session.cpp
+ * @brief Sahne kopyalama, oynatma/durdurma mantığı ve durum senkronizasyonunun uygulanması.
+ */
+
 #include "scene_session.h"
 #include "../Engine/engine_context.h"
 
@@ -39,20 +44,23 @@ bool scene_session::is_playing() const
 void scene_session::play(EngineContext& ctx)
 {
     if (playing)
+    {
         return;
+    }
 
     editorSnapshot = clone_scene(editorScene);
     runtimeScene = clone_scene(editorScene);
     playing = true;
 
     game_scene().on_runtime_start(ctx);
-
 }
 
 void scene_session::stop()
 {
     if (!playing)
+    {
         return;
+    }
 
     game_scene().clean_up_scripts();
 
@@ -64,10 +72,13 @@ void scene_session::stop()
 void scene_session::sync_editor_from_runtime()
 {
     if (!playing)
+    {
         return;
+    }
 
     editorScene = clone_scene(runtimeScene);
 }
+
 scene scene_session::clone_scene(const scene& src)
 {
     scene newScene;
@@ -77,13 +88,13 @@ scene scene_session::clone_scene(const scene& src)
 
     std::vector<entity> clonedEntities;
 
-    for (auto e : srcReg.get_all_entities())
+    for (const entity e : srcReg.get_all_entities())
     {
         srcReg.clone_entity(e, dstReg);
         clonedEntities.push_back(e);
     }
 
-    newScene.set_entities(clonedEntities);          
+    newScene.set_entities(clonedEntities);
     newScene.set_active_camera(src.get_active_camera());
 
     return newScene;

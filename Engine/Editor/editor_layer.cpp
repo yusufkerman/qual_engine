@@ -1,57 +1,75 @@
+/**
+ * @file editor_layer.cpp
+ * @brief Editör katmanının yaşam döngüsü, viewport boyut senkronizasyonu ve çizim uygulaması.
+ */
+
 #include "editor_layer.h"
 #include "../Engine/engine_context.h"
 #include "../Editor/editor_context.h"
-
 #include "editor_camera.h"
+#include <algorithm>
 
-#include <iostream>
+#if defined(__APPLE__)
+#include <OpenGL/gl3.h>
+#else
+#include <GL/gl.h>
+#endif
 
-static void update_editor_camera(EngineContext& ctx, EditorContext& editorCtx)
-{
-    if (!editorCtx.camera)
-        return;
+namespace {
 
-    editorCtx.camera->update(
-        ctx.window,
-        ctx.inputState,
-        ctx.sensitivity,
-        ctx.moveSpeed,
-        ctx.vestaSys.viewport_state().scene().focused
-    );
-}
-
-static void update_viewports(EngineContext& ctx)
-{
-    auto& viewportState = ctx.vestaSys.viewport_state();
-
-    const auto& scene = viewportState.scene();
-    if (scene.size.x > 1.0f && scene.size.y > 1.0f)
+    /**
+     * @brief Sahne görünümü odaklandığında editör serbest uçuş kamerasını günceller.
+     */
+    void update_editor_camera(EngineContext& ctx, EditorContext& editorCtx)
     {
-        ctx.editorTarget.resize(
-            static_cast<int>(scene.size.x),
-            static_cast<int>(scene.size.y)
+        if (!editorCtx.camera) {
+            return;
+        }
+
+        editorCtx.camera->update(
+            ctx.window,
+            ctx.inputState,
+            ctx.sensitivity,
+            ctx.moveSpeed,
+            ctx.vestaSys.viewport_state().scene().focused
         );
     }
 
-    const auto& game = viewportState.game();
-    if (game.size.x > 1.0f && game.size.y > 1.0f)
+    /**
+     * @brief Viewport panellerinin anlık boyutlarına göre FBO render hedeflerini yeniden boyutlandırır.
+     */
+    void update_viewports(EngineContext& ctx)
     {
-        auto& gameState = viewportState.game();
+        auto& viewportState = ctx.vestaSys.viewport_state();
 
-        constexpr float renderScale = 1.0f;
+        // 1. Sahne (Scene) Hedef Çözünürlüğü
+        const auto& scene = viewportState.scene();
+        if (scene.size.x > 1.0f && scene.size.y > 1.0f)
+        {
+            ctx.editorTarget.resize(
+                static_cast<int>(scene.size.x),
+                static_cast<int>(scene.size.y)
+            );
+        }
 
-        gameState.render_size.x =
-            std::max(1, (int)(gameState.size.x * renderScale));
+        // 2. Oyun (Game) Hedef Çözünürlüğü
+        const auto& game = viewportState.game();
+        if (game.size.x > 1.0f && game.size.y > 1.0f)
+        {
+            auto& gameState = viewportState.game();
+            constexpr float renderScale = 1.0f;
 
-        gameState.render_size.y =
-            std::max(1, (int)(gameState.size.y * renderScale));
+            gameState.render_size.x = std::max(1, static_cast<int>(gameState.size.x * renderScale));
+            gameState.render_size.y = std::max(1, static_cast<int>(gameState.size.y * renderScale));
 
-        ctx.gameTarget.resize(
-            gameState.render_size.x,
-            gameState.render_size.y
-        );
+            ctx.gameTarget.resize(
+                gameState.render_size.x,
+                gameState.render_size.y
+            );
+        }
     }
-}
+
+} // anonymous namespace
 
 void editor_layer::update(EngineContext& ctx, EditorContext& editorCtx)
 {
@@ -67,6 +85,7 @@ void editor_layer::update(EngineContext& ctx, EditorContext& editorCtx)
 
 void editor_layer::render(EngineContext& ctx, EditorContext& editorCtx)
 {
+    // Varsayılan ekran çerçevesini hazırla
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, ctx.screenW, ctx.screenH);
 
@@ -76,9 +95,8 @@ void editor_layer::render(EngineContext& ctx, EditorContext& editorCtx)
     editorCtx.sceneTarget = &ctx.editorTarget;
     editorCtx.gameTarget = &ctx.gameTarget;
 
+    // ImGui / Vesta arayüz çerçevesini başlat ve çiz
     ctx.uiManager.beginFrame();
-
     ctx.vestaSys.update();
-
     ctx.uiManager.endFrame();
 }

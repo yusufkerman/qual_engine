@@ -1,20 +1,33 @@
 #pragma once
 
 /**
- * @brief Asset ve Kaynak Yönetimi Modülü
- * * Bu sınıf, disk üzerindeki popüler görsel formatlarını (PNG, JPG, BMP vb.)
- * okuyarak OpenGL doku (texture) nesnelerine dönüştürür.
+ * @file texture_loader.h
+ * @brief Disk üzerindeki 2B görsel dosyalarını (PNG, JPG, BMP vb.) okuyup OpenGL dokularına dönüştüren yükleyici.
  */
+
+#include <string>
+
+ /**
+  * @class texture_loader
+  * @brief Görselleri GPU belleğine aktarıp OpenGL doku tanıtıcısı (Texture ID) üreten statik yardımcı sınıf.
+  */
 class texture_loader
 {
 public:
     /**
-     * @brief Belirtilen dosya yolundaki resmi yükler ve GPU belleğine aktarır.
-     * * @note PNG formatlarındaki şeffaflık (Alpha) ve resimlerin dikey çevrilme (flip)
-     * işlemleri bu fonksiyon içinde otomatik olarak yönetilir.
-     * * @param path Yüklenecek görsel dosyasının tam veya göreceli (relative) yolu.
-     * @return unsigned int Başarılı ise OpenGL Texture ID (Kimlik Numarası),
-     * Başarısız ise hata logu basar ve 0 döner.
+     * @brief Belirtilen dosya yolundaki resmi yükler, GPU belleğine aktarır ve mipmap oluşturur.
+     *
+     * @param path Yüklenecek görsel dosyasının tam veya göreli yolu.
+     * @return unsigned int Başarılı ise geçerli OpenGL Doku ID'si, başarısızlık durumunda 0 döner.
      */
     static unsigned int load(const char* path);
+
+    /**
+     * @brief std::string aşırı yüklemesi (overload).
+     * @param path Yüklenecek görsel dosyasının tam veya göreli yolu.
+     * @return unsigned int Başarılı ise geçerli OpenGL Doku ID'si, başarısızlık durumunda 0 döner.
+     */
+    static unsigned int load(const std::string& path) {
+        return load(path.c_str());
+    }
 };

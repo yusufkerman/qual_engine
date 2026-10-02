@@ -1,3 +1,8 @@
+/**
+ * @file engine.cpp
+ * @brief Oyun motorunun temel yaşam döngüsü (başlatma, güncelleme, çizim, kapatma) işlevlerini içerir.
+ */
+
 #include "engine.h"
 #include <iostream>
 #include "../Renderer/passes/game_pass.h"
@@ -11,18 +16,23 @@
 #include "../Renderer/Passes/grid_pass.h"
 #include "../Engine/asset_pipeline.h"
 #include "../Sera/sera.h"
-
 #include "../Editor/editor_context.h"
 #include "../Editor/editor_camera.h"
 
 namespace
 {
+    /**
+     * @brief GLFW geri çağrımlarında (callbacks) kullanılmak üzere bağlam (context) verilerini tutar.
+     */
     struct WindowUserData
     {
         EngineContext* engineCtx = nullptr;
         EditorContext* editorCtx = nullptr;
     };
 
+    /**
+     * @brief Pencere boyutu değiştiğinde tetiklenen geri çağrım (callback) fonksiyonu.
+     */
     static void framebuffer_size_callback(GLFWwindow* window, int w, int h)
     {
         auto* data = static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
@@ -34,15 +44,21 @@ namespace
         }
     }
 
-    static void scroll_callback(GLFWwindow* window, double, double yoffset)
+    /**
+     * @brief Fare tekerleği kaydırıldığında tetiklenen geri çağrım (callback) fonksiyonu.
+     */
+    static void scroll_callback(GLFWwindow* window, double /*xoffset*/, double yoffset)
     {
         auto* data = static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
         if (data && data->editorCtx && data->editorCtx->camera)
         {
-            data->editorCtx->camera->scrollStep += (float)(5.0 * yoffset);
+            data->editorCtx->camera->scrollStep += static_cast<float>(5.0 * yoffset);
         }
     }
 
+    /**
+     * @brief Temel giriş (input) tuş atamalarını (binding) yapar.
+     */
     static void init_input(EngineContext& ctx)
     {
         ctx.inputMap.bind(GLFW_KEY_W, InputAction::MoveForward);
@@ -51,14 +67,16 @@ namespace
         ctx.inputMap.bind(GLFW_KEY_D, InputAction::MoveRight);
     }
 
+    /**
+     * @brief Oyun ve Editör modları arasındaki geçişleri ve sistem durumlarını yönetir.
+     */
     static void handle_mode_transition(EngineContext& ctx, EditorContext& editorCtx)
     {
-       
-        // Mod kontrolünü de artık editorCtx üzerinden yapıyoruz
+        // Mod değişikliği yoksa işlem yapma
         if (editorCtx.mode == ctx.prevMode)
             return;
 
-        // EditorContext içindeki kamera pointer'ını güvenle kontrol edip çağırıyoruz
+        // Editör kamerası fare durumunu sıfırla
         if (editorCtx.camera)
         {
             editorCtx.camera->resetMouseState();
@@ -97,25 +115,24 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
 
     glfwMakeContextCurrent(ctx.window);
 
-    // 🚀 1. GRAPHICS DICTIONARY AYAĞA KALKIYOR
+    // OpenGL fonksiyonlarını (GLAD) yükle
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return false;
 
-    // 🚀 2. ARIA SİSTEMİNİ ILKLENDIR (ÇOK KRİTİK: GLAD'den hemen sonra olmalı!)
+    // Aria Varlık (Asset) Sistemini başlat (Not: GLAD'den hemen sonra olmalıdır)
     if (!ctx.aria_system) {
         ctx.aria_system = new aria::system();
     }
-    ctx.aria_system->init(); // 🔥 Fallback shader ve dokular GPU'ya uçuyor!
+    ctx.aria_system->init(); // Varsayılan shader ve dokuları belleğe yükler
 
-    // ----------------------
-    // SERA
-    // ----------------------
+    // Sera Sistemini başlat
     ctx.sera = new sera::sera();
     ctx.sera->init(ctx);
 
+    // Gölge tamponunu (Shadow FBO) başlat
     if (!ctx.shadowFBO.init(2048, 2048))
     {
-        std::cout << "Gölge sistemi başlatılamadı!" << std::endl;
+        std::cout << "[Engine] Hata: Gölge sistemi başlatılamadı!" << std::endl;
     }
 
     ctx.renderSystem.init();
@@ -123,7 +140,7 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    // 🔗 KÖPRÜ KURULUMU: StatikUserData motor ömrü boyunca bellekte yaşar
+    // GLFW kullanıcı veri işaretçisini (User Pointer) ayarla
     static WindowUserData userData;
     userData.engineCtx = &ctx;
     userData.editorCtx = &editorCtx;
@@ -132,25 +149,26 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     glfwSetFramebufferSizeCallback(ctx.window, framebuffer_size_callback);
     glfwSetScrollCallback(ctx.window, scroll_callback);
 
+    // Arayüz ve görsel sistemleri başlat
     ctx.uiManager.init(ctx.window);
     ctx.grid.init();
     ctx.gizmoSystem.init();
 
+    // Fizik sistemini başlat
     if (!ctx.physicsSystem.init(ctx.session.game_scene()))
     {
-        std::cout << "[Physics] init failed\n";
+        std::cout << "[Physics] Hata: init basarisiz.\n";
         return false;
     }
 
-
-    // 🚀 3. SHADER'LARI ARIA ÜZERİNDEN YÜKLE
+    // Gerekli Shader'ları Aria üzerinden içe aktar
     ctx.defaultShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/default_shader");
     ctx.gizmoShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Debug/gizmo");
     ctx.shadowShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/shadow");
     ctx.gridShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Debug/grid");
     ctx.skyboxShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Skybox/skybox");
 
-    // 🚀 4. İLK SHADER UNIFORM AYARLARI
+    // Ana shader için ilk uniform değerlerini bağla
     unsigned int mainGLid = ctx.aria_system->get_shader_id(ctx.defaultShaderHandle);
     if (mainGLid != 0)
     {
@@ -165,28 +183,26 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
 
     ctx.vestaSys.init(ctx.aria_system, ctx, editorCtx);
 
-
-    // Editör kamerasını belleğe çıkart ve context'e bağla!
+    // Editör modundaysa ve kamera henüz oluşturulmadıysa başlat
     if (ctx.isEditorBuild && !editorCtx.camera)
     {
         editorCtx.camera = new EditorCamera();
     }
 
     init_input(ctx);
-
     ctx.prevMode = editorCtx.mode;
 
+    // Gökyüzü (Skybox) küp haritasını yükle
     ctx.skyboxTexture = cubemap_loader::load_atlas("Assets/sky/skybox1.png");
 
     if (NFD_Init() != NFD_OKAY)
-        std::cout << "[NFD] init failed\n";
+    {
+        std::cout << "[NFD] Hata: init basarisiz.\n";
+    }
 
-    std::cout
-        << "Default handle index="
+    std::cout << "[Engine] Basariyla baslatildi. Default handle index="
         << ctx.defaultShaderHandle.index
-        << " gen="
-        << ctx.defaultShaderHandle.generation
-        << std::endl;
+        << " gen=" << ctx.defaultShaderHandle.generation << "\n";
 
     return true;
 }
@@ -200,6 +216,7 @@ void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 
     if (editorCtx.mode == EngineMode::PLAY)
     {
+        // TODO: Sabit delta time (dt) ileride dinamik zaman ölçümüne çevrilmelidir.
         float dt = 0.016f;
         ctx.inputState.active = (!ctx.isEditorBuild) || (ctx.vestaSys.viewport_state().game().focused);
         ctx.session.game_scene().on_update_runtime(dt);
@@ -240,13 +257,20 @@ void Engine::shutdown(EngineContext& ctx, EditorContext& editorCtx)
     ctx.grid.shutdown();
     ctx.physicsSystem.shutdown();
 
-    if (editorCtx.camera) // Bu parametreyi shutdown'a eklemen veya ctx üzerinden çözmen gerekebilir
+    if (editorCtx.camera)
     {
         delete editorCtx.camera;
         editorCtx.camera = nullptr;
     }
 
-    // 🚀 5. ARIA'NIN TÜM GPU VE MEMORY BEKÇİLERİNİ KAPAT
+    // Sera sistemini temizle
+    if (ctx.sera)
+    {
+        delete ctx.sera;
+        ctx.sera = nullptr;
+    }
+
+    // Aria'nın tüm GPU ve bellek kaynaklarını serbest bırak
     if (ctx.aria_system) {
         ctx.aria_system->clear_all_resources();
         ctx.aria_system->shutdown();
@@ -254,8 +278,11 @@ void Engine::shutdown(EngineContext& ctx, EditorContext& editorCtx)
         ctx.aria_system = nullptr;
     }
 
-    glfwDestroyWindow(ctx.window);
-    ctx.window = nullptr;
+    if (ctx.window)
+    {
+        glfwDestroyWindow(ctx.window);
+        ctx.window = nullptr;
+    }
 
     NFD_Quit();
     glfwTerminate();

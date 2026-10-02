@@ -3,7 +3,7 @@
   "name": "treeMat",
   "base_color": [1, 1, 1, 1],
   "specular_strength": 0.5,
-  "shininess": 0.3,
+  "shininess": 0.1,
   "normal_strength": 1.34,
   "texture_scale": [1, 1],
   "render_mode": 1,

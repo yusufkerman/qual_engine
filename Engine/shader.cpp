@@ -1,28 +1,43 @@
+/**
+ * @file shader.cpp
+ * @brief [LEGACY] Gölgelendirici dosyalarının diskten okunması, derlenmesi ve bağlanması.
+ */
+
 #include "shader.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
-std::string loadFile(const char* path)
-{
-    std::ifstream file(path);
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4996) // Bu dosyanın kendi içindeki deprecated uyarılarını bastır
+#endif
 
-    if (!file.is_open())
+namespace {
+    /**
+     * @brief Belirtilen dosyayı okuyup string olarak döner.
+     */
+    std::string loadFile(const char* path)
     {
-        std::cout << "FILE NOT FOUND: " << path << std::endl;
-        return "";
+        std::ifstream file(path);
+
+        if (!file.is_open())
+        {
+            std::cerr << "[Shader] DOSYA BULUNAMADI: " << path << '\n';
+            return "";
+        }
+
+        std::stringstream ss;
+        ss << file.rdbuf();
+
+        return ss.str();
     }
-
-    std::stringstream ss;
-    ss << file.rdbuf();
-
-    return ss.str();
 }
 
 shader::shader(const char* vertexPath, const char* fragmentPath)
 {
-    std::string vCode = loadFile(vertexPath);
-    std::string fCode = loadFile(fragmentPath);
+    const std::string vCode = loadFile(vertexPath);
+    const std::string fCode = loadFile(fragmentPath);
 
     const char* vShaderCode = vCode.c_str();
     const char* fShaderCode = fCode.c_str();
@@ -34,9 +49,10 @@ shader::shader(const char* vertexPath, const char* fragmentPath)
     int success;
     char infoLog[512];
     glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
-    if (!success) {
+    if (!success)
+    {
         glGetShaderInfoLog(vs, 512, NULL, infoLog);
-        std::cout << "VERTEX SHADER ERROR:\n" << infoLog << std::endl;
+        std::cerr << "[Shader] VERTEX SHADER DERLEME HATASI:\n" << infoLog << '\n';
     }
 
     unsigned int fs = glCreateShader(GL_FRAGMENT_SHADER);
@@ -44,9 +60,10 @@ shader::shader(const char* vertexPath, const char* fragmentPath)
     glCompileShader(fs);
 
     glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
-    if (!success) {
+    if (!success)
+    {
         glGetShaderInfoLog(fs, 512, NULL, infoLog);
-        std::cout << "FRAGMENT SHADER ERROR:\n" << infoLog << std::endl;
+        std::cerr << "[Shader] FRAGMENT SHADER DERLEME HATASI:\n" << infoLog << '\n';
     }
 
     ID = glCreateProgram();
@@ -55,9 +72,10 @@ shader::shader(const char* vertexPath, const char* fragmentPath)
     glLinkProgram(ID);
 
     glGetProgramiv(ID, GL_LINK_STATUS, &success);
-    if (!success) {
+    if (!success)
+    {
         glGetProgramInfoLog(ID, 512, NULL, infoLog);
-        std::cout << "SHADER LINK ERROR:\n" << infoLog << std::endl;
+        std::cerr << "[Shader] SHADER BAGLAMA (LINK) HATASI:\n" << infoLog << '\n';
     }
 
     glDeleteShader(vs);
@@ -83,11 +101,17 @@ void shader::setVec3(const std::string& name, const glm::vec3& value)
 {
     glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(value));
 }
+
 void shader::setVec2(const std::string& name, const glm::vec2& value)
 {
     glUniform2f(glGetUniformLocation(ID, name.c_str()), value.x, value.y);
 }
+
 void shader::setInt(const std::string& name, int value)
 {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
