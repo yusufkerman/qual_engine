@@ -1,0 +1,309 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: editor_pass.cpp Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('editor__pass_8cpp_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">editor_pass.cpp</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="editor__pass_8cpp.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;<a class="code" href="editor__pass_8h.html">editor_pass.h</a>&quot;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;<a class="code" href="engine__context_8h.html">../../Engine/engine_context.h</a>&quot;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;<a class="code" href="editor__context_8h.html">../../Editor/editor_context.h</a>&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="editor__camera_8h.html">../../Editor/editor_camera.h</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="skybox__pass_8h.html">skybox_pass.h</a>&quot;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="physics__api_8h.html">../../Systems/physics_api.h</a>&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;<a class="code" href="vesta_8h.html">../../Editor/Vesta/vesta.h</a>&quot;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &lt;glm/gtc/matrix_transform.hpp&gt;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &lt;algorithm&gt;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#if defined(__APPLE__)</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#include &lt;OpenGL/gl3.h&gt;</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#include &lt;GL/gl.h&gt;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
+<div class="foldopen" id="foldopen00022" data-start="{" data-end="}">
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="namespaceeditor__pass.html#a4dd9f63b4aacd97d039f499cf3564042">   22</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="namespaceeditor__pass.html#a4dd9f63b4aacd97d039f499cf3564042">editor_pass::render</a>(<a class="code hl_struct" href="struct_engine_context.html">EngineContext</a>&amp; ctx, <a class="code hl_struct" href="struct_editor_context.html">EditorContext</a>&amp; editorCtx)</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>{</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="keywordflow">if</span> (!editorCtx.<a class="code hl_variable" href="struct_editor_context.html#a465bd200c185bb52cf5ac41cf642b9e0">camera</a>) {</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    }</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="comment">// 1. Hedef Framebuffer ve Viewport yapılandırması</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    glBindFramebuffer(GL_FRAMEBUFFER, ctx.<a class="code hl_variable" href="struct_engine_context.html#aae7f2bfd39fd28a0f21c2e17d24c53dd">editorTarget</a>.<a class="code hl_variable" href="class_render_target.html#af6ca608015c8c55bf56568ef8b4b2ec0">fbo</a>);</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    glViewport(0, 0, ctx.<a class="code hl_variable" href="struct_engine_context.html#aae7f2bfd39fd28a0f21c2e17d24c53dd">editorTarget</a>.<a class="code hl_variable" href="class_render_target.html#ab340f3e3cd51bcaaf280414966665a16">width</a>, ctx.<a class="code hl_variable" href="struct_engine_context.html#aae7f2bfd39fd28a0f21c2e17d24c53dd">editorTarget</a>.<a class="code hl_variable" href="class_render_target.html#a876cc125e5fff33df258578179560db5">height</a>);</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    glEnable(GL_DEPTH_TEST);</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    glDepthMask(GL_TRUE);</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    glClearColor(0.08f, 0.08f, 0.12f, 1.0f);</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="comment">// 2. Kamera matrislerini hesapla (sıfıra bölme koruması ile)</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keyword">const</span> <span class="keywordtype">float</span> aspect = <span class="keyword">static_cast&lt;</span><span class="keywordtype">float</span><span class="keyword">&gt;</span>(ctx.<a class="code hl_variable" href="struct_engine_context.html#aae7f2bfd39fd28a0f21c2e17d24c53dd">editorTarget</a>.<a class="code hl_variable" href="class_render_target.html#ab340f3e3cd51bcaaf280414966665a16">width</a>) /</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keyword">static_cast&lt;</span><span class="keywordtype">float</span><span class="keyword">&gt;</span>(std::max(1, ctx.<a class="code hl_variable" href="struct_engine_context.html#aae7f2bfd39fd28a0f21c2e17d24c53dd">editorTarget</a>.<a class="code hl_variable" href="class_render_target.html#a876cc125e5fff33df258578179560db5">height</a>));</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keyword">const</span> glm::mat4 editorView = editorCtx.<a class="code hl_variable" href="struct_editor_context.html#a465bd200c185bb52cf5ac41cf642b9e0">camera</a>-&gt;<a class="code hl_function" href="class_editor_camera.html#a5c9b346ab1cbf2ca15c3dc982bfdb5fc">getViewMatrix</a>();</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keyword">const</span> glm::mat4 editorProj = editorCtx.<a class="code hl_variable" href="struct_editor_context.html#a465bd200c185bb52cf5ac41cf642b9e0">camera</a>-&gt;<a class="code hl_function" href="class_editor_camera.html#ae76b75db295286da16b374b0939f757e">getProjectionMatrix</a>(aspect);</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="comment">// 3. Gökyüzü (Skybox) render geçişi</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <a class="code hl_function" href="namespaceskybox__pass.html#abf9be8f452687b8a6caf6b2fd531ab69">skybox_pass::render</a>(ctx, editorView, editorProj);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="comment">// 4. Ana sahne geometrisi ve ışıklandırma</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    ctx.<a class="code hl_variable" href="struct_engine_context.html#a14bbb4b8a63a462388e6079a1a685588">renderSystem</a>.<a class="code hl_function" href="classrender__system.html#a421f2a365a3f42fc938943e6c460b5f7">render</a>(</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        ctx.<a class="code hl_variable" href="struct_engine_context.html#a98cb2e57f5d9562d95125db8a9ee977f">session</a>.<a class="code hl_function" href="classscene__session.html#a8bbb635cbcabb592cf6750a831b90783">editor_scene</a>().<a class="code hl_function" href="classscene.html#af8a60c0061d16926a0dd4fcbd29e119a">get_registry</a>(),</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        ctx.<a class="code hl_variable" href="struct_engine_context.html#a98cb2e57f5d9562d95125db8a9ee977f">session</a>.<a class="code hl_function" href="classscene__session.html#a8bbb635cbcabb592cf6750a831b90783">editor_scene</a>().<a class="code hl_function" href="classscene.html#ada4ec932efe24e22774c855d9b534efa">get_light_batch</a>(),</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        ctx,</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        editorView,</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        editorProj</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    );</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="comment">// 5. Seçili varlık için sınır kutusu / çarpıştırıcı (Collider Gizmo) çizimi</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keyword">auto</span>&amp; reg = ctx.<a class="code hl_variable" href="struct_engine_context.html#a98cb2e57f5d9562d95125db8a9ee977f">session</a>.<a class="code hl_function" href="classscene__session.html#a8bbb635cbcabb592cf6750a831b90783">editor_scene</a>().<a class="code hl_function" href="classscene.html#af8a60c0061d16926a0dd4fcbd29e119a">get_registry</a>();</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keyword">const</span> <span class="keywordtype">int</span> selectedID = ctx.<a class="code hl_variable" href="struct_engine_context.html#a86be61d0ac8dd0c4b48c5d26a84a9259">vestaSys</a>.<a class="code hl_function" href="classvesta_1_1vesta__system.html#af9b8a0b25a537c4ff1fadbc6a6832b84">selection</a>().<a class="code hl_function" href="classvesta_1_1editor__selection__manager.html#a15d79f7d911b3bfb67f2f274deded985">get_first_selected_entity</a>();</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordflow">if</span> (selectedID != -1)</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    {</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        <span class="keyword">const</span> <span class="keyword">auto</span> selectedEntity = <span class="keyword">static_cast&lt;</span><a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a><span class="keyword">&gt;</span>(selectedID);</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        <span class="keyword">const</span> <span class="keyword">auto</span>* transform = reg.get_component&lt;<a class="code hl_struct" href="structtransform__component.html">transform_component</a>&gt;(selectedEntity);</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keyword">const</span> <span class="keyword">auto</span>* collider = reg.get_component&lt;<a class="code hl_struct" href="structcollider__component.html">collider_component</a>&gt;(selectedEntity);</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        <span class="keyword">const</span> <span class="keyword">auto</span>* rb = reg.get_component&lt;<a class="code hl_struct" href="structrigidbody__component.html">rigidbody_component</a>&gt;(selectedEntity);</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        <span class="keywordflow">if</span> (transform &amp;&amp; collider)</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        {</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>            glm::mat4 modelMatrix = glm::mat4(1.0f);</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>            <span class="keywordtype">bool</span> physicsActive = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>            <span class="comment">// Simülasyon modunda dönüşümü fizik motorundan (Jolt) al</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>            <span class="keywordflow">if</span> (rb &amp;&amp; !rb-&gt;body_id.IsInvalid())</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>            {</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>                modelMatrix = ctx.<a class="code hl_variable" href="struct_engine_context.html#a2bd3987932ee56573351184aac162845">physicsSystem</a>.<a class="code hl_function" href="classphysics__system.html#ae69da82dab849a2bf2504b29f572352a">api</a>().<a class="code hl_function" href="classphysics__api.html#ad9aa569ac57909cc6fa5e8cfe021c82a">get_jolt_transform</a>(selectedEntity);</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>                physicsActive = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>            }</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>            <span class="comment">// Editör modunda yerel dönüşüm bileşenini kullan</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>            <span class="keywordflow">if</span> (!physicsActive)</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>            {</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>                modelMatrix = glm::translate(modelMatrix, transform-&gt;position);</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>                modelMatrix = glm::rotate(modelMatrix, transform-&gt;rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>                modelMatrix = glm::rotate(modelMatrix, transform-&gt;rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>                modelMatrix = glm::rotate(modelMatrix, transform-&gt;rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>            }</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>            <span class="keyword">constexpr</span> glm::vec4 gizmoColor(0.0f, 1.0f, 0.0f, 1.0f);</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>            <span class="keywordflow">switch</span> (collider-&gt;type)</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>            {</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>            <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="components_8h.html#a9c8c5c68acc71027258697cd3a7da011a34be958a921e43d813a2075297d8e862">collider_type::box</a>:</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>                ctx.<a class="code hl_variable" href="struct_engine_context.html#a66e92250611bd10d15bd6c9a94abfa22">gizmoSystem</a>.<a class="code hl_function" href="classgizmo__system.html#ab19dd03d1be5d4b52d8bf7dbc0947337">DrawWireCube</a>(</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>                    modelMatrix,</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>                    collider-&gt;extents,</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>                    gizmoColor</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>                );</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>            <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="components_8h.html#a9c8c5c68acc71027258697cd3a7da011a34248a9bfcbd589d9b5fccb6a0ac6963">collider_type::sphere</a>:</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>                ctx.<a class="code hl_variable" href="struct_engine_context.html#a66e92250611bd10d15bd6c9a94abfa22">gizmoSystem</a>.<a class="code hl_function" href="classgizmo__system.html#a64d5d82b9d50418982afa15c2066c6fc">DrawWireSphere</a>(</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>                    modelMatrix,</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>                    collider-&gt;extents.x,</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>                    gizmoColor</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>                );</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>            <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>            }</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        }</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    }</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="comment">// 6. Aria varlık önbelleğinden gizmo shader programını al ve çizgileri ekrana boşalt</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    <span class="keywordflow">if</span> (ctx.<a class="code hl_variable" href="struct_engine_context.html#a254ba0b7c6ecd6dad5e7e3f69798050b">aria_system</a>)</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    {</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>        <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> gizmoGLShaderID = ctx.<a class="code hl_variable" href="struct_engine_context.html#a254ba0b7c6ecd6dad5e7e3f69798050b">aria_system</a>-&gt;<a class="code hl_function" href="classaria_1_1system.html#af38f286d2747a235142885fc39c6ebc2">get_shader_id</a>(ctx.<a class="code hl_variable" href="struct_engine_context.html#af0466b67c9d310f20c40bdf7702a2c6d">gizmoShaderHandle</a>);</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        ctx.<a class="code hl_variable" href="struct_engine_context.html#a66e92250611bd10d15bd6c9a94abfa22">gizmoSystem</a>.<a class="code hl_function" href="classgizmo__system.html#ac344af97513ce5a6faaa3337994107be">Flush</a>(editorView, editorProj, gizmoGLShaderID);</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    }</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>}</div>
+</div>
+<div class="ttc" id="aclass_editor_camera_html_a5c9b346ab1cbf2ca15c3dc982bfdb5fc"><div class="ttname"><a href="class_editor_camera.html#a5c9b346ab1cbf2ca15c3dc982bfdb5fc">EditorCamera::getViewMatrix</a></div><div class="ttdeci">glm::mat4 getViewMatrix() const</div><div class="ttdoc">Kameranın görünüm (View) matrisini hesaplar.</div><div class="ttdef"><b>Definition</b> <a href="editor__camera_8cpp_source.html#l00036">editor_camera.cpp:36</a></div></div>
+<div class="ttc" id="aclass_editor_camera_html_ae76b75db295286da16b374b0939f757e"><div class="ttname"><a href="class_editor_camera.html#ae76b75db295286da16b374b0939f757e">EditorCamera::getProjectionMatrix</a></div><div class="ttdeci">glm::mat4 getProjectionMatrix(float aspect) const</div><div class="ttdoc">Verilen en/boy oranına (aspect ratio) göre perspektif projeksiyon matrisini hesaplar.</div><div class="ttdef"><b>Definition</b> <a href="editor__camera_8cpp_source.html#l00042">editor_camera.cpp:42</a></div></div>
+<div class="ttc" id="aclass_render_target_html_a876cc125e5fff33df258578179560db5"><div class="ttname"><a href="class_render_target.html#a876cc125e5fff33df258578179560db5">RenderTarget::height</a></div><div class="ttdeci">int height</div><div class="ttdoc">Hedef tampon piksel yüksekliği.</div><div class="ttdef"><b>Definition</b> <a href="render__target_8h_source.html#l00022">render_target.h:22</a></div></div>
+<div class="ttc" id="aclass_render_target_html_ab340f3e3cd51bcaaf280414966665a16"><div class="ttname"><a href="class_render_target.html#ab340f3e3cd51bcaaf280414966665a16">RenderTarget::width</a></div><div class="ttdeci">int width</div><div class="ttdoc">Hedef tampon piksel genişliği.</div><div class="ttdef"><b>Definition</b> <a href="render__target_8h_source.html#l00021">render_target.h:21</a></div></div>
+<div class="ttc" id="aclass_render_target_html_af6ca608015c8c55bf56568ef8b4b2ec0"><div class="ttname"><a href="class_render_target.html#af6ca608015c8c55bf56568ef8b4b2ec0">RenderTarget::fbo</a></div><div class="ttdeci">unsigned int fbo</div><div class="ttdoc">OpenGL Framebuffer nesne tanıtıcısı.</div><div class="ttdef"><b>Definition</b> <a href="render__target_8h_source.html#l00017">render_target.h:17</a></div></div>
+<div class="ttc" id="aclassaria_1_1system_html_af38f286d2747a235142885fc39c6ebc2"><div class="ttname"><a href="classaria_1_1system.html#af38f286d2747a235142885fc39c6ebc2">aria::system::get_shader_id</a></div><div class="ttdeci">gpu_shader_id get_shader_id(handle&lt; shader_asset &gt; h)</div><div class="ttdef"><b>Definition</b> <a href="aria_8cpp_source.html#l00111">aria.cpp:111</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_a64d5d82b9d50418982afa15c2066c6fc"><div class="ttname"><a href="classgizmo__system.html#a64d5d82b9d50418982afa15c2066c6fc">gizmo_system::DrawWireSphere</a></div><div class="ttdeci">void DrawWireSphere(const glm::mat4 &amp;transform, float radius, const glm::vec4 &amp;color)</div><div class="ttdoc">Dönüşüm matrisi ve yarıçap ile tel kafes küre çizer.</div><div class="ttdef"><b>Definition</b> <a href="gizmo__system_8cpp_source.html#l00123">gizmo_system.cpp:123</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_ab19dd03d1be5d4b52d8bf7dbc0947337"><div class="ttname"><a href="classgizmo__system.html#ab19dd03d1be5d4b52d8bf7dbc0947337">gizmo_system::DrawWireCube</a></div><div class="ttdeci">void DrawWireCube(const glm::vec3 &amp;center, const glm::vec3 &amp;scale, const glm::vec4 &amp;color)</div><div class="ttdoc">Dünya uzayında eksen hizalı tel kafes küp çizer.</div><div class="ttdef"><b>Definition</b> <a href="gizmo__system_8cpp_source.html#l00063">gizmo_system.cpp:63</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_ac344af97513ce5a6faaa3337994107be"><div class="ttname"><a href="classgizmo__system.html#ac344af97513ce5a6faaa3337994107be">gizmo_system::Flush</a></div><div class="ttdeci">void Flush(const glm::mat4 &amp;view, const glm::mat4 &amp;projection, unsigned int shaderID)</div><div class="ttdoc">Kayıtlı tüm gizmo çizgilerini GPU&#39;ya yükler ve ekrana çizer.</div><div class="ttdef"><b>Definition</b> <a href="gizmo__system_8cpp_source.html#l00165">gizmo_system.cpp:165</a></div></div>
+<div class="ttc" id="aclassphysics__api_html_ad9aa569ac57909cc6fa5e8cfe021c82a"><div class="ttname"><a href="classphysics__api.html#ad9aa569ac57909cc6fa5e8cfe021c82a">physics_api::get_jolt_transform</a></div><div class="ttdeci">glm::mat4 get_jolt_transform(entity e)</div><div class="ttdoc">Fizik motorundaki konum ve dönüşüm bilgisini okuyarak GLM model matrisine dönüştürür.</div><div class="ttdef"><b>Definition</b> <a href="physics__api_8cpp_source.html#l00071">physics_api.cpp:71</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_ae69da82dab849a2bf2504b29f572352a"><div class="ttname"><a href="classphysics__system.html#ae69da82dab849a2bf2504b29f572352a">physics_system::api</a></div><div class="ttdeci">physics_api &amp; api()</div><div class="ttdoc">Fizik komutlarına ve olaylarına erişim sağlayan API nesnesini döner.</div><div class="ttdef"><b>Definition</b> <a href="physics__system_8h_source.html#l00154">physics_system.h:154</a></div></div>
+<div class="ttc" id="aclassrender__system_html_a421f2a365a3f42fc938943e6c460b5f7"><div class="ttname"><a href="classrender__system.html#a421f2a365a3f42fc938943e6c460b5f7">render_system::render</a></div><div class="ttdeci">void render(const registry &amp;reg, const light_batch &amp;lightBatch, struct EngineContext &amp;ctx, const glm::mat4 &amp;view, const glm::mat4 &amp;projection)</div><div class="ttdoc">Sahneyi ana ekrana ve gölge haritalarına render eder.</div><div class="ttdef"><b>Definition</b> <a href="render__system_8cpp_source.html#l00067">render_system.cpp:67</a></div></div>
+<div class="ttc" id="aclassscene__session_html_a8bbb635cbcabb592cf6750a831b90783"><div class="ttname"><a href="classscene__session.html#a8bbb635cbcabb592cf6750a831b90783">scene_session::editor_scene</a></div><div class="ttdeci">scene &amp; editor_scene()</div><div class="ttdoc">Editör sahnesine referans döner.</div><div class="ttdef"><b>Definition</b> <a href="scene__session_8cpp_source.html#l00009">scene_session.cpp:9</a></div></div>
+<div class="ttc" id="aclassscene_html_ada4ec932efe24e22774c855d9b534efa"><div class="ttname"><a href="classscene.html#ada4ec932efe24e22774c855d9b534efa">scene::get_light_batch</a></div><div class="ttdeci">light_batch &amp; get_light_batch() noexcept</div><div class="ttdoc">Sahnenin ışık paketine erişim sağlar.</div><div class="ttdef"><b>Definition</b> <a href="scene_8h_source.html#l00090">scene.h:90</a></div></div>
+<div class="ttc" id="aclassscene_html_af8a60c0061d16926a0dd4fcbd29e119a"><div class="ttname"><a href="classscene.html#af8a60c0061d16926a0dd4fcbd29e119a">scene::get_registry</a></div><div class="ttdeci">registry &amp; get_registry() noexcept</div><div class="ttdoc">Sahnenin ECS kayıt defterine erişim sağlar.</div><div class="ttdef"><b>Definition</b> <a href="scene_8cpp_source.html#l00077">scene.cpp:77</a></div></div>
+<div class="ttc" id="aclassvesta_1_1editor__selection__manager_html_a15d79f7d911b3bfb67f2f274deded985"><div class="ttname"><a href="classvesta_1_1editor__selection__manager.html#a15d79f7d911b3bfb67f2f274deded985">vesta::editor_selection_manager::get_first_selected_entity</a></div><div class="ttdeci">entity get_first_selected_entity() const</div><div class="ttdoc">Seçili varlıklar havuzundan ilk varlığı döndürür (Tekil denetimler için).</div><div class="ttdef"><b>Definition</b> <a href="editor__selection__manager_8cpp_source.html#l00061">editor_selection_manager.cpp:61</a></div></div>
+<div class="ttc" id="aclassvesta_1_1vesta__system_html_af9b8a0b25a537c4ff1fadbc6a6832b84"><div class="ttname"><a href="classvesta_1_1vesta__system.html#af9b8a0b25a537c4ff1fadbc6a6832b84">vesta::vesta_system::selection</a></div><div class="ttdeci">editor_selection_manager &amp; selection()</div><div class="ttdef"><b>Definition</b> <a href="vesta_8h_source.html#l00071">vesta.h:71</a></div></div>
+<div class="ttc" id="acomponents_8h_html_a9c8c5c68acc71027258697cd3a7da011a34248a9bfcbd589d9b5fccb6a0ac6963"><div class="ttname"><a href="components_8h.html#a9c8c5c68acc71027258697cd3a7da011a34248a9bfcbd589d9b5fccb6a0ac6963">collider_type::sphere</a></div><div class="ttdeci">@ sphere</div><div class="ttdef"><b>Definition</b> <a href="components_8h_source.html#l00038">components.h:38</a></div></div>
+<div class="ttc" id="acomponents_8h_html_a9c8c5c68acc71027258697cd3a7da011a34be958a921e43d813a2075297d8e862"><div class="ttname"><a href="components_8h.html#a9c8c5c68acc71027258697cd3a7da011a34be958a921e43d813a2075297d8e862">collider_type::box</a></div><div class="ttdeci">@ box</div><div class="ttdef"><b>Definition</b> <a href="components_8h_source.html#l00037">components.h:37</a></div></div>
+<div class="ttc" id="aeditor__camera_8h_html"><div class="ttname"><a href="editor__camera_8h.html">editor_camera.h</a></div><div class="ttdoc">Editör sahne görünümü (Scene Viewport) serbest uçuş kamerasını tanımlar.</div></div>
+<div class="ttc" id="aeditor__context_8h_html"><div class="ttname"><a href="editor__context_8h.html">editor_context.h</a></div><div class="ttdoc">Editör alt sistemleri ve paneller arasında paylaşılan çalışma zamanı bağlamını tanımlar.</div></div>
+<div class="ttc" id="aeditor__pass_8h_html"><div class="ttname"><a href="editor__pass_8h.html">editor_pass.h</a></div><div class="ttdoc">Editör sahne görünümü (Scene Viewport) render geçişini tanımlar.</div></div>
+<div class="ttc" id="aengine__context_8h_html"><div class="ttname"><a href="engine__context_8h.html">engine_context.h</a></div><div class="ttdoc">Oyun motorunun tüm temel alt sistemlerini, ayarlarını ve global durumlarını barındıran merkezi bağlam...</div></div>
+<div class="ttc" id="aentity_8h_html_a193c265692e5db312bee837d1bd14b2e"><div class="ttname"><a href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></div><div class="ttdeci">uint32_t entity</div><div class="ttdoc">Sistem genelinde varlıkları temsil eden benzersiz 32-bit işaretsiz tamsayı.</div><div class="ttdef"><b>Definition</b> <a href="entity_8h_source.html#l00011">entity.h:11</a></div></div>
+<div class="ttc" id="anamespaceeditor__pass_html_a4dd9f63b4aacd97d039f499cf3564042"><div class="ttname"><a href="namespaceeditor__pass.html#a4dd9f63b4aacd97d039f499cf3564042">editor_pass::render</a></div><div class="ttdeci">void render(EngineContext &amp;ctx, EditorContext &amp;editorCtx)</div><div class="ttdoc">Editör sahne FBO&#39;sunu temizler, Skybox, sahne geometrisi ve hata ayıklama gizmo&#39;larını çizer.</div><div class="ttdef"><b>Definition</b> <a href="#l00022">editor_pass.cpp:22</a></div></div>
+<div class="ttc" id="anamespaceskybox__pass_html_abf9be8f452687b8a6caf6b2fd531ab69"><div class="ttname"><a href="namespaceskybox__pass.html#abf9be8f452687b8a6caf6b2fd531ab69">skybox_pass::render</a></div><div class="ttdeci">void render(EngineContext &amp;ctx, const glm::mat4 &amp;view, const glm::mat4 &amp;projection)</div><div class="ttdoc">Gökyüzü küp haritasını kamera yönelimine göre sonsuz uzaklıkta çizer.</div><div class="ttdef"><b>Definition</b> <a href="skybox__pass_8cpp_source.html#l00081">skybox_pass.cpp:81</a></div></div>
+<div class="ttc" id="aphysics__api_8h_html"><div class="ttname"><a href="physics__api_8h.html">physics_api.h</a></div><div class="ttdoc">Oyun motoru ile Jolt Physics motoru arasındaki yerel (native) fizik komut arayüzü.</div></div>
+<div class="ttc" id="askybox__pass_8h_html"><div class="ttname"><a href="skybox__pass_8h.html">skybox_pass.h</a></div><div class="ttdoc">Sahne arka planı küp haritası (Skybox Cubemap) render geçişini tanımlar.</div></div>
+<div class="ttc" id="astruct_editor_context_html"><div class="ttname"><a href="struct_editor_context.html">EditorContext</a></div><div class="ttdoc">Editörün genel kamera referansını, render hedeflerini, modunu ve geçici panolarını taşıyan bağlam yap...</div><div class="ttdef"><b>Definition</b> <a href="editor__context_8h_source.html#l00033">editor_context.h:34</a></div></div>
+<div class="ttc" id="astruct_editor_context_html_a465bd200c185bb52cf5ac41cf642b9e0"><div class="ttname"><a href="struct_editor_context.html#a465bd200c185bb52cf5ac41cf642b9e0">EditorContext::camera</a></div><div class="ttdeci">EditorCamera * camera</div><div class="ttdoc">Aktif editör serbest uçuş kamerası.</div><div class="ttdef"><b>Definition</b> <a href="editor__context_8h_source.html#l00035">editor_context.h:35</a></div></div>
+<div class="ttc" id="astruct_engine_context_html"><div class="ttname"><a href="struct_engine_context.html">EngineContext</a></div><div class="ttdoc">Motorun yaşam döngüsü boyunca ihtiyaç duyulan tüm çekirdek sistemlerin örneklerini (instance) tutar.</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00047">engine_context.h:48</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a14bbb4b8a63a462388e6079a1a685588"><div class="ttname"><a href="struct_engine_context.html#a14bbb4b8a63a462388e6079a1a685588">EngineContext::renderSystem</a></div><div class="ttdeci">render_system renderSystem</div><div class="ttdoc">Genel render yönetim sistemi.</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00091">engine_context.h:91</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a254ba0b7c6ecd6dad5e7e3f69798050b"><div class="ttname"><a href="struct_engine_context.html#a254ba0b7c6ecd6dad5e7e3f69798050b">EngineContext::aria_system</a></div><div class="ttdeci">aria::system * aria_system</div><div class="ttdoc">Modern Aria varlık (asset) ve bellek yönetim sistemi.</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00098">engine_context.h:98</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a2bd3987932ee56573351184aac162845"><div class="ttname"><a href="struct_engine_context.html#a2bd3987932ee56573351184aac162845">EngineContext::physicsSystem</a></div><div class="ttdeci">physics_system physicsSystem</div><div class="ttdoc">Fizik motoru köprü sistemi (Jolt, PhysX vb. sarıcı).</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00093">engine_context.h:93</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a66e92250611bd10d15bd6c9a94abfa22"><div class="ttname"><a href="struct_engine_context.html#a66e92250611bd10d15bd6c9a94abfa22">EngineContext::gizmoSystem</a></div><div class="ttdeci">gizmo_system gizmoSystem</div><div class="ttdoc">Editör içi manipülasyon araçları (transform, rotate, scale gizmo).</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00078">engine_context.h:78</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a86be61d0ac8dd0c4b48c5d26a84a9259"><div class="ttname"><a href="struct_engine_context.html#a86be61d0ac8dd0c4b48c5d26a84a9259">EngineContext::vestaSys</a></div><div class="ttdeci">vesta::vesta_system vestaSys</div><div class="ttdoc">Vesta arayüz/pencere yönetim sistemi.</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00077">engine_context.h:77</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a98cb2e57f5d9562d95125db8a9ee977f"><div class="ttname"><a href="struct_engine_context.html#a98cb2e57f5d9562d95125db8a9ee977f">EngineContext::session</a></div><div class="ttdeci">scene_session session</div><div class="ttdoc">Aktif sahne oturumu (oyun ve editör sahnelerini barındırır).</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00067">engine_context.h:67</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_aae7f2bfd39fd28a0f21c2e17d24c53dd"><div class="ttname"><a href="struct_engine_context.html#aae7f2bfd39fd28a0f21c2e17d24c53dd">EngineContext::editorTarget</a></div><div class="ttdeci">RenderTarget editorTarget</div><div class="ttdoc">Editör kamerasının çizildiği render hedefi.</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00075">engine_context.h:75</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_af0466b67c9d310f20c40bdf7702a2c6d"><div class="ttname"><a href="struct_engine_context.html#af0466b67c9d310f20c40bdf7702a2c6d">EngineContext::gizmoShaderHandle</a></div><div class="ttdeci">aria::handle&lt; aria::shader_asset &gt; gizmoShaderHandle</div><div class="ttdoc">Gizmo çizimi için shader referansı.</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00108">engine_context.h:108</a></div></div>
+<div class="ttc" id="astructcollider__component_html"><div class="ttname"><a href="structcollider__component.html">collider_component</a></div><div class="ttdef"><b>Definition</b> <a href="components_8h_source.html#l00131">components.h:132</a></div></div>
+<div class="ttc" id="astructrigidbody__component_html"><div class="ttname"><a href="structrigidbody__component.html">rigidbody_component</a></div><div class="ttdef"><b>Definition</b> <a href="components_8h_source.html#l00116">components.h:117</a></div></div>
+<div class="ttc" id="astructtransform__component_html"><div class="ttname"><a href="structtransform__component.html">transform_component</a></div><div class="ttdef"><b>Definition</b> <a href="components_8h_source.html#l00052">components.h:53</a></div></div>
+<div class="ttc" id="avesta_8h_html"><div class="ttname"><a href="vesta_8h.html">vesta.h</a></div><div class="ttdoc">Vesta Editör Sistemini tanımlar.</div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_4a121abb284744d5a2cbf328f20ddf18.html">Renderer</a></li><li class="navelem"><a href="dir_6c0bc0aed0c6ae9fa558ad82e732f39e.html">Passes</a></li><li class="navelem"><a href="editor__pass_8cpp.html">editor_pass.cpp</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

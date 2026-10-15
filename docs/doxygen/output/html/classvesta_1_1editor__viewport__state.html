@@ -1,0 +1,370 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: vesta::editor_viewport_state Sınıf Referans</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('classvesta_1_1editor__viewport__state.html','','classvesta_1_1editor__viewport__state-members'); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">vesta::editor_viewport_state Sınıf Referans</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Sahne ve Oyun viewport'larının odak, boyut ve konum durumlarını tek bir merkezde saklar.  
+ <a href="#details">Ayrıntılar...</a></p>
+
+<p><code>#include &lt;<a class="el" href="editor__viewport__state_8h_source.html">editor_viewport_state.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Üye Fonksiyonlar</h2></td></tr>
+<tr class="memitem:aeb9d20df1a52f775a93bbad1e70dd1a2" id="r_aeb9d20df1a52f775a93bbad1e70dd1a2"><td class="memItemLeft"><a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#aeb9d20df1a52f775a93bbad1e70dd1a2">scene</a> ()</td></tr>
+<tr class="memdesc:aeb9d20df1a52f775a93bbad1e70dd1a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sahne viewport durumuna değiştirilebilir (mutable) referans döndürür.  <br /></td></tr>
+<tr class="memitem:ab6a04ac8d893a92daaafd8bcd2028290" id="r_ab6a04ac8d893a92daaafd8bcd2028290"><td class="memItemLeft">const <a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#ab6a04ac8d893a92daaafd8bcd2028290">scene</a> () const</td></tr>
+<tr class="memdesc:ab6a04ac8d893a92daaafd8bcd2028290"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sahne viewport durumuna salt okunur (const) referans döndürür.  <br /></td></tr>
+<tr class="memitem:ab983b9119a04018a1c95f654d1cfa96f" id="r_ab983b9119a04018a1c95f654d1cfa96f"><td class="memItemLeft"><a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#ab983b9119a04018a1c95f654d1cfa96f">game</a> ()</td></tr>
+<tr class="memdesc:ab983b9119a04018a1c95f654d1cfa96f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oyun viewport durumuna değiştirilebilir (mutable) referans döndürür.  <br /></td></tr>
+<tr class="memitem:ab8ab0fb82a5c935e5f6bdaac40eb63ef" id="r_ab8ab0fb82a5c935e5f6bdaac40eb63ef"><td class="memItemLeft">const <a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#ab8ab0fb82a5c935e5f6bdaac40eb63ef">game</a> () const</td></tr>
+<tr class="memdesc:ab8ab0fb82a5c935e5f6bdaac40eb63ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oyun viewport durumuna salt okunur (const) referans döndürür.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pri-attribs" class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Özel Özellikler(attribute)</h2></td></tr>
+<tr class="memitem:a565079cc618753f0e99af3ead029473a" id="r_a565079cc618753f0e99af3ead029473a"><td class="memItemLeft"><a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a>&#160;</td><td class="memItemRight"><a class="el" href="#a565079cc618753f0e99af3ead029473a">m_scene</a></td></tr>
+<tr class="memdesc:a565079cc618753f0e99af3ead029473a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sahne düzenleme ekranının durumu.  <br /></td></tr>
+<tr class="memitem:aab97d6a6e5c1db7a865ab1435f8c7404" id="r_aab97d6a6e5c1db7a865ab1435f8c7404"><td class="memItemLeft"><a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a>&#160;</td><td class="memItemRight"><a class="el" href="#aab97d6a6e5c1db7a865ab1435f8c7404">m_game</a></td></tr>
+<tr class="memdesc:aab97d6a6e5c1db7a865ab1435f8c7404"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oyun kamerasından render edilen ekranın durumu.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Ayrıntılı tanımlama</h2>
+<div class="textblock"><p>Sahne ve Oyun viewport'larının odak, boyut ve konum durumlarını tek bir merkezde saklar. </p>
+
+<p class="definition"><a class="el" href="editor__viewport__state_8h_source.html">editor_viewport_state.h</a> dosyasının <a class="el" href="editor__viewport__state_8h_source.html#l00016">16</a> numaralı satırında tanımlanmıştır.</p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Üye Fonksiyon Dokümantasyonu</h2>
+<a id="ab983b9119a04018a1c95f654d1cfa96f" name="ab983b9119a04018a1c95f654d1cfa96f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab983b9119a04018a1c95f654d1cfa96f">&#9670;&#160;</a></span>game() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a> &amp; vesta::editor_viewport_state::game </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Oyun viewport durumuna değiştirilebilir (mutable) referans döndürür. </p>
+
+<p class="definition"><a class="el" href="editor__viewport__state_8h_source.html">editor_viewport_state.h</a> dosyasının <a class="el" href="editor__viewport__state_8h_source.html#l00046">46</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="editor__viewport__state_8h_source.html#l00061">m_game</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="game__viewport__panel_8cpp_source.html#l00019">vesta::game_viewport_panel::render()</a>, <a class="el" href="engine_8cpp_source.html#l00211">Engine::update()</a> ve <a class="el" href="input__system_8cpp_source.html#l00013">InputSystem::update()</a>.</p>
+
+</div>
+</div>
+<a id="ab8ab0fb82a5c935e5f6bdaac40eb63ef" name="ab8ab0fb82a5c935e5f6bdaac40eb63ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab8ab0fb82a5c935e5f6bdaac40eb63ef">&#9670;&#160;</a></span>game() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a> &amp; vesta::editor_viewport_state::game </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Oyun viewport durumuna salt okunur (const) referans döndürür. </p>
+
+<p class="definition"><a class="el" href="editor__viewport__state_8h_source.html">editor_viewport_state.h</a> dosyasının <a class="el" href="editor__viewport__state_8h_source.html#l00054">54</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="editor__viewport__state_8h_source.html#l00061">m_game</a>.</p>
+
+</div>
+</div>
+<a id="aeb9d20df1a52f775a93bbad1e70dd1a2" name="aeb9d20df1a52f775a93bbad1e70dd1a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb9d20df1a52f775a93bbad1e70dd1a2">&#9670;&#160;</a></span>scene() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a> &amp; vesta::editor_viewport_state::scene </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sahne viewport durumuna değiştirilebilir (mutable) referans döndürür. </p>
+
+<p class="definition"><a class="el" href="editor__viewport__state_8h_source.html">editor_viewport_state.h</a> dosyasının <a class="el" href="editor__viewport__state_8h_source.html#l00026">26</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="editor__viewport__state_8h_source.html#l00060">m_scene</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="scene__viewport__panel_8cpp_source.html#l00019">vesta::scene_viewport_panel::render()</a>.</p>
+
+</div>
+</div>
+<a id="ab6a04ac8d893a92daaafd8bcd2028290" name="ab6a04ac8d893a92daaafd8bcd2028290"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6a04ac8d893a92daaafd8bcd2028290">&#9670;&#160;</a></span>scene() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a> &amp; vesta::editor_viewport_state::scene </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sahne viewport durumuna salt okunur (const) referans döndürür. </p>
+
+<p class="definition"><a class="el" href="editor__viewport__state_8h_source.html">editor_viewport_state.h</a> dosyasının <a class="el" href="editor__viewport__state_8h_source.html#l00034">34</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="editor__viewport__state_8h_source.html#l00060">m_scene</a>.</p>
+
+</div>
+</div>
+<a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Üye Veri Dokümantasyonu</h2>
+<a id="aab97d6a6e5c1db7a865ab1435f8c7404" name="aab97d6a6e5c1db7a865ab1435f8c7404"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab97d6a6e5c1db7a865ab1435f8c7404">&#9670;&#160;</a></span>m_game</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a> vesta::editor_viewport_state::m_game</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Oyun kamerasından render edilen ekranın durumu. </p>
+
+<p class="definition"><a class="el" href="editor__viewport__state_8h_source.html">editor_viewport_state.h</a> dosyasının <a class="el" href="editor__viewport__state_8h_source.html#l00061">61</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="editor__viewport__state_8h_source.html#l00046">game()</a> ve <a class="el" href="editor__viewport__state_8h_source.html#l00054">game()</a>.</p>
+
+</div>
+</div>
+<a id="a565079cc618753f0e99af3ead029473a" name="a565079cc618753f0e99af3ead029473a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a565079cc618753f0e99af3ead029473a">&#9670;&#160;</a></span>m_scene</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structvesta_1_1viewport__state.html">viewport_state</a> vesta::editor_viewport_state::m_scene</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sahne düzenleme ekranının durumu. </p>
+
+<p class="definition"><a class="el" href="editor__viewport__state_8h_source.html">editor_viewport_state.h</a> dosyasının <a class="el" href="editor__viewport__state_8h_source.html#l00060">60</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="editor__viewport__state_8h_source.html#l00026">scene()</a> ve <a class="el" href="editor__viewport__state_8h_source.html#l00034">scene()</a>.</p>
+
+</div>
+</div>
+<hr/>Bu sınıf için dokümantasyon aşağıdaki dosyadan üretilmiştir:<ul>
+<li><a class="el" href="editor__viewport__state_8h_source.html">editor_viewport_state.h</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="namespacevesta.html">vesta</a></li><li class="navelem"><a href="classvesta_1_1editor__viewport__state.html">editor_viewport_state</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

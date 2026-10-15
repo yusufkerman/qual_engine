@@ -1,0 +1,189 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: material_inspector.h Dosya Referansı</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('material__inspector_8h.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">material_inspector.h Dosya Referansı</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &quot;<a class="el" href="asset__ui__registry_8h_source.html">../../Services/asset_ui_registry.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="material__service_8h_source.html">../../Services/material_service.h</a>&quot;</code><br />
+<code>#include &quot;../../../Engine/asset_pipeline.h&quot;</code><br />
+<code>#include &quot;../../../Externals/uuid/uuid.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="asset__entry_8h_source.html">../../Services/asset_entry.h</a>&quot;</code><br />
+<code>#include &lt;imgui.h&gt;</code><br />
+<code>#include &lt;fstream&gt;</code><br />
+<code>#include &lt;sstream&gt;</code><br />
+<code>#include &lt;filesystem&gt;</code><br />
+<code>#include &lt;iostream&gt;</code><br />
+<code>#include &lt;cstring&gt;</code><br />
+</div>
+<p><a href="material__inspector_8h_source.html">Bu dosyanın kaynak koduna git.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
+Namespace'ler</h2></td></tr>
+<tr class="memitem:vesta" id="r_vesta"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacevesta.html">vesta</a></td></tr>
+<tr class="memitem:vesta_3A_3Adetail" id="r_vesta_3A_3Adetail"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacevesta_1_1detail.html">vesta::detail</a></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Fonksiyonlar</h2></td></tr>
+<tr class="memitem:acf881a81d2ece74300ce49c979630272" id="r_acf881a81d2ece74300ce49c979630272"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacevesta_1_1detail.html#acf881a81d2ece74300ce49c979630272">vesta::detail::mat_read_file</a> (const std::string &amp;path)</td></tr>
+<tr class="memdesc:acf881a81d2ece74300ce49c979630272"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verilen dosya yolundaki içeriği okuyup string olarak döndürür.  <br /></td></tr>
+<tr class="memitem:a79ad7bf2e3ca4d00669636a6ac015459" id="r_a79ad7bf2e3ca4d00669636a6ac015459"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="namespacevesta_1_1detail.html#a79ad7bf2e3ca4d00669636a6ac015459">vesta::detail::mat_parse_float_array</a> (const std::string &amp;content, const std::string &amp;key, float *out, int count)</td></tr>
+<tr class="memdesc:a79ad7bf2e3ca4d00669636a6ac015459"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON içeriğinden belirtilen anahtara ait float dizisini ayrıştırır.  <br /></td></tr>
+<tr class="memitem:a22eb2c7639cf65bac88722822928e8e7" id="r_a22eb2c7639cf65bac88722822928e8e7"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="namespacevesta_1_1detail.html#a22eb2c7639cf65bac88722822928e8e7">vesta::detail::mat_parse_float</a> (const std::string &amp;content, const std::string &amp;key, float def)</td></tr>
+<tr class="memdesc:a22eb2c7639cf65bac88722822928e8e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON içeriğinden float değer ayrıştırır.  <br /></td></tr>
+<tr class="memitem:a767d409d6d57a2a936fd62e0bfa0724c" id="r_a767d409d6d57a2a936fd62e0bfa0724c"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="namespacevesta_1_1detail.html#a767d409d6d57a2a936fd62e0bfa0724c">vesta::detail::mat_parse_int</a> (const std::string &amp;content, const std::string &amp;key, int def)</td></tr>
+<tr class="memdesc:a767d409d6d57a2a936fd62e0bfa0724c"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON içeriğinden integer değer ayrıştırır.  <br /></td></tr>
+<tr class="memitem:a13ec7db700f7138c53e5682a2b3979c4" id="r_a13ec7db700f7138c53e5682a2b3979c4"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacevesta_1_1detail.html#a13ec7db700f7138c53e5682a2b3979c4">vesta::detail::mat_parse_string</a> (const std::string &amp;content, const std::string &amp;key, const std::string &amp;def)</td></tr>
+<tr class="memdesc:a13ec7db700f7138c53e5682a2b3979c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON içeriğinden tırnak içerisindeki string değerini ayrıştırır.  <br /></td></tr>
+<tr class="memitem:aee08ca48122b1a68b838c81110c3b6cd" id="r_aee08ca48122b1a68b838c81110c3b6cd"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="namespacevesta_1_1detail.html#aee08ca48122b1a68b838c81110c3b6cd">vesta::detail::mat_resolve_guid_path</a> (const std::string &amp;guid_str, <a class="el" href="classaria_1_1system.html">aria::system</a> *aria_sys)</td></tr>
+<tr class="memdesc:aee08ca48122b1a68b838c81110c3b6cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">String GUID verisini Aria varlık sistemi üzerinden fiziksel dosya yoluna dönüştürür.  <br /></td></tr>
+<tr class="memitem:ac02ada21eb06965d7249b4b986b8e226" id="r_ac02ada21eb06965d7249b4b986b8e226"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="namespacevesta.html#ac02ada21eb06965d7249b4b986b8e226">vesta::register_material_asset_ui_system</a> (<a class="el" href="classaria_1_1system.html">aria::system</a> *aria_sys, <a class="el" href="classvesta_1_1material__service.html">material_service</a> *mat_service)</td></tr>
+<tr class="memdesc:ac02ada21eb06965d7249b4b986b8e226"><td class="mdescLeft">&#160;</td><td class="mdescRight">Materyal düzenleme arayüzünü <a class="el" href="classvesta_1_1asset__ui__registry.html" title="Varlık türleri (string) ile onların UI çizim fonksiyonlarını eşleştiren statik merkez.">asset_ui_registry</a> sistemine kaydeder.  <br /></td></tr>
+</table>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_7965d2c2d25f8c48046d3c55e7f6a3a9.html">Editor</a></li><li class="navelem"><a href="dir_12e89c3d9ee90c022ac6ab31807e7c54.html">Vesta</a></li><li class="navelem"><a href="dir_58cc91d3dd89732b8071db33f46e497b.html">Inspector</a></li><li class="navelem"><a href="dir_9879a8027f042bd2b0f086cd259d2f87.html">Assets</a></li><li class="navelem"><a href="material__inspector_8h.html">material_inspector.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: physics_system.h Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('physics__system_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">physics_system.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="physics__system_8h.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;Jolt/Jolt.h&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;Jolt/RegisterTypes.h&gt;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &lt;Jolt/Core/Factory.h&gt;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;Jolt/Core/TempAllocator.h&gt;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &lt;Jolt/Core/JobSystemThreadPool.h&gt;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &lt;Jolt/Physics/PhysicsSettings.h&gt;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &lt;Jolt/Physics/PhysicsSystem.h&gt;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &lt;memory&gt;</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &quot;<a class="code" href="scene_8h.html">../Scene/scene.h</a>&quot;</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">class </span><a class="code hl_class" href="classphysics__api.html">physics_api</a>;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacelayers.html">layers</a></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>{</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="namespacelayers.html#a6e7a272b82eebbbede163cb1dc3480f1">   26</a></span>    <span class="keyword">static</span> <span class="keyword">constexpr</span> JPH::ObjectLayer <a class="code hl_variable" href="namespacelayers.html#a6e7a272b82eebbbede163cb1dc3480f1">NON_MOVING</a> = 0; </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="namespacelayers.html#a084b54c949aaeb457baa40cfa607f73c">   27</a></span>    <span class="keyword">static</span> <span class="keyword">constexpr</span> JPH::ObjectLayer <a class="code hl_variable" href="namespacelayers.html#a084b54c949aaeb457baa40cfa607f73c">MOVING</a> = 1;     </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="namespacelayers.html#a95eded834a07bbaa8d140afa0f63af2c">   28</a></span>    <span class="keyword">static</span> <span class="keyword">constexpr</span> JPH::ObjectLayer <a class="code hl_variable" href="namespacelayers.html#a95eded834a07bbaa8d140afa0f63af2c">NUM_LAYERS</a> = 2; </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>}</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacebroad__phase__layers.html">broad_phase_layers</a></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>{</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="namespacebroad__phase__layers.html#aed8008ca0e8927947506e127205f495f">   37</a></span>    <span class="keyword">static</span> <span class="keyword">constexpr</span> JPH::BroadPhaseLayer <a class="code hl_function" href="namespacebroad__phase__layers.html#aed8008ca0e8927947506e127205f495f">NON_MOVING</a>(0);</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno"><a class="line" href="namespacebroad__phase__layers.html#ab34f11859fb450e8adb2e32c4e98917e">   38</a></span>    <span class="keyword">static</span> <span class="keyword">constexpr</span> JPH::BroadPhaseLayer <a class="code hl_function" href="namespacebroad__phase__layers.html#ab34f11859fb450e8adb2e32c4e98917e">MOVING</a>(1);</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="namespacebroad__phase__layers.html#a462cdefb4044c01c7f95e99f73037dc3">   39</a></span>    <span class="keyword">static</span> <span class="keyword">constexpr</span> JPH::uint <a class="code hl_variable" href="namespacebroad__phase__layers.html#a462cdefb4044c01c7f95e99f73037dc3">NUM_LAYERS</a> = 2;</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>}</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span></div>
+<div class="foldopen" id="foldopen00046" data-start="{" data-end="};">
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="classobject__layer__pair__filter__impl.html">   46</a></span><span class="keyword">class </span><a class="code hl_class" href="classobject__layer__pair__filter__impl.html">object_layer_pair_filter_impl</a> : <span class="keyword">public</span> JPH::ObjectLayerPairFilter</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>{</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keyword">public</span>:</div>
+<div class="foldopen" id="foldopen00049" data-start="{" data-end="}">
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="classobject__layer__pair__filter__impl.html#aae11616e3af358a569d427fcc9ad245a">   49</a></span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classobject__layer__pair__filter__impl.html#aae11616e3af358a569d427fcc9ad245a">ShouldCollide</a>(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2)<span class="keyword"> const override</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        <span class="keywordflow">switch</span> (inObject1)</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        {</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        <span class="keywordflow">case</span> <a class="code hl_variable" href="namespacelayers.html#a6e7a272b82eebbbede163cb1dc3480f1">layers::NON_MOVING</a>:</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>            <span class="keywordflow">return</span> inObject2 == <a class="code hl_variable" href="namespacelayers.html#a084b54c949aaeb457baa40cfa607f73c">layers::MOVING</a>; <span class="comment">// Statik nesneler sadece hareketli nesnelerle çarpışır.</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        <span class="keywordflow">case</span> <a class="code hl_variable" href="namespacelayers.html#a084b54c949aaeb457baa40cfa607f73c">layers::MOVING</a>:</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>            <span class="keywordflow">return</span> <span class="keyword">true</span>; <span class="comment">// Hareketli nesneler her şeyle çarpışır.</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        }</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    }</div>
+</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>};</div>
+</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span></div>
+<div class="foldopen" id="foldopen00067" data-start="{" data-end="};">
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="classbplayer__interface__impl.html">   67</a></span><span class="keyword">class </span><a class="code hl_function" href="classbplayer__interface__impl.html#a469ad97db9ed742cbae942cc007840d0">bplayer_interface_impl</a> : <span class="keyword">public</span> JPH::BroadPhaseLayerInterface</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>{</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="keyword">public</span>:</div>
+<div class="foldopen" id="foldopen00070" data-start="{" data-end="}">
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="classbplayer__interface__impl.html#a469ad97db9ed742cbae942cc007840d0">   70</a></span>    <a class="code hl_function" href="classbplayer__interface__impl.html#a469ad97db9ed742cbae942cc007840d0">bplayer_interface_impl</a>()</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    {</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>        <a class="code hl_variable" href="classbplayer__interface__impl.html#a82072d24a7d816ab5e3d5176b9b4df16">mObjectToBroadPhase</a>[<a class="code hl_variable" href="namespacelayers.html#a6e7a272b82eebbbede163cb1dc3480f1">layers::NON_MOVING</a>] = <a class="code hl_function" href="namespacebroad__phase__layers.html#aed8008ca0e8927947506e127205f495f">broad_phase_layers::NON_MOVING</a>;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        <a class="code hl_variable" href="classbplayer__interface__impl.html#a82072d24a7d816ab5e3d5176b9b4df16">mObjectToBroadPhase</a>[<a class="code hl_variable" href="namespacelayers.html#a084b54c949aaeb457baa40cfa607f73c">layers::MOVING</a>] = <a class="code hl_function" href="namespacebroad__phase__layers.html#ab34f11859fb450e8adb2e32c4e98917e">broad_phase_layers::MOVING</a>;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    }</div>
+</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="foldopen" id="foldopen00076" data-start="{" data-end="}">
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="classbplayer__interface__impl.html#a03cf0819d0c278c5017c05083fe7587a">   76</a></span>    <span class="keyword">virtual</span> JPH::uint <a class="code hl_function" href="classbplayer__interface__impl.html#a03cf0819d0c278c5017c05083fe7587a">GetNumBroadPhaseLayers</a>()<span class="keyword"> const override</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        <span class="keywordflow">return</span> <a class="code hl_variable" href="namespacebroad__phase__layers.html#a462cdefb4044c01c7f95e99f73037dc3">broad_phase_layers::NUM_LAYERS</a>;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    }</div>
+</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="foldopen" id="foldopen00081" data-start="{" data-end="}">
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="classbplayer__interface__impl.html#a5104eb4cc513bbe73d52d2f92df2608d">   81</a></span>    <span class="keyword">virtual</span> JPH::BroadPhaseLayer <a class="code hl_function" href="classbplayer__interface__impl.html#a5104eb4cc513bbe73d52d2f92df2608d">GetBroadPhaseLayer</a>(JPH::ObjectLayer inLayer)<span class="keyword"> const override</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        <span class="keywordflow">return</span> <a class="code hl_variable" href="classbplayer__interface__impl.html#a82072d24a7d816ab5e3d5176b9b4df16">mObjectToBroadPhase</a>[inLayer];</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    }</div>
+</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="preprocessor">#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keywordtype">char</span>* GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer)<span class="keyword"> const override</span></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        <span class="keywordflow">switch</span> ((JPH::BroadPhaseLayer::Type)inLayer)</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        {</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        <span class="keywordflow">case</span> (JPH::BroadPhaseLayer::Type)<a class="code hl_function" href="namespacebroad__phase__layers.html#aed8008ca0e8927947506e127205f495f">broad_phase_layers::NON_MOVING</a>: <span class="keywordflow">return</span> <span class="stringliteral">&quot;NON_MOVING&quot;</span>;</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        <span class="keywordflow">case</span> (JPH::BroadPhaseLayer::Type)<a class="code hl_function" href="namespacebroad__phase__layers.html#ab34f11859fb450e8adb2e32c4e98917e">broad_phase_layers::MOVING</a>:     <span class="keywordflow">return</span> <span class="stringliteral">&quot;MOVING&quot;</span>;</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        <span class="keywordflow">default</span>:                                                         <span class="keywordflow">return</span> <span class="stringliteral">&quot;INVALID&quot;</span>;</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        }</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    }</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno"><a class="line" href="classbplayer__interface__impl.html#a82072d24a7d816ab5e3d5176b9b4df16">   99</a></span>    JPH::BroadPhaseLayer <a class="code hl_variable" href="classbplayer__interface__impl.html#a82072d24a7d816ab5e3d5176b9b4df16">mObjectToBroadPhase</a>[<a class="code hl_variable" href="namespacelayers.html#a95eded834a07bbaa8d140afa0f63af2c">layers::NUM_LAYERS</a>];</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>};</div>
+</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span></div>
+<div class="foldopen" id="foldopen00106" data-start="{" data-end="};">
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="classobject__vs__broad__phase__layer__filter__impl.html">  106</a></span><span class="keyword">class </span><a class="code hl_class" href="classobject__vs__broad__phase__layer__filter__impl.html">object_vs_broad_phase_layer_filter_impl</a> : <span class="keyword">public</span> JPH::ObjectVsBroadPhaseLayerFilter</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>{</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="keyword">public</span>:</div>
+<div class="foldopen" id="foldopen00109" data-start="{" data-end="}">
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno"><a class="line" href="classobject__vs__broad__phase__layer__filter__impl.html#afe52e410d6840eec4dd97c86eb3d0711">  109</a></span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classobject__vs__broad__phase__layer__filter__impl.html#afe52e410d6840eec4dd97c86eb3d0711">ShouldCollide</a>(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2)<span class="keyword"> const override</span></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>        <span class="keywordflow">switch</span> (inLayer1)</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        {</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        <span class="keywordflow">case</span> <a class="code hl_variable" href="namespacelayers.html#a6e7a272b82eebbbede163cb1dc3480f1">layers::NON_MOVING</a>:</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>            <span class="keywordflow">return</span> inLayer2 == <a class="code hl_function" href="namespacebroad__phase__layers.html#ab34f11859fb450e8adb2e32c4e98917e">broad_phase_layers::MOVING</a>;</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>        <span class="keywordflow">case</span> <a class="code hl_variable" href="namespacelayers.html#a084b54c949aaeb457baa40cfa607f73c">layers::MOVING</a>:</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>        <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        }</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    }</div>
+</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>};</div>
+</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span></div>
+<div class="foldopen" id="foldopen00127" data-start="{" data-end="};">
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno"><a class="line" href="classphysics__system.html">  127</a></span><span class="keyword">class </span><a class="code hl_function" href="classphysics__system.html#a32ad483809eaee400d75bdfc25fddca8">physics_system</a></div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>{</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno"><a class="line" href="classphysics__system.html#a32ad483809eaee400d75bdfc25fddca8">  130</a></span>    <a class="code hl_function" href="classphysics__system.html#a32ad483809eaee400d75bdfc25fddca8">physics_system</a>();</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno"><a class="line" href="classphysics__system.html#a66e4cd8a0e729c71608a2b16cf087e25">  131</a></span>    <a class="code hl_function" href="classphysics__system.html#a66e4cd8a0e729c71608a2b16cf087e25">~physics_system</a>();</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span></div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="classphysics__system.html#a6da3a9f3860d1de0e1f24289c3a16a4b">init</a>(<a class="code hl_class" href="classscene.html">scene</a>&amp; s);</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span></div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classphysics__system.html#ae9fc2615f21ca4053b655d7bd5ee3f43">update</a>(<span class="keywordtype">float</span> delta_time);</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span></div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classphysics__system.html#a4a5333dc370103386011268ae3b8cf56">shutdown</a>();</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span></div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno"><a class="line" href="classphysics__system.html#ae69da82dab849a2bf2504b29f572352a">  154</a></span>    <a class="code hl_class" href="classphysics__api.html">physics_api</a>&amp; <a class="code hl_function" href="classphysics__system.html#ae69da82dab849a2bf2504b29f572352a">api</a>() { <span class="keywordflow">return</span> *<a class="code hl_variable" href="classphysics__system.html#a2ce15cd7d9347d828142e48a8e4c0b0a">m_api</a>; }</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span></div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno"><a class="line" href="classphysics__system.html#a6d3bedf19aac6951db36c509db6007ea">  159</a></span>    JPH::PhysicsSystem* <a class="code hl_function" href="classphysics__system.html#a6d3bedf19aac6951db36c509db6007ea">get_jolt_system</a>() { <span class="keywordflow">return</span> <a class="code hl_variable" href="classphysics__system.html#a56bb792f3cc4764c8dd1a0eea51aaf24">mPhysicsSystem</a>.get(); }</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno"><a class="line" href="classphysics__system.html#a2ce15cd7d9347d828142e48a8e4c0b0a">  162</a></span>    std::unique_ptr&lt;physics_api&gt; <a class="code hl_variable" href="classphysics__system.html#a2ce15cd7d9347d828142e48a8e4c0b0a">m_api</a>; </div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span> </div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno"><a class="line" href="classphysics__system.html#a56bb792f3cc4764c8dd1a0eea51aaf24">  164</a></span>    std::unique_ptr&lt;JPH::PhysicsSystem&gt; <a class="code hl_variable" href="classphysics__system.html#a56bb792f3cc4764c8dd1a0eea51aaf24">mPhysicsSystem</a>;</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno"><a class="line" href="classphysics__system.html#a1e3d106ea86e5304ff1b44a89bc1b650">  165</a></span>    std::unique_ptr&lt;JPH::TempAllocatorImpl&gt; <a class="code hl_variable" href="classphysics__system.html#a1e3d106ea86e5304ff1b44a89bc1b650">mTempAllocator</a>;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno"><a class="line" href="classphysics__system.html#a661f515cada0050b6506f2c1b26d48eb">  166</a></span>    std::unique_ptr&lt;JPH::JobSystemThreadPool&gt; <a class="code hl_variable" href="classphysics__system.html#a661f515cada0050b6506f2c1b26d48eb">mJobSystem</a>;</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="comment">// Jolt filtreleme arayüz örnekleri</span></div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno"><a class="line" href="classphysics__system.html#ab66ec4d2f49ba7c268a2e31bf2cda6d6">  169</a></span>    <a class="code hl_class" href="classbplayer__interface__impl.html">bplayer_interface_impl</a> <a class="code hl_variable" href="classphysics__system.html#ab66ec4d2f49ba7c268a2e31bf2cda6d6">mBPInterface</a>;</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno"><a class="line" href="classphysics__system.html#ad31d1d5481e3ddb6025d1a42113b8213">  170</a></span>    <a class="code hl_class" href="classobject__vs__broad__phase__layer__filter__impl.html">object_vs_broad_phase_layer_filter_impl</a> <a class="code hl_variable" href="classphysics__system.html#ad31d1d5481e3ddb6025d1a42113b8213">mObjectVsBPFilter</a>;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno"><a class="line" href="classphysics__system.html#a401688059a2e1f0e1655e283782ff676">  171</a></span>    <a class="code hl_class" href="classobject__layer__pair__filter__impl.html">object_layer_pair_filter_impl</a> <a class="code hl_variable" href="classphysics__system.html#a401688059a2e1f0e1655e283782ff676">mObjectVsObjectFilter</a>;</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <span class="comment">// Motor kısıtlamaları ve limitleri</span></div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno"><a class="line" href="classphysics__system.html#a2abd234a988c5afd23134483de773b38">  174</a></span>    <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code hl_variable" href="classphysics__system.html#a2abd234a988c5afd23134483de773b38">mMaxBodies</a> = 1024;</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno"><a class="line" href="classphysics__system.html#a08875ad092e0b79746f494940825e0bb">  175</a></span>    <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code hl_variable" href="classphysics__system.html#a08875ad092e0b79746f494940825e0bb">mNumBodyMutexes</a> = 0;</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno"><a class="line" href="classphysics__system.html#a34815a2e00bb9941e87947fd7eca49ce">  176</a></span>    <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code hl_variable" href="classphysics__system.html#a34815a2e00bb9941e87947fd7eca49ce">mMaxBodyPairs</a> = 1024;</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno"><a class="line" href="classphysics__system.html#acb24a3d31df9a52d064b43236866e90d">  177</a></span>    <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code hl_variable" href="classphysics__system.html#acb24a3d31df9a52d064b43236866e90d">mMaxContactConstraints</a> = 1024;</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>};</div>
+</div>
+<div class="ttc" id="aclassbplayer__interface__impl_html"><div class="ttname"><a href="classbplayer__interface__impl.html">bplayer_interface_impl</a></div><div class="ttdoc">Nesne katmanlarını kaba faz (BroadPhase) katmanlarına eşleyen arayüz uygulaması.</div><div class="ttdef"><b>Definition</b> <a href="#l00067">physics_system.h:68</a></div></div>
+<div class="ttc" id="aclassbplayer__interface__impl_html_a03cf0819d0c278c5017c05083fe7587a"><div class="ttname"><a href="classbplayer__interface__impl.html#a03cf0819d0c278c5017c05083fe7587a">bplayer_interface_impl::GetNumBroadPhaseLayers</a></div><div class="ttdeci">virtual JPH::uint GetNumBroadPhaseLayers() const override</div><div class="ttdef"><b>Definition</b> <a href="#l00076">physics_system.h:76</a></div></div>
+<div class="ttc" id="aclassbplayer__interface__impl_html_a469ad97db9ed742cbae942cc007840d0"><div class="ttname"><a href="classbplayer__interface__impl.html#a469ad97db9ed742cbae942cc007840d0">bplayer_interface_impl::bplayer_interface_impl</a></div><div class="ttdeci">bplayer_interface_impl()</div><div class="ttdef"><b>Definition</b> <a href="#l00070">physics_system.h:70</a></div></div>
+<div class="ttc" id="aclassbplayer__interface__impl_html_a5104eb4cc513bbe73d52d2f92df2608d"><div class="ttname"><a href="classbplayer__interface__impl.html#a5104eb4cc513bbe73d52d2f92df2608d">bplayer_interface_impl::GetBroadPhaseLayer</a></div><div class="ttdeci">virtual JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const override</div><div class="ttdef"><b>Definition</b> <a href="#l00081">physics_system.h:81</a></div></div>
+<div class="ttc" id="aclassbplayer__interface__impl_html_a82072d24a7d816ab5e3d5176b9b4df16"><div class="ttname"><a href="classbplayer__interface__impl.html#a82072d24a7d816ab5e3d5176b9b4df16">bplayer_interface_impl::mObjectToBroadPhase</a></div><div class="ttdeci">JPH::BroadPhaseLayer mObjectToBroadPhase[layers::NUM_LAYERS]</div><div class="ttdef"><b>Definition</b> <a href="#l00099">physics_system.h:99</a></div></div>
+<div class="ttc" id="aclassobject__layer__pair__filter__impl_html"><div class="ttname"><a href="classobject__layer__pair__filter__impl.html">object_layer_pair_filter_impl</a></div><div class="ttdoc">Nesne katmanlarının (Object Layer) birbiriyle çarpışma kurallarını belirleyen filtre.</div><div class="ttdef"><b>Definition</b> <a href="#l00046">physics_system.h:47</a></div></div>
+<div class="ttc" id="aclassobject__layer__pair__filter__impl_html_aae11616e3af358a569d427fcc9ad245a"><div class="ttname"><a href="classobject__layer__pair__filter__impl.html#aae11616e3af358a569d427fcc9ad245a">object_layer_pair_filter_impl::ShouldCollide</a></div><div class="ttdeci">virtual bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override</div><div class="ttdef"><b>Definition</b> <a href="#l00049">physics_system.h:49</a></div></div>
+<div class="ttc" id="aclassobject__vs__broad__phase__layer__filter__impl_html"><div class="ttname"><a href="classobject__vs__broad__phase__layer__filter__impl.html">object_vs_broad_phase_layer_filter_impl</a></div><div class="ttdoc">Nesne katmanları ile kaba faz katmanları arasındaki çarpışma kurallarını belirleyen filtre.</div><div class="ttdef"><b>Definition</b> <a href="#l00106">physics_system.h:107</a></div></div>
+<div class="ttc" id="aclassobject__vs__broad__phase__layer__filter__impl_html_afe52e410d6840eec4dd97c86eb3d0711"><div class="ttname"><a href="classobject__vs__broad__phase__layer__filter__impl.html#afe52e410d6840eec4dd97c86eb3d0711">object_vs_broad_phase_layer_filter_impl::ShouldCollide</a></div><div class="ttdeci">virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const override</div><div class="ttdef"><b>Definition</b> <a href="#l00109">physics_system.h:109</a></div></div>
+<div class="ttc" id="aclassphysics__api_html"><div class="ttname"><a href="classphysics__api.html">physics_api</a></div><div class="ttdoc">Çalışma zamanında (runtime) fizik gövdelerine kuvvet uygulama, konum sorgulama ve yapısal değişiklik ...</div><div class="ttdef"><b>Definition</b> <a href="physics__api_8h_source.html#l00018">physics_api.h:19</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a08875ad092e0b79746f494940825e0bb"><div class="ttname"><a href="classphysics__system.html#a08875ad092e0b79746f494940825e0bb">physics_system::mNumBodyMutexes</a></div><div class="ttdeci">static constexpr unsigned int mNumBodyMutexes</div><div class="ttdef"><b>Definition</b> <a href="#l00175">physics_system.h:175</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a1e3d106ea86e5304ff1b44a89bc1b650"><div class="ttname"><a href="classphysics__system.html#a1e3d106ea86e5304ff1b44a89bc1b650">physics_system::mTempAllocator</a></div><div class="ttdeci">std::unique_ptr&lt; JPH::TempAllocatorImpl &gt; mTempAllocator</div><div class="ttdef"><b>Definition</b> <a href="#l00165">physics_system.h:165</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a2abd234a988c5afd23134483de773b38"><div class="ttname"><a href="classphysics__system.html#a2abd234a988c5afd23134483de773b38">physics_system::mMaxBodies</a></div><div class="ttdeci">static constexpr unsigned int mMaxBodies</div><div class="ttdef"><b>Definition</b> <a href="#l00174">physics_system.h:174</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a2ce15cd7d9347d828142e48a8e4c0b0a"><div class="ttname"><a href="classphysics__system.html#a2ce15cd7d9347d828142e48a8e4c0b0a">physics_system::m_api</a></div><div class="ttdeci">std::unique_ptr&lt; physics_api &gt; m_api</div><div class="ttdoc">Yerel (native) fizik komut arayüzü.</div><div class="ttdef"><b>Definition</b> <a href="#l00162">physics_system.h:162</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a32ad483809eaee400d75bdfc25fddca8"><div class="ttname"><a href="classphysics__system.html#a32ad483809eaee400d75bdfc25fddca8">physics_system::physics_system</a></div><div class="ttdeci">physics_system()</div></div>
+<div class="ttc" id="aclassphysics__system_html_a34815a2e00bb9941e87947fd7eca49ce"><div class="ttname"><a href="classphysics__system.html#a34815a2e00bb9941e87947fd7eca49ce">physics_system::mMaxBodyPairs</a></div><div class="ttdeci">static constexpr unsigned int mMaxBodyPairs</div><div class="ttdef"><b>Definition</b> <a href="#l00176">physics_system.h:176</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a401688059a2e1f0e1655e283782ff676"><div class="ttname"><a href="classphysics__system.html#a401688059a2e1f0e1655e283782ff676">physics_system::mObjectVsObjectFilter</a></div><div class="ttdeci">object_layer_pair_filter_impl mObjectVsObjectFilter</div><div class="ttdef"><b>Definition</b> <a href="#l00171">physics_system.h:171</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a4a5333dc370103386011268ae3b8cf56"><div class="ttname"><a href="classphysics__system.html#a4a5333dc370103386011268ae3b8cf56">physics_system::shutdown</a></div><div class="ttdeci">void shutdown()</div><div class="ttdoc">Jolt motorunu güvenli bir şekilde kapatır ve tahsis edilen bellekleri serbest bırakır.</div><div class="ttdef"><b>Definition</b> <a href="physics__system_8cpp_source.html#l00066">physics_system.cpp:66</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a56bb792f3cc4764c8dd1a0eea51aaf24"><div class="ttname"><a href="classphysics__system.html#a56bb792f3cc4764c8dd1a0eea51aaf24">physics_system::mPhysicsSystem</a></div><div class="ttdeci">std::unique_ptr&lt; JPH::PhysicsSystem &gt; mPhysicsSystem</div><div class="ttdef"><b>Definition</b> <a href="#l00164">physics_system.h:164</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a661f515cada0050b6506f2c1b26d48eb"><div class="ttname"><a href="classphysics__system.html#a661f515cada0050b6506f2c1b26d48eb">physics_system::mJobSystem</a></div><div class="ttdeci">std::unique_ptr&lt; JPH::JobSystemThreadPool &gt; mJobSystem</div><div class="ttdef"><b>Definition</b> <a href="#l00166">physics_system.h:166</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a66e4cd8a0e729c71608a2b16cf087e25"><div class="ttname"><a href="classphysics__system.html#a66e4cd8a0e729c71608a2b16cf087e25">physics_system::~physics_system</a></div><div class="ttdeci">~physics_system()</div></div>
+<div class="ttc" id="aclassphysics__system_html_a6d3bedf19aac6951db36c509db6007ea"><div class="ttname"><a href="classphysics__system.html#a6d3bedf19aac6951db36c509db6007ea">physics_system::get_jolt_system</a></div><div class="ttdeci">JPH::PhysicsSystem * get_jolt_system()</div><div class="ttdoc">Düşük seviye erişim için doğrudan Jolt PhysicsSystem işaretçisini döner.</div><div class="ttdef"><b>Definition</b> <a href="#l00159">physics_system.h:159</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_a6da3a9f3860d1de0e1f24289c3a16a4b"><div class="ttname"><a href="classphysics__system.html#a6da3a9f3860d1de0e1f24289c3a16a4b">physics_system::init</a></div><div class="ttdeci">bool init(scene &amp;s)</div><div class="ttdoc">Jolt fizik motorunu, bellek ayırıcılarını ve çalışma arayüzlerini ilklendirir.</div><div class="ttdef"><b>Definition</b> <a href="physics__system_8cpp_source.html#l00019">physics_system.cpp:19</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_ab66ec4d2f49ba7c268a2e31bf2cda6d6"><div class="ttname"><a href="classphysics__system.html#ab66ec4d2f49ba7c268a2e31bf2cda6d6">physics_system::mBPInterface</a></div><div class="ttdeci">bplayer_interface_impl mBPInterface</div><div class="ttdef"><b>Definition</b> <a href="#l00169">physics_system.h:169</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_acb24a3d31df9a52d064b43236866e90d"><div class="ttname"><a href="classphysics__system.html#acb24a3d31df9a52d064b43236866e90d">physics_system::mMaxContactConstraints</a></div><div class="ttdeci">static constexpr unsigned int mMaxContactConstraints</div><div class="ttdef"><b>Definition</b> <a href="#l00177">physics_system.h:177</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_ad31d1d5481e3ddb6025d1a42113b8213"><div class="ttname"><a href="classphysics__system.html#ad31d1d5481e3ddb6025d1a42113b8213">physics_system::mObjectVsBPFilter</a></div><div class="ttdeci">object_vs_broad_phase_layer_filter_impl mObjectVsBPFilter</div><div class="ttdef"><b>Definition</b> <a href="#l00170">physics_system.h:170</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_ae69da82dab849a2bf2504b29f572352a"><div class="ttname"><a href="classphysics__system.html#ae69da82dab849a2bf2504b29f572352a">physics_system::api</a></div><div class="ttdeci">physics_api &amp; api()</div><div class="ttdoc">Fizik komutlarına ve olaylarına erişim sağlayan API nesnesini döner.</div><div class="ttdef"><b>Definition</b> <a href="#l00154">physics_system.h:154</a></div></div>
+<div class="ttc" id="aclassphysics__system_html_ae9fc2615f21ca4053b655d7bd5ee3f43"><div class="ttname"><a href="classphysics__system.html#ae9fc2615f21ca4053b655d7bd5ee3f43">physics_system::update</a></div><div class="ttdeci">void update(float delta_time)</div><div class="ttdoc">Fizik simülasyonunu bir adım (delta) ilerletir.</div><div class="ttdef"><b>Definition</b> <a href="physics__system_8cpp_source.html#l00058">physics_system.cpp:58</a></div></div>
+<div class="ttc" id="aclassscene_html"><div class="ttname"><a href="classscene.html">scene</a></div><div class="ttdoc">Varlıkların (Entity), bileşenlerin (Component) ve çalışma zamanı sistemlerinin barındığı temel dünya ...</div><div class="ttdef"><b>Definition</b> <a href="scene_8h_source.html#l00020">scene.h:21</a></div></div>
+<div class="ttc" id="anamespacebroad__phase__layers_html"><div class="ttname"><a href="namespacebroad__phase__layers.html">broad_phase_layers</a></div><div class="ttdoc">Jolt kaba faz (BroadPhase) katmanlarının tanımları.</div></div>
+<div class="ttc" id="anamespacebroad__phase__layers_html_a462cdefb4044c01c7f95e99f73037dc3"><div class="ttname"><a href="namespacebroad__phase__layers.html#a462cdefb4044c01c7f95e99f73037dc3">broad_phase_layers::NUM_LAYERS</a></div><div class="ttdeci">static constexpr JPH::uint NUM_LAYERS</div><div class="ttdef"><b>Definition</b> <a href="#l00039">physics_system.h:39</a></div></div>
+<div class="ttc" id="anamespacebroad__phase__layers_html_ab34f11859fb450e8adb2e32c4e98917e"><div class="ttname"><a href="namespacebroad__phase__layers.html#ab34f11859fb450e8adb2e32c4e98917e">broad_phase_layers::MOVING</a></div><div class="ttdeci">static constexpr JPH::BroadPhaseLayer MOVING(1)</div></div>
+<div class="ttc" id="anamespacebroad__phase__layers_html_aed8008ca0e8927947506e127205f495f"><div class="ttname"><a href="namespacebroad__phase__layers.html#aed8008ca0e8927947506e127205f495f">broad_phase_layers::NON_MOVING</a></div><div class="ttdeci">static constexpr JPH::BroadPhaseLayer NON_MOVING(0)</div></div>
+<div class="ttc" id="anamespacelayers_html"><div class="ttname"><a href="namespacelayers.html">layers</a></div><div class="ttdoc">Jolt fizik nesne katmanlarının tanımları.</div></div>
+<div class="ttc" id="anamespacelayers_html_a084b54c949aaeb457baa40cfa607f73c"><div class="ttname"><a href="namespacelayers.html#a084b54c949aaeb457baa40cfa607f73c">layers::MOVING</a></div><div class="ttdeci">static constexpr JPH::ObjectLayer MOVING</div><div class="ttdoc">Hareketli (Dinamik ve Kinematik) nesneler.</div><div class="ttdef"><b>Definition</b> <a href="#l00027">physics_system.h:27</a></div></div>
+<div class="ttc" id="anamespacelayers_html_a6e7a272b82eebbbede163cb1dc3480f1"><div class="ttname"><a href="namespacelayers.html#a6e7a272b82eebbbede163cb1dc3480f1">layers::NON_MOVING</a></div><div class="ttdeci">static constexpr JPH::ObjectLayer NON_MOVING</div><div class="ttdoc">Hareketsiz (Statik) nesneler.</div><div class="ttdef"><b>Definition</b> <a href="#l00026">physics_system.h:26</a></div></div>
+<div class="ttc" id="anamespacelayers_html_a95eded834a07bbaa8d140afa0f63af2c"><div class="ttname"><a href="namespacelayers.html#a95eded834a07bbaa8d140afa0f63af2c">layers::NUM_LAYERS</a></div><div class="ttdeci">static constexpr JPH::ObjectLayer NUM_LAYERS</div><div class="ttdoc">Toplam fizik katmanı sayısı.</div><div class="ttdef"><b>Definition</b> <a href="#l00028">physics_system.h:28</a></div></div>
+<div class="ttc" id="ascene_8h_html"><div class="ttname"><a href="scene_8h.html">scene.h</a></div><div class="ttdoc">Sahne varlıkları, ECS kayıt defteri, ışık paketleri ve çalışma zamanı betiklerini yöneten sınıf.</div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_847eaeb2056d47a26758e37e172ca79b.html">Systems</a></li><li class="navelem"><a href="physics__system_8h.html">physics_system.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

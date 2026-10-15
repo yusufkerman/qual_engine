@@ -18,6 +18,7 @@
 #include "../Sera/sera.h"
 #include "../Editor/editor_context.h"
 #include "../Editor/editor_camera.h"
+#include "../Gameplay/gameplay_context.h"
 
 namespace
 {
@@ -190,6 +191,7 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     }
 
     init_input(ctx);
+    gameplay::context::set_engine_context(&ctx);
     ctx.prevMode = editorCtx.mode;
 
     // Gökyüzü (Skybox) küp haritasını yükle
@@ -209,6 +211,9 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
 
 void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 {
+    gameplay::context::set_engine_context(&ctx);
+    gameplay::context::set_active_scene(&ctx.session.game_scene());
+
     ctx.inputSystem.update(ctx, editorCtx);
     handle_mode_transition(ctx, editorCtx);
 

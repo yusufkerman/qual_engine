@@ -1,0 +1,199 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: game_viewport_panel.h Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('game__viewport__panel_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">game_viewport_panel.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="game__viewport__panel_8h.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;<a class="code" href="_i_editor_panel_8h.html">IEditorPanel.h</a>&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="game__viewport__view__model_8h.html">../ViewModels/game_viewport_view_model.h</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="editor__viewport__state_8h.html">../CoreState/editor_viewport_state.h</a>&quot;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacevesta.html">vesta</a> {</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span></div>
+<div class="foldopen" id="foldopen00019" data-start="{" data-end="};">
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="classvesta_1_1game__viewport__panel.html">   19</a></span>    <span class="keyword">class </span><a class="code hl_function" href="classvesta_1_1game__viewport__panel.html#a6b2601835f34a90e9f0e5066831e1135">game_viewport_panel</a> : <span class="keyword">public</span> <a class="code hl_class" href="classvesta_1_1_i_editor_panel.html">IEditorPanel</a></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    {</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>        <a class="code hl_function" href="classvesta_1_1game__viewport__panel.html#a6b2601835f34a90e9f0e5066831e1135">game_viewport_panel</a>(</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>            <a class="code hl_class" href="classvesta_1_1game__viewport__view__model.html">game_viewport_view_model</a>&amp; vm,</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>            <a class="code hl_class" href="classvesta_1_1editor__viewport__state.html">editor_viewport_state</a>&amp; viewportState);</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        <span class="comment">// IEditorPanel ARAYÜZÜ (INTERFACE)</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classvesta_1_1game__viewport__panel.html#a8c1f147e4a92aa58962989c723bc3923">render</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keyword">const</span> std::string&amp; <a class="code hl_function" href="classvesta_1_1game__viewport__panel.html#a69830ceae2848803ec506edd2ee119a9">get_title</a>() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="classvesta_1_1game__viewport__panel.html#a08ae4d5d3c3511e0f2044f7eecbb6378">is_open</a>() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classvesta_1_1game__viewport__panel.html#abde207af6358aaa88481df1b6f62a6dc">set_open</a>(<span class="keywordtype">bool</span> open) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="classvesta_1_1game__viewport__panel.html#a6b31139bf9e55fbc80879d80b76897e1">   42</a></span>        <a class="code hl_class" href="classvesta_1_1game__viewport__view__model.html">game_viewport_view_model</a>&amp; <a class="code hl_variable" href="classvesta_1_1game__viewport__panel.html#a6b31139bf9e55fbc80879d80b76897e1">m_vm</a>;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="classvesta_1_1game__viewport__panel.html#a2cf8da9a346189492ad76993e34e32d6">   43</a></span>        <a class="code hl_class" href="classvesta_1_1editor__viewport__state.html">editor_viewport_state</a>&amp; <a class="code hl_variable" href="classvesta_1_1game__viewport__panel.html#a2cf8da9a346189492ad76993e34e32d6">m_viewport_state</a>;</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="classvesta_1_1game__viewport__panel.html#a8c70d3aaab7c5049c49e6cd072002aa5">   45</a></span>        std::string <a class="code hl_variable" href="classvesta_1_1game__viewport__panel.html#a8c70d3aaab7c5049c49e6cd072002aa5">m_title</a> = <span class="stringliteral">&quot;Game&quot;</span>;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="classvesta_1_1game__viewport__panel.html#a291e9f15b2f072f6c4d68ca0182a7509">   46</a></span>        <span class="keywordtype">bool</span> <a class="code hl_variable" href="classvesta_1_1game__viewport__panel.html#a291e9f15b2f072f6c4d68ca0182a7509">m_is_open</a> = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    };</div>
+</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>} <span class="comment">// namespace vesta</span></div>
+<div class="ttc" id="a_i_editor_panel_8h_html"><div class="ttname"><a href="_i_editor_panel_8h.html">IEditorPanel.h</a></div><div class="ttdoc">Editör panelleri için polimorfik temel arayüzü (interface) tanımlar.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editor_panel_html"><div class="ttname"><a href="classvesta_1_1_i_editor_panel.html">vesta::IEditorPanel</a></div><div class="ttdoc">Tüm editör panellerinin türemesi gereken saf sanal (pure virtual) sözleşme sınıfı.</div><div class="ttdef"><b>Definition</b> <a href="_i_editor_panel_8h_source.html#l00017">IEditorPanel.h:17</a></div></div>
+<div class="ttc" id="aclassvesta_1_1editor__viewport__state_html"><div class="ttname"><a href="classvesta_1_1editor__viewport__state.html">vesta::editor_viewport_state</a></div><div class="ttdoc">Sahne ve Oyun viewport&#39;larının odak, boyut ve konum durumlarını tek bir merkezde saklar.</div><div class="ttdef"><b>Definition</b> <a href="editor__viewport__state_8h_source.html#l00016">editor_viewport_state.h:17</a></div></div>
+<div class="ttc" id="aclassvesta_1_1game__viewport__panel_html_a08ae4d5d3c3511e0f2044f7eecbb6378"><div class="ttname"><a href="classvesta_1_1game__viewport__panel.html#a08ae4d5d3c3511e0f2044f7eecbb6378">vesta::game_viewport_panel::is_open</a></div><div class="ttdeci">bool is_open() const override</div><div class="ttdoc">Panelin anlık olarak açık/görünür olup olmadığını kontrol eder.</div><div class="ttdef"><b>Definition</b> <a href="game__viewport__panel_8cpp_source.html#l00069">game_viewport_panel.cpp:69</a></div></div>
+<div class="ttc" id="aclassvesta_1_1game__viewport__panel_html_a291e9f15b2f072f6c4d68ca0182a7509"><div class="ttname"><a href="classvesta_1_1game__viewport__panel.html#a291e9f15b2f072f6c4d68ca0182a7509">vesta::game_viewport_panel::m_is_open</a></div><div class="ttdeci">bool m_is_open</div><div class="ttdef"><b>Definition</b> <a href="#l00046">game_viewport_panel.h:46</a></div></div>
+<div class="ttc" id="aclassvesta_1_1game__viewport__panel_html_a2cf8da9a346189492ad76993e34e32d6"><div class="ttname"><a href="classvesta_1_1game__viewport__panel.html#a2cf8da9a346189492ad76993e34e32d6">vesta::game_viewport_panel::m_viewport_state</a></div><div class="ttdeci">editor_viewport_state &amp; m_viewport_state</div><div class="ttdef"><b>Definition</b> <a href="#l00043">game_viewport_panel.h:43</a></div></div>
+<div class="ttc" id="aclassvesta_1_1game__viewport__panel_html_a69830ceae2848803ec506edd2ee119a9"><div class="ttname"><a href="classvesta_1_1game__viewport__panel.html#a69830ceae2848803ec506edd2ee119a9">vesta::game_viewport_panel::get_title</a></div><div class="ttdeci">const std::string &amp; get_title() const override</div><div class="ttdoc">Panelin arayüzde (sekmede) görünecek başlığını döndürür.</div><div class="ttdef"><b>Definition</b> <a href="game__viewport__panel_8cpp_source.html#l00064">game_viewport_panel.cpp:64</a></div></div>
+<div class="ttc" id="aclassvesta_1_1game__viewport__panel_html_a6b2601835f34a90e9f0e5066831e1135"><div class="ttname"><a href="classvesta_1_1game__viewport__panel.html#a6b2601835f34a90e9f0e5066831e1135">vesta::game_viewport_panel::game_viewport_panel</a></div><div class="ttdeci">game_viewport_panel(game_viewport_view_model &amp;vm, editor_viewport_state &amp;viewportState)</div><div class="ttdoc">Oyun görünümü panelini başlatır.</div><div class="ttdef"><b>Definition</b> <a href="game__viewport__panel_8cpp_source.html#l00011">game_viewport_panel.cpp:11</a></div></div>
+<div class="ttc" id="aclassvesta_1_1game__viewport__panel_html_a6b31139bf9e55fbc80879d80b76897e1"><div class="ttname"><a href="classvesta_1_1game__viewport__panel.html#a6b31139bf9e55fbc80879d80b76897e1">vesta::game_viewport_panel::m_vm</a></div><div class="ttdeci">game_viewport_view_model &amp; m_vm</div><div class="ttdef"><b>Definition</b> <a href="#l00042">game_viewport_panel.h:42</a></div></div>
+<div class="ttc" id="aclassvesta_1_1game__viewport__panel_html_a8c1f147e4a92aa58962989c723bc3923"><div class="ttname"><a href="classvesta_1_1game__viewport__panel.html#a8c1f147e4a92aa58962989c723bc3923">vesta::game_viewport_panel::render</a></div><div class="ttdeci">void render() override</div><div class="ttdoc">Panelin ImGui çizim (render) komutlarını çalıştırır.</div><div class="ttdef"><b>Definition</b> <a href="game__viewport__panel_8cpp_source.html#l00019">game_viewport_panel.cpp:19</a></div></div>
+<div class="ttc" id="aclassvesta_1_1game__viewport__panel_html_a8c70d3aaab7c5049c49e6cd072002aa5"><div class="ttname"><a href="classvesta_1_1game__viewport__panel.html#a8c70d3aaab7c5049c49e6cd072002aa5">vesta::game_viewport_panel::m_title</a></div><div class="ttdeci">std::string m_title</div><div class="ttdef"><b>Definition</b> <a href="#l00045">game_viewport_panel.h:45</a></div></div>
+<div class="ttc" id="aclassvesta_1_1game__viewport__panel_html_abde207af6358aaa88481df1b6f62a6dc"><div class="ttname"><a href="classvesta_1_1game__viewport__panel.html#abde207af6358aaa88481df1b6f62a6dc">vesta::game_viewport_panel::set_open</a></div><div class="ttdeci">void set_open(bool open) override</div><div class="ttdoc">Panelin görünürlük durumunu ayarlar.</div><div class="ttdef"><b>Definition</b> <a href="game__viewport__panel_8cpp_source.html#l00074">game_viewport_panel.cpp:74</a></div></div>
+<div class="ttc" id="aclassvesta_1_1game__viewport__view__model_html"><div class="ttname"><a href="classvesta_1_1game__viewport__view__model.html">vesta::game_viewport_view_model</a></div><div class="ttdoc">Oyun ekranının render edildiği panelin boyut, odak (focus) ve doku (texture) durumlarını yönetir.</div><div class="ttdef"><b>Definition</b> <a href="game__viewport__view__model_8h_source.html#l00017">game_viewport_view_model.h:17</a></div></div>
+<div class="ttc" id="aeditor__viewport__state_8h_html"><div class="ttname"><a href="editor__viewport__state_8h.html">editor_viewport_state.h</a></div><div class="ttdoc">Editörün Sahne (Scene) ve Oyun (Game) pencerelerinin anlık durum verilerini yöneten taşıyıcı sınıf.</div></div>
+<div class="ttc" id="agame__viewport__view__model_8h_html"><div class="ttname"><a href="game__viewport__view__model_8h.html">game_viewport_view_model.h</a></div><div class="ttdoc">Oyun görünümü (Game Viewport) paneli için Model-View-ViewModel (MVVM) yapısının görünüm modeli katman...</div></div>
+<div class="ttc" id="anamespacevesta_html"><div class="ttname"><a href="namespacevesta.html">vesta</a></div><div class="ttdef"><b>Definition</b> <a href="_u_i_helper_8h_source.html#l00013">UIHelper.h:13</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_7965d2c2d25f8c48046d3c55e7f6a3a9.html">Editor</a></li><li class="navelem"><a href="dir_12e89c3d9ee90c022ac6ab31807e7c54.html">Vesta</a></li><li class="navelem"><a href="dir_125c1b9e3f07bc52eb61a784874a77d4.html">Panels</a></li><li class="navelem"><a href="game__viewport__panel_8h.html">game_viewport_panel.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

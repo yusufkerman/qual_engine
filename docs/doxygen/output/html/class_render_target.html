@@ -1,0 +1,443 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: RenderTarget Sınıf Referans</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('class_render_target.html','','class_render_target-members'); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">RenderTarget Sınıf Referans</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Ekran dışı (off-screen) çizim hedeflerinin (FBO, doku, RBO) yaşam döngüsünü yönetir.  
+ <a href="#details">Ayrıntılar...</a></p>
+
+<p><code>#include &lt;<a class="el" href="render__target_8h_source.html">render_target.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Üye Fonksiyonlar</h2></td></tr>
+<tr class="memitem:a3d16c8367d445094de01933222ef0c63" id="r_a3d16c8367d445094de01933222ef0c63"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a3d16c8367d445094de01933222ef0c63">RenderTarget</a> ()=default</td></tr>
+<tr class="memitem:a5c8ef0f2c9e46ed80e5e3ce6e5567b8b" id="r_a5c8ef0f2c9e46ed80e5e3ce6e5567b8b"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a5c8ef0f2c9e46ed80e5e3ce6e5567b8b">~RenderTarget</a> ()</td></tr>
+<tr class="memitem:ad4e9712b351e3d54053cf732dbec6fac" id="r_ad4e9712b351e3d54053cf732dbec6fac"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad4e9712b351e3d54053cf732dbec6fac">create</a> (int w, int h)</td></tr>
+<tr class="memdesc:ad4e9712b351e3d54053cf732dbec6fac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Belirtilen çözünürlükte FBO, doku ve RBO bileşenlerini tahsis eder.  <br /></td></tr>
+<tr class="memitem:a062d14142365970b8d3a2fc8ec5ae73f" id="r_a062d14142365970b8d3a2fc8ec5ae73f"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a062d14142365970b8d3a2fc8ec5ae73f">resize</a> (int w, int h)</td></tr>
+<tr class="memdesc:a062d14142365970b8d3a2fc8ec5ae73f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Var olan doku ve RBO boyutlarını yeni çözünürlüğe göre günceller.  <br /></td></tr>
+<tr class="memitem:a02cd203f0e0b2d492ab1602feef736b0" id="r_a02cd203f0e0b2d492ab1602feef736b0"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a02cd203f0e0b2d492ab1602feef736b0">destroy</a> ()</td></tr>
+<tr class="memdesc:a02cd203f0e0b2d492ab1602feef736b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">GPU üzerindeki FBO, doku ve RBO kaynaklarını serbest bırakır.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Özellikler(attribute)</h2></td></tr>
+<tr class="memitem:af6ca608015c8c55bf56568ef8b4b2ec0" id="r_af6ca608015c8c55bf56568ef8b4b2ec0"><td class="memItemLeft">unsigned int&#160;</td><td class="memItemRight"><a class="el" href="#af6ca608015c8c55bf56568ef8b4b2ec0">fbo</a> = 0</td></tr>
+<tr class="memdesc:af6ca608015c8c55bf56568ef8b4b2ec0"><td class="mdescLeft">&#160;</td><td class="mdescRight">OpenGL Framebuffer nesne tanıtıcısı.  <br /></td></tr>
+<tr class="memitem:a1bc72cb758f24e20c9bd8aa858938627" id="r_a1bc72cb758f24e20c9bd8aa858938627"><td class="memItemLeft">unsigned int&#160;</td><td class="memItemRight"><a class="el" href="#a1bc72cb758f24e20c9bd8aa858938627">tex</a> = 0</td></tr>
+<tr class="memdesc:a1bc72cb758f24e20c9bd8aa858938627"><td class="mdescLeft">&#160;</td><td class="mdescRight">FBO renk eklentisine bağlı 2B doku tanıtıcısı.  <br /></td></tr>
+<tr class="memitem:ac36fd15eb395b2438b848203c659abed" id="r_ac36fd15eb395b2438b848203c659abed"><td class="memItemLeft">unsigned int&#160;</td><td class="memItemRight"><a class="el" href="#ac36fd15eb395b2438b848203c659abed">rbo</a> = 0</td></tr>
+<tr class="memdesc:ac36fd15eb395b2438b848203c659abed"><td class="mdescLeft">&#160;</td><td class="mdescRight">FBO derinlik ve şablon eklentisine bağlı Renderbuffer tanıtıcısı.  <br /></td></tr>
+<tr class="memitem:ab340f3e3cd51bcaaf280414966665a16" id="r_ab340f3e3cd51bcaaf280414966665a16"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#ab340f3e3cd51bcaaf280414966665a16">width</a> = 1</td></tr>
+<tr class="memdesc:ab340f3e3cd51bcaaf280414966665a16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hedef tampon piksel genişliği.  <br /></td></tr>
+<tr class="memitem:a876cc125e5fff33df258578179560db5" id="r_a876cc125e5fff33df258578179560db5"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a876cc125e5fff33df258578179560db5">height</a> = 1</td></tr>
+<tr class="memdesc:a876cc125e5fff33df258578179560db5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hedef tampon piksel yüksekliği.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Ayrıntılı tanımlama</h2>
+<div class="textblock"><p>Ekran dışı (off-screen) çizim hedeflerinin (FBO, doku, RBO) yaşam döngüsünü yönetir. </p>
+
+<p class="definition"><a class="el" href="render__target_8h_source.html">render_target.h</a> dosyasının <a class="el" href="render__target_8h_source.html#l00014">14</a> numaralı satırında tanımlanmıştır.</p>
+</div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Dokümantasyonu</h2>
+<a id="a3d16c8367d445094de01933222ef0c63" name="a3d16c8367d445094de01933222ef0c63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d16c8367d445094de01933222ef0c63">&#9670;&#160;</a></span>RenderTarget()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">RenderTarget::RenderTarget </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel default">default</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5c8ef0f2c9e46ed80e5e3ce6e5567b8b" name="a5c8ef0f2c9e46ed80e5e3ce6e5567b8b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c8ef0f2c9e46ed80e5e3ce6e5567b8b">&#9670;&#160;</a></span>~RenderTarget()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">RenderTarget::~RenderTarget </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="render__target_8h_source.html">render_target.h</a> dosyasının <a class="el" href="render__target_8h_source.html#l00025">25</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="render__target_8cpp_source.html#l00105">destroy()</a>.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Üye Fonksiyon Dokümantasyonu</h2>
+<a id="ad4e9712b351e3d54053cf732dbec6fac" name="ad4e9712b351e3d54053cf732dbec6fac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4e9712b351e3d54053cf732dbec6fac">&#9670;&#160;</a></span>create()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void RenderTarget::create </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>w</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>h</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Belirtilen çözünürlükte FBO, doku ve RBO bileşenlerini tahsis eder. </p>
+<dl class="params"><dt>Parametreler</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">w</td><td>Genişlik (piksel cinsinden, minimum 1). </td></tr>
+    <tr><td class="paramname">h</td><td>Yükseklik (piksel cinsinden, minimum 1). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition"><a class="el" href="render__target_8cpp_source.html">render_target.cpp</a> dosyasının <a class="el" href="render__target_8cpp_source.html#l00022">22</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="render__target_8h_source.html#l00017">fbo</a>, <a class="el" href="render__target_8h_source.html#l00022">height</a>, <a class="el" href="render__target_8h_source.html#l00019">rbo</a>, <a class="el" href="render__target_8h_source.html#l00018">tex</a> ve <a class="el" href="render__target_8h_source.html#l00021">width</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="engine_8cpp_source.html#l00104">Engine::init()</a>.</p>
+
+</div>
+</div>
+<a id="a02cd203f0e0b2d492ab1602feef736b0" name="a02cd203f0e0b2d492ab1602feef736b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02cd203f0e0b2d492ab1602feef736b0">&#9670;&#160;</a></span>destroy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void RenderTarget::destroy </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GPU üzerindeki FBO, doku ve RBO kaynaklarını serbest bırakır. </p>
+
+<p class="definition"><a class="el" href="render__target_8cpp_source.html">render_target.cpp</a> dosyasının <a class="el" href="render__target_8cpp_source.html#l00105">105</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="render__target_8h_source.html#l00017">fbo</a>, <a class="el" href="render__target_8h_source.html#l00019">rbo</a> ve <a class="el" href="render__target_8h_source.html#l00018">tex</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="render__target_8h_source.html#l00025">~RenderTarget()</a> ve <a class="el" href="engine_8cpp_source.html#l00254">Engine::shutdown()</a>.</p>
+
+</div>
+</div>
+<a id="a062d14142365970b8d3a2fc8ec5ae73f" name="a062d14142365970b8d3a2fc8ec5ae73f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a062d14142365970b8d3a2fc8ec5ae73f">&#9670;&#160;</a></span>resize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void RenderTarget::resize </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>w</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>h</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Var olan doku ve RBO boyutlarını yeni çözünürlüğe göre günceller. </p>
+<dl class="params"><dt>Parametreler</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">w</td><td>Yeni genişlik. </td></tr>
+    <tr><td class="paramname">h</td><td>Yeni yükseklik. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition"><a class="el" href="render__target_8cpp_source.html">render_target.cpp</a> dosyasının <a class="el" href="render__target_8cpp_source.html#l00074">74</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="render__target_8h_source.html#l00022">height</a>, <a class="el" href="render__target_8h_source.html#l00019">rbo</a>, <a class="el" href="render__target_8h_source.html#l00018">tex</a> ve <a class="el" href="render__target_8h_source.html#l00021">width</a>.</p>
+
+</div>
+</div>
+<a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Üye Veri Dokümantasyonu</h2>
+<a id="af6ca608015c8c55bf56568ef8b4b2ec0" name="af6ca608015c8c55bf56568ef8b4b2ec0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6ca608015c8c55bf56568ef8b4b2ec0">&#9670;&#160;</a></span>fbo</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int RenderTarget::fbo = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>OpenGL Framebuffer nesne tanıtıcısı. </p>
+
+<p class="definition"><a class="el" href="render__target_8h_source.html">render_target.h</a> dosyasının <a class="el" href="render__target_8h_source.html#l00017">17</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="render__target_8cpp_source.html#l00022">create()</a>, <a class="el" href="render__target_8cpp_source.html#l00105">destroy()</a>, <a class="el" href="editor__pass_8cpp_source.html#l00022">editor_pass::render()</a> ve <a class="el" href="game__pass_8cpp_source.html#l00019">game_pass::render()</a>.</p>
+
+</div>
+</div>
+<a id="a876cc125e5fff33df258578179560db5" name="a876cc125e5fff33df258578179560db5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a876cc125e5fff33df258578179560db5">&#9670;&#160;</a></span>height</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int RenderTarget::height = 1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hedef tampon piksel yüksekliği. </p>
+
+<p class="definition"><a class="el" href="render__target_8h_source.html">render_target.h</a> dosyasının <a class="el" href="render__target_8h_source.html#l00022">22</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="render__target_8cpp_source.html#l00022">create()</a>, <a class="el" href="editor__pass_8cpp_source.html#l00022">editor_pass::render()</a>, <a class="el" href="game__pass_8cpp_source.html#l00019">game_pass::render()</a>, <a class="el" href="grid__pass_8cpp_source.html#l00015">grid_pass::render()</a> ve <a class="el" href="render__target_8cpp_source.html#l00074">resize()</a>.</p>
+
+</div>
+</div>
+<a id="ac36fd15eb395b2438b848203c659abed" name="ac36fd15eb395b2438b848203c659abed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac36fd15eb395b2438b848203c659abed">&#9670;&#160;</a></span>rbo</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int RenderTarget::rbo = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>FBO derinlik ve şablon eklentisine bağlı Renderbuffer tanıtıcısı. </p>
+
+<p class="definition"><a class="el" href="render__target_8h_source.html">render_target.h</a> dosyasının <a class="el" href="render__target_8h_source.html#l00019">19</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="render__target_8cpp_source.html#l00022">create()</a>, <a class="el" href="render__target_8cpp_source.html#l00105">destroy()</a> ve <a class="el" href="render__target_8cpp_source.html#l00074">resize()</a>.</p>
+
+</div>
+</div>
+<a id="a1bc72cb758f24e20c9bd8aa858938627" name="a1bc72cb758f24e20c9bd8aa858938627"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1bc72cb758f24e20c9bd8aa858938627">&#9670;&#160;</a></span>tex</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int RenderTarget::tex = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>FBO renk eklentisine bağlı 2B doku tanıtıcısı. </p>
+
+<p class="definition"><a class="el" href="render__target_8h_source.html">render_target.h</a> dosyasının <a class="el" href="render__target_8h_source.html#l00018">18</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="render__target_8cpp_source.html#l00022">create()</a>, <a class="el" href="render__target_8cpp_source.html#l00105">destroy()</a>, <a class="el" href="vesta_8cpp_source.html#l00130">vesta::vesta_system::init_game_viewport()</a>, <a class="el" href="vesta_8cpp_source.html#l00118">vesta::vesta_system::init_scene_viewport()</a>, <a class="el" href="ui__pass_8cpp_source.html#l00016">ui_pass::render()</a> ve <a class="el" href="render__target_8cpp_source.html#l00074">resize()</a>.</p>
+
+</div>
+</div>
+<a id="ab340f3e3cd51bcaaf280414966665a16" name="ab340f3e3cd51bcaaf280414966665a16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab340f3e3cd51bcaaf280414966665a16">&#9670;&#160;</a></span>width</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int RenderTarget::width = 1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hedef tampon piksel genişliği. </p>
+
+<p class="definition"><a class="el" href="render__target_8h_source.html">render_target.h</a> dosyasının <a class="el" href="render__target_8h_source.html#l00021">21</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="render__target_8cpp_source.html#l00022">create()</a>, <a class="el" href="editor__pass_8cpp_source.html#l00022">editor_pass::render()</a>, <a class="el" href="game__pass_8cpp_source.html#l00019">game_pass::render()</a>, <a class="el" href="grid__pass_8cpp_source.html#l00015">grid_pass::render()</a> ve <a class="el" href="render__target_8cpp_source.html#l00074">resize()</a>.</p>
+
+</div>
+</div>
+<hr/>Bu sınıf için dokümantasyon aşağıdaki dosyalardan üretilmiştir:<ul>
+<li><a class="el" href="render__target_8h_source.html">render_target.h</a></li>
+<li><a class="el" href="render__target_8cpp_source.html">render_target.cpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="class_render_target.html">RenderTarget</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

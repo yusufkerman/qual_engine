@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['name_0',['name',['../structname__component.html#a12806ec974045f38a5e3641b4a797483',1,'name_component::name'],['../structvesta_1_1asset__file__entry.html#a6e5962e86857538b6b443670fb6459b1',1,'vesta::asset_file_entry::name'],['../structvesta_1_1_asset_u_i_info.html#a350c56fbf79bba2e9e6ee048a299916d',1,'vesta::AssetUIInfo::name'],['../structvesta_1_1hierarchy__node__data.html#a86a4ac18ae0ee2a2b04972549849a8c0',1,'vesta::hierarchy_node_data::name'],['../structaria_1_1raw__material__data.html#a617775214c1dab989ad97fe9df68e1bf',1,'aria::raw_material_data::name'],['../structaria_1_1material__asset.html#a1541412124d853592cd79371b008f8f7',1,'aria::material_asset::name'],['../struct_mesh.html#ac687e9dcfc7cc60b046fc2ec634200be',1,'Mesh::name']]],
+  ['name_5fcomponent_1',['name_component',['../structname__component.html',1,'']]],
+  ['names_2',['names',['../classregistry.html#a9471fa4755e1b40f6c1aba373ba2a455',1,'registry']]],
+  ['native_5fscript_5fcomponent_3',['native_script_component',['../structnative__script__component.html',1,'']]],
+  ['native_5fscript_5fcomponent_5fui_2eh_4',['native_script_component_ui.h',['../native__script__component__ui_8h.html',1,'']]],
+  ['nearplane_5',['nearPlane',['../structcamera__component.html#ab1f0bd45e3ce3802d455710fc3100f75',1,'camera_component::nearPlane'],['../class_editor_camera.html#a7d59d8d0de60721ef6809679fdf54ba2',1,'EditorCamera::nearPlane']]],
+  ['new_5fscene_6',['new_scene',['../classscene.html#a4b4d43e1617abc55813c203adcc18ab9',1,'scene']]],
+  ['next_5fentity_7',['next_entity',['../classregistry.html#a0e7847e368a269b20b5091a0ba6aa1e0',1,'registry']]],
+  ['next_5fsibling_8',['next_sibling',['../structhierarchy__component.html#a08a76cb03435457e743dc77b1e4596d5',1,'hierarchy_component']]],
+  ['nextid_9',['nextID',['../classtexture__manager.html#a3f07ebf646ba9129ece66edb239c4def',1,'texture_manager::nextID'],['../classshader__manager.html#a070cff6ffac70d96c79dbd4b350cd9ae',1,'shader_manager::nextID']]],
+  ['nlohmann_10',['nlohmann',['../namespacenlohmann.html',1,'']]],
+  ['nlohmann_5fjson_5fserialize_5fenum_11',['NLOHMANN_JSON_SERIALIZE_ENUM',['../component__serialization_8h.html#a189975dea696e48d9581f1f0c9dd9144',1,'component_serialization.h']]],
+  ['non_5fmoving_12',['NON_MOVING',['../namespacelayers.html#a6e7a272b82eebbbede163cb1dc3480f1',1,'layers::NON_MOVING'],['../namespacebroad__phase__layers.html#aed8008ca0e8927947506e127205f495f',1,'broad_phase_layers::NON_MOVING()']]],
+  ['none_13',['None',['../editor__context_8h.html#a76c3ba331501653c9c2d73019e62a243a6adf97f83acf6453d4a6a4b1070f3754',1,'editor_context.h']]],
+  ['none_14',['none',['../namespacevesta.html#a1ba31956ae6b876c99d38520cfe7e1cca334c4a4c42fdb79d7ebc3e73b517e6f8',1,'vesta']]],
+  ['normal_15',['Normal',['../struct_vertex.html#a9ab4dc431b41509f0b1bb1a4bf09d4e2',1,'Vertex']]],
+  ['normal_16',['normal',['../structaria_1_1raw__vertex.html#a826c27f887d90738d42b66b0fabb1d79',1,'aria::raw_vertex::normal'],['../structgameplay_1_1pending__collision__event.html#a34d98fd29ca2ae52683cf97b2cf90d25',1,'gameplay::pending_collision_event::normal'],['../structgenerator__vertex.html#ac29b34c722804728690b10abb5b864cc',1,'generator_vertex::normal'],['../structplane.html#af68f840e319f8a0baec3caf3541372a4',1,'plane::normal']]],
+  ['normal_5fhandle_17',['normal_handle',['../structrender__item.html#a65913e692c1c887d86c84b99e178c91e',1,'render_item']]],
+  ['normal_5fmap_18',['normal_map',['../structaria_1_1material__asset.html#a29efca8037f5f78a1cc71b269ed6a959',1,'aria::material_asset']]],
+  ['normal_5fstrength_19',['normal_strength',['../structaria_1_1raw__material__data.html#acdf4d5236d1c78e09317d66f9a94e3e6',1,'aria::raw_material_data::normal_strength'],['../structaria_1_1material__asset.html#aae7949545eef67f9f25f1ed1cca359e6',1,'aria::material_asset::normal_strength'],['../structmaterial.html#a43b76371f0554f7ee702720003df5743',1,'material::normal_strength'],['../structrender__item.html#a6bbadb6aa85d3a02cc54acc743fecd9b',1,'render_item::normal_strength']]],
+  ['normal_5ftexture_20',['normal_texture',['../structmaterial.html#a9ad654a101c9326d8fd4322f1a6721af',1,'material']]],
+  ['normal_5ftexture_5fguid_21',['normal_texture_guid',['../structaria_1_1raw__material__data.html#a620adb4efd3da8f6ab7d61bbfdba7047',1,'aria::raw_material_data']]],
+  ['normal_5ftexture_5fhandle_22',['normal_texture_handle',['../structaria_1_1material__asset.html#adff1f687e17f81013bbb709d2b296cce',1,'aria::material_asset']]],
+  ['normal_5ftexture_5fslot_23',['NORMAL_TEXTURE_SLOT',['../_mesh_renderer_8h.html#a4617679ffbf4bcd62c7b31763ed94ac5adf809f63fc8c4f91b59ef5ddb894cc39',1,'MeshRenderer.h']]],
+  ['num_5flayers_24',['NUM_LAYERS',['../namespacelayers.html#a95eded834a07bbaa8d140afa0f63af2c',1,'layers::NUM_LAYERS'],['../namespacebroad__phase__layers.html#a462cdefb4044c01c7f95e99f73037dc3',1,'broad_phase_layers::NUM_LAYERS']]]
+];

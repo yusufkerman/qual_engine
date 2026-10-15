@@ -23,7 +23,7 @@
 #include "../../ECS/registry.h"
 #include "CoreState/editor_viewport_state.h"
 
-class EngineContext;
+struct EngineContext;
 struct EditorContext;
 class IEditorPanel;
 class editor_selection_manager;

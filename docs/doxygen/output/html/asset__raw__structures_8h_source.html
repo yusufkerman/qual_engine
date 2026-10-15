@@ -1,0 +1,332 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: asset_raw_structures.h Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('asset__raw__structures_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">asset_raw_structures.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="asset__raw__structures_8h.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;glm/glm.hpp&gt;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;../Externals/uuid/uuid.h&quot;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> <span class="comment">// ---------------------------------------------------------</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> <span class="comment">// ÖN BİLDİRİMLER (FORWARD DECLARATIONS) VE TİP TANIMLAMALARI</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> <span class="comment">// ---------------------------------------------------------</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="foldopen" id="foldopen00018" data-start="{" data-end="}">
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="namespaceuuids.html">   18</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespaceuuids.html">uuids</a> {</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keyword">class </span>uuid;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>}</div>
+</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacearia.html">aria</a> {</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="namespacearia.html#a1f0b797d0d3df7f04062f9030a909ba5">   28</a></span>    <span class="keyword">using </span><a class="code hl_typedef" href="namespacearia.html#a1f0b797d0d3df7f04062f9030a909ba5">asset_guid</a> = uuids::uuid;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span></div>
+<div class="foldopen" id="foldopen00034" data-start="{" data-end="};">
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2e">   34</a></span>    <span class="keyword">enum class</span> <a class="code hl_enumeration" href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2e">render_mode</a> : <span class="keywordtype">int</span> {</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2ea94619f8a70068b2591c2eed622525b0e">   35</a></span>        <a class="code hl_enumvalue" href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2ea94619f8a70068b2591c2eed622525b0e">opaque</a> = 0, </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2ead8f9b6193a25733c0d8c83147a8dcafe">   36</a></span>        <a class="code hl_enumvalue" href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2ead8f9b6193a25733c0d8c83147a8dcafe">cutout</a> = 1, </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2ea5e96bf62b9b2c18fdb65564b4a18fd1f">   37</a></span>        <a class="code hl_enumvalue" href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2ea5e96bf62b9b2c18fdb65564b4a18fd1f">transparent</a> = 2  </div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    };</div>
+</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="comment">// ---------------------------------------------------------</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="comment">// HAM VARLIK YAPILARI (RAW DATA STRUCTURES)</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="comment">// ---------------------------------------------------------</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span></div>
+<div class="foldopen" id="foldopen00048" data-start="{" data-end="};">
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="structaria_1_1raw__texture__data.html">   48</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structaria_1_1raw__texture__data.html">raw_texture_data</a> {</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="structaria_1_1raw__texture__data.html#a3dce1fce5d400e0ffde6dee9b8404098">   49</a></span>        std::string <a class="code hl_variable" href="structaria_1_1raw__texture__data.html#a3dce1fce5d400e0ffde6dee9b8404098">debug_path</a>;         </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="structaria_1_1raw__texture__data.html#a3b3a342854efa7e3e1eb229e67a2e219">   50</a></span>        <span class="keywordtype">int</span> <a class="code hl_variable" href="structaria_1_1raw__texture__data.html#a3b3a342854efa7e3e1eb229e67a2e219">width</a>{ 0 };                 </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="structaria_1_1raw__texture__data.html#a4d213179d939d8bbde13260016d80858">   51</a></span>        <span class="keywordtype">int</span> <a class="code hl_variable" href="structaria_1_1raw__texture__data.html#a4d213179d939d8bbde13260016d80858">height</a>{ 0 };                </div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="structaria_1_1raw__texture__data.html#a5fe71695b6d03e2bd280a3625c75ea91">   52</a></span>        <span class="keywordtype">int</span> <a class="code hl_variable" href="structaria_1_1raw__texture__data.html#a5fe71695b6d03e2bd280a3625c75ea91">channels</a>{ 0 };              </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="structaria_1_1raw__texture__data.html#a5ad7790d59c40a16c74c5f7d48d879a5">   53</a></span>        std::vector&lt;uint8_t&gt; <a class="code hl_variable" href="structaria_1_1raw__texture__data.html#a5ad7790d59c40a16c74c5f7d48d879a5">pixels</a>;    </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span></div>
+<div class="foldopen" id="foldopen00058" data-start="{" data-end="}">
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="structaria_1_1raw__texture__data.html#a754846c5eab5bb908e63b2de21dc7c39">   58</a></span>        <span class="keywordtype">void</span> <a class="code hl_function" href="structaria_1_1raw__texture__data.html#a754846c5eab5bb908e63b2de21dc7c39">clear_raw_data</a>() {</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>            <a class="code hl_variable" href="structaria_1_1raw__texture__data.html#a5ad7790d59c40a16c74c5f7d48d879a5">pixels</a>.clear();</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>            <a class="code hl_variable" href="structaria_1_1raw__texture__data.html#a5ad7790d59c40a16c74c5f7d48d879a5">pixels</a>.shrink_to_fit();</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        }</div>
+</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    };</div>
+</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span></div>
+<div class="foldopen" id="foldopen00068" data-start="{" data-end="};">
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="structaria_1_1raw__vertex.html">   68</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structaria_1_1raw__vertex.html">raw_vertex</a> {</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="structaria_1_1raw__vertex.html#a6fb5f7275a3a0ed5afc4a45508f3d02a">   69</a></span>        glm::vec3 <a class="code hl_variable" href="structaria_1_1raw__vertex.html#a6fb5f7275a3a0ed5afc4a45508f3d02a">position</a>{ 0.0f };     </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="structaria_1_1raw__vertex.html#a826c27f887d90738d42b66b0fabb1d79">   70</a></span>        glm::vec3 <a class="code hl_variable" href="structaria_1_1raw__vertex.html#a826c27f887d90738d42b66b0fabb1d79">normal</a>{ 0.0f };       </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="structaria_1_1raw__vertex.html#af45464cc0d8432cd0154fd54bc8466b3">   71</a></span>        glm::vec2 <a class="code hl_variable" href="structaria_1_1raw__vertex.html#af45464cc0d8432cd0154fd54bc8466b3">tex_coord</a>{ 0.0f };    </div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno"><a class="line" href="structaria_1_1raw__vertex.html#a2fa3cc3b8c1a5dd4d43a5165667d2147">   72</a></span>        glm::vec3 <a class="code hl_variable" href="structaria_1_1raw__vertex.html#a2fa3cc3b8c1a5dd4d43a5165667d2147">tangent</a>{ 0.0f };      </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    };</div>
+</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span></div>
+<div class="foldopen" id="foldopen00079" data-start="{" data-end="};">
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="structaria_1_1raw__mesh__data.html">   79</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structaria_1_1raw__mesh__data.html">raw_mesh_data</a> {</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno"><a class="line" href="structaria_1_1raw__mesh__data.html#a5a425245ece18ed9717637d30c2e3ccc">   80</a></span>        std::vector&lt;raw_vertex&gt; <a class="code hl_variable" href="structaria_1_1raw__mesh__data.html#a5a425245ece18ed9717637d30c2e3ccc">vertices</a>; </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="structaria_1_1raw__mesh__data.html#abaa3ba80848cc98477f2c80d82905c7c">   81</a></span>        std::vector&lt;uint32_t&gt; <a class="code hl_variable" href="structaria_1_1raw__mesh__data.html#abaa3ba80848cc98477f2c80d82905c7c">indices</a>;    </div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno"><a class="line" href="structaria_1_1raw__mesh__data.html#a882e3cb6fafd72eac84279b3d681f32f">   83</a></span>        glm::vec3 <a class="code hl_variable" href="structaria_1_1raw__mesh__data.html#a882e3cb6fafd72eac84279b3d681f32f">local_center</a>{ 0.0f }; </div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="structaria_1_1raw__mesh__data.html#aac2a0e3245e8990179945eb706a63088">   84</a></span>        <span class="keywordtype">float</span> <a class="code hl_variable" href="structaria_1_1raw__mesh__data.html#aac2a0e3245e8990179945eb706a63088">local_radius</a>{ 0.0f };     </div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span></div>
+<div class="foldopen" id="foldopen00089" data-start="{" data-end="}">
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="structaria_1_1raw__mesh__data.html#aeba032a968a9c17f5f14a22689bcce3a">   89</a></span>        <span class="keywordtype">void</span> <a class="code hl_function" href="structaria_1_1raw__mesh__data.html#aeba032a968a9c17f5f14a22689bcce3a">clear_raw_data</a>() {</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>            <a class="code hl_variable" href="structaria_1_1raw__mesh__data.html#a5a425245ece18ed9717637d30c2e3ccc">vertices</a>.clear();</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>            <a class="code hl_variable" href="structaria_1_1raw__mesh__data.html#a5a425245ece18ed9717637d30c2e3ccc">vertices</a>.shrink_to_fit();</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>            <a class="code hl_variable" href="structaria_1_1raw__mesh__data.html#abaa3ba80848cc98477f2c80d82905c7c">indices</a>.clear();</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>            <a class="code hl_variable" href="structaria_1_1raw__mesh__data.html#abaa3ba80848cc98477f2c80d82905c7c">indices</a>.shrink_to_fit();</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        }</div>
+</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    };</div>
+</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span></div>
+<div class="foldopen" id="foldopen00101" data-start="{" data-end="};">
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno"><a class="line" href="structaria_1_1raw__model__data.html">  101</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structaria_1_1raw__model__data.html">raw_model_data</a> {</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno"><a class="line" href="structaria_1_1raw__model__data.html#a9821e0065f31423d4139c48f728e46e7">  102</a></span>        std::string <a class="code hl_variable" href="structaria_1_1raw__model__data.html#a9821e0065f31423d4139c48f728e46e7">debug_path</a>;                     </div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno"><a class="line" href="structaria_1_1raw__model__data.html#ab680ff9b25c6d1a4f0ce9c0aa5ae02e8">  103</a></span>        std::vector&lt;raw_mesh_data&gt; <a class="code hl_variable" href="structaria_1_1raw__model__data.html#ab680ff9b25c6d1a4f0ce9c0aa5ae02e8">sub_meshes</a>;      </div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span></div>
+<div class="foldopen" id="foldopen00108" data-start="{" data-end="}">
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno"><a class="line" href="structaria_1_1raw__model__data.html#a730b7056975e8a14f331c9333d18d15a">  108</a></span>        <span class="keywordtype">void</span> <a class="code hl_function" href="structaria_1_1raw__model__data.html#a730b7056975e8a14f331c9333d18d15a">clear_raw_data</a>() {</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>            <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; mesh : <a class="code hl_variable" href="structaria_1_1raw__model__data.html#ab680ff9b25c6d1a4f0ce9c0aa5ae02e8">sub_meshes</a>) {</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>                mesh.clear_raw_data();</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>            }</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>            <a class="code hl_variable" href="structaria_1_1raw__model__data.html#ab680ff9b25c6d1a4f0ce9c0aa5ae02e8">sub_meshes</a>.clear();</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>            <a class="code hl_variable" href="structaria_1_1raw__model__data.html#ab680ff9b25c6d1a4f0ce9c0aa5ae02e8">sub_meshes</a>.shrink_to_fit();</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>        }</div>
+</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    };</div>
+</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span></div>
+<div class="foldopen" id="foldopen00121" data-start="{" data-end="};">
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html">  121</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structaria_1_1raw__material__data.html">raw_material_data</a> {</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#a6b37cc8afadd417dae3ddb25adb6b6ee">  122</a></span>        std::string <a class="code hl_variable" href="structaria_1_1raw__material__data.html#a6b37cc8afadd417dae3ddb25adb6b6ee">debug_path</a>;                     </div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#a617775214c1dab989ad97fe9df68e1bf">  123</a></span>        std::string <a class="code hl_variable" href="structaria_1_1raw__material__data.html#a617775214c1dab989ad97fe9df68e1bf">name</a>;                           </div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#acee808b197caa46c6aab32ee99214af5">  125</a></span>        <a class="code hl_enumeration" href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2e">render_mode</a> <a class="code hl_variable" href="structaria_1_1raw__material__data.html#acee808b197caa46c6aab32ee99214af5">mode</a>{ <a class="code hl_enumvalue" href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2ea94619f8a70068b2591c2eed622525b0e">render_mode::opaque</a> };    </div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#a4ce1f9ce77b6cd235b6561000b091dcb">  126</a></span>        <span class="keywordtype">float</span> <a class="code hl_variable" href="structaria_1_1raw__material__data.html#a4ce1f9ce77b6cd235b6561000b091dcb">alpha_threshold</a>{ 0.1f };              </div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#af0e2e02a96cf7402de4980b952ed8e6b">  128</a></span>        glm::vec3 <a class="code hl_variable" href="structaria_1_1raw__material__data.html#af0e2e02a96cf7402de4980b952ed8e6b">base_color</a>{ 1.0f };               </div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#af061664d914b824324b2404185120abf">  129</a></span>        <span class="keywordtype">float</span> <a class="code hl_variable" href="structaria_1_1raw__material__data.html#af061664d914b824324b2404185120abf">specular_strength</a>{ 0.5f };            </div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#a8e01d53b03f4b8b237f49c252123adc4">  130</a></span>        <span class="keywordtype">float</span> <a class="code hl_variable" href="structaria_1_1raw__material__data.html#a8e01d53b03f4b8b237f49c252123adc4">shininess</a>{ 32.0f };                   </div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#acdf4d5236d1c78e09317d66f9a94e3e6">  131</a></span>        <span class="keywordtype">float</span> <a class="code hl_variable" href="structaria_1_1raw__material__data.html#acdf4d5236d1c78e09317d66f9a94e3e6">normal_strength</a>{ 1.0f };              </div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#a2fb0293cdee4cda120ae571e978e1cfc">  132</a></span>        glm::vec2 <a class="code hl_variable" href="structaria_1_1raw__material__data.html#a2fb0293cdee4cda120ae571e978e1cfc">texture_scale</a>{ 1.0f };            </div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#a5eaf63a2916389f1dbc1592c3a6fa528">  134</a></span>        <a class="code hl_typedef" href="namespacearia.html#a1f0b797d0d3df7f04062f9030a909ba5">aria::asset_guid</a> <a class="code hl_variable" href="structaria_1_1raw__material__data.html#a5eaf63a2916389f1dbc1592c3a6fa528">shader_guid</a>;               </div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#ab912c2a9a80d6e54715500c0c7d0fc30">  135</a></span>        <a class="code hl_typedef" href="namespacearia.html#a1f0b797d0d3df7f04062f9030a909ba5">aria::asset_guid</a> <a class="code hl_variable" href="structaria_1_1raw__material__data.html#ab912c2a9a80d6e54715500c0c7d0fc30">diffuse_texture_guid</a>;      </div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#a620adb4efd3da8f6ab7d61bbfdba7047">  136</a></span>        <a class="code hl_typedef" href="namespacearia.html#a1f0b797d0d3df7f04062f9030a909ba5">aria::asset_guid</a> <a class="code hl_variable" href="structaria_1_1raw__material__data.html#a620adb4efd3da8f6ab7d61bbfdba7047">normal_texture_guid</a>;       </div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#aef73eb87ebe5f4d48298345d338ebe8a">  137</a></span>        <a class="code hl_typedef" href="namespacearia.html#a1f0b797d0d3df7f04062f9030a909ba5">aria::asset_guid</a> <a class="code hl_variable" href="structaria_1_1raw__material__data.html#aef73eb87ebe5f4d48298345d338ebe8a">specular_texture_guid</a>;     </div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span></div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno"><a class="line" href="structaria_1_1raw__material__data.html#a7711b6243ff66107faf7b88a3ff22bb4">  142</a></span>        <span class="keywordtype">void</span> <a class="code hl_function" href="structaria_1_1raw__material__data.html#a7711b6243ff66107faf7b88a3ff22bb4">clear_raw_data</a>() {}</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    };</div>
+</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span></div>
+<div class="foldopen" id="foldopen00149" data-start="{" data-end="};">
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno"><a class="line" href="structaria_1_1raw__shader__data.html">  149</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structaria_1_1raw__shader__data.html">raw_shader_data</a> {</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno"><a class="line" href="structaria_1_1raw__shader__data.html#a6c898ffe5129ff5e30c9e830ca43fb1e">  150</a></span>        std::string <a class="code hl_variable" href="structaria_1_1raw__shader__data.html#a6c898ffe5129ff5e30c9e830ca43fb1e">debug_path</a>;         </div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno"><a class="line" href="structaria_1_1raw__shader__data.html#a1e7c1c268b7b0bf762f8b59fb1aa5f7b">  151</a></span>        std::string <a class="code hl_variable" href="structaria_1_1raw__shader__data.html#a1e7c1c268b7b0bf762f8b59fb1aa5f7b">vertex_source</a>;      </div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno"><a class="line" href="structaria_1_1raw__shader__data.html#a11c10db7ebe8a53d088f6b6fbeae2c84">  152</a></span>        std::string <a class="code hl_variable" href="structaria_1_1raw__shader__data.html#a11c10db7ebe8a53d088f6b6fbeae2c84">fragment_source</a>;    </div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span></div>
+<div class="foldopen" id="foldopen00157" data-start="{" data-end="}">
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno"><a class="line" href="structaria_1_1raw__shader__data.html#a36e29b82fae61ea2ffc2f429319a98c9">  157</a></span>        <span class="keywordtype">void</span> <a class="code hl_function" href="structaria_1_1raw__shader__data.html#a36e29b82fae61ea2ffc2f429319a98c9">clear_raw_data</a>() {</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>            <a class="code hl_variable" href="structaria_1_1raw__shader__data.html#a1e7c1c268b7b0bf762f8b59fb1aa5f7b">vertex_source</a>.clear();</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>            <a class="code hl_variable" href="structaria_1_1raw__shader__data.html#a1e7c1c268b7b0bf762f8b59fb1aa5f7b">vertex_source</a>.shrink_to_fit();</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>            <a class="code hl_variable" href="structaria_1_1raw__shader__data.html#a11c10db7ebe8a53d088f6b6fbeae2c84">fragment_source</a>.clear();</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>            <a class="code hl_variable" href="structaria_1_1raw__shader__data.html#a11c10db7ebe8a53d088f6b6fbeae2c84">fragment_source</a>.shrink_to_fit();</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>        }</div>
+</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    };</div>
+</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>} <span class="comment">// namespace aria</span></div>
+<div class="ttc" id="anamespacearia_html"><div class="ttname"><a href="namespacearia.html">aria</a></div><div class="ttdef"><b>Definition</b> <a href="editable__world__impl_8h_source.html#l00014">editable_world_impl.h:14</a></div></div>
+<div class="ttc" id="anamespacearia_html_a1f0b797d0d3df7f04062f9030a909ba5"><div class="ttname"><a href="namespacearia.html#a1f0b797d0d3df7f04062f9030a909ba5">aria::asset_guid</a></div><div class="ttdeci">uuids::uuid asset_guid</div><div class="ttdoc">Motor genelinde varlıkları benzersiz olarak tanımlayan GUID türü (stduuid sarmalayıcısı).</div><div class="ttdef"><b>Definition</b> <a href="#l00028">asset_raw_structures.h:28</a></div></div>
+<div class="ttc" id="anamespacearia_html_a7be49530cb75e76b7ef8188bdb522a2e"><div class="ttname"><a href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2e">aria::render_mode</a></div><div class="ttdeci">render_mode</div><div class="ttdoc">Materyalin çizim aşamasındaki saydamlık davranışını belirler.</div><div class="ttdef"><b>Definition</b> <a href="#l00034">asset_raw_structures.h:34</a></div></div>
+<div class="ttc" id="anamespacearia_html_a7be49530cb75e76b7ef8188bdb522a2ea5e96bf62b9b2c18fdb65564b4a18fd1f"><div class="ttname"><a href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2ea5e96bf62b9b2c18fdb65564b4a18fd1f">aria::render_mode::transparent</a></div><div class="ttdeci">@ transparent</div><div class="ttdoc">Yarı saydam (Alpha blend) nesneler (Örn: Cam, su).</div><div class="ttdef"><b>Definition</b> <a href="#l00037">asset_raw_structures.h:37</a></div></div>
+<div class="ttc" id="anamespacearia_html_a7be49530cb75e76b7ef8188bdb522a2ea94619f8a70068b2591c2eed622525b0e"><div class="ttname"><a href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2ea94619f8a70068b2591c2eed622525b0e">aria::render_mode::opaque</a></div><div class="ttdeci">@ opaque</div><div class="ttdoc">Düz, saydamlık içermeyen nesneler (Örn: Duvar, taş).</div><div class="ttdef"><b>Definition</b> <a href="#l00035">asset_raw_structures.h:35</a></div></div>
+<div class="ttc" id="anamespacearia_html_a7be49530cb75e76b7ef8188bdb522a2ead8f9b6193a25733c0d8c83147a8dcafe"><div class="ttname"><a href="namespacearia.html#a7be49530cb75e76b7ef8188bdb522a2ead8f9b6193a25733c0d8c83147a8dcafe">aria::render_mode::cutout</a></div><div class="ttdeci">@ cutout</div><div class="ttdoc">Keskin alfa testi (Alpha test) gerektiren nesneler (Örn: Yaprak, çit).</div><div class="ttdef"><b>Definition</b> <a href="#l00036">asset_raw_structures.h:36</a></div></div>
+<div class="ttc" id="anamespaceuuids_html"><div class="ttname"><a href="namespaceuuids.html">uuids</a></div><div class="ttdef"><b>Definition</b> <a href="#l00018">asset_raw_structures.h:18</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html"><div class="ttname"><a href="structaria_1_1raw__material__data.html">aria::raw_material_data</a></div><div class="ttdoc">Materyal dosyasından (JSON vb.) okunan görsel özellikleri ve bağlı dokuların GUID&#39;lerini tutar.</div><div class="ttdef"><b>Definition</b> <a href="#l00121">asset_raw_structures.h:121</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_a2fb0293cdee4cda120ae571e978e1cfc"><div class="ttname"><a href="structaria_1_1raw__material__data.html#a2fb0293cdee4cda120ae571e978e1cfc">aria::raw_material_data::texture_scale</a></div><div class="ttdeci">glm::vec2 texture_scale</div><div class="ttdoc">UV ölçeklendirme çarpanı (Tiling).</div><div class="ttdef"><b>Definition</b> <a href="#l00132">asset_raw_structures.h:132</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_a4ce1f9ce77b6cd235b6561000b091dcb"><div class="ttname"><a href="structaria_1_1raw__material__data.html#a4ce1f9ce77b6cd235b6561000b091dcb">aria::raw_material_data::alpha_threshold</a></div><div class="ttdeci">float alpha_threshold</div><div class="ttdoc">Cutout modu için alfa kesme eşiği.</div><div class="ttdef"><b>Definition</b> <a href="#l00126">asset_raw_structures.h:126</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_a5eaf63a2916389f1dbc1592c3a6fa528"><div class="ttname"><a href="structaria_1_1raw__material__data.html#a5eaf63a2916389f1dbc1592c3a6fa528">aria::raw_material_data::shader_guid</a></div><div class="ttdeci">aria::asset_guid shader_guid</div><div class="ttdoc">Kullanılacak shader programının benzersiz kimliği.</div><div class="ttdef"><b>Definition</b> <a href="#l00134">asset_raw_structures.h:134</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_a617775214c1dab989ad97fe9df68e1bf"><div class="ttname"><a href="structaria_1_1raw__material__data.html#a617775214c1dab989ad97fe9df68e1bf">aria::raw_material_data::name</a></div><div class="ttdeci">std::string name</div><div class="ttdoc">Materyal adı.</div><div class="ttdef"><b>Definition</b> <a href="#l00123">asset_raw_structures.h:123</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_a620adb4efd3da8f6ab7d61bbfdba7047"><div class="ttname"><a href="structaria_1_1raw__material__data.html#a620adb4efd3da8f6ab7d61bbfdba7047">aria::raw_material_data::normal_texture_guid</a></div><div class="ttdeci">aria::asset_guid normal_texture_guid</div><div class="ttdoc">Normal dokusunun benzersiz kimliği.</div><div class="ttdef"><b>Definition</b> <a href="#l00136">asset_raw_structures.h:136</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_a6b37cc8afadd417dae3ddb25adb6b6ee"><div class="ttname"><a href="structaria_1_1raw__material__data.html#a6b37cc8afadd417dae3ddb25adb6b6ee">aria::raw_material_data::debug_path</a></div><div class="ttdeci">std::string debug_path</div><div class="ttdoc">Materyal dosyasının yolu.</div><div class="ttdef"><b>Definition</b> <a href="#l00122">asset_raw_structures.h:122</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_a7711b6243ff66107faf7b88a3ff22bb4"><div class="ttname"><a href="structaria_1_1raw__material__data.html#a7711b6243ff66107faf7b88a3ff22bb4">aria::raw_material_data::clear_raw_data</a></div><div class="ttdeci">void clear_raw_data()</div><div class="ttdoc">Materyal verileri oldukça küçüktür (vektör içermez), bu nedenle boşaltma gerektirmez.</div><div class="ttdef"><b>Definition</b> <a href="#l00142">asset_raw_structures.h:142</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_a8e01d53b03f4b8b237f49c252123adc4"><div class="ttname"><a href="structaria_1_1raw__material__data.html#a8e01d53b03f4b8b237f49c252123adc4">aria::raw_material_data::shininess</a></div><div class="ttdeci">float shininess</div><div class="ttdoc">Parlaklık pürüzlülük/odak değeri.</div><div class="ttdef"><b>Definition</b> <a href="#l00130">asset_raw_structures.h:130</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_ab912c2a9a80d6e54715500c0c7d0fc30"><div class="ttname"><a href="structaria_1_1raw__material__data.html#ab912c2a9a80d6e54715500c0c7d0fc30">aria::raw_material_data::diffuse_texture_guid</a></div><div class="ttdeci">aria::asset_guid diffuse_texture_guid</div><div class="ttdoc">Difüz (Albedo) dokusunun benzersiz kimliği.</div><div class="ttdef"><b>Definition</b> <a href="#l00135">asset_raw_structures.h:135</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_acdf4d5236d1c78e09317d66f9a94e3e6"><div class="ttname"><a href="structaria_1_1raw__material__data.html#acdf4d5236d1c78e09317d66f9a94e3e6">aria::raw_material_data::normal_strength</a></div><div class="ttdeci">float normal_strength</div><div class="ttdoc">Normal haritası etki şiddeti.</div><div class="ttdef"><b>Definition</b> <a href="#l00131">asset_raw_structures.h:131</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_acee808b197caa46c6aab32ee99214af5"><div class="ttname"><a href="structaria_1_1raw__material__data.html#acee808b197caa46c6aab32ee99214af5">aria::raw_material_data::mode</a></div><div class="ttdeci">render_mode mode</div><div class="ttdoc">Çizim saydamlık modu.</div><div class="ttdef"><b>Definition</b> <a href="#l00125">asset_raw_structures.h:125</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_aef73eb87ebe5f4d48298345d338ebe8a"><div class="ttname"><a href="structaria_1_1raw__material__data.html#aef73eb87ebe5f4d48298345d338ebe8a">aria::raw_material_data::specular_texture_guid</a></div><div class="ttdeci">aria::asset_guid specular_texture_guid</div><div class="ttdoc">Speküler dokusunun benzersiz kimliği.</div><div class="ttdef"><b>Definition</b> <a href="#l00137">asset_raw_structures.h:137</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_af061664d914b824324b2404185120abf"><div class="ttname"><a href="structaria_1_1raw__material__data.html#af061664d914b824324b2404185120abf">aria::raw_material_data::specular_strength</a></div><div class="ttdeci">float specular_strength</div><div class="ttdoc">Parlaklık/yansıma şiddeti.</div><div class="ttdef"><b>Definition</b> <a href="#l00129">asset_raw_structures.h:129</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__material__data_html_af0e2e02a96cf7402de4980b952ed8e6b"><div class="ttname"><a href="structaria_1_1raw__material__data.html#af0e2e02a96cf7402de4980b952ed8e6b">aria::raw_material_data::base_color</a></div><div class="ttdeci">glm::vec3 base_color</div><div class="ttdoc">Temel renk çarpanı (Albedo).</div><div class="ttdef"><b>Definition</b> <a href="#l00128">asset_raw_structures.h:128</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__mesh__data_html"><div class="ttname"><a href="structaria_1_1raw__mesh__data.html">aria::raw_mesh_data</a></div><div class="ttdoc">Alt mesh (sub-mesh) verilerini ve yerel sınır (bounding) hesaplamalarını barındırır.</div><div class="ttdef"><b>Definition</b> <a href="#l00079">asset_raw_structures.h:79</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__mesh__data_html_a5a425245ece18ed9717637d30c2e3ccc"><div class="ttname"><a href="structaria_1_1raw__mesh__data.html#a5a425245ece18ed9717637d30c2e3ccc">aria::raw_mesh_data::vertices</a></div><div class="ttdeci">std::vector&lt; raw_vertex &gt; vertices</div><div class="ttdoc">Köşe noktaları dizisi.</div><div class="ttdef"><b>Definition</b> <a href="#l00080">asset_raw_structures.h:80</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__mesh__data_html_a882e3cb6fafd72eac84279b3d681f32f"><div class="ttname"><a href="structaria_1_1raw__mesh__data.html#a882e3cb6fafd72eac84279b3d681f32f">aria::raw_mesh_data::local_center</a></div><div class="ttdeci">glm::vec3 local_center</div><div class="ttdoc">Mesh&#39;in yerel merkez noktası.</div><div class="ttdef"><b>Definition</b> <a href="#l00083">asset_raw_structures.h:83</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__mesh__data_html_aac2a0e3245e8990179945eb706a63088"><div class="ttname"><a href="structaria_1_1raw__mesh__data.html#aac2a0e3245e8990179945eb706a63088">aria::raw_mesh_data::local_radius</a></div><div class="ttdeci">float local_radius</div><div class="ttdoc">Mesh&#39;in yerel sınırlayıcı küre yarıçapı (Frustum culling için).</div><div class="ttdef"><b>Definition</b> <a href="#l00084">asset_raw_structures.h:84</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__mesh__data_html_abaa3ba80848cc98477f2c80d82905c7c"><div class="ttname"><a href="structaria_1_1raw__mesh__data.html#abaa3ba80848cc98477f2c80d82905c7c">aria::raw_mesh_data::indices</a></div><div class="ttdeci">std::vector&lt; uint32_t &gt; indices</div><div class="ttdoc">Köşe indeksleri dizisi (Çizim sırası).</div><div class="ttdef"><b>Definition</b> <a href="#l00081">asset_raw_structures.h:81</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__mesh__data_html_aeba032a968a9c17f5f14a22689bcce3a"><div class="ttname"><a href="structaria_1_1raw__mesh__data.html#aeba032a968a9c17f5f14a22689bcce3a">aria::raw_mesh_data::clear_raw_data</a></div><div class="ttdeci">void clear_raw_data()</div><div class="ttdoc">GPU aktarımı tamamlandıktan sonra vektörleri ve kapasitelerini sıfırlar.</div><div class="ttdef"><b>Definition</b> <a href="#l00089">asset_raw_structures.h:89</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__model__data_html"><div class="ttname"><a href="structaria_1_1raw__model__data.html">aria::raw_model_data</a></div><div class="ttdoc">Bir veya daha fazla alt mesh&#39;ten oluşan ana 3D model yapısı.</div><div class="ttdef"><b>Definition</b> <a href="#l00101">asset_raw_structures.h:101</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__model__data_html_a730b7056975e8a14f331c9333d18d15a"><div class="ttname"><a href="structaria_1_1raw__model__data.html#a730b7056975e8a14f331c9333d18d15a">aria::raw_model_data::clear_raw_data</a></div><div class="ttdeci">void clear_raw_data()</div><div class="ttdoc">Modele ait tüm alt meshlerin ham verilerini bellekten temizler.</div><div class="ttdef"><b>Definition</b> <a href="#l00108">asset_raw_structures.h:108</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__model__data_html_a9821e0065f31423d4139c48f728e46e7"><div class="ttname"><a href="structaria_1_1raw__model__data.html#a9821e0065f31423d4139c48f728e46e7">aria::raw_model_data::debug_path</a></div><div class="ttdeci">std::string debug_path</div><div class="ttdoc">Modelin yüklendiği dosya yolu.</div><div class="ttdef"><b>Definition</b> <a href="#l00102">asset_raw_structures.h:102</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__model__data_html_ab680ff9b25c6d1a4f0ce9c0aa5ae02e8"><div class="ttname"><a href="structaria_1_1raw__model__data.html#ab680ff9b25c6d1a4f0ce9c0aa5ae02e8">aria::raw_model_data::sub_meshes</a></div><div class="ttdeci">std::vector&lt; raw_mesh_data &gt; sub_meshes</div><div class="ttdoc">Modele ait alt mesh (sub-mesh) koleksiyonu.</div><div class="ttdef"><b>Definition</b> <a href="#l00103">asset_raw_structures.h:103</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__shader__data_html"><div class="ttname"><a href="structaria_1_1raw__shader__data.html">aria::raw_shader_data</a></div><div class="ttdoc">Shader kod dosyalarından (.vert, .frag) okunan ham metin (string) verilerini barındırır.</div><div class="ttdef"><b>Definition</b> <a href="#l00149">asset_raw_structures.h:149</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__shader__data_html_a11c10db7ebe8a53d088f6b6fbeae2c84"><div class="ttname"><a href="structaria_1_1raw__shader__data.html#a11c10db7ebe8a53d088f6b6fbeae2c84">aria::raw_shader_data::fragment_source</a></div><div class="ttdeci">std::string fragment_source</div><div class="ttdoc">Fragment shader kaynak kodu.</div><div class="ttdef"><b>Definition</b> <a href="#l00152">asset_raw_structures.h:152</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__shader__data_html_a1e7c1c268b7b0bf762f8b59fb1aa5f7b"><div class="ttname"><a href="structaria_1_1raw__shader__data.html#a1e7c1c268b7b0bf762f8b59fb1aa5f7b">aria::raw_shader_data::vertex_source</a></div><div class="ttdeci">std::string vertex_source</div><div class="ttdoc">Vertex shader kaynak kodu.</div><div class="ttdef"><b>Definition</b> <a href="#l00151">asset_raw_structures.h:151</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__shader__data_html_a36e29b82fae61ea2ffc2f429319a98c9"><div class="ttname"><a href="structaria_1_1raw__shader__data.html#a36e29b82fae61ea2ffc2f429319a98c9">aria::raw_shader_data::clear_raw_data</a></div><div class="ttdeci">void clear_raw_data()</div><div class="ttdoc">GPU derleme aşaması bittikten sonra metin belleklerini serbest bırakır.</div><div class="ttdef"><b>Definition</b> <a href="#l00157">asset_raw_structures.h:157</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__shader__data_html_a6c898ffe5129ff5e30c9e830ca43fb1e"><div class="ttname"><a href="structaria_1_1raw__shader__data.html#a6c898ffe5129ff5e30c9e830ca43fb1e">aria::raw_shader_data::debug_path</a></div><div class="ttdeci">std::string debug_path</div><div class="ttdoc">Shader dosyalarının kök yolu.</div><div class="ttdef"><b>Definition</b> <a href="#l00150">asset_raw_structures.h:150</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__texture__data_html"><div class="ttname"><a href="structaria_1_1raw__texture__data.html">aria::raw_texture_data</a></div><div class="ttdoc">Diskten okunan piksel verilerini CPU belleğinde tutar.</div><div class="ttdef"><b>Definition</b> <a href="#l00048">asset_raw_structures.h:48</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__texture__data_html_a3b3a342854efa7e3e1eb229e67a2e219"><div class="ttname"><a href="structaria_1_1raw__texture__data.html#a3b3a342854efa7e3e1eb229e67a2e219">aria::raw_texture_data::width</a></div><div class="ttdeci">int width</div><div class="ttdoc">Dokunun piksel cinsinden genişliği.</div><div class="ttdef"><b>Definition</b> <a href="#l00050">asset_raw_structures.h:50</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__texture__data_html_a3dce1fce5d400e0ffde6dee9b8404098"><div class="ttname"><a href="structaria_1_1raw__texture__data.html#a3dce1fce5d400e0ffde6dee9b8404098">aria::raw_texture_data::debug_path</a></div><div class="ttdeci">std::string debug_path</div><div class="ttdoc">Varlığın yüklendiği dosya yolu (Hata ayıklama amaçlı).</div><div class="ttdef"><b>Definition</b> <a href="#l00049">asset_raw_structures.h:49</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__texture__data_html_a4d213179d939d8bbde13260016d80858"><div class="ttname"><a href="structaria_1_1raw__texture__data.html#a4d213179d939d8bbde13260016d80858">aria::raw_texture_data::height</a></div><div class="ttdeci">int height</div><div class="ttdoc">Dokunun piksel cinsinden yüksekliği.</div><div class="ttdef"><b>Definition</b> <a href="#l00051">asset_raw_structures.h:51</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__texture__data_html_a5ad7790d59c40a16c74c5f7d48d879a5"><div class="ttname"><a href="structaria_1_1raw__texture__data.html#a5ad7790d59c40a16c74c5f7d48d879a5">aria::raw_texture_data::pixels</a></div><div class="ttdeci">std::vector&lt; uint8_t &gt; pixels</div><div class="ttdoc">Ham piksel byte dizisi.</div><div class="ttdef"><b>Definition</b> <a href="#l00053">asset_raw_structures.h:53</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__texture__data_html_a5fe71695b6d03e2bd280a3625c75ea91"><div class="ttname"><a href="structaria_1_1raw__texture__data.html#a5fe71695b6d03e2bd280a3625c75ea91">aria::raw_texture_data::channels</a></div><div class="ttdeci">int channels</div><div class="ttdoc">Renk kanalı sayısı (3: RGB, 4: RGBA vb.).</div><div class="ttdef"><b>Definition</b> <a href="#l00052">asset_raw_structures.h:52</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__texture__data_html_a754846c5eab5bb908e63b2de21dc7c39"><div class="ttname"><a href="structaria_1_1raw__texture__data.html#a754846c5eab5bb908e63b2de21dc7c39">aria::raw_texture_data::clear_raw_data</a></div><div class="ttdeci">void clear_raw_data()</div><div class="ttdoc">GPU aktarımı tamamlandıktan sonra vektör kapasitesini sıfırlayarak RAM&#39;i temizler.</div><div class="ttdef"><b>Definition</b> <a href="#l00058">asset_raw_structures.h:58</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__vertex_html"><div class="ttname"><a href="structaria_1_1raw__vertex.html">aria::raw_vertex</a></div><div class="ttdoc">Tekil bir köşeye (vertex) ait temel 3D model verilerini tutar.</div><div class="ttdef"><b>Definition</b> <a href="#l00068">asset_raw_structures.h:68</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__vertex_html_a2fa3cc3b8c1a5dd4d43a5165667d2147"><div class="ttname"><a href="structaria_1_1raw__vertex.html#a2fa3cc3b8c1a5dd4d43a5165667d2147">aria::raw_vertex::tangent</a></div><div class="ttdeci">glm::vec3 tangent</div><div class="ttdoc">Tanjant vektörü (Normal mapping için).</div><div class="ttdef"><b>Definition</b> <a href="#l00072">asset_raw_structures.h:72</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__vertex_html_a6fb5f7275a3a0ed5afc4a45508f3d02a"><div class="ttname"><a href="structaria_1_1raw__vertex.html#a6fb5f7275a3a0ed5afc4a45508f3d02a">aria::raw_vertex::position</a></div><div class="ttdeci">glm::vec3 position</div><div class="ttdoc">3D uzaydaki konum.</div><div class="ttdef"><b>Definition</b> <a href="#l00069">asset_raw_structures.h:69</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__vertex_html_a826c27f887d90738d42b66b0fabb1d79"><div class="ttname"><a href="structaria_1_1raw__vertex.html#a826c27f887d90738d42b66b0fabb1d79">aria::raw_vertex::normal</a></div><div class="ttdeci">glm::vec3 normal</div><div class="ttdoc">Yüzey normali vektörü (Işıklandırma için).</div><div class="ttdef"><b>Definition</b> <a href="#l00070">asset_raw_structures.h:70</a></div></div>
+<div class="ttc" id="astructaria_1_1raw__vertex_html_af45464cc0d8432cd0154fd54bc8466b3"><div class="ttname"><a href="structaria_1_1raw__vertex.html#af45464cc0d8432cd0154fd54bc8466b3">aria::raw_vertex::tex_coord</a></div><div class="ttdeci">glm::vec2 tex_coord</div><div class="ttdoc">UV kaplama koordinatları.</div><div class="ttdef"><b>Definition</b> <a href="#l00071">asset_raw_structures.h:71</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_f70772451b1dc73846c95de7c9e8e0ad.html">Engine</a></li><li class="navelem"><a href="dir_51ad1b96d17b7f29f9f89b7f3e197e4c.html">Assets</a></li><li class="navelem"><a href="asset__raw__structures_8h.html">asset_raw_structures.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,108 +1,49 @@
+/**
+ * @file player_controller.cpp
+ * @brief Gameplay API tabanlı oyuncu kontrol uygulaması.
+ */
+
 #include "player_controller.h"
-#include "../Engine/engine_context.h"
-#include "../ECS/components.h"
-#include "../Systems/physics_api.h"
-#include "../Systems/physics_system.h"
-
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp>
-
-#include <iostream>
-
-static glm::vec3 getForward(const glm::vec3& rot)
-{
-    float yaw = rot.y;
-
-    return glm::normalize(glm::vec3(
-        sin(yaw),
-        0.0f,
-        cos(yaw)
-    ));
-}
-
-static glm::vec3 getRight(const glm::vec3& rot)
-{
-    float yaw = rot.y;
-
-    return glm::normalize(glm::vec3(
-        cos(yaw),
-        0.0f,
-        -sin(yaw)
-    ));
-}
+#include <cmath>
 
 void player_controller::on_create()
 {
-    //getContext().inputState.cursorLocked = true;
 }
 
 void player_controller::on_update(float dt)
 {
-    auto& input = getContext().inputState;
-    auto* reg = get_registry();
-
-    auto* camT =
-        reg->get_component<transform_component>(
-            find_by_name("MainCamera"));
-
-    if (!camT)
-        return;
-
-    // SADECE Y (Yaw) eksenini alıyoruz. Pitch (yukarı/aşağı) hareketimizi etkilememeli.
-    // NOT: Eğer rotasyon değerlerin derece (degree) cinsindense, burayı glm::radians(camT->rotation.y) yapmalısın.
-    float yaw = camT->rotation.y;
-
-    // Standart OpenGL (Right-Handed) koordinat sisteminde ileri yön -Z'dir.
-    // Eğer 'W'ye bastığında geriye gidiyorsan, -cos(yaw) yerine +cos(yaw) kullanabilirsin.
-    glm::vec3 forward = glm::vec3(sin(yaw), 0.0f, -cos(yaw));
-    glm::vec3 right = glm::vec3(cos(yaw), 0.0f, sin(yaw));
-
-    // Formül gereği genelde 1 uzunluğundadır ama garantiye alıyoruz
-    forward = glm::normalize(forward);
-    right = glm::normalize(right);
-
-    glm::vec3 moveDir(0.0f);
-
-    if (input.actions[(int)InputAction::MoveForward])
-        moveDir += forward;
-
-    if (input.actions[(int)InputAction::MoveBackward])
-        moveDir -= forward;
-
-    if (input.actions[(int)InputAction::MoveLeft])
-        moveDir -= right;
-
-    if (input.actions[(int)InputAction::MoveRight])
-        moveDir += right;
-
-    // Birden fazla tuşa basıldığında (çapraz gidiş) hızın artmasını engellemek için normalize ediyoruz
-    if (glm::length(moveDir) > 0.001f)
-        moveDir = glm::normalize(moveDir);
-
-    /* --- Log ve Fizik Kısmı --- */
-
-    // (Opsiyonel) Log atıp değerleri kontrol edebilirsin
-    // std::cout << "MOVE: " << moveDir.x << " " << moveDir.y << " " << moveDir.z << std::endl;
-
-    auto& physics = getContext().physicsSystem.api();
-
-    // Mevcut Y hızını (yerçekimi/zıplama) koru
-    glm::vec3 currentVel = physics.get_velocity(get_entity());
-    glm::vec3 horizontalVel(0.0f);
-
-    if (glm::length(moveDir) > 0.001f)
+    // 1. Kamera varlığını kendi kayıt defteri (registry) üzerinden güvenle bul
+    const entity camId = find_by_name("MainCamera");
+    if (camId == 0)
     {
-        horizontalVel = moveDir * speed;
+        return;
     }
 
-    // Y eksenindeki fizik tepkimelerini bozmadan yeni hızı oluştur
-    glm::vec3 finalVel;
-    finalVel.x = horizontalVel.x;
-    finalVel.y = currentVel.y; // Yerçekimi bozulmaz
-    finalVel.z = horizontalVel.z;
+    auto camEntity = gameplay::gameplay_entity(camId, get_registry());
 
-    physics.set_velocity(get_entity(), finalVel);
+    // 2. Kameranın yatay bakış açısını (Yaw) alarak hareket doğrultularını hesapla
+    const float yaw = camEntity.transform().get_rotation_euler().y;
+
+    // Standart OpenGL sağ el kuralı koordinat sisteminde yönler (ileri = -Z)
+    const glm::vec3 forward = glm::normalize(glm::vec3(std::sin(yaw), 0.0f, -std::cos(yaw)));
+    const glm::vec3 right = glm::normalize(glm::vec3(std::cos(yaw), 0.0f, std::sin(yaw)));
+
+    // 3. Gameplay Input API üzerinden 2D eksen hareket girdisini al
+    const glm::vec2 axis = gameplay::input::get_axis_2d(
+        InputAction::MoveForward, InputAction::MoveBackward,
+        InputAction::MoveRight,   InputAction::MoveLeft
+    );
+
+    glm::vec3 moveDir = forward * axis.y + right * axis.x;
+    if (glm::length(moveDir) > 0.001f)
+    {
+        moveDir = glm::normalize(moveDir);
+    }
+
+    // 4. Mevcut Y ekseni hızını (yerçekimi ve dikey ivme) koruyarak yatay hızı ata
+    const glm::vec3 currentVel = rigidbody().get_velocity();
+    const glm::vec3 finalVel(moveDir.x * speed, currentVel.y, moveDir.z * speed);
+
+    rigidbody().set_velocity(finalVel);
 }

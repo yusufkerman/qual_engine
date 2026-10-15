@@ -1,0 +1,206 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: gizmo_system.h Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('gizmo__system_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">gizmo_system.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="gizmo__system_8h.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;glm/glm.hpp&gt;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span></div>
+<div class="foldopen" id="foldopen00015" data-start="{" data-end="};">
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="struct_gizmo_vertex.html">   15</a></span><span class="keyword">struct </span><a class="code hl_struct" href="struct_gizmo_vertex.html">GizmoVertex</a></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>{</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno"><a class="line" href="struct_gizmo_vertex.html#a7449ca418e5120453d627ebf2bd29e7e">   17</a></span>    glm::vec3 <a class="code hl_variable" href="struct_gizmo_vertex.html#a7449ca418e5120453d627ebf2bd29e7e">position</a>; </div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="struct_gizmo_vertex.html#a366e2e1c9b19efa26d68050110318119">   18</a></span>    glm::vec4 <a class="code hl_variable" href="struct_gizmo_vertex.html#a366e2e1c9b19efa26d68050110318119">color</a>;    </div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>};</div>
+</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span></div>
+<div class="foldopen" id="foldopen00025" data-start="{" data-end="};">
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="classgizmo__system.html">   25</a></span><span class="keyword">class </span><a class="code hl_function" href="classgizmo__system.html#a2c80495989a6791f4f38f3ece3937f11">gizmo_system</a></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>{</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="classgizmo__system.html#a2c80495989a6791f4f38f3ece3937f11">   28</a></span>    <a class="code hl_function" href="classgizmo__system.html#a2c80495989a6791f4f38f3ece3937f11">gizmo_system</a>();</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <a class="code hl_function" href="classgizmo__system.html#a2c80495989a6791f4f38f3ece3937f11">~gizmo_system</a>();</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classgizmo__system.html#a039f6cb9534633c37fe992b10a041474">init</a>();</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classgizmo__system.html#a8a910e00093259ec3526a1994299f841">shutdown</a>();</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classgizmo__system.html#a923d3eec13b440ffa7c9efb5d7c31d13">DrawLine</a>(<span class="keyword">const</span> glm::vec3&amp; start, <span class="keyword">const</span> glm::vec3&amp; end, <span class="keyword">const</span> glm::vec4&amp; color);</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classgizmo__system.html#ab19dd03d1be5d4b52d8bf7dbc0947337">DrawWireCube</a>(<span class="keyword">const</span> glm::vec3&amp; center, <span class="keyword">const</span> glm::vec3&amp; scale, <span class="keyword">const</span> glm::vec4&amp; color);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classgizmo__system.html#ab19dd03d1be5d4b52d8bf7dbc0947337">DrawWireCube</a>(<span class="keyword">const</span> glm::mat4&amp; transform, <span class="keyword">const</span> glm::vec3&amp; extents, <span class="keyword">const</span> glm::vec4&amp; color);</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classgizmo__system.html#a64d5d82b9d50418982afa15c2066c6fc">DrawWireSphere</a>(<span class="keyword">const</span> glm::mat4&amp; transform, <span class="keywordtype">float</span> radius, <span class="keyword">const</span> glm::vec4&amp; color);</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classgizmo__system.html#ac344af97513ce5a6faaa3337994107be">Flush</a>(<span class="keyword">const</span> glm::mat4&amp; view, <span class="keyword">const</span> glm::mat4&amp; projection, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> shaderID);</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classgizmo__system.html#abb9aea4e84fa5b48a72f0fc4f4825426">Clear</a>();</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="classgizmo__system.html#ada18222ae91553c2e1a794db4e152b7d">   84</a></span>    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code hl_variable" href="classgizmo__system.html#ada18222ae91553c2e1a794db4e152b7d">m_VAO</a> = 0;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="classgizmo__system.html#a97b7864eb8bb11d9a25e5e5f29d50e85">   85</a></span>    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code hl_variable" href="classgizmo__system.html#a97b7864eb8bb11d9a25e5e5f29d50e85">m_VBO</a> = 0;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno"><a class="line" href="classgizmo__system.html#a4991a841e398027d2312634f349359b8">   86</a></span>    <span class="keywordtype">size_t</span> <a class="code hl_variable" href="classgizmo__system.html#a4991a841e398027d2312634f349359b8">m_AllocatedCapacity</a> = 0;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="classgizmo__system.html#aa0e83dc4eb4ced78229047423352621e">   88</a></span>    std::vector&lt;GizmoVertex&gt; <a class="code hl_variable" href="classgizmo__system.html#aa0e83dc4eb4ced78229047423352621e">m_LineVertices</a>;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>};</div>
+</div>
+<div class="ttc" id="aclassgizmo__system_html_a039f6cb9534633c37fe992b10a041474"><div class="ttname"><a href="classgizmo__system.html#a039f6cb9534633c37fe992b10a041474">gizmo_system::init</a></div><div class="ttdeci">void init()</div><div class="ttdoc">OpenGL VAO ve VBO nesnelerini başlatır.</div><div class="ttdef"><b>Definition</b> <a href="gizmo__system_8cpp_source.html#l00019">gizmo_system.cpp:19</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_a2c80495989a6791f4f38f3ece3937f11"><div class="ttname"><a href="classgizmo__system.html#a2c80495989a6791f4f38f3ece3937f11">gizmo_system::gizmo_system</a></div><div class="ttdeci">gizmo_system()</div></div>
+<div class="ttc" id="aclassgizmo__system_html_a4991a841e398027d2312634f349359b8"><div class="ttname"><a href="classgizmo__system.html#a4991a841e398027d2312634f349359b8">gizmo_system::m_AllocatedCapacity</a></div><div class="ttdeci">size_t m_AllocatedCapacity</div><div class="ttdef"><b>Definition</b> <a href="#l00086">gizmo_system.h:86</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_a64d5d82b9d50418982afa15c2066c6fc"><div class="ttname"><a href="classgizmo__system.html#a64d5d82b9d50418982afa15c2066c6fc">gizmo_system::DrawWireSphere</a></div><div class="ttdeci">void DrawWireSphere(const glm::mat4 &amp;transform, float radius, const glm::vec4 &amp;color)</div><div class="ttdoc">Dönüşüm matrisi ve yarıçap ile tel kafes küre çizer.</div><div class="ttdef"><b>Definition</b> <a href="gizmo__system_8cpp_source.html#l00123">gizmo_system.cpp:123</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_a8a910e00093259ec3526a1994299f841"><div class="ttname"><a href="classgizmo__system.html#a8a910e00093259ec3526a1994299f841">gizmo_system::shutdown</a></div><div class="ttdeci">void shutdown()</div><div class="ttdoc">OpenGL kaynaklarını serbest bırakır.</div><div class="ttdef"><b>Definition</b> <a href="gizmo__system_8cpp_source.html#l00045">gizmo_system.cpp:45</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_a923d3eec13b440ffa7c9efb5d7c31d13"><div class="ttname"><a href="classgizmo__system.html#a923d3eec13b440ffa7c9efb5d7c31d13">gizmo_system::DrawLine</a></div><div class="ttdeci">void DrawLine(const glm::vec3 &amp;start, const glm::vec3 &amp;end, const glm::vec4 &amp;color)</div><div class="ttdoc">Başlangıç ve bitiş noktası arasında bir çizgi kaydeder.</div><div class="ttdef"><b>Definition</b> <a href="gizmo__system_8cpp_source.html#l00057">gizmo_system.cpp:57</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_a97b7864eb8bb11d9a25e5e5f29d50e85"><div class="ttname"><a href="classgizmo__system.html#a97b7864eb8bb11d9a25e5e5f29d50e85">gizmo_system::m_VBO</a></div><div class="ttdeci">unsigned int m_VBO</div><div class="ttdef"><b>Definition</b> <a href="#l00085">gizmo_system.h:85</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_aa0e83dc4eb4ced78229047423352621e"><div class="ttname"><a href="classgizmo__system.html#aa0e83dc4eb4ced78229047423352621e">gizmo_system::m_LineVertices</a></div><div class="ttdeci">std::vector&lt; GizmoVertex &gt; m_LineVertices</div><div class="ttdef"><b>Definition</b> <a href="#l00088">gizmo_system.h:88</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_ab19dd03d1be5d4b52d8bf7dbc0947337"><div class="ttname"><a href="classgizmo__system.html#ab19dd03d1be5d4b52d8bf7dbc0947337">gizmo_system::DrawWireCube</a></div><div class="ttdeci">void DrawWireCube(const glm::vec3 &amp;center, const glm::vec3 &amp;scale, const glm::vec4 &amp;color)</div><div class="ttdoc">Dünya uzayında eksen hizalı tel kafes küp çizer.</div><div class="ttdef"><b>Definition</b> <a href="gizmo__system_8cpp_source.html#l00063">gizmo_system.cpp:63</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_abb9aea4e84fa5b48a72f0fc4f4825426"><div class="ttname"><a href="classgizmo__system.html#abb9aea4e84fa5b48a72f0fc4f4825426">gizmo_system::Clear</a></div><div class="ttdeci">void Clear()</div><div class="ttdoc">Çizim listesindeki tüm çizgileri temizler.</div><div class="ttdef"><b>Definition</b> <a href="gizmo__system_8cpp_source.html#l00219">gizmo_system.cpp:219</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_ac344af97513ce5a6faaa3337994107be"><div class="ttname"><a href="classgizmo__system.html#ac344af97513ce5a6faaa3337994107be">gizmo_system::Flush</a></div><div class="ttdeci">void Flush(const glm::mat4 &amp;view, const glm::mat4 &amp;projection, unsigned int shaderID)</div><div class="ttdoc">Kayıtlı tüm gizmo çizgilerini GPU&#39;ya yükler ve ekrana çizer.</div><div class="ttdef"><b>Definition</b> <a href="gizmo__system_8cpp_source.html#l00165">gizmo_system.cpp:165</a></div></div>
+<div class="ttc" id="aclassgizmo__system_html_ada18222ae91553c2e1a794db4e152b7d"><div class="ttname"><a href="classgizmo__system.html#ada18222ae91553c2e1a794db4e152b7d">gizmo_system::m_VAO</a></div><div class="ttdeci">unsigned int m_VAO</div><div class="ttdef"><b>Definition</b> <a href="#l00084">gizmo_system.h:84</a></div></div>
+<div class="ttc" id="astruct_gizmo_vertex_html"><div class="ttname"><a href="struct_gizmo_vertex.html">GizmoVertex</a></div><div class="ttdoc">Gizmo çizgileri için 3B konum ve RGBA renk bileşenlerini barındıran tepe noktası verisi.</div><div class="ttdef"><b>Definition</b> <a href="#l00015">gizmo_system.h:16</a></div></div>
+<div class="ttc" id="astruct_gizmo_vertex_html_a366e2e1c9b19efa26d68050110318119"><div class="ttname"><a href="struct_gizmo_vertex.html#a366e2e1c9b19efa26d68050110318119">GizmoVertex::color</a></div><div class="ttdeci">glm::vec4 color</div><div class="ttdoc">Çizginin RGBA renk değeri.</div><div class="ttdef"><b>Definition</b> <a href="#l00018">gizmo_system.h:18</a></div></div>
+<div class="ttc" id="astruct_gizmo_vertex_html_a7449ca418e5120453d627ebf2bd29e7e"><div class="ttname"><a href="struct_gizmo_vertex.html#a7449ca418e5120453d627ebf2bd29e7e">GizmoVertex::position</a></div><div class="ttdeci">glm::vec3 position</div><div class="ttdoc">Çizginin uzaydaki konumu.</div><div class="ttdef"><b>Definition</b> <a href="#l00017">gizmo_system.h:17</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_4a121abb284744d5a2cbf328f20ddf18.html">Renderer</a></li><li class="navelem"><a href="dir_62f6bb940b7c2f519a2bb22badf17458.html">Debug</a></li><li class="navelem"><a href="gizmo__system_8h.html">gizmo_system.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

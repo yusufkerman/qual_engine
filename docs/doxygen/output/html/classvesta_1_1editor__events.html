@@ -1,0 +1,330 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: vesta::editor_events Sınıf Referans</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('classvesta_1_1editor__events.html','','classvesta_1_1editor__events-members'); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">vesta::editor_events Sınıf Referans</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Bileşen silinmesi gibi editör eylemlerini dinlemek (subscribe) ve tetiklemek (dispatch) için kullanılan statik olay dağıtıcı.  
+ <a href="#details">Ayrıntılar...</a></p>
+
+<p><code>#include &lt;<a class="el" href="editor__events_8h_source.html">editor_events.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-types" class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Tipler</h2></td></tr>
+<tr class="memitem:a146d97cbdbb4cffa78e5698bca69ea3a" id="r_a146d97cbdbb4cffa78e5698bca69ea3a"><td class="memItemLeft">using&#160;</td><td class="memItemRight"><a class="el" href="#a146d97cbdbb4cffa78e5698bca69ea3a">ComponentCallback</a> = std::function&lt;void(<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a>, <a class="el" href="classregistry.html">registry</a>&amp;)&gt;</td></tr>
+<tr class="memdesc:a146d97cbdbb4cffa78e5698bca69ea3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bir bileşen eylemi gerçekleştiğinde tetiklenecek geri çağrım (callback) fonksiyonu.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-static-methods" class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Statik Public Üye Fonksiyonlar</h2></td></tr>
+<tr class="memitem:a7195c3252288079170987d63fbc1d465" id="r_a7195c3252288079170987d63fbc1d465"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="#a7195c3252288079170987d63fbc1d465">subscribe_on_remove</a> (size_t comp_hash, <a class="el" href="#a146d97cbdbb4cffa78e5698bca69ea3a">ComponentCallback</a> callback)</td></tr>
+<tr class="memdesc:a7195c3252288079170987d63fbc1d465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Belirli bir bileşen silindiğinde haberdar olmak için (Observer) bir dinleyici kaydeder.  <br /></td></tr>
+<tr class="memitem:ad4019c2e0f1bc597bed8dc51e5d8bb21" id="r_ad4019c2e0f1bc597bed8dc51e5d8bb21"><td class="memItemLeft">static void&#160;</td><td class="memItemRight"><a class="el" href="#ad4019c2e0f1bc597bed8dc51e5d8bb21">dispatch_on_remove</a> (size_t comp_hash, <a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e, <a class="el" href="classregistry.html">registry</a> &amp;reg)</td></tr>
+<tr class="memdesc:ad4019c2e0f1bc597bed8dc51e5d8bb21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bir bileşen silindiğinde, o bileşen tipini dinleyen tüm sistemlere bildirim (event) gönderir.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pri-static-methods" class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
+Statik Özel Üye Fonksiyonlar</h2></td></tr>
+<tr class="memitem:af0f60bc51d4de8cf6cb90bd0bb4f4e5d" id="r_af0f60bc51d4de8cf6cb90bd0bb4f4e5d"><td class="memItemLeft">static std::unordered_map&lt; size_t, std::vector&lt; <a class="el" href="#a146d97cbdbb4cffa78e5698bca69ea3a">ComponentCallback</a> &gt; &gt; &amp;&#160;</td><td class="memItemRight"><a class="el" href="#af0f60bc51d4de8cf6cb90bd0bb4f4e5d">get_listeners</a> ()</td></tr>
+<tr class="memdesc:af0f60bc51d4de8cf6cb90bd0bb4f4e5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Silinme olaylarını dinleyenlerin listesini (haritasını) tutan statik merkez.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Ayrıntılı tanımlama</h2>
+<div class="textblock"><p>Bileşen silinmesi gibi editör eylemlerini dinlemek (subscribe) ve tetiklemek (dispatch) için kullanılan statik olay dağıtıcı. </p>
+
+<p class="definition"><a class="el" href="editor__events_8h_source.html">editor_events.h</a> dosyasının <a class="el" href="editor__events_8h_source.html#l00022">22</a> numaralı satırında tanımlanmıştır.</p>
+</div><a name="doc-typedef-members" id="doc-typedef-members"></a><h2 id="header-doc-typedef-members" class="groupheader">Üye Typedef Dokümantasyonu</h2>
+<a id="a146d97cbdbb4cffa78e5698bca69ea3a" name="a146d97cbdbb4cffa78e5698bca69ea3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a146d97cbdbb4cffa78e5698bca69ea3a">&#9670;&#160;</a></span>ComponentCallback</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="#a146d97cbdbb4cffa78e5698bca69ea3a">vesta::editor_events::ComponentCallback</a> = std::function&lt;void(<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a>, <a class="el" href="classregistry.html">registry</a>&amp;)&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bir bileşen eylemi gerçekleştiğinde tetiklenecek geri çağrım (callback) fonksiyonu. </p>
+
+<p class="definition"><a class="el" href="editor__events_8h_source.html">editor_events.h</a> dosyasının <a class="el" href="editor__events_8h_source.html#l00028">28</a> numaralı satırında tanımlanmıştır.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Üye Fonksiyon Dokümantasyonu</h2>
+<a id="ad4019c2e0f1bc597bed8dc51e5d8bb21" name="ad4019c2e0f1bc597bed8dc51e5d8bb21"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4019c2e0f1bc597bed8dc51e5d8bb21">&#9670;&#160;</a></span>dispatch_on_remove()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::editor_events::dispatch_on_remove </td>
+          <td>(</td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>comp_hash</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classregistry.html">registry</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>reg</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Bir bileşen silindiğinde, o bileşen tipini dinleyen tüm sistemlere bildirim (event) gönderir. </p>
+<dl class="section note"><dt>Not</dt><dd>Genellikle '<a class="el" href="classvesta_1_1editable__world__impl.html" title="Vesta editörünün sahne mutasyonlarını ve varlık sorgularını motor sistemlerine ileten adaptör sınıfı.">editable_world_impl</a>' gibi merkezi dünya yöneticileri tarafından, bileşen gerçekten silinmeden hemen önce çağrılır.</dd></dl>
+<dl class="params"><dt>Parametreler</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">comp_hash</td><td>Silinen bileşenin tip kimliği. </td></tr>
+    <tr><td class="paramname">e</td><td>Bileşenin silindiği varlık (entity). </td></tr>
+    <tr><td class="paramname">reg</td><td>İşlemin gerçekleştiği ECS kayıt defteri. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition"><a class="el" href="editor__events_8h_source.html">editor_events.h</a> dosyasının <a class="el" href="editor__events_8h_source.html#l00049">49</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="editor__events_8h_source.html#l00064">get_listeners()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="editable__world__impl_8cpp_source.html#l00173">vesta::editable_world_impl::remove_component_by_hash()</a>.</p>
+
+</div>
+</div>
+<a id="af0f60bc51d4de8cf6cb90bd0bb4f4e5d" name="af0f60bc51d4de8cf6cb90bd0bb4f4e5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0f60bc51d4de8cf6cb90bd0bb4f4e5d">&#9670;&#160;</a></span>get_listeners()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unordered_map&lt; size_t, std::vector&lt; <a class="el" href="#a146d97cbdbb4cffa78e5698bca69ea3a">ComponentCallback</a> &gt; &gt; &amp; vesta::editor_events::get_listeners </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Silinme olaylarını dinleyenlerin listesini (haritasını) tutan statik merkez. </p>
+
+<p class="definition"><a class="el" href="editor__events_8h_source.html">editor_events.h</a> dosyasının <a class="el" href="editor__events_8h_source.html#l00064">64</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="editor__events_8h_source.html#l00049">dispatch_on_remove()</a> ve <a class="el" href="editor__events_8h_source.html#l00037">subscribe_on_remove()</a>.</p>
+
+</div>
+</div>
+<a id="a7195c3252288079170987d63fbc1d465" name="a7195c3252288079170987d63fbc1d465"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7195c3252288079170987d63fbc1d465">&#9670;&#160;</a></span>subscribe_on_remove()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::editor_events::subscribe_on_remove </td>
+          <td>(</td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>comp_hash</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#a146d97cbdbb4cffa78e5698bca69ea3a">ComponentCallback</a></td>          <td class="paramname"><span class="paramname"><em>callback</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Belirli bir bileşen silindiğinde haberdar olmak için (Observer) bir dinleyici kaydeder. </p>
+<dl class="section note"><dt>Not</dt><dd>Dış sistemlerin (Fizik, Ses vb.) editör işlemlerine gevşek bağlı (decoupled) şekilde tepki vermesini sağlar.</dd></dl>
+<dl class="params"><dt>Parametreler</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">comp_hash</td><td>Dinlenecek bileşenin benzersiz tip kimliği (hash). </td></tr>
+    <tr><td class="paramname">callback</td><td>Bileşen silindiğinde çalıştırılacak fonksiyon. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition"><a class="el" href="editor__events_8h_source.html">editor_events.h</a> dosyasının <a class="el" href="editor__events_8h_source.html#l00037">37</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="editor__events_8h_source.html#l00064">get_listeners()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="vesta__module_8h_source.html#l00028">vesta::vesta_module::register_remove_hook()</a>.</p>
+
+</div>
+</div>
+<hr/>Bu sınıf için dokümantasyon aşağıdaki dosyadan üretilmiştir:<ul>
+<li><a class="el" href="editor__events_8h_source.html">editor_events.h</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="namespacevesta.html">vesta</a></li><li class="navelem"><a href="classvesta_1_1editor__events.html">editor_events</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: Application.cpp Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('_application_8cpp_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Application.cpp</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="_application_8cpp.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#include &lt;<a class="code" href="engine_8h.html">Engine/engine.h</a>&gt;</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &lt;<a class="code" href="editor__context_8h.html">Editor/editor_context.h</a>&gt;</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &quot;<a class="code" href="sandbox_8h.html">sandbox.h</a>&quot;</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;<a class="code" href="scene__serializer_8h.html">Scene/scene_serializer.h</a>&gt;</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
+<div class="foldopen" id="foldopen00007" data-start="{" data-end="}">
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno"><a class="line" href="_application_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">    7</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="_application_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a>()</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>{</div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>    <span class="comment">// Motorun çalışması için gereken tüm global/runtime state burada tutulur.</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>    <span class="comment">// Window, renderer, input, scene session, editor vb. sistemler bu context içindedir.</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>    <a class="code hl_struct" href="struct_engine_context.html">EngineContext</a> ctx;</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>    <a class="code hl_struct" href="struct_editor_context.html">EditorContext</a> editorCtx;</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>    ctx.<a class="code hl_variable" href="struct_engine_context.html#a352af983f80af59c47c619c7c19971ec">isEditorBuild</a> = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    <span class="comment">// OpenGL, GLFW, ImGui, shaderlar ve render target&#39;lar oluşturulur.</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    <span class="comment">// Başarısız olursa program sonlandırılır.</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keywordflow">if</span> (!<a class="code hl_function" href="namespace_engine.html#a0d028e6bfa302ae81eaa290544f8bffb">Engine::init</a>(ctx, editorCtx))</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        <span class="keywordflow">return</span> -1;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="comment">// Varsayılan test/sandbox sahnesini yükler.</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="comment">// Önemli:</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <span class="comment">// Motor artık hangi modeli veya sahneyi yükleyeceğini bilmez.</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="comment">// İçerik oluşturma sorumluluğu Sandbox katmanındadır.</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <a class="code hl_function" href="sandbox_8cpp.html#abee5fbd4e558fceff55149e1535e5b67">sandbox_load_demo_game</a>(ctx, editorCtx);</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;mat size: &quot;</span> &lt;&lt; ctx.<a class="code hl_variable" href="struct_engine_context.html#a9ed49b68f9abdcac0be8045bd62ee047">materialManager</a>.<a class="code hl_function" href="classmaterial__manager.html#a006d942066576022892c6b746806aa49">get_all_materials</a>().size() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keywordtype">bool</span> sceneLoaded = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <span class="keywordflow">if</span> (!ctx.<a class="code hl_variable" href="struct_engine_context.html#a352af983f80af59c47c619c7c19971ec">isEditorBuild</a>)</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    {</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        ctx.<a class="code hl_variable" href="struct_engine_context.html#a98cb2e57f5d9562d95125db8a9ee977f">session</a>.<a class="code hl_function" href="classscene__session.html#a95d9f9cdee1b444a4e2338c37b0cbebd">play</a>(ctx);</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        editorCtx.<a class="code hl_variable" href="struct_editor_context.html#aa5501eaafcdf2c1ca38e16bd0ec654b3">mode</a> = <a class="code hl_enumvalue" href="engine__mode_8h.html#a29816b2e660c6a5ab317cca95ec3866da6a216efc529825c60a4a4c0bc99ad77f">EngineMode::PLAY</a>;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        ctx.<a class="code hl_variable" href="struct_engine_context.html#a24c2a950f830f2a5e5a1c1c864804f0f">prevMode</a> = <a class="code hl_enumvalue" href="engine__mode_8h.html#a29816b2e660c6a5ab317cca95ec3866da4698850447aa09571776addcb6a2911b">EngineMode::EDITOR</a>;</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    }</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="comment">// Ana oyun döngüsü</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keywordflow">while</span> (!glfwWindowShouldClose(ctx.<a class="code hl_variable" href="struct_engine_context.html#a03a3a93154bc356d5995f9b3e116fa7e">window</a>))</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    {</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        <span class="comment">// Input, editor güncellemeleri,</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        <span class="comment">// play/editor geçişleri ve runtime mantıkları çalıştırılır.</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        <a class="code hl_function" href="namespace_engine.html#a394acccd28886fd21b275e1ab91d62ce">Engine::update</a>(ctx, editorCtx);</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="comment">// Editor viewport, game viewport ve UI render edilir.</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        <a class="code hl_function" href="namespace_engine.html#ae6d2239a14d4aeb9a26344a91eb8504a">Engine::render</a>(ctx, editorCtx);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    }</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="comment">// GPU kaynakları, render target&#39;lar,</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="comment">// ImGui ve pencere sistemi temizlenir.</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <a class="code hl_function" href="namespace_engine.html#a6318089eac3bdc3193da85c838394038">Engine::shutdown</a>(ctx, editorCtx);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>}</div>
+</div>
+<div class="ttc" id="a_application_8cpp_html_ae66f6b31b5ad750f1fe042a706a4e3d4"><div class="ttname"><a href="_application_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main</a></div><div class="ttdeci">int main()</div><div class="ttdef"><b>Definition</b> <a href="#l00007">Application.cpp:7</a></div></div>
+<div class="ttc" id="aclassmaterial__manager_html_a006d942066576022892c6b746806aa49"><div class="ttname"><a href="classmaterial__manager.html#a006d942066576022892c6b746806aa49">material_manager::get_all_materials</a></div><div class="ttdeci">const std::unordered_map&lt; unsigned int, material &gt; &amp; get_all_materials() const noexcept</div><div class="ttdoc">Kayıtlı tüm materyalleri döndürür.</div><div class="ttdef"><b>Definition</b> <a href="material__manager_8h_source.html#l00031">material_manager.h:31</a></div></div>
+<div class="ttc" id="aclassscene__session_html_a95d9f9cdee1b444a4e2338c37b0cbebd"><div class="ttname"><a href="classscene__session.html#a95d9f9cdee1b444a4e2338c37b0cbebd">scene_session::play</a></div><div class="ttdeci">void play(EngineContext &amp;ctx)</div><div class="ttdoc">Editör modundan çıkıp oyun simülasyonunu başlatır.</div><div class="ttdef"><b>Definition</b> <a href="scene__session_8cpp_source.html#l00044">scene_session.cpp:44</a></div></div>
+<div class="ttc" id="aeditor__context_8h_html"><div class="ttname"><a href="editor__context_8h.html">editor_context.h</a></div><div class="ttdoc">Editör alt sistemleri ve paneller arasında paylaşılan çalışma zamanı bağlamını tanımlar.</div></div>
+<div class="ttc" id="aengine_8h_html"><div class="ttname"><a href="engine_8h.html">engine.h</a></div><div class="ttdoc">Oyun motorunun ana yaşam döngüsü (init, update, render, shutdown) fonksiyonlarını tanımlar.</div></div>
+<div class="ttc" id="aengine__mode_8h_html_a29816b2e660c6a5ab317cca95ec3866da4698850447aa09571776addcb6a2911b"><div class="ttname"><a href="engine__mode_8h.html#a29816b2e660c6a5ab317cca95ec3866da4698850447aa09571776addcb6a2911b">EngineMode::EDITOR</a></div><div class="ttdeci">@ EDITOR</div><div class="ttdoc">Sahne düzenleme, gizmo ve editör serbest uçuş kamerası aktif.</div><div class="ttdef"><b>Definition</b> <a href="engine__mode_8h_source.html#l00014">engine_mode.h:14</a></div></div>
+<div class="ttc" id="aengine__mode_8h_html_a29816b2e660c6a5ab317cca95ec3866da6a216efc529825c60a4a4c0bc99ad77f"><div class="ttname"><a href="engine__mode_8h.html#a29816b2e660c6a5ab317cca95ec3866da6a216efc529825c60a4a4c0bc99ad77f">EngineMode::PLAY</a></div><div class="ttdeci">@ PLAY</div><div class="ttdoc">Oyun mantığı, fizik simülasyonu ve oyun kamerası aktif.</div><div class="ttdef"><b>Definition</b> <a href="engine__mode_8h_source.html#l00015">engine_mode.h:15</a></div></div>
+<div class="ttc" id="anamespace_engine_html_a0d028e6bfa302ae81eaa290544f8bffb"><div class="ttname"><a href="namespace_engine.html#a0d028e6bfa302ae81eaa290544f8bffb">Engine::init</a></div><div class="ttdeci">bool init(EngineContext &amp;ctx, EditorContext &amp;editorCtx)</div><div class="ttdoc">Motoru ve gerekli tüm alt sistemleri başlatır.</div><div class="ttdef"><b>Definition</b> <a href="engine_8cpp_source.html#l00104">engine.cpp:104</a></div></div>
+<div class="ttc" id="anamespace_engine_html_a394acccd28886fd21b275e1ab91d62ce"><div class="ttname"><a href="namespace_engine.html#a394acccd28886fd21b275e1ab91d62ce">Engine::update</a></div><div class="ttdeci">void update(EngineContext &amp;ctx, EditorContext &amp;editorCtx)</div><div class="ttdoc">Motorun mantıksal güncellemelerini (girdi işlemleri, fizik, sahne yönetimi vb.) gerçekleştirir.</div><div class="ttdef"><b>Definition</b> <a href="engine_8cpp_source.html#l00211">engine.cpp:211</a></div></div>
+<div class="ttc" id="anamespace_engine_html_a6318089eac3bdc3193da85c838394038"><div class="ttname"><a href="namespace_engine.html#a6318089eac3bdc3193da85c838394038">Engine::shutdown</a></div><div class="ttdeci">void shutdown(EngineContext &amp;ctx, EditorContext &amp;editorCtx)</div><div class="ttdoc">Motoru güvenli bir şekilde kapatır ve tahsis edilen bellek ile GPU kaynaklarını temizler.</div><div class="ttdef"><b>Definition</b> <a href="engine_8cpp_source.html#l00254">engine.cpp:254</a></div></div>
+<div class="ttc" id="anamespace_engine_html_ae6d2239a14d4aeb9a26344a91eb8504a"><div class="ttname"><a href="namespace_engine.html#ae6d2239a14d4aeb9a26344a91eb8504a">Engine::render</a></div><div class="ttdeci">void render(EngineContext &amp;ctx, EditorContext &amp;editorCtx)</div><div class="ttdoc">Ekrana çizilecek olan grafikleri (oyun görüntüleri ve editör arayüzü) işler.</div><div class="ttdef"><b>Definition</b> <a href="engine_8cpp_source.html#l00239">engine.cpp:239</a></div></div>
+<div class="ttc" id="asandbox_8cpp_html_abee5fbd4e558fceff55149e1535e5b67"><div class="ttname"><a href="sandbox_8cpp.html#abee5fbd4e558fceff55149e1535e5b67">sandbox_load_demo_game</a></div><div class="ttdeci">void sandbox_load_demo_game(EngineContext &amp;ctx, EditorContext &amp;edtitorCtx)</div><div class="ttdef"><b>Definition</b> <a href="sandbox_8cpp_source.html#l00025">sandbox.cpp:25</a></div></div>
+<div class="ttc" id="asandbox_8h_html"><div class="ttname"><a href="sandbox_8h.html">sandbox.h</a></div></div>
+<div class="ttc" id="ascene__serializer_8h_html"><div class="ttname"><a href="scene__serializer_8h.html">scene_serializer.h</a></div><div class="ttdoc">ECS bileşenleri, GLM vektörleri ve Aria varlık tanıtıcıları için JSON serileştirme tanımları.</div></div>
+<div class="ttc" id="astruct_editor_context_html"><div class="ttname"><a href="struct_editor_context.html">EditorContext</a></div><div class="ttdoc">Editörün genel kamera referansını, render hedeflerini, modunu ve geçici panolarını taşıyan bağlam yap...</div><div class="ttdef"><b>Definition</b> <a href="editor__context_8h_source.html#l00033">editor_context.h:34</a></div></div>
+<div class="ttc" id="astruct_editor_context_html_aa5501eaafcdf2c1ca38e16bd0ec654b3"><div class="ttname"><a href="struct_editor_context.html#aa5501eaafcdf2c1ca38e16bd0ec654b3">EditorContext::mode</a></div><div class="ttdeci">EngineMode mode</div><div class="ttdoc">Motorun geçerli modu (Editor / Play).</div><div class="ttdef"><b>Definition</b> <a href="editor__context_8h_source.html#l00046">editor_context.h:46</a></div></div>
+<div class="ttc" id="astruct_engine_context_html"><div class="ttname"><a href="struct_engine_context.html">EngineContext</a></div><div class="ttdoc">Motorun yaşam döngüsü boyunca ihtiyaç duyulan tüm çekirdek sistemlerin örneklerini (instance) tutar.</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00047">engine_context.h:48</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a03a3a93154bc356d5995f9b3e116fa7e"><div class="ttname"><a href="struct_engine_context.html#a03a3a93154bc356d5995f9b3e116fa7e">EngineContext::window</a></div><div class="ttdeci">GLFWwindow * window</div><div class="ttdoc">GLFW Pencere işaretçisi.</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00052">engine_context.h:52</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a24c2a950f830f2a5e5a1c1c864804f0f"><div class="ttname"><a href="struct_engine_context.html#a24c2a950f830f2a5e5a1c1c864804f0f">EngineContext::prevMode</a></div><div class="ttdeci">EngineMode prevMode</div><div class="ttdoc">Bir önceki motor modu durumu (Play/Editor geçişleri için).</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00059">engine_context.h:59</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a352af983f80af59c47c619c7c19971ec"><div class="ttname"><a href="struct_engine_context.html#a352af983f80af59c47c619c7c19971ec">EngineContext::isEditorBuild</a></div><div class="ttdeci">bool isEditorBuild</div><div class="ttdoc">Motorun editör modunda çalışıp çalışmadığını belirler.</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00058">engine_context.h:58</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a98cb2e57f5d9562d95125db8a9ee977f"><div class="ttname"><a href="struct_engine_context.html#a98cb2e57f5d9562d95125db8a9ee977f">EngineContext::session</a></div><div class="ttdeci">scene_session session</div><div class="ttdoc">Aktif sahne oturumu (oyun ve editör sahnelerini barındırır).</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00067">engine_context.h:67</a></div></div>
+<div class="ttc" id="astruct_engine_context_html_a9ed49b68f9abdcac0be8045bd62ee047"><div class="ttname"><a href="struct_engine_context.html#a9ed49b68f9abdcac0be8045bd62ee047">EngineContext::materialManager</a></div><div class="ttdeci">material_manager materialManager</div><div class="ttdoc">Eski nesil materyal yöneticisi.</div><div class="ttdef"><b>Definition</b> <a href="engine__context_8h_source.html#l00087">engine_context.h:87</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_eb1463819d84903762eb6f59cc0c4383.html">Application</a></li><li class="navelem"><a href="_application_8cpp.html">Application.cpp</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

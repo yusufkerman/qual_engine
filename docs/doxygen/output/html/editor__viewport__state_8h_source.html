@@ -1,0 +1,210 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: editor_viewport_state.h Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('editor__viewport__state_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">editor_viewport_state.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="editor__viewport__state_8h.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;<a class="code" href="viewport__state_8h.html">viewport_state.h</a>&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacevesta.html">vesta</a></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>{</div>
+<div class="foldopen" id="foldopen00016" data-start="{" data-end="};">
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno"><a class="line" href="classvesta_1_1editor__viewport__state.html">   16</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classvesta_1_1editor__viewport__state.html">editor_viewport_state</a></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    {</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        <span class="comment">// SAHNE PENCERESİ (SCENE VIEWPORT)</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span></div>
+<div class="foldopen" id="foldopen00026" data-start="{" data-end="}">
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="classvesta_1_1editor__viewport__state.html#aeb9d20df1a52f775a93bbad1e70dd1a2">   26</a></span>        <a class="code hl_struct" href="structvesta_1_1viewport__state.html">viewport_state</a>&amp; <a class="code hl_function" href="classvesta_1_1editor__viewport__state.html#aeb9d20df1a52f775a93bbad1e70dd1a2">scene</a>()</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        {</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>            <span class="keywordflow">return</span> <a class="code hl_variable" href="classvesta_1_1editor__viewport__state.html#a565079cc618753f0e99af3ead029473a">m_scene</a>;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        }</div>
+</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span></div>
+<div class="foldopen" id="foldopen00034" data-start="{" data-end="}">
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="classvesta_1_1editor__viewport__state.html#ab6a04ac8d893a92daaafd8bcd2028290">   34</a></span>        <span class="keyword">const</span> <a class="code hl_struct" href="structvesta_1_1viewport__state.html">viewport_state</a>&amp; <a class="code hl_function" href="classvesta_1_1editor__viewport__state.html#ab6a04ac8d893a92daaafd8bcd2028290">scene</a>()<span class="keyword"> const</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="keyword">        </span>{</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>            <span class="keywordflow">return</span> <a class="code hl_variable" href="classvesta_1_1editor__viewport__state.html#a565079cc618753f0e99af3ead029473a">m_scene</a>;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        }</div>
+</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>        <span class="comment">// OYUN PENCERESİ (GAME VIEWPORT)</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span></div>
+<div class="foldopen" id="foldopen00046" data-start="{" data-end="}">
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="classvesta_1_1editor__viewport__state.html#ab983b9119a04018a1c95f654d1cfa96f">   46</a></span>        <a class="code hl_struct" href="structvesta_1_1viewport__state.html">viewport_state</a>&amp; <a class="code hl_function" href="classvesta_1_1editor__viewport__state.html#ab983b9119a04018a1c95f654d1cfa96f">game</a>()</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        {</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>            <span class="keywordflow">return</span> <a class="code hl_variable" href="classvesta_1_1editor__viewport__state.html#aab97d6a6e5c1db7a865ab1435f8c7404">m_game</a>;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        }</div>
+</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span></div>
+<div class="foldopen" id="foldopen00054" data-start="{" data-end="}">
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="classvesta_1_1editor__viewport__state.html#ab8ab0fb82a5c935e5f6bdaac40eb63ef">   54</a></span>        <span class="keyword">const</span> <a class="code hl_struct" href="structvesta_1_1viewport__state.html">viewport_state</a>&amp; <a class="code hl_function" href="classvesta_1_1editor__viewport__state.html#ab8ab0fb82a5c935e5f6bdaac40eb63ef">game</a>()<span class="keyword"> const</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keyword">        </span>{</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>            <span class="keywordflow">return</span> <a class="code hl_variable" href="classvesta_1_1editor__viewport__state.html#aab97d6a6e5c1db7a865ab1435f8c7404">m_game</a>;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        }</div>
+</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="classvesta_1_1editor__viewport__state.html#a565079cc618753f0e99af3ead029473a">   60</a></span>        <a class="code hl_struct" href="structvesta_1_1viewport__state.html">viewport_state</a> <a class="code hl_variable" href="classvesta_1_1editor__viewport__state.html#a565079cc618753f0e99af3ead029473a">m_scene</a>; </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="classvesta_1_1editor__viewport__state.html#aab97d6a6e5c1db7a865ab1435f8c7404">   61</a></span>        <a class="code hl_struct" href="structvesta_1_1viewport__state.html">viewport_state</a> <a class="code hl_variable" href="classvesta_1_1editor__viewport__state.html#aab97d6a6e5c1db7a865ab1435f8c7404">m_game</a>;  </div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    };</div>
+</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>} <span class="comment">// namespace vesta</span></div>
+<div class="ttc" id="aclassvesta_1_1editor__viewport__state_html"><div class="ttname"><a href="classvesta_1_1editor__viewport__state.html">vesta::editor_viewport_state</a></div><div class="ttdoc">Sahne ve Oyun viewport&#39;larının odak, boyut ve konum durumlarını tek bir merkezde saklar.</div><div class="ttdef"><b>Definition</b> <a href="#l00016">editor_viewport_state.h:17</a></div></div>
+<div class="ttc" id="aclassvesta_1_1editor__viewport__state_html_a565079cc618753f0e99af3ead029473a"><div class="ttname"><a href="classvesta_1_1editor__viewport__state.html#a565079cc618753f0e99af3ead029473a">vesta::editor_viewport_state::m_scene</a></div><div class="ttdeci">viewport_state m_scene</div><div class="ttdoc">Sahne düzenleme ekranının durumu.</div><div class="ttdef"><b>Definition</b> <a href="#l00060">editor_viewport_state.h:60</a></div></div>
+<div class="ttc" id="aclassvesta_1_1editor__viewport__state_html_aab97d6a6e5c1db7a865ab1435f8c7404"><div class="ttname"><a href="classvesta_1_1editor__viewport__state.html#aab97d6a6e5c1db7a865ab1435f8c7404">vesta::editor_viewport_state::m_game</a></div><div class="ttdeci">viewport_state m_game</div><div class="ttdoc">Oyun kamerasından render edilen ekranın durumu.</div><div class="ttdef"><b>Definition</b> <a href="#l00061">editor_viewport_state.h:61</a></div></div>
+<div class="ttc" id="aclassvesta_1_1editor__viewport__state_html_ab6a04ac8d893a92daaafd8bcd2028290"><div class="ttname"><a href="classvesta_1_1editor__viewport__state.html#ab6a04ac8d893a92daaafd8bcd2028290">vesta::editor_viewport_state::scene</a></div><div class="ttdeci">const viewport_state &amp; scene() const</div><div class="ttdoc">Sahne viewport durumuna salt okunur (const) referans döndürür.</div><div class="ttdef"><b>Definition</b> <a href="#l00034">editor_viewport_state.h:34</a></div></div>
+<div class="ttc" id="aclassvesta_1_1editor__viewport__state_html_ab8ab0fb82a5c935e5f6bdaac40eb63ef"><div class="ttname"><a href="classvesta_1_1editor__viewport__state.html#ab8ab0fb82a5c935e5f6bdaac40eb63ef">vesta::editor_viewport_state::game</a></div><div class="ttdeci">const viewport_state &amp; game() const</div><div class="ttdoc">Oyun viewport durumuna salt okunur (const) referans döndürür.</div><div class="ttdef"><b>Definition</b> <a href="#l00054">editor_viewport_state.h:54</a></div></div>
+<div class="ttc" id="aclassvesta_1_1editor__viewport__state_html_ab983b9119a04018a1c95f654d1cfa96f"><div class="ttname"><a href="classvesta_1_1editor__viewport__state.html#ab983b9119a04018a1c95f654d1cfa96f">vesta::editor_viewport_state::game</a></div><div class="ttdeci">viewport_state &amp; game()</div><div class="ttdoc">Oyun viewport durumuna değiştirilebilir (mutable) referans döndürür.</div><div class="ttdef"><b>Definition</b> <a href="#l00046">editor_viewport_state.h:46</a></div></div>
+<div class="ttc" id="aclassvesta_1_1editor__viewport__state_html_aeb9d20df1a52f775a93bbad1e70dd1a2"><div class="ttname"><a href="classvesta_1_1editor__viewport__state.html#aeb9d20df1a52f775a93bbad1e70dd1a2">vesta::editor_viewport_state::scene</a></div><div class="ttdeci">viewport_state &amp; scene()</div><div class="ttdoc">Sahne viewport durumuna değiştirilebilir (mutable) referans döndürür.</div><div class="ttdef"><b>Definition</b> <a href="#l00026">editor_viewport_state.h:26</a></div></div>
+<div class="ttc" id="anamespacevesta_html"><div class="ttname"><a href="namespacevesta.html">vesta</a></div><div class="ttdef"><b>Definition</b> <a href="_u_i_helper_8h_source.html#l00013">UIHelper.h:13</a></div></div>
+<div class="ttc" id="astructvesta_1_1viewport__state_html"><div class="ttname"><a href="structvesta_1_1viewport__state.html">vesta::viewport_state</a></div><div class="ttdoc">ImGui panel ölçüleri ve Framebuffer çizim parametrelerini taşıyan durum yapısı.</div><div class="ttdef"><b>Definition</b> <a href="viewport__state_8h_source.html#l00016">viewport_state.h:17</a></div></div>
+<div class="ttc" id="aviewport__state_8h_html"><div class="ttname"><a href="viewport__state_8h.html">viewport_state.h</a></div><div class="ttdoc">Tekil bir görünüm penceresinin (Viewport) anlık boyut, konum ve odak durumlarını barındıran veri yapı...</div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_7965d2c2d25f8c48046d3c55e7f6a3a9.html">Editor</a></li><li class="navelem"><a href="dir_12e89c3d9ee90c022ac6ab31807e7c54.html">Vesta</a></li><li class="navelem"><a href="dir_40fbbb8032f71bc6b99dd6612504ce21.html">CoreState</a></li><li class="navelem"><a href="editor__viewport__state_8h.html">editor_viewport_state.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

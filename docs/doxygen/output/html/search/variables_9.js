@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['id_0',['ID',['../classshader.html#a3978958c45844833fb5d4a1df1f00017',1,'shader']]],
+  ['id_1',['id',['../structvesta_1_1hierarchy__node__data.html#a0380ff5db17669c9abf5789cf3a5fece',1,'vesta::hierarchy_node_data']]],
+  ['id1_2',['id1',['../structgameplay_1_1jolt__contact__listener_1_1body__pair__key.html#a11e5afbedf556d5a886d7158d1052500',1,'gameplay::jolt_contact_listener::body_pair_key']]],
+  ['id2_3',['id2',['../structgameplay_1_1jolt__contact__listener_1_1body__pair__key.html#a82731f94638651a84bb7878c3e1a97a8',1,'gameplay::jolt_contact_listener::body_pair_key']]],
+  ['impulse_4',['impulse',['../structgameplay_1_1collision__hit.html#a43ff9cf690ed79e1db544b0bf377de33',1,'gameplay::collision_hit::impulse'],['../structgameplay_1_1pending__collision__event.html#aaa9613747993b915ed69a7a3a1d10ba2',1,'gameplay::pending_collision_event::impulse']]],
+  ['in_5fjson_5',['in_json',['../structsera_1_1deserialize__visitor.html#a3ebf9be1d57ade147cb4cafbc1dd8b81',1,'sera::deserialize_visitor']]],
+  ['index_6',['index',['../structaria_1_1handle.html#af0ddbcf40fcabecbd7ddb598e869f1f5',1,'aria::handle']]],
+  ['index_5fcount_7',['index_count',['../structaria_1_1mesh__asset.html#a110f7fafef8b5bd485f462d817da1bd6',1,'aria::mesh_asset']]],
+  ['indices_8',['indices',['../structaria_1_1raw__mesh__data.html#abaa3ba80848cc98477f2c80d82905c7c',1,'aria::raw_mesh_data::indices'],['../struct_mesh.html#a26632e27b772f24b069a738e7983b9da',1,'Mesh::indices'],['../structgenerated__mesh__data.html#a9319e73426678b377e02140528360694',1,'generated_mesh_data::indices']]],
+  ['info_9',['info',['../structvesta_1_1add__component__entry.html#a01b98715985578703a0e9176e138e273',1,'vesta::add_component_entry']]],
+  ['inner_5fcone_10',['inner_cone',['../structlight__component.html#aa20848cc2285cb3016895856a62d1a4c',1,'light_component::inner_cone'],['../structlight__data.html#a10ff4808f4d3b86e87c2ea098ca5ebc9',1,'light_data::inner_cone']]],
+  ['inputmap_11',['inputMap',['../struct_engine_context.html#a75e874f88f236ea5ddae3e1e18d5bdba',1,'EngineContext']]],
+  ['inputstate_12',['inputState',['../struct_engine_context.html#a7381a86216a30ba4441b750c4c73399a',1,'EngineContext']]],
+  ['inputsystem_13',['inputSystem',['../struct_engine_context.html#a9da227c5464b3d142de59722902279bb',1,'EngineContext']]],
+  ['instance_14',['instance',['../structnative__script__component.html#a47ff665d0d9530f9eb5d4f8dc29d242b',1,'native_script_component']]],
+  ['intensity_15',['intensity',['../structlight__component.html#a9c75a6cb961a6732c0beacfe68982722',1,'light_component::intensity'],['../structlight__data.html#a6505b232014807ef6168e30af1205b1c',1,'light_data::intensity']]],
+  ['invalid_5fasset_5fid_16',['invalid_asset_id',['../asset__manager_8h.html#a20e05b1c8b51b9ddb17400dac572d2c7',1,'asset_manager.h']]],
+  ['is_5fallocated_17',['is_allocated',['../structaria_1_1asset__registry_1_1registry__slot.html#a0a73f95fb8d091562c351d56f4d2dd16',1,'aria::asset_registry::registry_slot']]],
+  ['is_5fselected_18',['is_selected',['../structvesta_1_1hierarchy__node__data.html#ab31a06c9750295869ab248e422944a6c',1,'vesta::hierarchy_node_data']]],
+  ['is_5fsensor_19',['is_sensor',['../structgameplay_1_1pending__collision__event.html#ab7c0f4026bfd4fdb04566301963144f4',1,'gameplay::pending_collision_event::is_sensor'],['../structgameplay_1_1jolt__contact__listener_1_1entity__pair__info.html#aa4adcb067c30cf505b4aeddfd4b629f0',1,'gameplay::jolt_contact_listener::entity_pair_info::is_sensor']]],
+  ['is_5ftrigger_20',['is_trigger',['../structgameplay_1_1collision__hit.html#aa5c25aace89b6c95d4b8fbbf2af5b3ab',1,'gameplay::collision_hit']]],
+  ['iseditorbuild_21',['isEditorBuild',['../struct_engine_context.html#a352af983f80af59c47c619c7c19971ec',1,'EngineContext']]]
+];

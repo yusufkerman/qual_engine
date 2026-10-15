@@ -1,0 +1,247 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: IEditableWorld.h Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('_i_editable_world_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">IEditableWorld.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="_i_editable_world_8h.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;../../ECS/entity.h&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="aria_8h.html">../../../Engine/Assets/aria.h</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="asset__ui__registry_8h.html">../Services/asset_ui_registry.h</a>&quot;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="component__ui__registry_8h.html">../Services/component_ui_registry.h</a>&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &lt;optional&gt;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &lt;unordered_map&gt;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacevesta.html">vesta</a> {</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span></div>
+<div class="foldopen" id="foldopen00023" data-start="{" data-end="};">
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html">   23</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classvesta_1_1_i_editable_world.html">IEditableWorld</a> {</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a4bbf06fd822e9d14695b664f94f28d28">   25</a></span>        <span class="keyword">virtual</span> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a4bbf06fd822e9d14695b664f94f28d28">~IEditableWorld</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>        <span class="comment">// SAHNE VE VARLIK MUTASYONLARI</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a49ed7fe7858d84237608cd31de94168c">   36</a></span>        <span class="keyword">virtual</span> <a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a49ed7fe7858d84237608cd31de94168c">spawn_entity</a>(<span class="keyword">const</span> std::string&amp; name = <span class="stringliteral">&quot;Empty Entity&quot;</span>) = 0;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#ad6b51d6e7eb839c0d776d89143589303">   42</a></span>        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#ad6b51d6e7eb839c0d776d89143589303">destroy_entity</a>(<a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e) = 0;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a42fdfb5b2b1e35a60c576e6f1b12f348">   49</a></span>        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a42fdfb5b2b1e35a60c576e6f1b12f348">set_entity_parent</a>(<a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> child, <a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> parent) = 0;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="comment">// BİLEŞEN OPERASYONLARI</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#ac89b2ea015d5cecae8bf0e74fe7c0e68">   58</a></span>        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#ac89b2ea015d5cecae8bf0e74fe7c0e68">add_component_by_hash</a>(<a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e, <span class="keywordtype">size_t</span> component_hash) = 0;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a0db1395d2d0c44a9aba410d1945bf0ee">   63</a></span>        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a0db1395d2d0c44a9aba410d1945bf0ee">remove_component_by_hash</a>(<a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e, <span class="keywordtype">size_t</span> component_hash) = 0;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a0d1804bf1b5f478dec63ef058d3276a5">   68</a></span>        <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a0d1804bf1b5f478dec63ef058d3276a5">has_component_by_hash</a>(<a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e, <span class="keywordtype">size_t</span> component_hash) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#aa08deedad3b044e210a6c9e1ed4971bd">   73</a></span>        <span class="keyword">virtual</span> <span class="keywordtype">void</span>* <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#aa08deedad3b044e210a6c9e1ed4971bd">get_component_raw</a>(<a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e, <span class="keywordtype">size_t</span> component_hash) = 0;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        <span class="comment">// VARLIK (ASSET) OPERASYONLARI</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a4f1b06a84c77e64fd4f55d661ff53612">   82</a></span>        <span class="keyword">virtual</span> std::string <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a4f1b06a84c77e64fd4f55d661ff53612">resolve_asset_path</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="namespacearia.html#a1f0b797d0d3df7f04062f9030a909ba5">aria::asset_guid</a>&amp; guid) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a13d7fab25e8849255697955f71c99952">   87</a></span>        <span class="keyword">virtual</span> <a class="code hl_typedef" href="namespacearia.html#a1f0b797d0d3df7f04062f9030a909ba5">aria::asset_guid</a> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a13d7fab25e8849255697955f71c99952">get_guid_from_path</a>(<span class="keyword">const</span> std::string&amp; path) = 0;</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a34d034a4dee269e7a363463b87237117">   92</a></span>        <span class="keyword">virtual</span> std::optional&lt;std::string&gt; <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a34d034a4dee269e7a363463b87237117">get_asset_type</a>(<span class="keyword">const</span> std::string&amp; path) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a57659cb099d9ff4aabcb77aa4d2fd6f4">   97</a></span>        <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a57659cb099d9ff4aabcb77aa4d2fd6f4">asset_exists</a>(<span class="keyword">const</span> std::string&amp; path) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        <span class="comment">// SAHNE DURUMU (DIRTY STATE)</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span></div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#ac4e5d50459c2aa12f9bcc1e9c0f385ff">  106</a></span>        <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#ac4e5d50459c2aa12f9bcc1e9c0f385ff">mark_scene_dirty</a>() = 0;</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a435a0ee2359c074287cffb5b9deb643e">  111</a></span>        <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a435a0ee2359c074287cffb5b9deb643e">is_scene_dirty</a>() <span class="keyword">const</span> = 0;</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>        <span class="comment">// ARAYÜZ KAYIT ERİŞİMCİLERİ (REGISTRY ACCESSORS)</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a48500078e5e8e91d2919fb031c2d1515">  117</a></span>        <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code hl_struct" href="structvesta_1_1_component_u_i_info.html">ComponentUIInfo</a>* <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a48500078e5e8e91d2919fb031c2d1515">get_component_ui</a>(<span class="keywordtype">size_t</span> hash) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#a5528603ac041623986eec7fd1ea72e4c">  118</a></span>        <span class="keyword">virtual</span> <span class="keyword">const</span> std::unordered_map&lt;size_t, ComponentUIInfo&gt;&amp; <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#a5528603ac041623986eec7fd1ea72e4c">get_component_registry</a>() <span class="keyword">const</span> = 0;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#aa183fefc455f73b0f52fa8cdea16d7ec">  120</a></span>        <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code hl_struct" href="structvesta_1_1_asset_u_i_info.html">AssetUIInfo</a>* <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#aa183fefc455f73b0f52fa8cdea16d7ec">get_asset_ui</a>(<span class="keyword">const</span> std::string&amp; <a class="code hl_enumeration" href="namespacevesta.html#ae9fa246cc313b6b4abd2993ce5e7c4ca">asset_type</a>) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno"><a class="line" href="classvesta_1_1_i_editable_world.html#acf5dedfa2ebb947079611af73f1c9599">  121</a></span>        <span class="keyword">virtual</span> <span class="keyword">const</span> std::unordered_map&lt;std::string, AssetUIInfo&gt;&amp; <a class="code hl_function" href="classvesta_1_1_i_editable_world.html#acf5dedfa2ebb947079611af73f1c9599">get_asset_registry</a>() <span class="keyword">const</span> = 0;</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    };</div>
+</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>} <span class="comment">// namespace vesta</span></div>
+<div class="ttc" id="aaria_8h_html"><div class="ttname"><a href="aria_8h.html">aria.h</a></div><div class="ttdoc">Aria Varlık (Asset) ve Kaynak Yönetim Sisteminin ana arayüzünü tanımlar.</div></div>
+<div class="ttc" id="aasset__ui__registry_8h_html"><div class="ttname"><a href="asset__ui__registry_8h.html">asset_ui_registry.h</a></div><div class="ttdoc">Varlıkların (Asset) Inspector panelinde nasıl çizileceğini belirleyen arayüz kayıt (registry) sistemi...</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html">vesta::IEditableWorld</a></div><div class="ttdoc">Editör komutları, görünüm modelleri ve paneller için düzenlenebilir dünya sözleşmesi.</div><div class="ttdef"><b>Definition</b> <a href="#l00023">IEditableWorld.h:23</a></div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a0d1804bf1b5f478dec63ef058d3276a5"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a0d1804bf1b5f478dec63ef058d3276a5">vesta::IEditableWorld::has_component_by_hash</a></div><div class="ttdeci">virtual bool has_component_by_hash(entity e, size_t component_hash) const =0</div><div class="ttdoc">Varlığın belirtilen bileşene sahip olup olmadığını sorgular.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a0db1395d2d0c44a9aba410d1945bf0ee"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a0db1395d2d0c44a9aba410d1945bf0ee">vesta::IEditableWorld::remove_component_by_hash</a></div><div class="ttdeci">virtual void remove_component_by_hash(entity e, size_t component_hash)=0</div><div class="ttdoc">Tip özeti (hash) üzerinden varlıktan bileşeni kaldırır.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a13d7fab25e8849255697955f71c99952"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a13d7fab25e8849255697955f71c99952">vesta::IEditableWorld::get_guid_from_path</a></div><div class="ttdeci">virtual aria::asset_guid get_guid_from_path(const std::string &amp;path)=0</div><div class="ttdoc">Verilen dosya yoluna karşılık gelen varlık GUID&#39;sini döndürür veya oluşturur.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a34d034a4dee269e7a363463b87237117"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a34d034a4dee269e7a363463b87237117">vesta::IEditableWorld::get_asset_type</a></div><div class="ttdeci">virtual std::optional&lt; std::string &gt; get_asset_type(const std::string &amp;path) const =0</div><div class="ttdoc">Dosyanın varlık türünü belirler.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a42fdfb5b2b1e35a60c576e6f1b12f348"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a42fdfb5b2b1e35a60c576e6f1b12f348">vesta::IEditableWorld::set_entity_parent</a></div><div class="ttdeci">virtual void set_entity_parent(entity child, entity parent)=0</div><div class="ttdoc">Bir varlığın ebeveynini (parent) günceller.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a435a0ee2359c074287cffb5b9deb643e"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a435a0ee2359c074287cffb5b9deb643e">vesta::IEditableWorld::is_scene_dirty</a></div><div class="ttdeci">virtual bool is_scene_dirty() const =0</div><div class="ttdoc">Sahnede kaydedilmemiş değişiklik olup olmadığını kontrol eder.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a48500078e5e8e91d2919fb031c2d1515"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a48500078e5e8e91d2919fb031c2d1515">vesta::IEditableWorld::get_component_ui</a></div><div class="ttdeci">virtual const ComponentUIInfo * get_component_ui(size_t hash) const =0</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a49ed7fe7858d84237608cd31de94168c"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a49ed7fe7858d84237608cd31de94168c">vesta::IEditableWorld::spawn_entity</a></div><div class="ttdeci">virtual entity spawn_entity(const std::string &amp;name=&quot;Empty Entity&quot;)=0</div><div class="ttdoc">Sahnede yeni bir boş varlık oluşturur.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a4bbf06fd822e9d14695b664f94f28d28"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a4bbf06fd822e9d14695b664f94f28d28">vesta::IEditableWorld::~IEditableWorld</a></div><div class="ttdeci">virtual ~IEditableWorld()=default</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a4f1b06a84c77e64fd4f55d661ff53612"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a4f1b06a84c77e64fd4f55d661ff53612">vesta::IEditableWorld::resolve_asset_path</a></div><div class="ttdeci">virtual std::string resolve_asset_path(const aria::asset_guid &amp;guid) const =0</div><div class="ttdoc">GUID değerini fiziksel disk yoluna çözümler.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a5528603ac041623986eec7fd1ea72e4c"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a5528603ac041623986eec7fd1ea72e4c">vesta::IEditableWorld::get_component_registry</a></div><div class="ttdeci">virtual const std::unordered_map&lt; size_t, ComponentUIInfo &gt; &amp; get_component_registry() const =0</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_a57659cb099d9ff4aabcb77aa4d2fd6f4"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#a57659cb099d9ff4aabcb77aa4d2fd6f4">vesta::IEditableWorld::asset_exists</a></div><div class="ttdeci">virtual bool asset_exists(const std::string &amp;path) const =0</div><div class="ttdoc">Dosyanın disk üzerinde var olup olmadığını doğrular.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_aa08deedad3b044e210a6c9e1ed4971bd"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#aa08deedad3b044e210a6c9e1ed4971bd">vesta::IEditableWorld::get_component_raw</a></div><div class="ttdeci">virtual void * get_component_raw(entity e, size_t component_hash)=0</div><div class="ttdoc">Bileşenin ham bellek işaretçisini döndürür.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_aa183fefc455f73b0f52fa8cdea16d7ec"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#aa183fefc455f73b0f52fa8cdea16d7ec">vesta::IEditableWorld::get_asset_ui</a></div><div class="ttdeci">virtual const AssetUIInfo * get_asset_ui(const std::string &amp;asset_type) const =0</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_ac4e5d50459c2aa12f9bcc1e9c0f385ff"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#ac4e5d50459c2aa12f9bcc1e9c0f385ff">vesta::IEditableWorld::mark_scene_dirty</a></div><div class="ttdeci">virtual void mark_scene_dirty()=0</div><div class="ttdoc">Sahneyi kaydedilmemiş değişiklikler barındırıyor olarak işaretler.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_ac89b2ea015d5cecae8bf0e74fe7c0e68"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#ac89b2ea015d5cecae8bf0e74fe7c0e68">vesta::IEditableWorld::add_component_by_hash</a></div><div class="ttdeci">virtual void add_component_by_hash(entity e, size_t component_hash)=0</div><div class="ttdoc">Tip özeti (hash) üzerinden varlığa bileşen ekler.</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_acf5dedfa2ebb947079611af73f1c9599"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#acf5dedfa2ebb947079611af73f1c9599">vesta::IEditableWorld::get_asset_registry</a></div><div class="ttdeci">virtual const std::unordered_map&lt; std::string, AssetUIInfo &gt; &amp; get_asset_registry() const =0</div></div>
+<div class="ttc" id="aclassvesta_1_1_i_editable_world_html_ad6b51d6e7eb839c0d776d89143589303"><div class="ttname"><a href="classvesta_1_1_i_editable_world.html#ad6b51d6e7eb839c0d776d89143589303">vesta::IEditableWorld::destroy_entity</a></div><div class="ttdeci">virtual void destroy_entity(entity e)=0</div><div class="ttdoc">Belirtilen varlığı ve bağlı hiyerarşisini sahneden kaldırır.</div></div>
+<div class="ttc" id="acomponent__ui__registry_8h_html"><div class="ttname"><a href="component__ui__registry_8h.html">component_ui_registry.h</a></div><div class="ttdoc">ECS bileşenlerinin (components) Inspector (Özellikler) panelinde nasıl çizileceğini belirleyen arayüz...</div></div>
+<div class="ttc" id="aentity_8h_html_a193c265692e5db312bee837d1bd14b2e"><div class="ttname"><a href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></div><div class="ttdeci">uint32_t entity</div><div class="ttdoc">Sistem genelinde varlıkları temsil eden benzersiz 32-bit işaretsiz tamsayı.</div><div class="ttdef"><b>Definition</b> <a href="entity_8h_source.html#l00011">entity.h:11</a></div></div>
+<div class="ttc" id="anamespacearia_html_a1f0b797d0d3df7f04062f9030a909ba5"><div class="ttname"><a href="namespacearia.html#a1f0b797d0d3df7f04062f9030a909ba5">aria::asset_guid</a></div><div class="ttdeci">uuids::uuid asset_guid</div><div class="ttdoc">Motor genelinde varlıkları benzersiz olarak tanımlayan GUID türü (stduuid sarmalayıcısı).</div><div class="ttdef"><b>Definition</b> <a href="asset__raw__structures_8h_source.html#l00028">asset_raw_structures.h:28</a></div></div>
+<div class="ttc" id="anamespacevesta_html"><div class="ttname"><a href="namespacevesta.html">vesta</a></div><div class="ttdef"><b>Definition</b> <a href="_u_i_helper_8h_source.html#l00013">UIHelper.h:13</a></div></div>
+<div class="ttc" id="anamespacevesta_html_ae9fa246cc313b6b4abd2993ce5e7c4ca"><div class="ttname"><a href="namespacevesta.html#ae9fa246cc313b6b4abd2993ce5e7c4ca">vesta::asset_type</a></div><div class="ttdeci">asset_type</div><div class="ttdoc">Dosya sisteminde taranan varlığın temel türünü temsil eder.</div><div class="ttdef"><b>Definition</b> <a href="asset__entry_8h_source.html#l00019">asset_entry.h:19</a></div></div>
+<div class="ttc" id="astructvesta_1_1_asset_u_i_info_html"><div class="ttname"><a href="structvesta_1_1_asset_u_i_info.html">vesta::AssetUIInfo</a></div><div class="ttdoc">Bir varlık türü için UI (arayüz) çizim bilgilerini ve geri çağrımlarını (callback) tutar.</div><div class="ttdef"><b>Definition</b> <a href="asset__ui__registry_8h_source.html#l00033">asset_ui_registry.h:34</a></div></div>
+<div class="ttc" id="astructvesta_1_1_component_u_i_info_html"><div class="ttname"><a href="structvesta_1_1_component_u_i_info.html">vesta::ComponentUIInfo</a></div><div class="ttdoc">Bir bileşenin arayüz (UI) tarafında nasıl temsil edileceğini ve çizileceğini barındıran bilgi yapısı.</div><div class="ttdef"><b>Definition</b> <a href="component__ui__registry_8h_source.html#l00030">component_ui_registry.h:31</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_7965d2c2d25f8c48046d3c55e7f6a3a9.html">Editor</a></li><li class="navelem"><a href="dir_12e89c3d9ee90c022ac6ab31807e7c54.html">Vesta</a></li><li class="navelem"><a href="dir_e99185167c7c3d8b0a1d44e29854c617.html">Adapters</a></li><li class="navelem"><a href="_i_editable_world_8h.html">IEditableWorld.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

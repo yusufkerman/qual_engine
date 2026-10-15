@@ -1,0 +1,181 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: ui_manager.h Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('ui__manager_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">ui_manager.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="ui__manager_8h.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;GLFW/glfw3.h&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;imgui.h&gt;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span></div>
+<div class="foldopen" id="foldopen00015" data-start="{" data-end="};">
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="classui__manager.html">   15</a></span><span class="keyword">class </span><a class="code hl_function" href="classui__manager.html#a552377e51d19df768833b66db9aec3c3">ui_manager</a></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>{</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="classui__manager.html#a552377e51d19df768833b66db9aec3c3">   18</a></span>    <a class="code hl_function" href="classui__manager.html#a552377e51d19df768833b66db9aec3c3">ui_manager</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="classui__manager.html#ae45da80eee4a6da0193b17b1419f7f2d">   19</a></span>    <a class="code hl_function" href="classui__manager.html#ae45da80eee4a6da0193b17b1419f7f2d">~ui_manager</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classui__manager.html#a37a28494b1943618e1620d789907f1d6">init</a>(GLFWwindow* window);</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classui__manager.html#a9d95d5750e67d3c8585b497f6d3c5a7f">beginFrame</a>();</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classui__manager.html#a3eec79f7c166aa1eea1554b62575c88c">endFrame</a>();</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classui__manager.html#ac41d79a27f3cd20fc6d97e40c93530cf">shutdown</a>();</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="classui__manager.html#a2281a744774a0664ea5bd2889b44a821">   43</a></span>    GLFWwindow* <a class="code hl_variable" href="classui__manager.html#a2281a744774a0664ea5bd2889b44a821">m_window</a> = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classui__manager.html#a4439abb9767433812f08ca15c05d547e">setupDockLayout</a>(ImGuiID dockspace_id, <span class="keyword">const</span> ImVec2&amp; size);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>};</div>
+</div>
+<div class="ttc" id="aclassui__manager_html_a2281a744774a0664ea5bd2889b44a821"><div class="ttname"><a href="classui__manager.html#a2281a744774a0664ea5bd2889b44a821">ui_manager::m_window</a></div><div class="ttdeci">GLFWwindow * m_window</div><div class="ttdef"><b>Definition</b> <a href="#l00043">ui_manager.h:43</a></div></div>
+<div class="ttc" id="aclassui__manager_html_a37a28494b1943618e1620d789907f1d6"><div class="ttname"><a href="classui__manager.html#a37a28494b1943618e1620d789907f1d6">ui_manager::init</a></div><div class="ttdeci">void init(GLFWwindow *window)</div><div class="ttdoc">ImGui bağlamını ve GLFW/OpenGL3 arka uçlarını başlatır.</div><div class="ttdef"><b>Definition</b> <a href="ui__manager_8cpp_source.html#l00052">ui_manager.cpp:52</a></div></div>
+<div class="ttc" id="aclassui__manager_html_a3eec79f7c166aa1eea1554b62575c88c"><div class="ttname"><a href="classui__manager.html#a3eec79f7c166aa1eea1554b62575c88c">ui_manager::endFrame</a></div><div class="ttdeci">void endFrame()</div><div class="ttdoc">Çizim verilerini derler ve OpenGL üzerinden ekrana yansıtır.</div><div class="ttdef"><b>Definition</b> <a href="ui__manager_8cpp_source.html#l00115">ui_manager.cpp:115</a></div></div>
+<div class="ttc" id="aclassui__manager_html_a4439abb9767433812f08ca15c05d547e"><div class="ttname"><a href="classui__manager.html#a4439abb9767433812f08ca15c05d547e">ui_manager::setupDockLayout</a></div><div class="ttdeci">void setupDockLayout(ImGuiID dockspace_id, const ImVec2 &amp;size)</div><div class="ttdoc">İlk açılışta varsayılan panel yerleşimini (TopBar, Inspector, Hierarchy, Viewports) inşa eder.</div><div class="ttdef"><b>Definition</b> <a href="ui__manager_8cpp_source.html#l00012">ui_manager.cpp:12</a></div></div>
+<div class="ttc" id="aclassui__manager_html_a552377e51d19df768833b66db9aec3c3"><div class="ttname"><a href="classui__manager.html#a552377e51d19df768833b66db9aec3c3">ui_manager::ui_manager</a></div><div class="ttdeci">ui_manager()=default</div></div>
+<div class="ttc" id="aclassui__manager_html_a9d95d5750e67d3c8585b497f6d3c5a7f"><div class="ttname"><a href="classui__manager.html#a9d95d5750e67d3c8585b497f6d3c5a7f">ui_manager::beginFrame</a></div><div class="ttdeci">void beginFrame()</div><div class="ttdoc">Yeni bir ImGui çerçevesi başlatır ve ana DockSpace&#39;i oluşturur.</div><div class="ttdef"><b>Definition</b> <a href="ui__manager_8cpp_source.html#l00068">ui_manager.cpp:68</a></div></div>
+<div class="ttc" id="aclassui__manager_html_ac41d79a27f3cd20fc6d97e40c93530cf"><div class="ttname"><a href="classui__manager.html#ac41d79a27f3cd20fc6d97e40c93530cf">ui_manager::shutdown</a></div><div class="ttdeci">void shutdown()</div><div class="ttdoc">ImGui arka uçlarını ve bağlamını güvenle kapatır.</div><div class="ttdef"><b>Definition</b> <a href="ui__manager_8cpp_source.html#l00121">ui_manager.cpp:121</a></div></div>
+<div class="ttc" id="aclassui__manager_html_ae45da80eee4a6da0193b17b1419f7f2d"><div class="ttname"><a href="classui__manager.html#ae45da80eee4a6da0193b17b1419f7f2d">ui_manager::~ui_manager</a></div><div class="ttdeci">~ui_manager()=default</div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_7965d2c2d25f8c48046d3c55e7f6a3a9.html">Editor</a></li><li class="navelem"><a href="ui__manager_8h.html">ui_manager.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

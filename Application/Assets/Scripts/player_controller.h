@@ -1,9 +1,19 @@
 #pragma once
-#include <Scene/scriptable_entity.h>
+
+/**
+ * @file player_controller.h
+ * @brief Gameplay API tabanlı oyuncu hareket kontrol betiği.
+ */
+
+#include <Gameplay/gameplay.h>
 #include <Engine/Scripting/script_factory.h>
 #include <glm/glm.hpp>
 
-class player_controller : public scriptable_entity
+/**
+ * @class player_controller
+ * @brief Oyuncunun fiziksel hareketlerini ve girdi etkileşimlerini yöneten kontrol betiği.
+ */
+class player_controller : public gameplay::script
 {
 public:
     void on_create() override;

@@ -1,0 +1,217 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: gameplay_input.h Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('gameplay__input_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">gameplay_input.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="gameplay__input_8h.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;glm/glm.hpp&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="input__action_8h.html">../Input/input_action.h</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacegameplay.html">gameplay</a></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>{</div>
+<div class="foldopen" id="foldopen00017" data-start="{" data-end="};">
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno"><a class="line" href="classgameplay_1_1input.html">   17</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classgameplay_1_1input.html">input</a></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    {</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="comment">// EYLEM (ACTION) SORGULARI</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classgameplay_1_1input.html#af3f212758c40f850d572472daa321cbb">is_action_pressed</a>(<a class="code hl_enumeration" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> action);</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classgameplay_1_1input.html#a36d3cafe3a82bb29ff13ea38b54a1334">is_action_just_pressed</a>(<a class="code hl_enumeration" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> action);</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classgameplay_1_1input.html#aadf44f6b37f160a768380c534c416de3">is_action_just_released</a>(<a class="code hl_enumeration" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> action);</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="comment">// DONANIMSAL TUŞ (KEY) SORGULARI</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classgameplay_1_1input.html#a74624fcd9b59297f9159167739c35639">is_key_pressed</a>(<span class="keywordtype">int</span> glfw_key);</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classgameplay_1_1input.html#a714c82e657f409f4994e2032f662b265">is_key_just_pressed</a>(<span class="keywordtype">int</span> glfw_key);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classgameplay_1_1input.html#a851cd3875c2612cb83a66b9814dd54a3">is_key_just_released</a>(<span class="keywordtype">int</span> glfw_key);</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        <span class="comment">// EKSEN (AXIS) VE HAREKET KOLAYLAŞTIRICILARI</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">float</span> <a class="code hl_function" href="classgameplay_1_1input.html#acd626d4cdedf94dc2d45b232140f3b68">get_axis</a>(<a class="code hl_enumeration" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> positive, <a class="code hl_enumeration" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> negative);</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        [[nodiscard]] <span class="keyword">static</span> glm::vec2 <a class="code hl_function" href="classgameplay_1_1input.html#af450cf72163bd9621fbd8fc325154fc9">get_axis_2d</a>(<a class="code hl_enumeration" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> forward, <a class="code hl_enumeration" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> backward, <a class="code hl_enumeration" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> right, <a class="code hl_enumeration" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> left);</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        <span class="comment">// FARE (MOUSE) SORGULARI</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        <span class="comment">// ==========================================</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span></div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        [[nodiscard]] <span class="keyword">static</span> glm::vec2 <a class="code hl_function" href="classgameplay_1_1input.html#ab8d569425c690d0df65067c9233baa61">get_mouse_delta</a>();</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        [[nodiscard]] <span class="keyword">static</span> glm::vec2 <a class="code hl_function" href="classgameplay_1_1input.html#a0f47cb4aba06c88371a29765aaadb64c">get_mouse_position</a>();</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span></div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>        [[nodiscard]] <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="classgameplay_1_1input.html#aa2272b8107f377c291e891a49ac5c44a">is_cursor_locked</a>();</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classgameplay_1_1input.html#a8392425e2a2615bbe22e28e190e25996">set_cursor_locked</a>(<span class="keywordtype">bool</span> locked);</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    };</div>
+</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>}</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
+<div class="ttc" id="aclassgameplay_1_1input_html"><div class="ttname"><a href="classgameplay_1_1input.html">gameplay::input</a></div><div class="ttdoc">Ham girdi yapılarını soyutlayarak eylem, tuş ve fare durumlarını sorgulayan statik API.</div><div class="ttdef"><b>Definition</b> <a href="#l00017">gameplay_input.h:18</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_a0f47cb4aba06c88371a29765aaadb64c"><div class="ttname"><a href="classgameplay_1_1input.html#a0f47cb4aba06c88371a29765aaadb64c">gameplay::input::get_mouse_position</a></div><div class="ttdeci">static glm::vec2 get_mouse_position()</div><div class="ttdoc">Farenin ekran üzerindeki anlık koordinatlarını döner.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00133">gameplay_input.cpp:133</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_a36d3cafe3a82bb29ff13ea38b54a1334"><div class="ttname"><a href="classgameplay_1_1input.html#a36d3cafe3a82bb29ff13ea38b54a1334">gameplay::input::is_action_just_pressed</a></div><div class="ttdeci">static bool is_action_just_pressed(InputAction action)</div><div class="ttdoc">Belirtilen eylemin bu karede yeni mi basıldığını sorgular (Tek seferlik tetikleme).</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00029">gameplay_input.cpp:29</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_a714c82e657f409f4994e2032f662b265"><div class="ttname"><a href="classgameplay_1_1input.html#a714c82e657f409f4994e2032f662b265">gameplay::input::is_key_just_pressed</a></div><div class="ttdeci">static bool is_key_just_pressed(int glfw_key)</div><div class="ttdoc">Belirtilen tuşun bu karede yeni mi basıldığını sorgular.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00074">gameplay_input.cpp:74</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_a74624fcd9b59297f9159167739c35639"><div class="ttname"><a href="classgameplay_1_1input.html#a74624fcd9b59297f9159167739c35639">gameplay::input::is_key_pressed</a></div><div class="ttdeci">static bool is_key_pressed(int glfw_key)</div><div class="ttdoc">Belirtilen GLFW fiziksel tuşunun basılı olup olmadığını sorgular.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00063">gameplay_input.cpp:63</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_a8392425e2a2615bbe22e28e190e25996"><div class="ttname"><a href="classgameplay_1_1input.html#a8392425e2a2615bbe22e28e190e25996">gameplay::input::set_cursor_locked</a></div><div class="ttdeci">static void set_cursor_locked(bool locked)</div><div class="ttdoc">Fare imlecini pencereye kilitler veya serbest bırakır.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00149">gameplay_input.cpp:149</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_a851cd3875c2612cb83a66b9814dd54a3"><div class="ttname"><a href="classgameplay_1_1input.html#a851cd3875c2612cb83a66b9814dd54a3">gameplay::input::is_key_just_released</a></div><div class="ttdeci">static bool is_key_just_released(int glfw_key)</div><div class="ttdoc">Belirtilen tuşun bu karede mi bırakıldığını sorgular.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00085">gameplay_input.cpp:85</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_aa2272b8107f377c291e891a49ac5c44a"><div class="ttname"><a href="classgameplay_1_1input.html#aa2272b8107f377c291e891a49ac5c44a">gameplay::input::is_cursor_locked</a></div><div class="ttdeci">static bool is_cursor_locked()</div><div class="ttdoc">Fare imlecinin pencereye kilitli olup olmadığını döner.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00143">gameplay_input.cpp:143</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_aadf44f6b37f160a768380c534c416de3"><div class="ttname"><a href="classgameplay_1_1input.html#aadf44f6b37f160a768380c534c416de3">gameplay::input::is_action_just_released</a></div><div class="ttdeci">static bool is_action_just_released(InputAction action)</div><div class="ttdoc">Belirtilen eylemin bu karede mi bırakıldığını sorgular.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00046">gameplay_input.cpp:46</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_ab8d569425c690d0df65067c9233baa61"><div class="ttname"><a href="classgameplay_1_1input.html#ab8d569425c690d0df65067c9233baa61">gameplay::input::get_mouse_delta</a></div><div class="ttdeci">static glm::vec2 get_mouse_delta()</div><div class="ttdoc">Oyun ekranına göre ölçeklenmiş fare delta (yer değiştirme) vektörünü döner.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00123">gameplay_input.cpp:123</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_acd626d4cdedf94dc2d45b232140f3b68"><div class="ttname"><a href="classgameplay_1_1input.html#acd626d4cdedf94dc2d45b232140f3b68">gameplay::input::get_axis</a></div><div class="ttdeci">static float get_axis(InputAction positive, InputAction negative)</div><div class="ttdoc">İki zıt eylemden 1D eksen değeri (-1.0 ile +1.0 arası) üretir.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00096">gameplay_input.cpp:96</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_af3f212758c40f850d572472daa321cbb"><div class="ttname"><a href="classgameplay_1_1input.html#af3f212758c40f850d572472daa321cbb">gameplay::input::is_action_pressed</a></div><div class="ttdeci">static bool is_action_pressed(InputAction action)</div><div class="ttdoc">Belirtilen mantıksal eylemin basılı tutulup tutulmadığını sorgular.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00012">gameplay_input.cpp:12</a></div></div>
+<div class="ttc" id="aclassgameplay_1_1input_html_af450cf72163bd9621fbd8fc325154fc9"><div class="ttname"><a href="classgameplay_1_1input.html#af450cf72163bd9621fbd8fc325154fc9">gameplay::input::get_axis_2d</a></div><div class="ttdeci">static glm::vec2 get_axis_2d(InputAction forward, InputAction backward, InputAction right, InputAction left)</div><div class="ttdoc">Dört yön eyleminden normalize edilmiş 2D hareket vektörü üretir.</div><div class="ttdef"><b>Definition</b> <a href="gameplay__input_8cpp_source.html#l00110">gameplay_input.cpp:110</a></div></div>
+<div class="ttc" id="ainput__action_8h_html"><div class="ttname"><a href="input__action_8h.html">input_action.h</a></div><div class="ttdoc">Donanım tuşlarından soyutlanmış mantıksal oyun eylemlerini tanımlar.</div></div>
+<div class="ttc" id="ainput__action_8h_html_a9c56096a2c51a4a98f907f8f87fd1671"><div class="ttname"><a href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a></div><div class="ttdeci">InputAction</div><div class="ttdoc">Tuş eşlemelerinde kullanılan mantıksal eylem tanımları.</div><div class="ttdef"><b>Definition</b> <a href="input__action_8h_source.html#l00012">input_action.h:13</a></div></div>
+<div class="ttc" id="anamespacegameplay_html"><div class="ttname"><a href="namespacegameplay.html">gameplay</a></div><div class="ttdef"><b>Definition</b> <a href="collision__event__queue_8cpp_source.html#l00008">collision_event_queue.cpp:9</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_c0408843354986209840cb17bed584fc.html">Gameplay</a></li><li class="navelem"><a href="gameplay__input_8h.html">gameplay_input.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

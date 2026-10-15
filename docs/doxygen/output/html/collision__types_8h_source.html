@@ -1,0 +1,218 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: collision_types.h Kaynak Dosyası</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('collision__types_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">collision_types.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="collision__types_8h.html">Bu dosyanın dokümantasyonuna git.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;glm/glm.hpp&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="entity_8h.html">../ECS/entity.h</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacegameplay.html">gameplay</a></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>{</div>
+<div class="foldopen" id="foldopen00017" data-start="{" data-end="};">
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno"><a class="line" href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915">   17</a></span>    <span class="keyword">enum class</span> <a class="code hl_enumeration" href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915">collision_event_type</a></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    {</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915ae2a7106f1cc8bb1e1318df70aa0a3540">   19</a></span>        <a class="code hl_enumvalue" href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915ae2a7106f1cc8bb1e1318df70aa0a3540">enter</a>,   </div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno"><a class="line" href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915a5ca4b722707013b233e526659583df95">   20</a></span>        <a class="code hl_enumvalue" href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915a5ca4b722707013b233e526659583df95">persist</a>, </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915af24f62eeb789199b9b2e467df3b1876b">   21</a></span>        <a class="code hl_enumvalue" href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915af24f62eeb789199b9b2e467df3b1876b">exit</a>     </div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    };</div>
+</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span></div>
+<div class="foldopen" id="foldopen00028" data-start="{" data-end="};">
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="structgameplay_1_1collision__hit.html">   28</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structgameplay_1_1collision__hit.html">collision_hit</a></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    {</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="structgameplay_1_1collision__hit.html#ac2fbf82f9318e1621d14dbfcdbc4f763">   30</a></span>        <a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> <a class="code hl_variable" href="structgameplay_1_1collision__hit.html#ac2fbf82f9318e1621d14dbfcdbc4f763">other_entity</a> = 0;              </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="structgameplay_1_1collision__hit.html#a8746f0a9eb3710d86976bb54347ab7a2">   31</a></span>        glm::vec3 <a class="code hl_variable" href="structgameplay_1_1collision__hit.html#a8746f0a9eb3710d86976bb54347ab7a2">contact_point</a>{ 0.0f };       </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="structgameplay_1_1collision__hit.html#a1ee5e60572682d21fa1c023355f967fd">   32</a></span>        glm::vec3 <a class="code hl_variable" href="structgameplay_1_1collision__hit.html#a1ee5e60572682d21fa1c023355f967fd">contact_normal</a>{ 0.0f, 1.0f, 0.0f }; </div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="structgameplay_1_1collision__hit.html#a43ff9cf690ed79e1db544b0bf377de33">   33</a></span>        <span class="keywordtype">float</span> <a class="code hl_variable" href="structgameplay_1_1collision__hit.html#a43ff9cf690ed79e1db544b0bf377de33">impulse</a> = 0.0f;                 </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="structgameplay_1_1collision__hit.html#aa5c25aace89b6c95d4b8fbbf2af5b3ab">   34</a></span>        <span class="keywordtype">bool</span> <a class="code hl_variable" href="structgameplay_1_1collision__hit.html#aa5c25aace89b6c95d4b8fbbf2af5b3ab">is_trigger</a> = <span class="keyword">false</span>;              </div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    };</div>
+</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span></div>
+<div class="foldopen" id="foldopen00041" data-start="{" data-end="};">
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="structgameplay_1_1trigger__hit.html">   41</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structgameplay_1_1trigger__hit.html">trigger_hit</a></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    {</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="structgameplay_1_1trigger__hit.html#a2d2836ae50e5eea9b6dc39f59df1aa1c">   43</a></span>        <a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> <a class="code hl_variable" href="structgameplay_1_1trigger__hit.html#a2d2836ae50e5eea9b6dc39f59df1aa1c">other_entity</a> = 0;              </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    };</div>
+</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span></div>
+<div class="foldopen" id="foldopen00050" data-start="{" data-end="};">
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="structgameplay_1_1pending__collision__event.html">   50</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structgameplay_1_1pending__collision__event.html">pending_collision_event</a></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    {</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="structgameplay_1_1pending__collision__event.html#ae9d41ff120cdf59640dd75dc8691b4a7">   52</a></span>        <a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> <a class="code hl_variable" href="structgameplay_1_1pending__collision__event.html#ae9d41ff120cdf59640dd75dc8691b4a7">entity_a</a> = 0;                  </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="structgameplay_1_1pending__collision__event.html#a9df3f7708a377c8b0b5e4d5f33f60419">   53</a></span>        <a class="code hl_typedef" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> <a class="code hl_variable" href="structgameplay_1_1pending__collision__event.html#a9df3f7708a377c8b0b5e4d5f33f60419">entity_b</a> = 0;                  </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="structgameplay_1_1pending__collision__event.html#ab36dd4e4711b904636b21494a8a8597e">   54</a></span>        <a class="code hl_enumeration" href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915">collision_event_type</a> <a class="code hl_variable" href="structgameplay_1_1pending__collision__event.html#ab36dd4e4711b904636b21494a8a8597e">type</a> = <a class="code hl_enumvalue" href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915ae2a7106f1cc8bb1e1318df70aa0a3540">collision_event_type::enter</a>; </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="structgameplay_1_1pending__collision__event.html#aa6f13f3862077908780b56fb264c09fa">   55</a></span>        glm::vec3 <a class="code hl_variable" href="structgameplay_1_1pending__collision__event.html#aa6f13f3862077908780b56fb264c09fa">point</a>{ 0.0f };               </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="structgameplay_1_1pending__collision__event.html#a34d98fd29ca2ae52683cf97b2cf90d25">   56</a></span>        glm::vec3 <a class="code hl_variable" href="structgameplay_1_1pending__collision__event.html#a34d98fd29ca2ae52683cf97b2cf90d25">normal</a>{ 0.0f, 1.0f, 0.0f };  </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="structgameplay_1_1pending__collision__event.html#aaa9613747993b915ed69a7a3a1d10ba2">   57</a></span>        <span class="keywordtype">float</span> <a class="code hl_variable" href="structgameplay_1_1pending__collision__event.html#aaa9613747993b915ed69a7a3a1d10ba2">impulse</a> = 0.0f;                 </div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="structgameplay_1_1pending__collision__event.html#ab7c0f4026bfd4fdb04566301963144f4">   58</a></span>        <span class="keywordtype">bool</span> <a class="code hl_variable" href="structgameplay_1_1pending__collision__event.html#ab7c0f4026bfd4fdb04566301963144f4">is_sensor</a> = <span class="keyword">false</span>;               </div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    };</div>
+</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>}</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
+<div class="ttc" id="aentity_8h_html"><div class="ttname"><a href="entity_8h.html">entity.h</a></div><div class="ttdoc">ECS mimarisi için temel varlık (Entity) kimliği tip tanımı.</div></div>
+<div class="ttc" id="aentity_8h_html_a193c265692e5db312bee837d1bd14b2e"><div class="ttname"><a href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></div><div class="ttdeci">uint32_t entity</div><div class="ttdoc">Sistem genelinde varlıkları temsil eden benzersiz 32-bit işaretsiz tamsayı.</div><div class="ttdef"><b>Definition</b> <a href="entity_8h_source.html#l00011">entity.h:11</a></div></div>
+<div class="ttc" id="anamespacegameplay_html"><div class="ttname"><a href="namespacegameplay.html">gameplay</a></div><div class="ttdef"><b>Definition</b> <a href="collision__event__queue_8cpp_source.html#l00008">collision_event_queue.cpp:9</a></div></div>
+<div class="ttc" id="anamespacegameplay_html_a33984aa629444a907194126e5c6bf915"><div class="ttname"><a href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915">gameplay::collision_event_type</a></div><div class="ttdeci">collision_event_type</div><div class="ttdoc">Fiziksel temas veya tetikleyici olayının durumunu belirten tipler.</div><div class="ttdef"><b>Definition</b> <a href="#l00017">collision_types.h:18</a></div></div>
+<div class="ttc" id="anamespacegameplay_html_a33984aa629444a907194126e5c6bf915a5ca4b722707013b233e526659583df95"><div class="ttname"><a href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915a5ca4b722707013b233e526659583df95">gameplay::collision_event_type::persist</a></div><div class="ttdeci">@ persist</div><div class="ttdoc">Temasın devam ettiği kare (çarpışma sürüyor).</div><div class="ttdef"><b>Definition</b> <a href="#l00020">collision_types.h:20</a></div></div>
+<div class="ttc" id="anamespacegameplay_html_a33984aa629444a907194126e5c6bf915ae2a7106f1cc8bb1e1318df70aa0a3540"><div class="ttname"><a href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915ae2a7106f1cc8bb1e1318df70aa0a3540">gameplay::collision_event_type::enter</a></div><div class="ttdeci">@ enter</div><div class="ttdoc">İlk temas anı (çarpışma başladı).</div><div class="ttdef"><b>Definition</b> <a href="#l00019">collision_types.h:19</a></div></div>
+<div class="ttc" id="anamespacegameplay_html_a33984aa629444a907194126e5c6bf915af24f62eeb789199b9b2e467df3b1876b"><div class="ttname"><a href="namespacegameplay.html#a33984aa629444a907194126e5c6bf915af24f62eeb789199b9b2e467df3b1876b">gameplay::collision_event_type::exit</a></div><div class="ttdeci">@ exit</div><div class="ttdoc">Temasın sonlandığı an (nesneler birbirinden ayrıldı).</div><div class="ttdef"><b>Definition</b> <a href="#l00021">collision_types.h:21</a></div></div>
+<div class="ttc" id="astructgameplay_1_1collision__hit_html"><div class="ttname"><a href="structgameplay_1_1collision__hit.html">gameplay::collision_hit</a></div><div class="ttdoc">İki nesne arasındaki katı (solid) fiziksel çarpışmaya dair detaylı bilgiler.</div><div class="ttdef"><b>Definition</b> <a href="#l00028">collision_types.h:29</a></div></div>
+<div class="ttc" id="astructgameplay_1_1collision__hit_html_a1ee5e60572682d21fa1c023355f967fd"><div class="ttname"><a href="structgameplay_1_1collision__hit.html#a1ee5e60572682d21fa1c023355f967fd">gameplay::collision_hit::contact_normal</a></div><div class="ttdeci">glm::vec3 contact_normal</div><div class="ttdoc">Temas yüzeyinin normal vektörü.</div><div class="ttdef"><b>Definition</b> <a href="#l00032">collision_types.h:32</a></div></div>
+<div class="ttc" id="astructgameplay_1_1collision__hit_html_a43ff9cf690ed79e1db544b0bf377de33"><div class="ttname"><a href="structgameplay_1_1collision__hit.html#a43ff9cf690ed79e1db544b0bf377de33">gameplay::collision_hit::impulse</a></div><div class="ttdeci">float impulse</div><div class="ttdoc">Çarpışmanın uyguladığı impuls (darbe şiddeti).</div><div class="ttdef"><b>Definition</b> <a href="#l00033">collision_types.h:33</a></div></div>
+<div class="ttc" id="astructgameplay_1_1collision__hit_html_a8746f0a9eb3710d86976bb54347ab7a2"><div class="ttname"><a href="structgameplay_1_1collision__hit.html#a8746f0a9eb3710d86976bb54347ab7a2">gameplay::collision_hit::contact_point</a></div><div class="ttdeci">glm::vec3 contact_point</div><div class="ttdoc">Çarpışmanın gerçekleştiği dünya koordinatı.</div><div class="ttdef"><b>Definition</b> <a href="#l00031">collision_types.h:31</a></div></div>
+<div class="ttc" id="astructgameplay_1_1collision__hit_html_aa5c25aace89b6c95d4b8fbbf2af5b3ab"><div class="ttname"><a href="structgameplay_1_1collision__hit.html#aa5c25aace89b6c95d4b8fbbf2af5b3ab">gameplay::collision_hit::is_trigger</a></div><div class="ttdeci">bool is_trigger</div><div class="ttdoc">Olayın bir tetikleyici (sensor) alanından kaynaklanıp kaynaklanmadığı.</div><div class="ttdef"><b>Definition</b> <a href="#l00034">collision_types.h:34</a></div></div>
+<div class="ttc" id="astructgameplay_1_1collision__hit_html_ac2fbf82f9318e1621d14dbfcdbc4f763"><div class="ttname"><a href="structgameplay_1_1collision__hit.html#ac2fbf82f9318e1621d14dbfcdbc4f763">gameplay::collision_hit::other_entity</a></div><div class="ttdeci">entity other_entity</div><div class="ttdoc">Çarpışılan diğer varlığın kimliği (entity ID).</div><div class="ttdef"><b>Definition</b> <a href="#l00030">collision_types.h:30</a></div></div>
+<div class="ttc" id="astructgameplay_1_1pending__collision__event_html"><div class="ttname"><a href="structgameplay_1_1pending__collision__event.html">gameplay::pending_collision_event</a></div><div class="ttdoc">Fizik iş parçacığı havuzundan ana oyun iş parçacığına taşınmak üzere kuyruklanan ham temas olayı.</div><div class="ttdef"><b>Definition</b> <a href="#l00050">collision_types.h:51</a></div></div>
+<div class="ttc" id="astructgameplay_1_1pending__collision__event_html_a34d98fd29ca2ae52683cf97b2cf90d25"><div class="ttname"><a href="structgameplay_1_1pending__collision__event.html#a34d98fd29ca2ae52683cf97b2cf90d25">gameplay::pending_collision_event::normal</a></div><div class="ttdeci">glm::vec3 normal</div><div class="ttdoc">Temas normali.</div><div class="ttdef"><b>Definition</b> <a href="#l00056">collision_types.h:56</a></div></div>
+<div class="ttc" id="astructgameplay_1_1pending__collision__event_html_a9df3f7708a377c8b0b5e4d5f33f60419"><div class="ttname"><a href="structgameplay_1_1pending__collision__event.html#a9df3f7708a377c8b0b5e4d5f33f60419">gameplay::pending_collision_event::entity_b</a></div><div class="ttdeci">entity entity_b</div><div class="ttdoc">İkinci varlık kimliği.</div><div class="ttdef"><b>Definition</b> <a href="#l00053">collision_types.h:53</a></div></div>
+<div class="ttc" id="astructgameplay_1_1pending__collision__event_html_aa6f13f3862077908780b56fb264c09fa"><div class="ttname"><a href="structgameplay_1_1pending__collision__event.html#aa6f13f3862077908780b56fb264c09fa">gameplay::pending_collision_event::point</a></div><div class="ttdeci">glm::vec3 point</div><div class="ttdoc">Temas noktası.</div><div class="ttdef"><b>Definition</b> <a href="#l00055">collision_types.h:55</a></div></div>
+<div class="ttc" id="astructgameplay_1_1pending__collision__event_html_aaa9613747993b915ed69a7a3a1d10ba2"><div class="ttname"><a href="structgameplay_1_1pending__collision__event.html#aaa9613747993b915ed69a7a3a1d10ba2">gameplay::pending_collision_event::impulse</a></div><div class="ttdeci">float impulse</div><div class="ttdoc">İmpuls değeri.</div><div class="ttdef"><b>Definition</b> <a href="#l00057">collision_types.h:57</a></div></div>
+<div class="ttc" id="astructgameplay_1_1pending__collision__event_html_ab36dd4e4711b904636b21494a8a8597e"><div class="ttname"><a href="structgameplay_1_1pending__collision__event.html#ab36dd4e4711b904636b21494a8a8597e">gameplay::pending_collision_event::type</a></div><div class="ttdeci">collision_event_type type</div><div class="ttdoc">Olay tipi (Enter, Persist, Exit).</div><div class="ttdef"><b>Definition</b> <a href="#l00054">collision_types.h:54</a></div></div>
+<div class="ttc" id="astructgameplay_1_1pending__collision__event_html_ab7c0f4026bfd4fdb04566301963144f4"><div class="ttname"><a href="structgameplay_1_1pending__collision__event.html#ab7c0f4026bfd4fdb04566301963144f4">gameplay::pending_collision_event::is_sensor</a></div><div class="ttdeci">bool is_sensor</div><div class="ttdoc">Nesnelerden en az biri tetikleyici (sensor) mi?</div><div class="ttdef"><b>Definition</b> <a href="#l00058">collision_types.h:58</a></div></div>
+<div class="ttc" id="astructgameplay_1_1pending__collision__event_html_ae9d41ff120cdf59640dd75dc8691b4a7"><div class="ttname"><a href="structgameplay_1_1pending__collision__event.html#ae9d41ff120cdf59640dd75dc8691b4a7">gameplay::pending_collision_event::entity_a</a></div><div class="ttdeci">entity entity_a</div><div class="ttdoc">İlk varlık kimliği.</div><div class="ttdef"><b>Definition</b> <a href="#l00052">collision_types.h:52</a></div></div>
+<div class="ttc" id="astructgameplay_1_1trigger__hit_html"><div class="ttname"><a href="structgameplay_1_1trigger__hit.html">gameplay::trigger_hit</a></div><div class="ttdoc">Fiziksel kuvvet üretmeyen, içinden geçilebilen sensör/tetikleyici alan olay verisi.</div><div class="ttdef"><b>Definition</b> <a href="#l00041">collision_types.h:42</a></div></div>
+<div class="ttc" id="astructgameplay_1_1trigger__hit_html_a2d2836ae50e5eea9b6dc39f59df1aa1c"><div class="ttname"><a href="structgameplay_1_1trigger__hit.html#a2d2836ae50e5eea9b6dc39f59df1aa1c">gameplay::trigger_hit::other_entity</a></div><div class="ttdeci">entity other_entity</div><div class="ttdoc">Tetikleyici alanına giren veya çıkan diğer varlığın kimliği.</div><div class="ttdef"><b>Definition</b> <a href="#l00043">collision_types.h:43</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_c0408843354986209840cb17bed584fc.html">Gameplay</a></li><li class="navelem"><a href="collision__types_8h.html">collision_types.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

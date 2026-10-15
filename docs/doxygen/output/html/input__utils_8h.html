@@ -1,0 +1,402 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: input_utils.h Dosya Referansı</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('input__utils_8h.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">input_utils.h Dosya Referansı</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Tuş ve eylem durumlarını sorgulamak için yardımcı satır içi (inline) fonksiyonlar.  
+<a href="#details">Ayrıntılar...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="input__state_8h_source.html">input_state.h</a>&quot;</code><br />
+</div>
+<p><a href="input__utils_8h_source.html">Bu dosyanın kaynak koduna git.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Fonksiyonlar</h2></td></tr>
+<tr class="memitem:af840fbb08f72d31385dbc132694f6f3e" id="r_af840fbb08f72d31385dbc132694f6f3e"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#af840fbb08f72d31385dbc132694f6f3e">isKeyDown</a> (const <a class="el" href="struct_input_state.html">InputState</a> &amp;s, int key)</td></tr>
+<tr class="memdesc:af840fbb08f72d31385dbc132694f6f3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Belirtilen tuşun o an basılı olup olmadığını sorgular.  <br /></td></tr>
+<tr class="memitem:a827257d3a8b81010d48cea8a03fd3cb6" id="r_a827257d3a8b81010d48cea8a03fd3cb6"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a827257d3a8b81010d48cea8a03fd3cb6">isKeyPressed</a> (const <a class="el" href="struct_input_state.html">InputState</a> &amp;s, int key)</td></tr>
+<tr class="memdesc:a827257d3a8b81010d48cea8a03fd3cb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Belirtilen tuşa tam bu karede yeni basılıp basılmadığını sorgular (Down edge).  <br /></td></tr>
+<tr class="memitem:a6160559340f0c8890443a64bead28af7" id="r_a6160559340f0c8890443a64bead28af7"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a6160559340f0c8890443a64bead28af7">isKeyReleased</a> (const <a class="el" href="struct_input_state.html">InputState</a> &amp;s, int key)</td></tr>
+<tr class="memdesc:a6160559340f0c8890443a64bead28af7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Belirtilen tuşun tam bu karede bırakılıp bırakılmadığını sorgular (Up edge).  <br /></td></tr>
+<tr class="memitem:ab7e888f467ec03f447ebac787498e16f" id="r_ab7e888f467ec03f447ebac787498e16f"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ab7e888f467ec03f447ebac787498e16f">isActionDown</a> (const <a class="el" href="struct_input_state.html">InputState</a> &amp;s, <a class="el" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> action)</td></tr>
+<tr class="memdesc:ab7e888f467ec03f447ebac787498e16f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Belirtilen eylemin o an aktif olup olmadığını sorgular.  <br /></td></tr>
+<tr class="memitem:a1d6e5ba56d3a4d16dd177c48d8ee22b8" id="r_a1d6e5ba56d3a4d16dd177c48d8ee22b8"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a1d6e5ba56d3a4d16dd177c48d8ee22b8">isActionPressed</a> (const <a class="el" href="struct_input_state.html">InputState</a> &amp;s, <a class="el" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> action)</td></tr>
+<tr class="memdesc:a1d6e5ba56d3a4d16dd177c48d8ee22b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Belirtilen eylemin tam bu karede başlayıp başlamadığını sorgular.  <br /></td></tr>
+<tr class="memitem:abc2e04b567303d1b2eb5b8c33e335813" id="r_abc2e04b567303d1b2eb5b8c33e335813"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#abc2e04b567303d1b2eb5b8c33e335813">isActionReleased</a> (const <a class="el" href="struct_input_state.html">InputState</a> &amp;s, <a class="el" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a> action)</td></tr>
+<tr class="memdesc:abc2e04b567303d1b2eb5b8c33e335813"><td class="mdescLeft">&#160;</td><td class="mdescRight">Belirtilen eylemin tam bu karede sonlanıp sonlanmadığını sorgular.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Ayrıntılı tanımlama</h2>
+<div class="textblock"><p>Tuş ve eylem durumlarını sorgulamak için yardımcı satır içi (inline) fonksiyonlar. </p>
+
+<p class="definition"><a class="el" href="input__utils_8h_source.html">input_utils.h</a> dosyasında tanımlanmıştır.</p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Fonksiyon Dokümantasyonu</h2>
+<a id="ab7e888f467ec03f447ebac787498e16f" name="ab7e888f467ec03f447ebac787498e16f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7e888f467ec03f447ebac787498e16f">&#9670;&#160;</a></span>isActionDown()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool isActionDown </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_input_state.html">InputState</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>s</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a></td>          <td class="paramname"><span class="paramname"><em>action</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Belirtilen eylemin o an aktif olup olmadığını sorgular. </p>
+
+<p class="definition"><a class="el" href="input__utils_8h_source.html">input_utils.h</a> dosyasının <a class="el" href="input__utils_8h_source.html#l00040">40</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="input__state_8h_source.html#l00024">InputState::actions</a>, <a class="el" href="input__action_8h_source.html#l00019">COUNT</a> ve <a class="el" href="input__utils_8h_source.html#l00040">isActionDown()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="input__utils_8h_source.html#l00040">isActionDown()</a>.</p>
+
+</div>
+</div>
+<a id="a1d6e5ba56d3a4d16dd177c48d8ee22b8" name="a1d6e5ba56d3a4d16dd177c48d8ee22b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d6e5ba56d3a4d16dd177c48d8ee22b8">&#9670;&#160;</a></span>isActionPressed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool isActionPressed </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_input_state.html">InputState</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>s</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a></td>          <td class="paramname"><span class="paramname"><em>action</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Belirtilen eylemin tam bu karede başlayıp başlamadığını sorgular. </p>
+
+<p class="definition"><a class="el" href="input__utils_8h_source.html">input_utils.h</a> dosyasının <a class="el" href="input__utils_8h_source.html#l00050">50</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="input__state_8h_source.html#l00024">InputState::actions</a>, <a class="el" href="input__action_8h_source.html#l00019">COUNT</a>, <a class="el" href="input__utils_8h_source.html#l00050">isActionPressed()</a> ve <a class="el" href="input__state_8h_source.html#l00025">InputState::prevActions</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="input__utils_8h_source.html#l00050">isActionPressed()</a>.</p>
+
+</div>
+</div>
+<a id="abc2e04b567303d1b2eb5b8c33e335813" name="abc2e04b567303d1b2eb5b8c33e335813"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc2e04b567303d1b2eb5b8c33e335813">&#9670;&#160;</a></span>isActionReleased()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool isActionReleased </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_input_state.html">InputState</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>s</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="input__action_8h.html#a9c56096a2c51a4a98f907f8f87fd1671">InputAction</a></td>          <td class="paramname"><span class="paramname"><em>action</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Belirtilen eylemin tam bu karede sonlanıp sonlanmadığını sorgular. </p>
+
+<p class="definition"><a class="el" href="input__utils_8h_source.html">input_utils.h</a> dosyasının <a class="el" href="input__utils_8h_source.html#l00060">60</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="input__state_8h_source.html#l00024">InputState::actions</a>, <a class="el" href="input__action_8h_source.html#l00019">COUNT</a>, <a class="el" href="input__utils_8h_source.html#l00060">isActionReleased()</a> ve <a class="el" href="input__state_8h_source.html#l00025">InputState::prevActions</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="input__utils_8h_source.html#l00060">isActionReleased()</a>.</p>
+
+</div>
+</div>
+<a id="af840fbb08f72d31385dbc132694f6f3e" name="af840fbb08f72d31385dbc132694f6f3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af840fbb08f72d31385dbc132694f6f3e">&#9670;&#160;</a></span>isKeyDown()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool isKeyDown </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_input_state.html">InputState</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>s</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>key</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Belirtilen tuşun o an basılı olup olmadığını sorgular. </p>
+
+<p class="definition"><a class="el" href="input__utils_8h_source.html">input_utils.h</a> dosyasının <a class="el" href="input__utils_8h_source.html#l00013">13</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="input__utils_8h_source.html#l00013">isKeyDown()</a> ve <a class="el" href="input__state_8h_source.html#l00021">InputState::keys</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="input__utils_8h_source.html#l00013">isKeyDown()</a>.</p>
+
+</div>
+</div>
+<a id="a827257d3a8b81010d48cea8a03fd3cb6" name="a827257d3a8b81010d48cea8a03fd3cb6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a827257d3a8b81010d48cea8a03fd3cb6">&#9670;&#160;</a></span>isKeyPressed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool isKeyPressed </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_input_state.html">InputState</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>s</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>key</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Belirtilen tuşa tam bu karede yeni basılıp basılmadığını sorgular (Down edge). </p>
+
+<p class="definition"><a class="el" href="input__utils_8h_source.html">input_utils.h</a> dosyasının <a class="el" href="input__utils_8h_source.html#l00022">22</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="input__utils_8h_source.html#l00022">isKeyPressed()</a>, <a class="el" href="input__state_8h_source.html#l00021">InputState::keys</a> ve <a class="el" href="input__state_8h_source.html#l00022">InputState::prevKeys</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="input__utils_8h_source.html#l00022">isKeyPressed()</a>.</p>
+
+</div>
+</div>
+<a id="a6160559340f0c8890443a64bead28af7" name="a6160559340f0c8890443a64bead28af7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6160559340f0c8890443a64bead28af7">&#9670;&#160;</a></span>isKeyReleased()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool isKeyReleased </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_input_state.html">InputState</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>s</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>key</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Belirtilen tuşun tam bu karede bırakılıp bırakılmadığını sorgular (Up edge). </p>
+
+<p class="definition"><a class="el" href="input__utils_8h_source.html">input_utils.h</a> dosyasının <a class="el" href="input__utils_8h_source.html#l00031">31</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="input__utils_8h_source.html#l00031">isKeyReleased()</a>, <a class="el" href="input__state_8h_source.html#l00021">InputState::keys</a> ve <a class="el" href="input__state_8h_source.html#l00022">InputState::prevKeys</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="input__utils_8h_source.html#l00031">isKeyReleased()</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_1a38165fdf84247353e02347075a5508.html">Input</a></li><li class="navelem"><a href="input__utils_8h.html">input_utils.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

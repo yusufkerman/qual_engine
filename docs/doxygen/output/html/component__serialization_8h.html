@@ -1,0 +1,437 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: component_serialization.h Dosya Referansı</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('component__serialization_8h.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">component_serialization.h Dosya Referansı</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &lt;tuple&gt;</code><br />
+<code>#include &lt;string&gt;</code><br />
+<code>#include &lt;glm/glm.hpp&gt;</code><br />
+<code>#include &quot;../Externals/nlohmann/json.hpp&quot;</code><br />
+<code>#include &quot;<a class="el" href="entity_8h_source.html">../ECS/entity.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="registry_8h_source.html">../ECS/registry.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="components_8h_source.html">../ECS/components.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="material_8h_source.html">../Renderer/material.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="aria_8h_source.html">../Engine/Assets/aria.h</a>&quot;</code><br />
+</div>
+<p><a href="component__serialization_8h_source.html">Bu dosyanın kaynak koduna git.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Sınıflar</h2></td></tr>
+<tr class="memitem:nlohmann_3A_3Aadl_5Fserializer_3C_20aria_3A_3Ahandle_3C_20T_20_3E_20_3E" id="r_nlohmann_3A_3Aadl_5Fserializer_3C_20aria_3A_3Ahandle_3C_20T_20_3E_20_3E"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structnlohmann_1_1adl__serializer_3_01aria_1_1handle_3_01_t_01_4_01_4.html">nlohmann::adl_serializer&lt; aria::handle&lt; T &gt; &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aria varlık tanıtıcıları (handle) için JSON serileştirme uzmanlaşımı (ADL serializer).  <a href="structnlohmann_1_1adl__serializer_3_01aria_1_1handle_3_01_t_01_4_01_4.html#details">Ayrıntılar...</a><br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-namespaces" class="groupheader"><a id="namespaces" name="namespaces"></a>
+Namespace'ler</h2></td></tr>
+<tr class="memitem:nlohmann" id="r_nlohmann"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespacenlohmann.html">nlohmann</a></td></tr>
+<tr class="memitem:glm" id="r_glm"><td class="memItemLeft">namespace &#160;</td><td class="memItemRight"><a class="el" href="namespaceglm.html">glm</a></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Fonksiyonlar</h2></td></tr>
+<tr class="memitem:a3b68a1ed6eabef6803bed35cb0c28d13" id="r_a3b68a1ed6eabef6803bed35cb0c28d13"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="namespaceglm.html#a3b68a1ed6eabef6803bed35cb0c28d13">glm::to_json</a> (<a class="el" href="asset__pipeline_8cpp.html#ab701e3ac61a85b337ec5c1abaad6742d">json</a> &amp;j, const vec3 &amp;v)</td></tr>
+<tr class="memitem:a15868aa272e98951f0904988a40cc54e" id="r_a15868aa272e98951f0904988a40cc54e"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="namespaceglm.html#a15868aa272e98951f0904988a40cc54e">glm::from_json</a> (const <a class="el" href="asset__pipeline_8cpp.html#ab701e3ac61a85b337ec5c1abaad6742d">json</a> &amp;j, vec3 &amp;v)</td></tr>
+<tr class="memitem:afa7e17b1d8287080e45d9c8ce162496f" id="r_afa7e17b1d8287080e45d9c8ce162496f"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="namespaceglm.html#afa7e17b1d8287080e45d9c8ce162496f">glm::to_json</a> (<a class="el" href="asset__pipeline_8cpp.html#ab701e3ac61a85b337ec5c1abaad6742d">json</a> &amp;j, const vec2 &amp;v)</td></tr>
+<tr class="memitem:a3e7bfdeb94994488e53cc448f1ed6982" id="r_a3e7bfdeb94994488e53cc448f1ed6982"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="namespaceglm.html#a3e7bfdeb94994488e53cc448f1ed6982">glm::from_json</a> (const <a class="el" href="asset__pipeline_8cpp.html#ab701e3ac61a85b337ec5c1abaad6742d">json</a> &amp;j, vec2 &amp;v)</td></tr>
+<tr class="memitem:a189975dea696e48d9581f1f0c9dd9144" id="r_a189975dea696e48d9581f1f0c9dd9144"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a189975dea696e48d9581f1f0c9dd9144">NLOHMANN_JSON_SERIALIZE_ENUM</a> (<a class="el" href="components_8h.html#a170407be4230f73626fc01a8c5beb94c">light_type</a>, { {<a class="el" href="components_8h.html#a170407be4230f73626fc01a8c5beb94caff17f76a314be3abfb17f7c9e849ba34">light_type::directional</a>, &quot;directional&quot;}, {<a class="el" href="components_8h.html#a170407be4230f73626fc01a8c5beb94ca78ee54aa8f813885fe2fe20d232518b9">light_type::point</a>, &quot;point&quot;}, {<a class="el" href="components_8h.html#a170407be4230f73626fc01a8c5beb94cab2e189abf85e809a51522cdb0e53083a">light_type::spot</a>, &quot;spot&quot;} }) NLOHMANN_JSON_SERIALIZE_ENUM(<a class="el" href="components_8h.html#a45e0ce9465c23e963937331369434517">motion_type</a></td></tr>
+<tr class="memitem:a5a8ae4426093413f1e54be229c953c63" id="r_a5a8ae4426093413f1e54be229c953c63"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a5a8ae4426093413f1e54be229c953c63 template"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a5a8ae4426093413f1e54be229c953c63">serialize_component_if_exists</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e, const <a class="el" href="classregistry.html">registry</a> &amp;reg, <a class="el" href="asset__pipeline_8cpp.html#ab701e3ac61a85b337ec5c1abaad6742d">json</a> &amp;entityJson, const std::string &amp;key)</td></tr>
+<tr class="memdesc:a5a8ae4426093413f1e54be229c953c63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Varlıkta belirtilen bileşen mevcutsa JSON nesnesine yazar.  <br /></td></tr>
+<tr class="memitem:aef8215a80dc9e5e91583c636c3b39e1b" id="r_aef8215a80dc9e5e91583c636c3b39e1b"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:aef8215a80dc9e5e91583c636c3b39e1b template"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aef8215a80dc9e5e91583c636c3b39e1b">deserialize_component_if_exists</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e, <a class="el" href="classregistry.html">registry</a> &amp;reg, const <a class="el" href="asset__pipeline_8cpp.html#ab701e3ac61a85b337ec5c1abaad6742d">json</a> &amp;entityJson, const std::string &amp;key)</td></tr>
+<tr class="memdesc:aef8215a80dc9e5e91583c636c3b39e1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">JSON nesnesinde anahtar mevcutsa bileşeni çözüp varlığa ekler.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Değişkenler</h2></td></tr>
+<tr class="memitem:a72187811d305cefd352b224fc70aeddc" id="r_a72187811d305cefd352b224fc70aeddc"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a72187811d305cefd352b224fc70aeddc">transform_component</a></td></tr>
+<tr class="memitem:a58212d6bfbc553ea2930d12463b48b2f" id="r_a58212d6bfbc553ea2930d12463b48b2f"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a58212d6bfbc553ea2930d12463b48b2f">mesh_component</a></td></tr>
+<tr class="memitem:a73f5d36f31883c6b9f9c873b718e5046" id="r_a73f5d36f31883c6b9f9c873b718e5046"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a73f5d36f31883c6b9f9c873b718e5046">material_component</a></td></tr>
+<tr class="memitem:a8de26d2c384321e453802a6129d0237b" id="r_a8de26d2c384321e453802a6129d0237b"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a8de26d2c384321e453802a6129d0237b">camera_component</a></td></tr>
+<tr class="memitem:a4a6a54b5d6e5b2d7dd7fec25a7f457e4" id="r_a4a6a54b5d6e5b2d7dd7fec25a7f457e4"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a4a6a54b5d6e5b2d7dd7fec25a7f457e4">light_component</a></td></tr>
+<tr class="memitem:addb6e04350d5b6d4a77be0548f6ae4c4" id="r_addb6e04350d5b6d4a77be0548f6ae4c4"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#addb6e04350d5b6d4a77be0548f6ae4c4">bounds_component</a></td></tr>
+<tr class="memitem:a7ef3d8d2ad20e398fcdb71c52d9b7346" id="r_a7ef3d8d2ad20e398fcdb71c52d9b7346"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a7ef3d8d2ad20e398fcdb71c52d9b7346">rigidbody_component</a></td></tr>
+<tr class="memitem:a08ce194ae7c1230f68dd6b07ab1c980b" id="r_a08ce194ae7c1230f68dd6b07ab1c980b"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a08ce194ae7c1230f68dd6b07ab1c980b">collider_component</a></td></tr>
+</table>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Fonksiyon Dokümantasyonu</h2>
+<a id="aef8215a80dc9e5e91583c636c3b39e1b" name="aef8215a80dc9e5e91583c636c3b39e1b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef8215a80dc9e5e91583c636c3b39e1b">&#9670;&#160;</a></span>deserialize_component_if_exists()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void deserialize_component_if_exists </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classregistry.html">registry</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>reg</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="asset__pipeline_8cpp.html#ab701e3ac61a85b337ec5c1abaad6742d">json</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>entityJson</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>key</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>JSON nesnesinde anahtar mevcutsa bileşeni çözüp varlığa ekler. </p>
+
+<p class="definition"><a class="el" href="component__serialization_8h_source.html">component_serialization.h</a> dosyasının <a class="el" href="component__serialization_8h_source.html#l00185">185</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="registry_8h_source.html#l00047">registry::add_component()</a> ve <a class="el" href="component__serialization_8h_source.html#l00185">deserialize_component_if_exists()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="scene__serializer_8cpp_source.html#l00075">scene_serializer::deserialize()</a> ve <a class="el" href="component__serialization_8h_source.html#l00185">deserialize_component_if_exists()</a>.</p>
+
+</div>
+</div>
+<a id="a189975dea696e48d9581f1f0c9dd9144" name="a189975dea696e48d9581f1f0c9dd9144"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a189975dea696e48d9581f1f0c9dd9144">&#9670;&#160;</a></span>NLOHMANN_JSON_SERIALIZE_ENUM()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">NLOHMANN_JSON_SERIALIZE_ENUM </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="components_8h.html#a170407be4230f73626fc01a8c5beb94c">light_type</a></td>          <td class="paramname"><span class="paramname"><em></em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">{ {<a class="el" href="components_8h.html#a170407be4230f73626fc01a8c5beb94caff17f76a314be3abfb17f7c9e849ba34">light_type::directional</a>, &quot;directional&quot;}, {<a class="el" href="components_8h.html#a170407be4230f73626fc01a8c5beb94ca78ee54aa8f813885fe2fe20d232518b9">light_type::point</a>, &quot;point&quot;}, {<a class="el" href="components_8h.html#a170407be4230f73626fc01a8c5beb94cab2e189abf85e809a51522cdb0e53083a">light_type::spot</a>, &quot;spot&quot;} }</td>          <td class="paramname"><span class="paramname"><em></em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="reference">Referanslar <a class="el" href="components_8h_source.html#l00023">directional</a>, <a class="el" href="#a189975dea696e48d9581f1f0c9dd9144">NLOHMANN_JSON_SERIALIZE_ENUM()</a>, <a class="el" href="components_8h_source.html#l00024">point</a> ve <a class="el" href="components_8h_source.html#l00025">spot</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a189975dea696e48d9581f1f0c9dd9144">NLOHMANN_JSON_SERIALIZE_ENUM()</a>.</p>
+
+</div>
+</div>
+<a id="a5a8ae4426093413f1e54be229c953c63" name="a5a8ae4426093413f1e54be229c953c63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a8ae4426093413f1e54be229c953c63">&#9670;&#160;</a></span>serialize_component_if_exists()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void serialize_component_if_exists </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classregistry.html">registry</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>reg</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="asset__pipeline_8cpp.html#ab701e3ac61a85b337ec5c1abaad6742d">json</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>entityJson</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>key</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Varlıkta belirtilen bileşen mevcutsa JSON nesnesine yazar. </p>
+
+<p class="definition"><a class="el" href="component__serialization_8h_source.html">component_serialization.h</a> dosyasının <a class="el" href="component__serialization_8h_source.html#l00173">173</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="registry_8h_source.html#l00054">registry::get_component()</a> ve <a class="el" href="component__serialization_8h_source.html#l00173">serialize_component_if_exists()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="scene__serializer_8cpp_source.html#l00020">scene_serializer::serialize()</a> ve <a class="el" href="component__serialization_8h_source.html#l00173">serialize_component_if_exists()</a>.</p>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Değişken Dokümantasyonu</h2>
+<a id="addb6e04350d5b6d4a77be0548f6ae4c4" name="addb6e04350d5b6d4a77be0548f6ae4c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#addb6e04350d5b6d4a77be0548f6ae4c4">&#9670;&#160;</a></span>bounds_component</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bounds_component</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="component__serialization_8h_source.html">component_serialization.h</a> dosyasının <a class="el" href="component__serialization_8h_source.html#l00160">160</a> numaralı satırında tanımlanmıştır.</p>
+
+</div>
+</div>
+<a id="a8de26d2c384321e453802a6129d0237b" name="a8de26d2c384321e453802a6129d0237b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8de26d2c384321e453802a6129d0237b">&#9670;&#160;</a></span>camera_component</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">camera_component</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="component__serialization_8h_source.html">component_serialization.h</a> dosyasının <a class="el" href="component__serialization_8h_source.html#l00158">158</a> numaralı satırında tanımlanmıştır.</p>
+
+</div>
+</div>
+<a id="a08ce194ae7c1230f68dd6b07ab1c980b" name="a08ce194ae7c1230f68dd6b07ab1c980b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08ce194ae7c1230f68dd6b07ab1c980b">&#9670;&#160;</a></span>collider_component</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">collider_component</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="component__serialization_8h_source.html">component_serialization.h</a> dosyasının <a class="el" href="component__serialization_8h_source.html#l00162">162</a> numaralı satırında tanımlanmıştır.</p>
+
+</div>
+</div>
+<a id="a4a6a54b5d6e5b2d7dd7fec25a7f457e4" name="a4a6a54b5d6e5b2d7dd7fec25a7f457e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a6a54b5d6e5b2d7dd7fec25a7f457e4">&#9670;&#160;</a></span>light_component</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">light_component</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="component__serialization_8h_source.html">component_serialization.h</a> dosyasının <a class="el" href="component__serialization_8h_source.html#l00159">159</a> numaralı satırında tanımlanmıştır.</p>
+
+</div>
+</div>
+<a id="a73f5d36f31883c6b9f9c873b718e5046" name="a73f5d36f31883c6b9f9c873b718e5046"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73f5d36f31883c6b9f9c873b718e5046">&#9670;&#160;</a></span>material_component</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">material_component</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="component__serialization_8h_source.html">component_serialization.h</a> dosyasının <a class="el" href="component__serialization_8h_source.html#l00157">157</a> numaralı satırında tanımlanmıştır.</p>
+
+</div>
+</div>
+<a id="a58212d6bfbc553ea2930d12463b48b2f" name="a58212d6bfbc553ea2930d12463b48b2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58212d6bfbc553ea2930d12463b48b2f">&#9670;&#160;</a></span>mesh_component</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">mesh_component</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="component__serialization_8h_source.html">component_serialization.h</a> dosyasının <a class="el" href="component__serialization_8h_source.html#l00156">156</a> numaralı satırında tanımlanmıştır.</p>
+
+</div>
+</div>
+<a id="a7ef3d8d2ad20e398fcdb71c52d9b7346" name="a7ef3d8d2ad20e398fcdb71c52d9b7346"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ef3d8d2ad20e398fcdb71c52d9b7346">&#9670;&#160;</a></span>rigidbody_component</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">rigidbody_component</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="component__serialization_8h_source.html">component_serialization.h</a> dosyasının <a class="el" href="component__serialization_8h_source.html#l00161">161</a> numaralı satırında tanımlanmıştır.</p>
+
+</div>
+</div>
+<a id="a72187811d305cefd352b224fc70aeddc" name="a72187811d305cefd352b224fc70aeddc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72187811d305cefd352b224fc70aeddc">&#9670;&#160;</a></span>transform_component</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">transform_component</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="component__serialization_8h_source.html">component_serialization.h</a> dosyasının <a class="el" href="component__serialization_8h_source.html#l00155">155</a> numaralı satırında tanımlanmıştır.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_0b6ee6e7e9547e675db4add2e5de97da.html">Engine</a></li><li class="navelem"><a href="dir_53be9c0cb7bc30226530160a950b5e5c.html">Scene</a></li><li class="navelem"><a href="component__serialization_8h.html">component_serialization.h</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

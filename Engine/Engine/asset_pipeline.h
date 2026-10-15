@@ -10,7 +10,7 @@
 #include <cstdint>
 #include "../Engine/Assets/aria.h"
 
-class EngineContext;
+struct EngineContext;
 
 namespace asset_pipeline
 {

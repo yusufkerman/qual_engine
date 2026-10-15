@@ -1,0 +1,1128 @@
+<!-- HTML header for doxygen 1.9.x - 1.13.x with Doxygen Awesome Dark Theme -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.18.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OpenGL-Learn-1 Engine: vesta::hierarchy_view_model Sınıf Referans</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="doxygen-awesome-css/logo.drawio.svg"/>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="codefolding.js"></script>
+<!-- Doxygen Awesome Extensions -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    // Varsayılan olarak karanlık modu (Dark Mode) aktif et
+    if (DoxygenAwesomeDarkModeToggle.userPreference == null) {
+        DoxygenAwesomeDarkModeToggle.enableDarkMode(true);
+    }
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="custom-dark.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">OpenGL-Learn-1 Engine
+   &#160;<span id="projectnumber">1.0.0</span>
+   </div>
+   <div id="projectbrief">Modern 3D Game Engine with Aria Asset System &amp; Vesta Editor Architecture</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- Oluşturan Doxygen 1.18.0 -->
+<script type="text/javascript">
+let searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', codefold.init);
+</script>
+<script type="application/json" id="doxygen-config">
+{
+  "relPath": "",
+  "generateTreeView": true,
+  "searchEngine": true,
+  "serverBasedSearch": false,
+  "disableIndex": false,
+  "dynamicMenus": true,
+  "fullSidebar": false
+}
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<div id="main-nav-mobile">
+<div class="sm sm-dox"><input id="main-menu-state" type="checkbox"/>
+<label class="main-menu-btn" for="main-menu-state">
+<span class="main-menu-btn-icon"></span> Toggle main menu visibility</label>
+<span id="searchBoxPos1"></span>
+</div>
+</div><!-- main-nav-mobile -->
+<div id="main-nav">
+  <ul class="sm sm-dox" id="main-menu">
+    <li id="searchBoxPos2">
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <span id="MSearchSelect" class="search-icon"><span class="search-icon-dropdown"></span></span>
+          <input type="text" id="MSearchField" value="" placeholder="Ara" accesskey="S"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><div id="MSearchCloseImg" class="close-icon"></div></a>
+          </span>
+        </div>
+    </li>
+  </ul>
+</div><!-- main-nav -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded',() => { initNavTree('classvesta_1_1hierarchy__view__model.html','','classvesta_1_1hierarchy__view__model-members'); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Yüklüyor...</div>
+<div class="SRStatus" id="Searching">Arıyor...</div>
+<div class="SRStatus" id="NoMatches">Eşleşme Yok</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">vesta::hierarchy_view_model Sınıf Referans</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Sahne hiyerarşisini UI paneline sunan, entity oluşturma, silme, ebeveyn atama ve yeniden adlandırma eylemlerini yöneten ViewModel sınıfı.  
+ <a href="#details">Ayrıntılar...</a></p>
+
+<p><code>#include &lt;<a class="el" href="hierarchy__view__model_8h_source.html">hierarchy_view_model.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Üye Fonksiyonlar</h2></td></tr>
+<tr class="memitem:a2c01b73f14d6aedb9a71e5df71490f27" id="r_a2c01b73f14d6aedb9a71e5df71490f27"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a2c01b73f14d6aedb9a71e5df71490f27">hierarchy_view_model</a> (<a class="el" href="classvesta_1_1_i_editable_world.html">IEditableWorld</a> &amp;world, <a class="el" href="classregistry.html">registry</a> &amp;reg, <a class="el" href="classvesta_1_1editor__selection__manager.html">editor_selection_manager</a> &amp;selection)</td></tr>
+<tr class="memitem:a9b1784c61a14f50cb5768cd056f31cb3" id="r_a9b1784c61a14f50cb5768cd056f31cb3"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model</a> ()=default</td></tr>
+<tr class="memitem:a9bf685a13cd67cb0a0d859005df130d9" id="r_a9bf685a13cd67cb0a0d859005df130d9"><td class="memItemLeft">std::vector&lt; <a class="el" href="structvesta_1_1hierarchy__node__data.html">hierarchy_node_data</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a9bf685a13cd67cb0a0d859005df130d9">get_root_nodes</a> () const</td></tr>
+<tr class="memdesc:a9bf685a13cd67cb0a0d859005df130d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sahnedeki kök (parent değeri 0 olan) entity'leri getirir.  <br /></td></tr>
+<tr class="memitem:a4cc8fe34de8522d3b557987792cf0048" id="r_a4cc8fe34de8522d3b557987792cf0048"><td class="memItemLeft"><a class="el" href="structvesta_1_1hierarchy__node__data.html">hierarchy_node_data</a>&#160;</td><td class="memItemRight"><a class="el" href="#a4cc8fe34de8522d3b557987792cf0048">get_node_data</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e) const</td></tr>
+<tr class="memdesc:a4cc8fe34de8522d3b557987792cf0048"><td class="mdescLeft">&#160;</td><td class="mdescRight">Belirli bir entity'nin UI tarafında gösterilecek verilerini derler.  <br /></td></tr>
+<tr class="memitem:ab34dc924a0020bc9c45ee8d5985d66ba" id="r_ab34dc924a0020bc9c45ee8d5985d66ba"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ab34dc924a0020bc9c45ee8d5985d66ba">request_create_entity</a> (const std::string &amp;default_name=&quot;New Entity&quot;)</td></tr>
+<tr class="memitem:ad061f467adaeb6da24dc7b4c0c995da4" id="r_ad061f467adaeb6da24dc7b4c0c995da4"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad061f467adaeb6da24dc7b4c0c995da4">request_destroy_entity</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e)</td></tr>
+<tr class="memitem:a2f15a4b6794917726f3575dcf727e228" id="r_a2f15a4b6794917726f3575dcf727e228"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a2f15a4b6794917726f3575dcf727e228">request_set_parent</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> child, <a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> parent)</td></tr>
+<tr class="memitem:ad3fa5eb50bc7638f5956263fda47c943" id="r_ad3fa5eb50bc7638f5956263fda47c943"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad3fa5eb50bc7638f5956263fda47c943">request_rename_entity</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e, const std::string &amp;new_name)</td></tr>
+<tr class="memitem:adc03830f87e51e9e19a99e4970305baf" id="r_adc03830f87e51e9e19a99e4970305baf"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#adc03830f87e51e9e19a99e4970305baf">request_select</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e, bool accumulate)</td></tr>
+<tr class="memitem:a416df7a311a54d4cc47923262cd97c54" id="r_a416df7a311a54d4cc47923262cd97c54"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a416df7a311a54d4cc47923262cd97c54">request_copy</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e)</td></tr>
+<tr class="memitem:acf4945bd7ac1936e343bb195437b51e5" id="r_acf4945bd7ac1936e343bb195437b51e5"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#acf4945bd7ac1936e343bb195437b51e5">request_paste</a> ()</td></tr>
+<tr class="memitem:ac9955d440718b17f152d0878e270d3be" id="r_ac9955d440718b17f152d0878e270d3be"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ac9955d440718b17f152d0878e270d3be">request_duplicate</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e)</td></tr>
+<tr class="memitem:aca745e90ab9a9ad27def2acd265cb498" id="r_aca745e90ab9a9ad27def2acd265cb498"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#aca745e90ab9a9ad27def2acd265cb498">has_selection</a> () const</td></tr>
+<tr class="memitem:ac49a4d4992b32124b62a82f059253aff" id="r_ac49a4d4992b32124b62a82f059253aff"><td class="memItemLeft"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a>&#160;</td><td class="memItemRight"><a class="el" href="#ac49a4d4992b32124b62a82f059253aff">get_selected_entity</a> () const</td></tr>
+<tr class="memitem:a149877084b39ba11a62c02f543d0cf84" id="r_a149877084b39ba11a62c02f543d0cf84"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a149877084b39ba11a62c02f543d0cf84">is_selected</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e) const</td></tr>
+<tr class="memitem:a6396c3099ec851d122cd71998389957c" id="r_a6396c3099ec851d122cd71998389957c"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a6396c3099ec851d122cd71998389957c">is_renaming</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e) const</td></tr>
+<tr class="memitem:a503eb718522389e48b8079eb40833f00" id="r_a503eb718522389e48b8079eb40833f00"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a503eb718522389e48b8079eb40833f00">start_rename</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> e)</td></tr>
+<tr class="memitem:a862dbfdd46827b56eced6d9926b85430" id="r_a862dbfdd46827b56eced6d9926b85430"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a862dbfdd46827b56eced6d9926b85430">cancel_rename</a> ()</td></tr>
+<tr class="memitem:aa5225c31584b548e23535aab837f851a" id="r_aa5225c31584b548e23535aab837f851a"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aa5225c31584b548e23535aab837f851a">commit_rename</a> ()</td></tr>
+<tr class="memitem:ad0c4fc33a528b684d417beaae8450486" id="r_ad0c4fc33a528b684d417beaae8450486"><td class="memItemLeft"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a>&#160;</td><td class="memItemRight"><a class="el" href="#ad0c4fc33a528b684d417beaae8450486">get_renaming_entity</a> () const</td></tr>
+<tr class="memitem:a738c20c99095033bab9dbce807241e24" id="r_a738c20c99095033bab9dbce807241e24"><td class="memItemLeft">std::string &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a738c20c99095033bab9dbce807241e24">get_rename_buffer</a> ()</td></tr>
+<tr class="memitem:ae04cc05e3b682b5b0d8ed4612543f32b" id="r_ae04cc05e3b682b5b0d8ed4612543f32b"><td class="memItemLeft">const std::string &amp;&#160;</td><td class="memItemRight"><a class="el" href="#ae04cc05e3b682b5b0d8ed4612543f32b">get_rename_buffer</a> () const</td></tr>
+<tr class="memitem:ae8707d82608a81f94ed82be47bf1d9eb" id="r_ae8707d82608a81f94ed82be47bf1d9eb"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ae8707d82608a81f94ed82be47bf1d9eb">has_clipboard</a> () const</td></tr>
+<tr class="memitem:a5456c9a5467a438b8295f9d855fe58fa" id="r_a5456c9a5467a438b8295f9d855fe58fa"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a5456c9a5467a438b8295f9d855fe58fa">can_copy</a> () const</td></tr>
+<tr class="memitem:a60147f6d946347f4a248c8a36468c6d0" id="r_a60147f6d946347f4a248c8a36468c6d0"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a60147f6d946347f4a248c8a36468c6d0">can_duplicate</a> () const</td></tr>
+<tr class="memitem:acf122ab5839cecc0233deea4d76c3eca" id="r_acf122ab5839cecc0233deea4d76c3eca"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#acf122ab5839cecc0233deea4d76c3eca">can_delete</a> () const</td></tr>
+<tr class="memitem:a7e0b2139a62c447f8ef9b9a1defdc770" id="r_a7e0b2139a62c447f8ef9b9a1defdc770"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a7e0b2139a62c447f8ef9b9a1defdc770">can_paste</a> () const</td></tr>
+<tr class="memitem:ad4867b85fa6b1afa705c55e9c235725b" id="r_ad4867b85fa6b1afa705c55e9c235725b"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad4867b85fa6b1afa705c55e9c235725b">request_copy_selected</a> ()</td></tr>
+<tr class="memitem:a05cb52794f85ec0b345144411dae8af4" id="r_a05cb52794f85ec0b345144411dae8af4"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a05cb52794f85ec0b345144411dae8af4">request_duplicate_selected</a> ()</td></tr>
+<tr class="memitem:a39405e2774c393c8b9cef03462ca671b" id="r_a39405e2774c393c8b9cef03462ca671b"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a39405e2774c393c8b9cef03462ca671b">request_delete_selected</a> ()</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pri-methods" class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Özel Üye Fonksiyonlar</h2></td></tr>
+<tr class="memitem:ab37b110ee74b91c69ea24bbd9c54fbbb" id="r_ab37b110ee74b91c69ea24bbd9c54fbbb"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ab37b110ee74b91c69ea24bbd9c54fbbb">gather_children_recursive</a> (<a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> parent, std::vector&lt; <a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> &gt; &amp;out_children) const</td></tr>
+<tr class="memdesc:ab37b110ee74b91c69ea24bbd9c54fbbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bir entity'nin doğrudan çocuklarını (kardeş zinciri üzerinden) toplar.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pri-attribs" class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Özel Özellikler(attribute)</h2></td></tr>
+<tr class="memitem:a86a29286e256d036ef8de062a95044a4" id="r_a86a29286e256d036ef8de062a95044a4"><td class="memItemLeft"><a class="el" href="classvesta_1_1_i_editable_world.html">IEditableWorld</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a86a29286e256d036ef8de062a95044a4">m_world</a></td></tr>
+<tr class="memitem:a3a47fb1cbb9b09f8798774a8f5d1a4d4" id="r_a3a47fb1cbb9b09f8798774a8f5d1a4d4"><td class="memItemLeft"><a class="el" href="classregistry.html">registry</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a3a47fb1cbb9b09f8798774a8f5d1a4d4">m_registry</a></td></tr>
+<tr class="memitem:a0d02926d1b2b08f1ffe4cec2e548db7c" id="r_a0d02926d1b2b08f1ffe4cec2e548db7c"><td class="memItemLeft"><a class="el" href="classvesta_1_1editor__selection__manager.html">editor_selection_manager</a> &amp;&#160;</td><td class="memItemRight"><a class="el" href="#a0d02926d1b2b08f1ffe4cec2e548db7c">m_selection_manager</a></td></tr>
+<tr class="memitem:a96501c9df53ce846af1cf5f378f0c342" id="r_a96501c9df53ce846af1cf5f378f0c342"><td class="memItemLeft"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a>&#160;</td><td class="memItemRight"><a class="el" href="#a96501c9df53ce846af1cf5f378f0c342">m_renaming_entity</a> { 0 }</td></tr>
+<tr class="memitem:a3448f9858c86d2da891362e7696e138b" id="r_a3448f9858c86d2da891362e7696e138b"><td class="memItemLeft">std::string&#160;</td><td class="memItemRight"><a class="el" href="#a3448f9858c86d2da891362e7696e138b">m_rename_buffer</a></td></tr>
+<tr class="memitem:ae1b638f30845ba4b4ef7b5175fca2e05" id="r_ae1b638f30845ba4b4ef7b5175fca2e05"><td class="memItemLeft"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a>&#160;</td><td class="memItemRight"><a class="el" href="#ae1b638f30845ba4b4ef7b5175fca2e05">m_clipboard_entity</a> { 0 }</td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Ayrıntılı tanımlama</h2>
+<div class="textblock"><p>Sahne hiyerarşisini UI paneline sunan, entity oluşturma, silme, ebeveyn atama ve yeniden adlandırma eylemlerini yöneten ViewModel sınıfı. </p>
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8h_source.html">hierarchy_view_model.h</a> dosyasının <a class="el" href="hierarchy__view__model_8h_source.html#l00037">37</a> numaralı satırında tanımlanmıştır.</p>
+</div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Dokümantasyonu</h2>
+<a id="a2c01b73f14d6aedb9a71e5df71490f27" name="a2c01b73f14d6aedb9a71e5df71490f27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c01b73f14d6aedb9a71e5df71490f27">&#9670;&#160;</a></span>hierarchy_view_model()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">vesta::hierarchy_view_model::hierarchy_view_model </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classvesta_1_1_i_editable_world.html">IEditableWorld</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>world</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classregistry.html">registry</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>reg</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classvesta_1_1editor__selection__manager.html">editor_selection_manager</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>selection</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00010">10</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00040">m_registry</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00041">m_selection_manager</a> ve <a class="el" href="hierarchy__view__model_8h_source.html#l00039">m_world</a>.</p>
+
+</div>
+</div>
+<a id="a9b1784c61a14f50cb5768cd056f31cb3" name="a9b1784c61a14f50cb5768cd056f31cb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b1784c61a14f50cb5768cd056f31cb3">&#9670;&#160;</a></span>~hierarchy_view_model()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">vesta::hierarchy_view_model::~hierarchy_view_model </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel default">default</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8cpp_source.html#l00200">can_copy()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00208">can_delete()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00204">can_duplicate()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00212">can_paste()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00171">cancel_rename()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00164">commit_rename()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00031">get_node_data()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00180">get_rename_buffer()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00176">get_renaming_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00052">get_root_nodes()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00139">get_selected_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00192">has_clipboard()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00135">has_selection()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00151">is_renaming()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00143">is_selected()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00104">request_copy()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00220">request_copy_selected()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00075">request_create_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00234">request_delete_selected()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00081">request_destroy_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00118">request_duplicate()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00227">request_duplicate_selected()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00110">request_paste()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00092">request_rename_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00100">request_select()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00088">request_set_parent()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00155">start_rename()</a>.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Üye Fonksiyon Dokümantasyonu</h2>
+<a id="a5456c9a5467a438b8295f9d855fe58fa" name="a5456c9a5467a438b8295f9d855fe58fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5456c9a5467a438b8295f9d855fe58fa">&#9670;&#160;</a></span>can_copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vesta::hierarchy_view_model::can_copy </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00200">200</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8cpp_source.html#l00135">has_selection()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="acf122ab5839cecc0233deea4d76c3eca" name="acf122ab5839cecc0233deea4d76c3eca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf122ab5839cecc0233deea4d76c3eca">&#9670;&#160;</a></span>can_delete()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vesta::hierarchy_view_model::can_delete </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00208">208</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8cpp_source.html#l00135">has_selection()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="a60147f6d946347f4a248c8a36468c6d0" name="a60147f6d946347f4a248c8a36468c6d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60147f6d946347f4a248c8a36468c6d0">&#9670;&#160;</a></span>can_duplicate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vesta::hierarchy_view_model::can_duplicate </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00204">204</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8cpp_source.html#l00135">has_selection()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="a7e0b2139a62c447f8ef9b9a1defdc770" name="a7e0b2139a62c447f8ef9b9a1defdc770"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e0b2139a62c447f8ef9b9a1defdc770">&#9670;&#160;</a></span>can_paste()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vesta::hierarchy_view_model::can_paste </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00212">212</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8cpp_source.html#l00192">has_clipboard()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="a862dbfdd46827b56eced6d9926b85430" name="a862dbfdd46827b56eced6d9926b85430"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a862dbfdd46827b56eced6d9926b85430">&#9670;&#160;</a></span>cancel_rename()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::cancel_rename </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00171">171</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00044">m_rename_buffer</a> ve <a class="el" href="hierarchy__view__model_8h_source.html#l00043">m_renaming_entity</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a> ve <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a>.</p>
+
+</div>
+</div>
+<a id="aa5225c31584b548e23535aab837f851a" name="aa5225c31584b548e23535aab837f851a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa5225c31584b548e23535aab837f851a">&#9670;&#160;</a></span>commit_rename()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::commit_rename </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00164">164</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00044">m_rename_buffer</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00043">m_renaming_entity</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00092">request_rename_entity()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a> ve <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a>.</p>
+
+</div>
+</div>
+<a id="ab37b110ee74b91c69ea24bbd9c54fbbb" name="ab37b110ee74b91c69ea24bbd9c54fbbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab37b110ee74b91c69ea24bbd9c54fbbb">&#9670;&#160;</a></span>gather_children_recursive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::gather_children_recursive </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>parent</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; <a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>out_children</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Bir entity'nin doğrudan çocuklarını (kardeş zinciri üzerinden) toplar. </p>
+<dl class="section note"><dt>Not</dt><dd>İsminde 'recursive' geçmesine rağmen mimari gereği sadece birinci derece çocukları toplar. Alt düğümler UI tarafından istendikçe çözümlenir. </dd></dl>
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00014">14</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="registry_8h_source.html#l00054">registry::get_component()</a> ve <a class="el" href="hierarchy__view__model_8h_source.html#l00040">m_registry</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="hierarchy__view__model_8cpp_source.html#l00031">get_node_data()</a>.</p>
+
+</div>
+</div>
+<a id="a4cc8fe34de8522d3b557987792cf0048" name="a4cc8fe34de8522d3b557987792cf0048"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4cc8fe34de8522d3b557987792cf0048">&#9670;&#160;</a></span>get_node_data()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structvesta_1_1hierarchy__node__data.html">hierarchy_node_data</a> vesta::hierarchy_view_model::get_node_data </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Belirli bir entity'nin UI tarafında gösterilecek verilerini derler. </p>
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00031">31</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00030">vesta::hierarchy_node_data::children</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00014">gather_children_recursive()</a>, <a class="el" href="registry_8h_source.html#l00054">registry::get_component()</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00026">vesta::hierarchy_node_data::has_children</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00023">vesta::hierarchy_node_data::id</a>, <a class="el" href="editor__selection__manager_8cpp_source.html#l00057">vesta::editor_selection_manager::is_entity_selected()</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00025">vesta::hierarchy_node_data::is_selected</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00040">m_registry</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00041">m_selection_manager</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00024">vesta::hierarchy_node_data::name</a> ve <a class="el" href="hierarchy__view__model_8h_source.html#l00027">vesta::hierarchy_node_data::parent_id</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>, <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00052">get_root_nodes()</a>.</p>
+
+</div>
+</div>
+<a id="a738c20c99095033bab9dbce807241e24" name="a738c20c99095033bab9dbce807241e24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a738c20c99095033bab9dbce807241e24">&#9670;&#160;</a></span>get_rename_buffer() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string &amp; vesta::hierarchy_view_model::get_rename_buffer </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00180">180</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00044">m_rename_buffer</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a> ve <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a>.</p>
+
+</div>
+</div>
+<a id="ae04cc05e3b682b5b0d8ed4612543f32b" name="ae04cc05e3b682b5b0d8ed4612543f32b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae04cc05e3b682b5b0d8ed4612543f32b">&#9670;&#160;</a></span>get_rename_buffer() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string &amp; vesta::hierarchy_view_model::get_rename_buffer </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00184">184</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00044">m_rename_buffer</a>.</p>
+
+</div>
+</div>
+<a id="ad0c4fc33a528b684d417beaae8450486" name="ad0c4fc33a528b684d417beaae8450486"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0c4fc33a528b684d417beaae8450486">&#9670;&#160;</a></span>get_renaming_entity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> vesta::hierarchy_view_model::get_renaming_entity </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00176">176</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00043">m_renaming_entity</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="a9bf685a13cd67cb0a0d859005df130d9" name="a9bf685a13cd67cb0a0d859005df130d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9bf685a13cd67cb0a0d859005df130d9">&#9670;&#160;</a></span>get_root_nodes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="structvesta_1_1hierarchy__node__data.html">hierarchy_node_data</a> &gt; vesta::hierarchy_view_model::get_root_nodes </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sahnedeki kök (parent değeri 0 olan) entity'leri getirir. </p>
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00052">52</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="registry_8cpp_source.html#l00042">registry::get_all_entities()</a>, <a class="el" href="registry_8h_source.html#l00054">registry::get_component()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00031">get_node_data()</a> ve <a class="el" href="hierarchy__view__model_8h_source.html#l00040">m_registry</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="ac49a4d4992b32124b62a82f059253aff" name="ac49a4d4992b32124b62a82f059253aff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac49a4d4992b32124b62a82f059253aff">&#9670;&#160;</a></span>get_selected_entity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> vesta::hierarchy_view_model::get_selected_entity </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00139">139</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="editor__selection__manager_8cpp_source.html#l00061">vesta::editor_selection_manager::get_first_selected_entity()</a> ve <a class="el" href="hierarchy__view__model_8h_source.html#l00041">m_selection_manager</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00220">request_copy_selected()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00234">request_delete_selected()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00227">request_duplicate_selected()</a>.</p>
+
+</div>
+</div>
+<a id="ae8707d82608a81f94ed82be47bf1d9eb" name="ae8707d82608a81f94ed82be47bf1d9eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae8707d82608a81f94ed82be47bf1d9eb">&#9670;&#160;</a></span>has_clipboard()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vesta::hierarchy_view_model::has_clipboard </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00192">192</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00045">m_clipboard_entity</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00212">can_paste()</a>.</p>
+
+</div>
+</div>
+<a id="aca745e90ab9a9ad27def2acd265cb498" name="aca745e90ab9a9ad27def2acd265cb498"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca745e90ab9a9ad27def2acd265cb498">&#9670;&#160;</a></span>has_selection()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vesta::hierarchy_view_model::has_selection </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00135">135</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="editor__selection__manager_8h_source.html#l00096">vesta::editor_selection_manager::has_entity_selection()</a> ve <a class="el" href="hierarchy__view__model_8h_source.html#l00041">m_selection_manager</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00200">can_copy()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00208">can_delete()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00204">can_duplicate()</a>.</p>
+
+</div>
+</div>
+<a id="a6396c3099ec851d122cd71998389957c" name="a6396c3099ec851d122cd71998389957c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6396c3099ec851d122cd71998389957c">&#9670;&#160;</a></span>is_renaming()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vesta::hierarchy_view_model::is_renaming </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00151">151</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00043">m_renaming_entity</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a> ve <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a>.</p>
+
+</div>
+</div>
+<a id="a149877084b39ba11a62c02f543d0cf84" name="a149877084b39ba11a62c02f543d0cf84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a149877084b39ba11a62c02f543d0cf84">&#9670;&#160;</a></span>is_selected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vesta::hierarchy_view_model::is_selected </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00143">143</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="editor__selection__manager_8cpp_source.html#l00057">vesta::editor_selection_manager::is_entity_selected()</a> ve <a class="el" href="hierarchy__view__model_8h_source.html#l00041">m_selection_manager</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="a416df7a311a54d4cc47923262cd97c54" name="a416df7a311a54d4cc47923262cd97c54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a416df7a311a54d4cc47923262cd97c54">&#9670;&#160;</a></span>request_copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_copy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00104">104</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00045">m_clipboard_entity</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>, <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00220">request_copy_selected()</a>.</p>
+
+</div>
+</div>
+<a id="ad4867b85fa6b1afa705c55e9c235725b" name="ad4867b85fa6b1afa705c55e9c235725b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4867b85fa6b1afa705c55e9c235725b">&#9670;&#160;</a></span>request_copy_selected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_copy_selected </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00220">220</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8cpp_source.html#l00139">get_selected_entity()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00104">request_copy()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="ab34dc924a0020bc9c45ee8d5985d66ba" name="ab34dc924a0020bc9c45ee8d5985d66ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab34dc924a0020bc9c45ee8d5985d66ba">&#9670;&#160;</a></span>request_create_entity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_create_entity </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>default_name</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;New&#160;Entity&quot;</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00075">75</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00041">m_selection_manager</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00039">m_world</a>, <a class="el" href="editor__selection__manager_8cpp_source.html#l00041">vesta::editor_selection_manager::select_entity()</a>, <a class="el" href="classvesta_1_1_i_editable_world.html#a49ed7fe7858d84237608cd31de94168c">vesta::IEditableWorld::spawn_entity()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00155">start_rename()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="a39405e2774c393c8b9cef03462ca671b" name="a39405e2774c393c8b9cef03462ca671b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39405e2774c393c8b9cef03462ca671b">&#9670;&#160;</a></span>request_delete_selected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_delete_selected </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00234">234</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8cpp_source.html#l00139">get_selected_entity()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00081">request_destroy_entity()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="ad061f467adaeb6da24dc7b4c0c995da4" name="ad061f467adaeb6da24dc7b4c0c995da4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad061f467adaeb6da24dc7b4c0c995da4">&#9670;&#160;</a></span>request_destroy_entity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_destroy_entity </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00081">81</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="editor__selection__manager_8cpp_source.html#l00053">vesta::editor_selection_manager::deselect_entity()</a>, <a class="el" href="classvesta_1_1_i_editable_world.html#ad6b51d6e7eb839c0d776d89143589303">vesta::IEditableWorld::destroy_entity()</a>, <a class="el" href="editor__selection__manager_8cpp_source.html#l00057">vesta::editor_selection_manager::is_entity_selected()</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00041">m_selection_manager</a> ve <a class="el" href="hierarchy__view__model_8h_source.html#l00039">m_world</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>, <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00234">request_delete_selected()</a>.</p>
+
+</div>
+</div>
+<a id="ac9955d440718b17f152d0878e270d3be" name="ac9955d440718b17f152d0878e270d3be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac9955d440718b17f152d0878e270d3be">&#9670;&#160;</a></span>request_duplicate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_duplicate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00118">118</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="registry_8cpp_source.html#l00093">registry::duplicate_entity()</a>, <a class="el" href="registry_8h_source.html#l00054">registry::get_component()</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00040">m_registry</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00041">m_selection_manager</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00039">m_world</a>, <a class="el" href="classvesta_1_1_i_editable_world.html#ac4e5d50459c2aa12f9bcc1e9c0f385ff">vesta::IEditableWorld::mark_scene_dirty()</a>, <a class="el" href="editor__selection__manager_8cpp_source.html#l00041">vesta::editor_selection_manager::select_entity()</a> ve <a class="el" href="classvesta_1_1_i_editable_world.html#a42fdfb5b2b1e35a60c576e6f1b12f348">vesta::IEditableWorld::set_entity_parent()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>, <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00227">request_duplicate_selected()</a>.</p>
+
+</div>
+</div>
+<a id="a05cb52794f85ec0b345144411dae8af4" name="a05cb52794f85ec0b345144411dae8af4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a05cb52794f85ec0b345144411dae8af4">&#9670;&#160;</a></span>request_duplicate_selected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_duplicate_selected </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00227">227</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8cpp_source.html#l00139">get_selected_entity()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00118">request_duplicate()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="acf4945bd7ac1936e343bb195437b51e5" name="acf4945bd7ac1936e343bb195437b51e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf4945bd7ac1936e343bb195437b51e5">&#9670;&#160;</a></span>request_paste()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_paste </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00110">110</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="registry_8cpp_source.html#l00093">registry::duplicate_entity()</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00045">m_clipboard_entity</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00040">m_registry</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00041">m_selection_manager</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00039">m_world</a>, <a class="el" href="classvesta_1_1_i_editable_world.html#ac4e5d50459c2aa12f9bcc1e9c0f385ff">vesta::IEditableWorld::mark_scene_dirty()</a> ve <a class="el" href="editor__selection__manager_8cpp_source.html#l00041">vesta::editor_selection_manager::select_entity()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>.</p>
+
+</div>
+</div>
+<a id="ad3fa5eb50bc7638f5956263fda47c943" name="ad3fa5eb50bc7638f5956263fda47c943"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3fa5eb50bc7638f5956263fda47c943">&#9670;&#160;</a></span>request_rename_entity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_rename_entity </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>new_name</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00092">92</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="registry_8h_source.html#l00054">registry::get_component()</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00040">m_registry</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00043">m_renaming_entity</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00039">m_world</a> ve <a class="el" href="classvesta_1_1_i_editable_world.html#ac4e5d50459c2aa12f9bcc1e9c0f385ff">vesta::IEditableWorld::mark_scene_dirty()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00164">commit_rename()</a>.</p>
+
+</div>
+</div>
+<a id="adc03830f87e51e9e19a99e4970305baf" name="adc03830f87e51e9e19a99e4970305baf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc03830f87e51e9e19a99e4970305baf">&#9670;&#160;</a></span>request_select()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_select </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>accumulate</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00100">100</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00041">m_selection_manager</a> ve <a class="el" href="editor__selection__manager_8cpp_source.html#l00041">vesta::editor_selection_manager::select_entity()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a> ve <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a>.</p>
+
+</div>
+</div>
+<a id="a2f15a4b6794917726f3575dcf727e228" name="a2f15a4b6794917726f3575dcf727e228"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f15a4b6794917726f3575dcf727e228">&#9670;&#160;</a></span>request_set_parent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::request_set_parent </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>child</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>parent</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00088">88</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="hierarchy__view__model_8h_source.html#l00039">m_world</a> ve <a class="el" href="classvesta_1_1_i_editable_world.html#a42fdfb5b2b1e35a60c576e6f1b12f348">vesta::IEditableWorld::set_entity_parent()</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a> ve <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a>.</p>
+
+</div>
+</div>
+<a id="a503eb718522389e48b8079eb40833f00" name="a503eb718522389e48b8079eb40833f00"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a503eb718522389e48b8079eb40833f00">&#9670;&#160;</a></span>start_rename()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vesta::hierarchy_view_model::start_rename </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a></td>          <td class="paramname"><span class="paramname"><em>e</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a> dosyasının <a class="el" href="hierarchy__view__model_8cpp_source.html#l00155">155</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referanslar <a class="el" href="registry_8h_source.html#l00054">registry::get_component()</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00040">m_registry</a>, <a class="el" href="hierarchy__view__model_8h_source.html#l00044">m_rename_buffer</a> ve <a class="el" href="hierarchy__view__model_8h_source.html#l00043">m_renaming_entity</a>.</p>
+
+<p class="reference">Referans veren <a class="el" href="#a9b1784c61a14f50cb5768cd056f31cb3">~hierarchy_view_model()</a>, <a class="el" href="hierarchy__panel_8cpp_source.html#l00021">vesta::draw_entity_node()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00075">request_create_entity()</a>.</p>
+
+</div>
+</div>
+<a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Üye Veri Dokümantasyonu</h2>
+<a id="ae1b638f30845ba4b4ef7b5175fca2e05" name="ae1b638f30845ba4b4ef7b5175fca2e05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1b638f30845ba4b4ef7b5175fca2e05">&#9670;&#160;</a></span>m_clipboard_entity</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> vesta::hierarchy_view_model::m_clipboard_entity { 0 }</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8h_source.html">hierarchy_view_model.h</a> dosyasının <a class="el" href="hierarchy__view__model_8h_source.html#l00045">45</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="hierarchy__view__model_8cpp_source.html#l00192">has_clipboard()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00104">request_copy()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00110">request_paste()</a>.</p>
+
+</div>
+</div>
+<a id="a3a47fb1cbb9b09f8798774a8f5d1a4d4" name="a3a47fb1cbb9b09f8798774a8f5d1a4d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a47fb1cbb9b09f8798774a8f5d1a4d4">&#9670;&#160;</a></span>m_registry</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classregistry.html">registry</a>&amp; vesta::hierarchy_view_model::m_registry</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8h_source.html">hierarchy_view_model.h</a> dosyasının <a class="el" href="hierarchy__view__model_8h_source.html#l00040">40</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="hierarchy__view__model_8cpp_source.html#l00010">hierarchy_view_model()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00014">gather_children_recursive()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00031">get_node_data()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00052">get_root_nodes()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00118">request_duplicate()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00110">request_paste()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00092">request_rename_entity()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00155">start_rename()</a>.</p>
+
+</div>
+</div>
+<a id="a3448f9858c86d2da891362e7696e138b" name="a3448f9858c86d2da891362e7696e138b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3448f9858c86d2da891362e7696e138b">&#9670;&#160;</a></span>m_rename_buffer</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string vesta::hierarchy_view_model::m_rename_buffer</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8h_source.html">hierarchy_view_model.h</a> dosyasının <a class="el" href="hierarchy__view__model_8h_source.html#l00044">44</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="hierarchy__view__model_8cpp_source.html#l00171">cancel_rename()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00164">commit_rename()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00180">get_rename_buffer()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00184">get_rename_buffer()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00155">start_rename()</a>.</p>
+
+</div>
+</div>
+<a id="a96501c9df53ce846af1cf5f378f0c342" name="a96501c9df53ce846af1cf5f378f0c342"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a96501c9df53ce846af1cf5f378f0c342">&#9670;&#160;</a></span>m_renaming_entity</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="entity_8h.html#a193c265692e5db312bee837d1bd14b2e">entity</a> vesta::hierarchy_view_model::m_renaming_entity { 0 }</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8h_source.html">hierarchy_view_model.h</a> dosyasının <a class="el" href="hierarchy__view__model_8h_source.html#l00043">43</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="hierarchy__view__model_8cpp_source.html#l00171">cancel_rename()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00164">commit_rename()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00176">get_renaming_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00151">is_renaming()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00092">request_rename_entity()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00155">start_rename()</a>.</p>
+
+</div>
+</div>
+<a id="a0d02926d1b2b08f1ffe4cec2e548db7c" name="a0d02926d1b2b08f1ffe4cec2e548db7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d02926d1b2b08f1ffe4cec2e548db7c">&#9670;&#160;</a></span>m_selection_manager</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classvesta_1_1editor__selection__manager.html">editor_selection_manager</a>&amp; vesta::hierarchy_view_model::m_selection_manager</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8h_source.html">hierarchy_view_model.h</a> dosyasının <a class="el" href="hierarchy__view__model_8h_source.html#l00041">41</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="hierarchy__view__model_8cpp_source.html#l00010">hierarchy_view_model()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00031">get_node_data()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00139">get_selected_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00135">has_selection()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00143">is_selected()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00075">request_create_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00081">request_destroy_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00118">request_duplicate()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00110">request_paste()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00100">request_select()</a>.</p>
+
+</div>
+</div>
+<a id="a86a29286e256d036ef8de062a95044a4" name="a86a29286e256d036ef8de062a95044a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86a29286e256d036ef8de062a95044a4">&#9670;&#160;</a></span>m_world</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classvesta_1_1_i_editable_world.html">IEditableWorld</a>&amp; vesta::hierarchy_view_model::m_world</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition"><a class="el" href="hierarchy__view__model_8h_source.html">hierarchy_view_model.h</a> dosyasının <a class="el" href="hierarchy__view__model_8h_source.html#l00039">39</a> numaralı satırında tanımlanmıştır.</p>
+
+<p class="reference">Referans veren <a class="el" href="hierarchy__view__model_8cpp_source.html#l00010">hierarchy_view_model()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00075">request_create_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00081">request_destroy_entity()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00118">request_duplicate()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00110">request_paste()</a>, <a class="el" href="hierarchy__view__model_8cpp_source.html#l00092">request_rename_entity()</a> ve <a class="el" href="hierarchy__view__model_8cpp_source.html#l00088">request_set_parent()</a>.</p>
+
+</div>
+</div>
+<hr/>Bu sınıf için dokümantasyon aşağıdaki dosyalardan üretilmiştir:<ul>
+<li><a class="el" href="hierarchy__view__model_8h_source.html">hierarchy_view_model.h</a></li>
+<li><a class="el" href="hierarchy__view__model_8cpp_source.html">hierarchy_view_model.cpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="namespacevesta.html">vesta</a></li><li class="navelem"><a href="classvesta_1_1hierarchy__view__model.html">hierarchy_view_model</a></li>
+    <li class="footer">Oluşturan <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
+  </ul>
+</div>
+</body>
+</html>

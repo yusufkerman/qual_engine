@@ -121,6 +121,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Libraries\glm;C:\Libraries\glfw\include;C:\Libraries\glad\include;C:\dev\assimp-6.0.5\include;C:\dev\assimp-6.0.5\assimp_build\include;$(ProjectDir)Externals;$(ProjectDir)Externals\nfd;$(ProjectDir)Externals\imgui;$(ProjectDir)Externals\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -658,6 +659,17 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Systems\physics_system.h" />
     <ClInclude Include="Systems\physics_api.h" />
     <ClInclude Include="Systems\render_system.h" />
+    <ClInclude Include="Gameplay\collision_types.h" />
+    <ClInclude Include="Gameplay\collision_event_queue.h" />
+    <ClInclude Include="Gameplay\jolt_contact_listener.h" />
+    <ClInclude Include="Gameplay\gameplay_context.h" />
+    <ClInclude Include="Gameplay\gameplay_input.h" />
+    <ClInclude Include="Gameplay\transform_wrapper.h" />
+    <ClInclude Include="Gameplay\rigidbody_wrapper.h" />
+    <ClInclude Include="Gameplay\gameplay_entity.h" />
+    <ClInclude Include="Gameplay\gameplay_scene.h" />
+    <ClInclude Include="Gameplay\gameplay_script.h" />
+    <ClInclude Include="Gameplay\gameplay.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ECS\registry.cpp" />
@@ -884,6 +896,14 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClCompile Include="Systems\physics_bridge.cpp" />
     <ClCompile Include="Systems\physics_system.cpp" />
     <ClCompile Include="Systems\render_system.cpp" />
+    <ClCompile Include="Gameplay\collision_event_queue.cpp" />
+    <ClCompile Include="Gameplay\jolt_contact_listener.cpp" />
+    <ClCompile Include="Gameplay\gameplay_context.cpp" />
+    <ClCompile Include="Gameplay\gameplay_input.cpp" />
+    <ClCompile Include="Gameplay\transform_wrapper.cpp" />
+    <ClCompile Include="Gameplay\rigidbody_wrapper.cpp" />
+    <ClCompile Include="Gameplay\gameplay_entity.cpp" />
+    <ClCompile Include="Gameplay\gameplay_scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Externals\Jolt\Core\FixedSizeFreeList.inl" />
