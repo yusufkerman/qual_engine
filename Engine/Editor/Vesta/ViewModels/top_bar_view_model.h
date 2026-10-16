@@ -49,13 +49,63 @@ namespace vesta
         }
 
         /**
+         * @brief Oyun simülasyonunun aktif (Play veya Paused) olup olmadığını döndürür.
+         */
+        bool is_playing() const
+        {
+            return m_editor_ctx.mode == EngineMode::PLAY;
+        }
+
+        /**
+         * @brief Oyun simülasyonunun duraklatılmış (Paused) olup olmadığını döndürür.
+         */
+        bool is_paused() const
+        {
+            return m_editor_ctx.mode == EngineMode::PLAY && m_editor_ctx.isPaused;
+        }
+
+        /**
+         * @brief Oyun simülasyonunu başlatır veya duraklatılmışsa devam ettirir (Resume).
+         */
+        void play()
+        {
+            m_editor_ctx.mode = EngineMode::PLAY;
+            m_editor_ctx.isPaused = false;
+        }
+
+        /**
+         * @brief Aktif oyun simülasyonunu duraklatır veya devam ettirir (Pause / Resume).
+         */
+        void toggle_pause()
+        {
+            if (m_editor_ctx.mode == EngineMode::PLAY)
+            {
+                m_editor_ctx.isPaused = !m_editor_ctx.isPaused;
+            }
+        }
+
+        /**
+         * @brief Oyun simülasyonunu tamamen durdurur ve sahneyi başlangıç durumuna (Snapshot) döndürür.
+         */
+        void stop()
+        {
+            m_editor_ctx.mode = EngineMode::EDITOR;
+            m_editor_ctx.isPaused = false;
+        }
+
+        /**
          * @brief Motor çalışma modunu Oyun (Play) ile Editör (Edit) arasında değiştirir (Toggle).
          */
         void toggle_mode()
         {
-            m_editor_ctx.mode = (m_editor_ctx.mode == EngineMode::EDITOR)
-                ? EngineMode::PLAY
-                : EngineMode::EDITOR;
+            if (m_editor_ctx.mode == EngineMode::EDITOR)
+            {
+                play();
+            }
+            else
+            {
+                stop();
+            }
         }
 
         /**

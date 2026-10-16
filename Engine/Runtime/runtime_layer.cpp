@@ -41,18 +41,20 @@ void runtime_layer::update(EngineContext& ctx, EditorContext& editorCtx)
         return;
     }
 
-    // 1. Kamera mantığını işlet
-    update_runtime_camera(ctx);
-
-    // 2. ECS bileşen verilerini fizik motoru gövdelerine aktar
+    // 1. ECS bileşen verilerinde (Inspector veya Sahne Gizmosu ile) yapılan anlık değişiklikleri fizik motoruna aktar
     physics_bridge::sync_ecs_to_physics(ctx, ctx.session.game_scene());
+
+    // Oyun duraklatılmışsa (Paused) fizik ve kamera ilerletmesini atla
+    if (editorCtx.isPaused) {
+        return;
+    }
+
+    // 2. Kamera mantığını işlet
+    update_runtime_camera(ctx);
 
     // 3. Fizik motorunu sabit adımla ilerlet
     ctx.physicsSystem.update(FIXED_DELTA_TIME);
 
-    // 4. Simülasyon sonuçlarını (konum/rotasyon) tekrar ECS bileşenlerine yaz
+    // 4. Simülasyon sonuçlarını (konum/rotasyon) tekrar canlı ECS bileşenlerine yaz (Zero-Copy: kopyalama yapılmaz)
     physics_bridge::sync_physics_to_ecs(ctx, ctx.session.game_scene());
-
-    // 5. Görselleştirme ve sahne denetimi için çalışma zamanı durumunu editör sahnesine aktar
-    ctx.session.sync_editor_from_runtime();
 }

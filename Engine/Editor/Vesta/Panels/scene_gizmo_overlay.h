@@ -85,6 +85,12 @@ namespace vesta
             const glm::vec2& viewportPos,
             const glm::vec2& viewportSize);
 
+        void render_stats_overlay(
+            EngineContext& engineCtx,
+            EditorContext& editorCtx,
+            const glm::vec2& viewportPos,
+            const glm::vec2& viewportSize);
+
         void render_billboard_icons(
             EngineContext& engineCtx,
             const glm::mat4& view,
@@ -142,6 +148,13 @@ namespace vesta
         float m_LightDragStartRange = 10.0f;
         float m_LightDragStartOuterCone = 25.0f;
         float m_LightDragStartInnerCone = 15.0f;
+
+        // Performans / Stats Overlay halka tamponu (Frame Time History)
+        static constexpr int kFrameHistoryCount = 90;
+        float m_FrameTimeHistoryMs[kFrameHistoryCount]{};
+        int m_FrameHistoryOffset = 0;
+        float m_SmoothedFps = 60.0f;
+        float m_SmoothedFrameMs = 16.67f;
     };
 }
 

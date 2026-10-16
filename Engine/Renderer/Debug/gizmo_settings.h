@@ -117,10 +117,11 @@ struct gizmo_settings
     bool interactive_light_handles = true;          ///< Sahne üzerinden ışık menzili (range) ve koni açısı (spot angle) tutamaçlarını sürükleyerek düzenleme.
 
     // ========================================================================
-    // 6. GAMEPLAY / ÇALIŞMA ZAMANI HATA AYIKLAMA GİZMOLARI
+    // 6. GAMEPLAY / ÇALIŞMA ZAMANI HATA AYIKLAMA GİZMOLARI VE PERFORMANS PANELİ
     // ========================================================================
     bool show_gameplay_gizmos_in_scene = true;      ///< Gameplay API çizgilerini Scene penceresinde göster.
     bool show_gameplay_gizmos_in_game = false;      ///< Gameplay API çizgilerini Game penceresinde göster.
+    bool show_stats_overlay = false;                ///< Sahne görünümünde (Scene Viewport) gerçek zamanlı FPS ve render istatistikleri penceresini göster.
 
     // ========================================================================
     // 7. VARLIK BAŞINA ÖZEL İKON ATAMALARI (UNITY TARZI İKON SEÇİMİ)
@@ -190,6 +191,7 @@ struct gizmo_settings
 
         show_gameplay_gizmos_in_scene = true;
         show_gameplay_gizmos_in_game = false;
+        show_stats_overlay = false;
     }
 };
 

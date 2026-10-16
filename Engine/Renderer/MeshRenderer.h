@@ -44,8 +44,9 @@ public:
      *
      * @param item Çizilecek alt ağ (sub-mesh) ve materyal doku tanıtıcıları.
      * @param ariaSystem GPU kaynak önbelleğine erişim sağlayan Aria ana sistemi.
+     * @return Çizilen indeks sayısı (0 ise çizim çağrısı yapılmamıştır).
      */
-    void Draw(const render_item& item, aria::system* ariaSystem);
+    unsigned int Draw(const render_item& item, aria::system* ariaSystem);
 
     /**
      * @brief Render hedefi görünüm alanını (Viewport) ayarlar.

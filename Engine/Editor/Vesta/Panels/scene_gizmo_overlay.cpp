@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdarg>
 
 namespace vesta
 {
@@ -515,6 +516,12 @@ namespace vesta
 
         // 5. Üst Araç Çubuğu ve Gizmos Ayar Menüsü (Her zaman erişilebilir)
         render_toolbar(engineCtx, viewportPos, viewportSize);
+
+        // 6. Gerçek Zamanlı Performans ve Render İstatistikleri Penceresi (Stats Overlay)
+        if (settings.show_stats_overlay)
+        {
+            render_stats_overlay(engineCtx, editorCtx, viewportPos, viewportSize);
+        }
     }
 
     // ========================================================================
@@ -582,7 +589,7 @@ namespace vesta
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.0f, 4.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
 
-        const float barWidth = std::min(viewportSize.x - 2.0f * pad, 730.0f);
+        const float barWidth = std::min(viewportSize.x - 2.0f * pad, 785.0f);
         if (ImGui::BeginChild("##SceneGizmoToolbar", ImVec2(barWidth, 32.0f), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
             auto drawToolBtn = [&](const char* label, gizmo_tool_mode mode, const char* tooltip)
@@ -690,6 +697,22 @@ namespace vesta
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("Toggle Scene View Fog (Currently: %s)", engineCtx.fog.show_in_scene ? "Enabled" : "Disabled");
             }
+            ImGui::SameLine(0.0f, 4.0f);
+
+            // Quick Scene Stats Overlay Button
+            const bool statsOn = settings.show_stats_overlay;
+            if (statsOn) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.24f, 0.52f, 0.88f, 0.95f));
+            }
+            if (ImGui::SmallButton("Stats")) {
+                settings.show_stats_overlay = !settings.show_stats_overlay;
+            }
+            if (statsOn) {
+                ImGui::PopStyleColor();
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Toggle Real-Time Performance & Render Statistics Overlay");
+            }
             ImGui::SameLine(0.0f, 6.0f);
 
             // Comprehensive Gizmos Settings Popup Menu
@@ -707,6 +730,8 @@ namespace vesta
                 ImGui::Separator();
 
                 ImGui::Checkbox("Enable All 3D Gizmos", &settings.enabled);
+                ImGui::SameLine();
+                ImGui::Checkbox("Show Stats Overlay", &settings.show_stats_overlay);
                 ImGui::SliderFloat("Transform Gizmo Size", &settings.handle_size, 55.0f, 160.0f, "%.0f px");
                 ImGui::SliderFloat("Wireframe Line Width", &settings.line_width, 1.0f, 4.5f, "%.1f px");
 
@@ -770,6 +795,160 @@ namespace vesta
 
         ImGui::PopStyleVar(3);
         ImGui::PopStyleColor();
+    }
+
+    // ========================================================================
+    // 2.5. PERFORMANS VE RENDER İSTATİSTİKLERİ (STATS OVERLAY)
+    // ========================================================================
+
+    void scene_gizmo_overlay::render_stats_overlay(
+        EngineContext& engineCtx,
+        EditorContext& editorCtx,
+        const glm::vec2& viewportPos,
+        const glm::vec2& viewportSize)
+    {
+        auto& settings = engineCtx.gizmoSystem.settings();
+        const ImGuiIO& io = ImGui::GetIO();
+
+        // 1. Anlık ve Yumuşatılmış (EMA) FPS / Kare Süresi Hesaplaması
+        const float rawDt = std::max(0.0001f, io.DeltaTime);
+        const float instantFps = io.Framerate > 0.0f ? io.Framerate : (1.0f / rawDt);
+        const float instantMs = rawDt * 1000.0f;
+
+        m_SmoothedFps = glm::mix(m_SmoothedFps, instantFps, 0.12f);
+        m_SmoothedFrameMs = glm::mix(m_SmoothedFrameMs, instantMs, 0.12f);
+
+        m_FrameTimeHistoryMs[m_FrameHistoryOffset] = instantMs;
+        m_FrameHistoryOffset = (m_FrameHistoryOffset + 1) % kFrameHistoryCount;
+
+        float maxHistoryMs = 0.0f;
+        float minHistoryMs = 9999.0f;
+        for (int i = 0; i < kFrameHistoryCount; ++i)
+        {
+            if (m_FrameTimeHistoryMs[i] > 0.0f)
+            {
+                maxHistoryMs = std::max(maxHistoryMs, m_FrameTimeHistoryMs[i]);
+                minHistoryMs = std::min(minHistoryMs, m_FrameTimeHistoryMs[i]);
+            }
+        }
+        if (minHistoryMs > maxHistoryMs) minHistoryMs = 0.0f;
+
+        // 2. Pencere Konumu (Sahne Sağ-Üst Köşesi, Araç Çubuğunun Hemen Altı)
+        const float overlayW = std::min(285.0f, std::max(180.0f, viewportSize.x - 20.0f));
+        const float overlayH = std::min(305.0f, std::max(120.0f, viewportSize.y - 60.0f));
+        const float posX = viewportPos.x + std::max(10.0f, viewportSize.x - overlayW - 12.0f);
+        const float posY = viewportPos.y + 48.0f;
+
+        ImGui::SetCursorScreenPos(ImVec2(posX, posY));
+
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.07f, 0.08f, 0.11f, 0.90f));
+        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.28f, 0.36f, 0.48f, 0.70f));
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 7.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10.0f, 8.0f));
+
+        if (ImGui::BeginChild("##SceneStatsOverlay", ImVec2(overlayW, overlayH), true, ImGuiWindowFlags_NoScrollbar))
+        {
+            // Başlık ve Kapatma [X] Butonu
+            ImGui::TextColored(ImVec4(0.45f, 0.80f, 1.0f, 1.0f), "Scene & Render Stats");
+            ImGui::SameLine(overlayW - 28.0f);
+            if (ImGui::SmallButton("x"))
+            {
+                settings.show_stats_overlay = false;
+            }
+            ImGui::Separator();
+
+            // FPS Renk Kodlaması (Yeşil >= 55, Sarı >= 30, Kırmızı < 30)
+            ImVec4 fpsColor(0.32f, 0.95f, 0.52f, 1.0f);
+            if (m_SmoothedFps < 30.0f) {
+                fpsColor = ImVec4(0.96f, 0.32f, 0.32f, 1.0f);
+            }
+            else if (m_SmoothedFps < 55.0f) {
+                fpsColor = ImVec4(0.98f, 0.80f, 0.24f, 1.0f);
+            }
+
+            ImGui::Text("FPS:");
+            ImGui::SameLine(115.0f);
+            ImGui::TextColored(fpsColor, "%.1f FPS (%.2f ms)", m_SmoothedFps, m_SmoothedFrameMs);
+
+            // Canlı Kare Süresi (Frame Time) Sparkline Grafiği
+            char overlayBuf[64];
+            std::snprintf(overlayBuf, sizeof(overlayBuf), "Min: %.1f ms | Max: %.1f ms", minHistoryMs, maxHistoryMs);
+            ImGui::PlotLines(
+                "##FrameTimeGraph",
+                m_FrameTimeHistoryMs,
+                kFrameHistoryCount,
+                m_FrameHistoryOffset,
+                overlayBuf,
+                0.0f,
+                std::max(33.3f, maxHistoryMs * 1.15f),
+                ImVec2(overlayW - 20.0f, 34.0f)
+            );
+
+            ImGui::Separator();
+            ImGui::TextColored(ImVec4(0.78f, 0.84f, 0.94f, 1.0f), "GPU Pipeline (Scene Pass)");
+
+            const auto& rStats = engineCtx.renderSystem.scene_stats();
+            const uint32_t totalTris = rStats.triangles_main + rStats.triangles_shadow;
+            const uint32_t totalSubmeshes = rStats.visible_submeshes + rStats.culled_submeshes;
+
+            auto drawStatRow = [](const char* label, const char* fmt, ...)
+            {
+                ImGui::TextDisabled("%s", label);
+                ImGui::SameLine(125.0f);
+                va_list args;
+                va_start(args, fmt);
+                ImGui::TextV(fmt, args);
+                va_end(args);
+            };
+
+            drawStatRow("Draw Calls:", "%u (Main: %u, Shd: %u)",
+                rStats.total_draw_calls, rStats.draw_calls_main, rStats.draw_calls_shadow);
+
+            if (totalTris >= 1000)
+            {
+                drawStatRow("Triangles:", "%.1fk (Main: %.1fk)",
+                    static_cast<float>(totalTris) / 1000.0f,
+                    static_cast<float>(rStats.triangles_main) / 1000.0f);
+            }
+            else
+            {
+                drawStatRow("Triangles:", "%u (Main: %u, Shd: %u)",
+                    totalTris, rStats.triangles_main, rStats.triangles_shadow);
+            }
+
+            drawStatRow("Shader Batches:", "%u active", rStats.shader_batches);
+            drawStatRow("Frustum Culling:", "%u vis / %u culled (of %u)",
+                rStats.visible_submeshes, rStats.culled_submeshes, totalSubmeshes);
+
+            ImGui::Separator();
+            ImGui::TextColored(ImVec4(0.78f, 0.84f, 0.94f, 1.0f), "World & ECS Telemetry");
+
+            const auto& reg = engineCtx.session.editor_scene().get_registry();
+            const size_t entityCount = reg.get_all_entities().size();
+            const size_t staticMeshes = reg.get_all<mesh_component>().size();
+            const size_t skinnedMeshes = reg.get_all<skinned_mesh_component>().size();
+            const size_t rbCount = reg.get_all<rigidbody_component>().size();
+
+            drawStatRow("Entities:", "%zu active", entityCount);
+            drawStatRow("Mesh Comps:", "%zu static / %zu skinned", staticMeshes, skinnedMeshes);
+            drawStatRow("Active Lights:", "%u / %d (%s)",
+                rStats.active_lights,
+                static_cast<int>(MAX_LIGHT_COUNT),
+                rStats.shadow_pass_active ? "Shadows ON" : "No Shadows");
+
+            const char* simStatus = "Editor (Idle)";
+            if (editorCtx.mode == EngineMode::PLAY)
+            {
+                simStatus = editorCtx.isPaused ? "Paused (Zero-Copy)" : "Playing (Zero-Copy)";
+            }
+            drawStatRow("Physics / Mode:", "%zu RBs | %s", rbCount, simStatus);
+            drawStatRow("Viewport Res:", "%d x %d px",
+                static_cast<int>(viewportSize.x), static_cast<int>(viewportSize.y));
+        }
+        ImGui::EndChild();
+
+        ImGui::PopStyleVar(2);
+        ImGui::PopStyleColor(2);
     }
 
     // ========================================================================

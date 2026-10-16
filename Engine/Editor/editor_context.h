@@ -44,6 +44,7 @@ struct EditorContext
     unsigned int gameTexture = 0;               ///< Oyun FBO renk dokusu kimliği.
 
     EngineMode mode = EngineMode::EDITOR;       ///< Motorun geçerli modu (Editor / Play).
+    bool isPaused = false;                      ///< Oyun modundayken (Play) simülasyonun duraklatılıp duraklatılmadığını belirtir.
 
     int clipboardEntity = -1;                   ///< Kopyalama/Yapıştırma (Copy-Paste) için panodaki varlık kimliği.
     std::string selectedAssetPath;              ///< Varlık tarayıcısında anlık seçili dosya yolu.

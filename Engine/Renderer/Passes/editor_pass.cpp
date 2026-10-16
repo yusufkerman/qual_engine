@@ -42,12 +42,13 @@ void editor_pass::render(EngineContext& ctx, EditorContext& editorCtx)
     // 3. Gökyüzü (Skybox) render geçişi
     skybox_pass::render(ctx, editorView, editorProj);
 
-    // 4. Ana sahne geometrisi ve ışıklandırma
+    // 4. Ana sahne geometrisi ve ışıklandırma (isSceneViewport = true)
     ctx.renderSystem.render(
         ctx.session.editor_scene().get_registry(),
         ctx.session.editor_scene().get_light_batch(),
         ctx,
         editorView,
-        editorProj
+        editorProj,
+        true
     );
 }

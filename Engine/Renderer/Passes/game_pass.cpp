@@ -80,13 +80,14 @@ void game_pass::render(EngineContext& ctx)
             // Gökyüzü çizimi
             skybox_pass::render(ctx, gameView, gameProj);
 
-            // Ana sahne çizimi
+            // Ana sahne çizimi (isSceneViewport = false -> Game Viewport)
             ctx.renderSystem.render(
                 gameScene.get_registry(),
                 gameScene.get_light_batch(),
                 ctx,
                 gameView,
-                gameProj
+                gameProj,
+                false
             );
 
             // İsteğe bağlı çalışma zamanı (Gameplay API) gizmolarını oyun ekranında çiz

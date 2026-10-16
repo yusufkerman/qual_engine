@@ -89,15 +89,32 @@ namespace
 
         if (editorCtx.mode == EngineMode::PLAY)
         {
+            editorCtx.isPaused = false;
             ctx.gizmoSystem.ClearGameplay();
-            ctx.session.play(ctx);
+            ctx.session.play(ctx, ctx.isEditorBuild);
             physics_bridge::create_physics_world(ctx, ctx.session.game_scene());
         }
         else
         {
+            editorCtx.isPaused = false;
             ctx.gizmoSystem.ClearGameplay();
-            physics_bridge::destroy_physics_world(ctx, ctx.session.runtime_scene());
+            // ÖNEMLİ: Fizik dünyasını, stop() canlı sahneyi (m_liveScene) snapshot ile ezmeden önce temizle
+            physics_bridge::destroy_physics_world(ctx, ctx.session.game_scene());
             ctx.session.stop();
+
+            // Çalışma zamanında dinamik üretilmiş ve snapshot geri yüklendiğinde silinmiş varlıkları seçimden çıkar
+            if (ctx.isEditorBuild)
+            {
+                const auto& validEntities = ctx.session.editor_scene().get_registry().get_all_entities();
+                const auto selectedCopy = ctx.vestaSys.selection().get_selected_entities();
+                for (const entity e : selectedCopy)
+                {
+                    if (validEntities.find(e) == validEntities.end())
+                    {
+                        ctx.vestaSys.selection().deselect_entity(e);
+                    }
+                }
+            }
         }
 
         ctx.prevMode = editorCtx.mode;
@@ -235,7 +252,7 @@ void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 
     runtime_layer::update(ctx, editorCtx);
 
-    if (editorCtx.mode == EngineMode::PLAY)
+    if (editorCtx.mode == EngineMode::PLAY && !editorCtx.isPaused)
     {
         // TODO: Sabit delta time (dt) ileride dinamik zaman ölçümüne çevrilmelidir.
         float dt = 0.016f;
@@ -247,18 +264,18 @@ void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
         ctx.animationSystem.update(ctx.session.game_scene().get_registry(), ctx.aria_system, dt);
     }
 
-    ctx.session.game_scene().update_light_batch();
-    ctx.cameraSystem.update(ctx.session.game_scene());
-
     if (ctx.isEditorBuild)
     {
-        if (editorCtx.mode != EngineMode::PLAY)
+        if (editorCtx.mode != EngineMode::PLAY || editorCtx.isPaused)
         {
             ctx.animationSystem.update(ctx.session.editor_scene().get_registry(), ctx.aria_system, 0.0f);
         }
         editor_layer::update(ctx, editorCtx);
-        ctx.session.editor_scene().update_light_batch();
     }
+
+    // Tek canlı dünya (m_liveScene) mimarisi sayesinde ışık önbelleği kare başına yalnızca bir kez güncellenir
+    ctx.session.game_scene().update_light_batch();
+    ctx.cameraSystem.update(ctx.session.game_scene());
 }
 
 void Engine::render(EngineContext& ctx, EditorContext& editorCtx)

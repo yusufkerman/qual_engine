@@ -31,9 +31,15 @@ namespace vesta {
         {
             auto& fog = m_engine_ctx.fog;
 
-            ImGui::Checkbox("Enable Fog", &fog.enabled);
+            ImGui::Checkbox("Enable Fog (Game)", &fog.enabled);
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Master fog switch for the game world and Game viewport.");
+            }
             ImGui::SameLine();
             ImGui::Checkbox("Show in Scene View", &fog.show_in_scene);
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Toggle fog rendering only inside the Editor Scene viewport.");
+            }
 
             ImGui::Spacing();
             ImGui::ColorEdit3("Fog Color", &fog.color.x, ImGuiColorEditFlags_Float);

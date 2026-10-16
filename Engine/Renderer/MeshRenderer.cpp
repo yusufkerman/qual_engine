@@ -31,9 +31,9 @@ void MeshRenderer::ensure_bone_ubo_allocated()
     }
 }
 
-void MeshRenderer::Draw(const render_item& item, aria::system* ariaSystem)
+unsigned int MeshRenderer::Draw(const render_item& item, aria::system* ariaSystem)
 {
-    if (!ariaSystem) return;
+    if (!ariaSystem) return 0;
 
     unsigned int indexCount = 0;
     unsigned int targetVAO = 0;
@@ -41,10 +41,10 @@ void MeshRenderer::Draw(const render_item& item, aria::system* ariaSystem)
     // 1. Statik vs İskeletli (Skinned) Mesh Ayrımı
     if (item.is_skinned)
     {
-        if (!item.skinned_model_handle.is_valid()) return;
+        if (!item.skinned_model_handle.is_valid()) return 0;
 
         indexCount = static_cast<unsigned int>(ariaSystem->get_skinned_mesh_index_count(item.skinned_model_handle, item.sub_mesh_index));
-        if (indexCount == 0) return;
+        if (indexCount == 0) return 0;
 
         const aria::submesh_runtime_info meshInfo = ariaSystem->get_skinned_submesh_info(item.skinned_model_handle, item.sub_mesh_index);
         targetVAO = meshInfo.gpu_id.vao_or_buffer_id;
@@ -74,16 +74,16 @@ void MeshRenderer::Draw(const render_item& item, aria::system* ariaSystem)
     }
     else
     {
-        if (!item.model_handle.is_valid()) return;
+        if (!item.model_handle.is_valid()) return 0;
 
         indexCount = static_cast<unsigned int>(ariaSystem->get_mesh_index_count(item.model_handle, item.sub_mesh_index));
-        if (indexCount == 0) return;
+        if (indexCount == 0) return 0;
 
         const aria::submesh_runtime_info meshInfo = ariaSystem->get_submesh_info(item.model_handle, item.sub_mesh_index);
         targetVAO = meshInfo.gpu_id.vao_or_buffer_id;
     }
 
-    if (targetVAO == 0) return;
+    if (targetVAO == 0) return 0;
 
     // 3. VAO DURUM ÖNBELLEĞİ (STATE CACHING)
     if (m_currentVAO != targetVAO)
@@ -140,6 +140,8 @@ void MeshRenderer::Draw(const render_item& item, aria::system* ariaSystem)
 
     glBindVertexArray(0);
     m_currentVAO = 0;
+
+    return indexCount;
 }
 
 void MeshRenderer::SetViewport(int x, int y, int width, int height)

@@ -69,7 +69,8 @@ void render_system::render(
     const light_batch& lightBatch,
     EngineContext& ctx,
     const glm::mat4& view,
-    const glm::mat4& projection)
+    const glm::mat4& projection,
+    bool isSceneViewport)
 {
     // Mevcut durumları (FBO ve Viewport) işlemler bitince geri dönmek üzere yedekle
     GLint previousFBO = 0;
@@ -97,9 +98,14 @@ void render_system::render(
     }
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+    // İlgili görünümün (Scene veya Game) istatistik sayacını sıfırla
+    render_pass_stats& passStats = isSceneViewport ? m_SceneStats : m_GameStats;
+    passStats = render_pass_stats{};
+    passStats.active_lights = static_cast<uint32_t>(lightCount);
+
     // 2. Çıkarım (Extraction) ve Gruplama (Batching)
     m_RenderItemsCache.clear();
-    extract(reg, ctx, viewProj);
+    extract(reg, ctx, viewProj, passStats);
 
     m_RenderQueueCache.batches.clear();
 
@@ -108,6 +114,8 @@ void render_system::render(
     {
         m_RenderQueueCache.batches[item.gpu_shader_id].push_back(item);
     }
+
+    passStats.shader_batches = static_cast<uint32_t>(m_RenderQueueCache.batches.size());
 
     // 3. Gölge Haritası için Işık Matrisinin Hesaplanması (Directional Light araması)
     glm::mat4 lightSpaceMatrix(1.0f);
@@ -122,6 +130,8 @@ void render_system::render(
             break;
         }
     }
+
+    passStats.shadow_pass_active = hasDirectionalLight;
 
     // ========================================================================
     // GÖLGE GEÇİŞİ (SHADOW PASS)
@@ -150,7 +160,12 @@ void render_system::render(
                 }
 
                 glUniformMatrix4fv(glGetUniformLocation(currentShaderID, "model"), 1, GL_FALSE, &item.model[0][0]);
-                ctx.renderer.Draw(item, ctx.aria_system);
+                const unsigned int drawnIndices = ctx.renderer.Draw(item, ctx.aria_system);
+                if (drawnIndices > 0)
+                {
+                    ++passStats.draw_calls_shadow;
+                    passStats.triangles_shadow += drawnIndices / 3;
+                }
             }
         }
 
@@ -172,9 +187,10 @@ void render_system::render(
         glUniform3fv(glGetUniformLocation(gpuShaderID, "viewPos"), 1, &cameraPosition[0]);
         glUniformMatrix4fv(glGetUniformLocation(gpuShaderID, "lightSpaceMatrix"), 1, GL_FALSE, &lightSpaceMatrix[0][0]);
 
-        // Sis (Fog) Parametreleri (EngineContext üzerinden dinamik ve sahne penceresi için filtrelenebilir)
-        const bool isEditorScene = (ctx.isEditorBuild && (&reg == &ctx.session.editor_scene().get_registry()));
-        const bool fogEnabled = ctx.fog.enabled && (isEditorScene ? ctx.fog.show_in_scene : true);
+        // Sis (Fog) Parametreleri:
+        // isSceneViewport true ise (Sahne görünümü) ctx.fog.show_in_scene kontrol edilir.
+        // isSceneViewport false ise (Oyun görünümü) doğrudan ctx.fog.enabled geçerlidir.
+        const bool fogEnabled = ctx.fog.enabled && (isSceneViewport ? ctx.fog.show_in_scene : true);
         const glm::vec3 fogColor = ctx.fog.color;
         const float fogDensity = ctx.fog.density;
 
@@ -207,15 +223,23 @@ void render_system::render(
             glUniform1i(glGetUniformLocation(gpuShaderID, "u_RenderMode"), static_cast<int>(item.mode));
             glUniform1f(glGetUniformLocation(gpuShaderID, "u_AlphaThreshold"), item.alpha_threshold);
 
-            ctx.renderer.Draw(item, ctx.aria_system);
+            const unsigned int drawnIndices = ctx.renderer.Draw(item, ctx.aria_system);
+            if (drawnIndices > 0)
+            {
+                ++passStats.draw_calls_main;
+                passStats.triangles_main += drawnIndices / 3;
+            }
         }
     }
+
+    passStats.total_draw_calls = passStats.draw_calls_main + passStats.draw_calls_shadow;
 }
 
 void render_system::extract(
     const registry& reg,
     EngineContext& ctx,
-    const glm::mat4& viewProj)
+    const glm::mat4& viewProj,
+    render_pass_stats& outStats)
 {
     const frustum f = buildFrustum(viewProj);
     constexpr float kCullBias = 0.01f;
@@ -252,8 +276,10 @@ void render_system::extract(
 
         if (!f.is_inside(worldCenter, radius))
         {
+            ++outStats.culled_submeshes;
             continue;
         }
+        ++outStats.visible_submeshes;
 
         // 3. Render Öğe Verilerinin Toplanması
         render_item item;
@@ -358,8 +384,10 @@ void render_system::extract(
 
             if (!f.is_inside(worldCenter, radius))
             {
+                ++outStats.culled_submeshes;
                 continue;
             }
+            ++outStats.visible_submeshes;
 
             render_item item;
             item.is_skinned = true;
