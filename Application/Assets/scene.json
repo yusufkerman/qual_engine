@@ -96,9 +96,9 @@
                 "transform_component": {
                     "boundingRadius": 1.0,
                     "position": [
-                        7.635384559631348,
+                        0.5026444792747498,
                         -7.0199995040893555,
-                        -56.555667877197266
+                        44.61051940917969
                     ],
                     "rotation": [
                         -0.0,
@@ -132,13 +132,13 @@
                 "transform_component": {
                     "boundingRadius": 1.0,
                     "position": [
-                        7.635384559631348,
+                        0.5026444792747498,
                         -3.3199994564056396,
-                        -56.555667877197266
+                        44.61051940917969
                     ],
                     "rotation": [
-                        1.1150003671646118,
-                        0.6100073456764221,
+                        1.3850001096725464,
+                        1.2000601291656494,
                         0.0
                     ],
                     "scale": [
@@ -482,6 +482,59 @@
                 }
             },
             "uuid": "d58495a8-68d2-42b8-a894-0d9385b48d0f"
+        },
+        {
+            "components": {
+                "animator_component": {
+                    "apply_root_motion": false,
+                    "clip_guid": "b3a89030-9d05-40bf-81c1-e0019fdff525",
+                    "is_looping": true,
+                    "is_playing": true,
+                    "playback_speed": 1.0,
+                    "playback_time": 0.0
+                },
+                "bounds_component": {
+                    "localCenter": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "localRadius": 1.0
+                },
+                "material_component": {
+                    "material_guid": "00000000-0000-0000-0000-000000000000"
+                },
+                "name_component": {
+                    "name": "TestSkeletonModel"
+                },
+                "skeleton_component": {
+                    "skeleton_guid": "1be4e6f4-7b50-5afc-b5a0-195bf30f8d6c"
+                },
+                "skinned_mesh_component": {
+                    "cast_shadows": true,
+                    "model_guid": "b3a89030-9d05-40bf-81c1-e0019fdff525",
+                    "sub_mesh_index": 0
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [
+                        0.0,
+                        -9.399999618530273,
+                        30.100000381469727
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        0.05999999865889549,
+                        0.05999999865889549,
+                        0.05999999865889549
+                    ]
+                }
+            },
+            "uuid": "960c25dd-2315-419d-b20e-2bfd26983f5d"
         }
     ],
     "scene_name": "Sera_Engine_Scene"

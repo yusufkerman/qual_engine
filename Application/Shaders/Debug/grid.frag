@@ -5,75 +5,114 @@ out vec4 FragColor;
 in vec2 uv;
 
 uniform mat4 invViewProj;
-uniform mat4 viewProj; // 🔥 DERİNLİK HESABI İÇİN EKLENDİ
+uniform mat4 viewProj;
 uniform vec3 cameraPos;
+uniform float u_GridOpacity;
+uniform int u_ShowAxes;
 
-// Kalınlığı katman ölçeğine göre dengeleyen fonksiyon
-float analyticalGrid(vec2 p, float scale, float dist)
+// Ekran uzayı türevleri (fwidth) ile 1-piksel keskinliğinde anti-aliased ızgara hesaplaması
+vec4 computeGridLevel(vec2 xz, float cellSize, float lineScale)
 {
-    vec2 coord = p / scale;
-    
-    // 🔥 ANA ÇİZGİLERİN KALINLAŞMASINI ENGELLEYEN FORMÜL:
-    // Kalınlığı scale değerine bölerek, büyük gridlerin (scale büyüdükçe) 
-    // devasa kalınlıklara ulaşmasını engelliyoruz.
-    float baseThickness = 0.04; 
-    float thickness = baseThickness * (1.0 + pow(dist, 1.1) * 0.02); 
-    
-    // Büyük ölçekli gridlerin çizgilerini alt katmana göre daha zarif yapar
-    thickness = min(thickness, scale * 0.05); 
+    vec2 coord = xz / cellSize;
+    vec2 deriv = fwidth(coord);
+    // Türev sıfıra çok yakınsa bölme hatasını önle
+    deriv = max(deriv, vec2(1e-6));
 
-    vec2 gridReal = abs(fract(coord - 0.5) - 0.5) / (thickness / scale);
-    vec2 line = smoothstep(1.0, 0.0, gridReal);
-    
-    return max(line.x, line.y);
+    vec2 gridDist = abs(fract(coord - 0.5) - 0.5) / (deriv * lineScale);
+    float line = min(gridDist.x, gridDist.y);
+    float alpha = 1.0 - min(line, 1.0);
+
+    return vec4(vec3(0.55), alpha);
 }
 
 void main()
 {
     vec2 ndc = uv * 2.0 - 1.0;
 
-    vec4 near = invViewProj * vec4(ndc, 0.0, 1.0);
-    vec4 far  = invViewProj * vec4(ndc, 1.0, 1.0);
+    // OpenGL NDC derinlik aralığı [-1, 1]
+    vec4 nearPoint = invViewProj * vec4(ndc, -1.0, 1.0);
+    vec4 farPoint  = invViewProj * vec4(ndc,  1.0, 1.0);
 
-    near /= near.w;
-    far  /= far.w;
+    nearPoint /= nearPoint.w;
+    farPoint  /= farPoint.w;
 
-    vec3 dir = normalize(far.xyz - near.xyz);
+    vec3 rayDir = farPoint.xyz - nearPoint.xyz;
+    if (abs(rayDir.y) < 1e-6)
+        discard;
 
-    float t = -near.y / dir.y;
-    if (t < 0.0) discard;
+    float t = -nearPoint.y / rayDir.y;
+    if (t <= 0.0)
+        discard;
 
-    vec3 worldPos = near.xyz + dir * t;
+    vec3 worldPos = nearPoint.xyz + rayDir * t;
     vec2 xz = worldPos.xz;
 
-    float dist = length(worldPos - cameraPos);
-
-    // 🔥 1. DİĞER MESHLERİN ARKASINDA RENDER OLMA FIXI (Depth Yazımı)
-    // Elle hesapladığımız dünya koordinatını tekrar View-Projection ile çarpıp
-    // ekran kartının derinlik testine (Z-Buffer) sokuyoruz.
+    // Derinlik tamponu (Z-buffer) değerini [0, 1] aralığına dönüştürerek yaz
     vec4 clipPos = viewProj * vec4(worldPos, 1.0);
-    gl_FragDepth = clipPos.z / clipPos.w; 
+    float ndcDepth = clipPos.z / clipPos.w;
+    if (ndcDepth < -1.0 || ndcDepth > 1.0)
+        discard;
 
-    // 5 tabanlı logaritmik ölçeklendirme
-    float logDist = log2(max(dist, 1.0)) / log2(3.0);
-    float lod1 = floor(logDist);
-    float lod2 = lod1 + 1.0;
+    gl_FragDepth = clamp(ndcDepth * 0.5 + 0.5, 0.0, 1.0);
 
-    float scale1 = pow(3.0, lod1);
-    float scale2 = pow(3.0, lod2);
+    // Kamera yüksekliği ve yatay mesafeye göre dinamik LOD ölçekleme
+    float camHeight = max(abs(cameraPos.y), 1.5);
+    float logLevel  = log(camHeight) / log(10.0);
+    float baseLevel = floor(logLevel);
+    float levelFrac = fract(logLevel);
 
-    float g1 = analyticalGrid(xz, scale1, dist);
-    float g2 = analyticalGrid(xz, scale2, dist);
+    float cellSmall  = pow(10.0, baseLevel - 1.0);
+    float cellMedium = pow(10.0, baseLevel);
+    float cellLarge  = pow(10.0, baseLevel + 1.0);
 
-    float f = fract(logDist);
-    float blend = smoothstep(0.0, 1.0, f);
+    vec4 gSmall  = computeGridLevel(xz, cellSmall,  1.0);
+    vec4 gMedium = computeGridLevel(xz, cellMedium, 1.25);
+    vec4 gLarge  = computeGridLevel(xz, cellLarge,  1.6);
 
-    float grid = mix(g1, g2, blend);
+    // Küçük hücreler kamera yükseldikçe yumuşakça kaybolur
+    float smallFade = 1.0 - smoothstep(0.1, 0.85, levelFrac);
+    float smallAlpha  = gSmall.a * 0.28 * smallFade;
+    float mediumAlpha = gMedium.a * mix(0.55, 0.32, levelFrac);
+    float largeAlpha  = gLarge.a * 0.68;
 
-    float horizonFade = 1.0 - smoothstep(1000.0, 3000.0, dist);
-    grid *= horizonFade;
+    float combinedAlpha = max(smallAlpha, max(mediumAlpha, largeAlpha));
+    vec3 gridColor = mix(vec3(0.45), vec3(0.68), step(smallAlpha, mediumAlpha));
 
-    grid = clamp(grid, 0.0, 1.0);
+    // X (Kırmızı) ve Z (Mavi) ana eksen çizgileri
+    if (u_ShowAxes != 0)
+    {
+        vec2 worldDeriv = max(fwidth(xz), vec2(1e-5));
+        float zAxisDist = abs(xz.x) / (worldDeriv.x * 1.6); // X = 0 doğrusu -> Z ekseni (Mavi)
+        float xAxisDist = abs(xz.y) / (worldDeriv.y * 1.6); // Z = 0 doğrusu -> X ekseni (Kırmızı)
 
-    FragColor = vec4(vec3(0.35), grid);
-}
+        float zAxisAlpha = 1.0 - min(zAxisDist, 1.0);
+        float xAxisAlpha = 1.0 - min(xAxisDist, 1.0);
+
+        if (xAxisAlpha > 0.01)
+        {
+            gridColor = mix(gridColor, vec3(0.92, 0.24, 0.26), xAxisAlpha);
+            combinedAlpha = max(combinedAlpha, xAxisAlpha * 0.90);
+        }
+        if (zAxisAlpha > 0.01)
+        {
+            gridColor = mix(gridColor, vec3(0.24, 0.52, 0.96), zAxisAlpha);
+            combinedAlpha = max(combinedAlpha, zAxisAlpha * 0.90);
+        }
+    }
+
+    // Ufuk çizgisi (mesafe) ve eğik bakış açısı sönümlemesi (Anti-Moire)
+    float dist = length(worldPos - cameraPos);
+    float fadeRadius = max(120.0, camHeight * 35.0);
+    float distFade = 1.0 - smoothstep(fadeRadius * 0.25, fadeRadius, dist);
+
+    vec3 viewVec = normalize(worldPos - cameraPos);
+    float angleFade = smoothstep(0.02, 0.20, abs(viewVec.y));
+
+    float opacity = (u_GridOpacity > 0.0) ? u_GridOpacity : 1.0;
+    float finalAlpha = combinedAlpha * distFade * angleFade * opacity;
+
+    if (finalAlpha < 0.005)
+        discard;
+
+    FragColor = vec4(gridColor, clamp(finalAlpha, 0.0, 1.0));
+}

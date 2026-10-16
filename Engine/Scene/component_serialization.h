@@ -134,6 +134,18 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(collider_component,
         type, extents)
 
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(skinned_mesh_component,
+        model_handle, sub_mesh_index, cast_shadows)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(skeleton_component,
+        skeleton_handle)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(animator_component,
+        current_clip, playback_time, playback_speed, is_playing, is_looping, apply_root_motion)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(bone_attachment_component,
+        target_skeleton_entity, bone_name, local_offset, local_rotation, local_scale)
+
     // ======================================================
     // 5. NATIVE SCRIPT COMPONENT
     // ======================================================
@@ -159,7 +171,11 @@ using EngineComponentList = std::tuple<
     light_component,
     bounds_component,
     rigidbody_component,
-    collider_component
+    collider_component,
+    skinned_mesh_component,
+    skeleton_component,
+    animator_component,
+    bone_attachment_component
 >;
 
 // ======================================================

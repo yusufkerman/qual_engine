@@ -95,6 +95,11 @@ namespace vesta
         return m_selection.get_first_selected_entity();
     }
 
+    const std::unordered_set<entity>& inspector_view_model::get_selected_entities() const
+    {
+        return m_selection.get_selected_entities();
+    }
+
     bool inspector_view_model::has_selected_asset() const
     {
         return m_selection.has_asset_selection();
@@ -181,6 +186,32 @@ namespace vesta
             return;
 
         m_world.remove_component_by_hash(get_selected_entity(), hash);
+    }
+
+    void inspector_view_model::request_add_component_to_all(size_t hash)
+    {
+        for (entity e : m_selection.get_selected_entities())
+        {
+            if (!m_world.has_component_by_hash(e, hash))
+            {
+                m_world.add_component_by_hash(e, hash);
+            }
+        }
+    }
+
+    void inspector_view_model::request_remove_component_from_all(size_t hash)
+    {
+        const ComponentUIInfo* info = m_world.get_component_ui(hash);
+        if (info && (info->display_name == "Transform" || info->display_name == "Name"))
+            return;
+
+        for (entity e : m_selection.get_selected_entities())
+        {
+            if (m_world.has_component_by_hash(e, hash))
+            {
+                m_world.remove_component_by_hash(e, hash);
+            }
+        }
     }
 
 } // namespace vesta

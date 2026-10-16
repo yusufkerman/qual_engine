@@ -131,15 +131,25 @@ void render_system::render(
         ctx.shadowFBO.bind();
 
         const unsigned int shadowGLShaderID = ctx.aria_system->get_shader_id(ctx.shadowShaderHandle);
-        glUseProgram(shadowGLShaderID);
+        const unsigned int skinnedShadowGLShaderID = ctx.aria_system->get_shader_id(ctx.skinnedShadowShaderHandle);
 
-        glUniformMatrix4fv(glGetUniformLocation(shadowGLShaderID, "lightSpaceMatrix"), 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+        unsigned int currentShaderID = 0;
 
         for (auto& [gpuShaderID, batch] : m_RenderQueueCache.batches)
         {
             for (const auto& item : batch)
             {
-                glUniformMatrix4fv(glGetUniformLocation(shadowGLShaderID, "model"), 1, GL_FALSE, &item.model[0][0]);
+                unsigned int targetShader = item.is_skinned ? skinnedShadowGLShaderID : shadowGLShaderID;
+                if (targetShader == 0) targetShader = shadowGLShaderID;
+
+                if (currentShaderID != targetShader)
+                {
+                    currentShaderID = targetShader;
+                    glUseProgram(currentShaderID);
+                    glUniformMatrix4fv(glGetUniformLocation(currentShaderID, "lightSpaceMatrix"), 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+                }
+
+                glUniformMatrix4fv(glGetUniformLocation(currentShaderID, "model"), 1, GL_FALSE, &item.model[0][0]);
                 ctx.renderer.Draw(item, ctx.aria_system);
             }
         }
@@ -162,12 +172,13 @@ void render_system::render(
         glUniform3fv(glGetUniformLocation(gpuShaderID, "viewPos"), 1, &cameraPosition[0]);
         glUniformMatrix4fv(glGetUniformLocation(gpuShaderID, "lightSpaceMatrix"), 1, GL_FALSE, &lightSpaceMatrix[0][0]);
 
-        // Sis (Fog) Parametreleri (İlerleyen süreçte EngineContext üzerinden dinamik alınabilir)
-        const bool fogEnabled = true;
-        const glm::vec3 fogColor = glm::vec3(0.7f, 0.8f, 0.9f);
-        const float fogDensity = 0.008f;
+        // Sis (Fog) Parametreleri (EngineContext üzerinden dinamik ve sahne penceresi için filtrelenebilir)
+        const bool isEditorScene = (ctx.isEditorBuild && (&reg == &ctx.session.editor_scene().get_registry()));
+        const bool fogEnabled = ctx.fog.enabled && (isEditorScene ? ctx.fog.show_in_scene : true);
+        const glm::vec3 fogColor = ctx.fog.color;
+        const float fogDensity = ctx.fog.density;
 
-        glUniform1i(glGetUniformLocation(gpuShaderID, "u_FogEnabled"), fogEnabled);
+        glUniform1i(glGetUniformLocation(gpuShaderID, "u_FogEnabled"), fogEnabled ? 1 : 0);
         glUniform3fv(glGetUniformLocation(gpuShaderID, "u_FogColor"), 1, &fogColor[0]);
         glUniform1f(glGetUniformLocation(gpuShaderID, "u_FogDensity"), fogDensity);
 
@@ -301,6 +312,122 @@ void render_system::extract(
         }
 
         m_RenderItemsCache.push_back(item);
+    }
+
+    // 4. İskeletli (Skinned) Mesh Varlıklarının Çıkarımı
+    for (const auto& [e, skinnedMeshComp] : reg.get_all<skinned_mesh_component>())
+    {
+        const auto* transform = reg.get_component<transform_component>(e);
+        const auto* matComp = reg.get_component<material_component>(e);
+        const auto* skelComp = reg.get_component<skeleton_component>(e);
+
+        if (!transform)
+        {
+            continue;
+        }
+
+        // Model Matrisinin Hesaplanması
+        const glm::mat4 model = ecs_transform::get_world_matrix(e, reg);
+
+        const auto* skinnedModelData = ctx.aria_system->get_skinned_model_data(skinnedMeshComp.model_handle);
+        if (!skinnedModelData || skinnedModelData->sub_meshes.empty())
+        {
+            continue;
+        }
+
+        const size_t totalSubMeshes = skinnedModelData->sub_meshes.size();
+
+        for (size_t subIdx = 0; subIdx < totalSubMeshes; ++subIdx)
+        {
+            // Frustum Culling
+            const aria::submesh_runtime_info meshInfo =
+                ctx.aria_system->get_skinned_submesh_info(
+                    skinnedMeshComp.model_handle,
+                    subIdx);
+
+            const glm::vec3 localCenter = meshInfo.local_center;
+            const glm::vec4 homogeneousCenter = model * glm::vec4(localCenter, 1.0f);
+            const glm::vec3 worldCenter = glm::vec3(homogeneousCenter) / homogeneousCenter.w;
+
+            const glm::vec3 absoluteScale = glm::abs(transform->scale);
+            const float maxScale = glm::max(
+                absoluteScale.x,
+                glm::max(absoluteScale.y, absoluteScale.z));
+
+            const float radius = (meshInfo.local_radius * maxScale) + kCullBias;
+
+            if (!f.is_inside(worldCenter, radius))
+            {
+                continue;
+            }
+
+            render_item item;
+            item.is_skinned = true;
+            item.model = model;
+            item.skinned_model_handle = skinnedMeshComp.model_handle;
+            item.sub_mesh_index = subIdx;
+
+            if (skelComp && !skelComp->skinning_palette.empty())
+            {
+                item.bone_matrices = &skelComp->skinning_palette;
+            }
+            else
+            {
+                item.bone_matrices = nullptr;
+            }
+
+            const unsigned int defaultSkinnedShaderID = ctx.aria_system->get_shader_id(ctx.skinnedShaderHandle);
+
+            if (matComp && matComp->material_handle.is_valid())
+            {
+                const auto* mat = ctx.aria_system->get_material_data(matComp->material_handle);
+
+                if (mat)
+                {
+                    if (mat->shader_handle.is_valid())
+                    {
+                        item.gpu_shader_id = ctx.aria_system->get_shader_id(mat->shader_handle);
+                    }
+                    else
+                    {
+                        item.gpu_shader_id = defaultSkinnedShaderID;
+                    }
+
+                    item.mode = mat->mode;
+                    item.alpha_threshold = mat->alpha_threshold;
+                    item.base_color = mat->base_color;
+                    item.normal_strength = mat->normal_strength;
+                    item.texture_scale = mat->texture_scale;
+                    item.diffuse_handle = mat->diffuse_texture_handle;
+                    item.normal_handle = mat->normal_texture_handle;
+                    item.specular_handle = mat->specular_texture_handle;
+                    item.specular_strength = mat->specular_strength;
+                    item.shininess = mat->shininess;
+                }
+                else
+                {
+                    item.gpu_shader_id = defaultSkinnedShaderID;
+                    item.mode = aria::render_mode::opaque;
+                    item.alpha_threshold = 0.1f;
+                    item.base_color = glm::vec3(1.0f, 0.0f, 1.0f);
+                    item.texture_scale = glm::vec2(1.0f);
+                    item.specular_strength = 0.5f;
+                    item.shininess = 32.0f;
+                }
+            }
+            else
+            {
+                item.gpu_shader_id = defaultSkinnedShaderID;
+                item.mode = aria::render_mode::opaque;
+                item.alpha_threshold = 0.1f;
+                item.base_color = glm::vec3(1.0f);
+                item.texture_scale = glm::vec2(1.0f);
+                item.specular_strength = 0.5f;
+                item.shininess = 32.0f;
+            }
+
+            m_RenderItemsCache.push_back(item);
+        }
     }
 }
 

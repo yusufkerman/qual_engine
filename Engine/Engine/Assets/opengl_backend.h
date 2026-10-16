@@ -20,6 +20,7 @@ namespace aria {
 
         gpu_texture_id create_texture(const raw_texture_data& raw_data) override;
         std::vector<submesh_bridge> create_model(const raw_model_data& raw_data) override;
+        std::vector<submesh_bridge> create_skinned_model(const raw_skinned_model_data& raw_data) override;
         gpu_texture_id create_fallback_texture() override;
         gpu_shader_id create_shader(const raw_shader_data& raw_data) override;
         gpu_shader_id create_fallback_shader() override;

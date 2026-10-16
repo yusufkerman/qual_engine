@@ -84,6 +84,51 @@ namespace asset_pipeline
     }
 
     /**
+     * @brief İskeletli 3D model dosyasını sisteme içe aktarır.
+     *
+     * @param aria_system Kullanılacak aria sistem nesnesi.
+     * @param path Modelin dosya yolu.
+     * @return aria::handle<aria::skinned_model_asset> İçe aktarılan modele ait handle.
+     */
+    aria::handle<aria::skinned_model_asset> import_skinned_model(aria::system* aria_system, const std::string& path)
+    {
+        if (!aria_system) return {};
+
+        aria::asset_guid guid = get_or_create_meta_guid(path);
+        return aria_system->import_skinned_model(guid, path);
+    }
+
+    /**
+     * @brief İskelet dosyasını sisteme içe aktarır.
+     *
+     * @param aria_system Kullanılacak aria sistem nesnesi.
+     * @param path İskeletin dosya yolu.
+     * @return aria::handle<aria::skeleton_asset> İçe aktarılan iskelete ait handle.
+     */
+    aria::handle<aria::skeleton_asset> import_skeleton(aria::system* aria_system, const std::string& path)
+    {
+        if (!aria_system) return {};
+
+        aria::asset_guid guid = get_or_create_meta_guid(path);
+        return aria_system->import_skeleton(guid, path);
+    }
+
+    /**
+     * @brief Animasyon klibi dosyasını sisteme içe aktarır.
+     *
+     * @param aria_system Kullanılacak aria sistem nesnesi.
+     * @param path Animasyon dosya yolu.
+     * @return aria::handle<aria::animation_clip_asset> İçe aktarılan animasyona ait handle.
+     */
+    aria::handle<aria::animation_clip_asset> import_animation(aria::system* aria_system, const std::string& path)
+    {
+        if (!aria_system) return {};
+
+        aria::asset_guid guid = get_or_create_meta_guid(path);
+        return aria_system->import_animation(guid, path);
+    }
+
+    /**
      * @brief Doku (texture) dosyasını sisteme içe aktarır.
      *
      * @param ctx Motor bağlam (context) nesnesi.

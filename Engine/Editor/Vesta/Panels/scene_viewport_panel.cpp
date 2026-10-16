@@ -1,18 +1,23 @@
 /**
  * @file scene_viewport_panel.cpp
- * @brief Sahne görünümü (Scene Viewport) panelinin ImGui ile çizim işlemlerini barındırır.
+ * @brief Sahne görünümü (Scene Viewport) panelinin ImGui ile çizim ve etkileşimli gizmo katmanı işlemlerini barındırır.
  */
 
 #include "scene_viewport_panel.h"
+#include "../../../Engine/engine_context.h"
 #include <imgui.h>
 
 namespace vesta {
 
     scene_viewport_panel::scene_viewport_panel(
         scene_viewport_view_model& vm,
-        editor_viewport_state& viewportState)
+        editor_viewport_state& viewportState,
+        EngineContext* engineCtx,
+        EditorContext* editorCtx)
         : m_vm(vm)
         , m_viewport_state(viewportState)
+        , m_engine_ctx(engineCtx)
+        , m_editor_ctx(editorCtx)
     {
     }
 
@@ -36,6 +41,12 @@ namespace vesta {
         if (avail.x > 1.0f && avail.y > 1.0f)
         {
             scene_state.size = { avail.x, avail.y };
+        }
+
+        // FBO yeniden boyutlandığında doku kimliği değişebileceğinden güncel tut
+        if (m_engine_ctx && m_engine_ctx->editorTarget.tex != 0)
+        {
+            m_vm.set_texture_id(m_engine_ctx->editorTarget.tex);
         }
 
         unsigned int tex = m_vm.get_texture_id();
@@ -65,8 +76,22 @@ namespace vesta {
         }
 
         ImGui::PopStyleVar(2);
+
+        // Etkileşimli Transform Gizmosu, Işık Tutamaçları, Billboard İkonlar ve Üst Araç Çubuğu
+        if (m_engine_ctx && m_editor_ctx && avail.x > 0.0f && avail.y > 0.0f)
+        {
+            m_gizmo_overlay.render(
+                *m_engine_ctx,
+                *m_editor_ctx,
+                scene_state.position,
+                scene_state.size,
+                scene_state.focused,
+                scene_state.hovered
+            );
+        }
+
         ImGui::PopID();
         ImGui::End();
     }
 
-} // namespace vesta
+} // namespace vesta

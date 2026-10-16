@@ -6,7 +6,10 @@
  */
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <string>
+#include <vector>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 #include "../Engine/Assets/aria.h"
@@ -71,6 +74,146 @@ struct mesh_component
     aria::handle<aria::model_asset> model_handle;
     size_t sub_mesh_index{ 0 };
     mesh_source_type source = mesh_source_type::model;
+};
+
+/**
+ * @struct bone_transform
+ * @brief Tek bir kemiğin yerel TRS (Translation, Rotation, Scale) pozu.
+ */
+struct bone_transform
+{
+    glm::vec3 position{ 0.0f };
+    glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
+    glm::vec3 scale{ 1.0f };
+
+    [[nodiscard]] glm::mat4 to_matrix() const
+    {
+        glm::mat4 m = glm::translate(glm::mat4(1.0f), position);
+        m *= glm::mat4_cast(glm::normalize(rotation));
+        m = glm::scale(m, scale);
+        return m;
+    }
+};
+
+/**
+ * @struct skinned_mesh_component
+ * @brief İskeletli (derili) 3D modellerin render referansını tutar.
+ */
+struct skinned_mesh_component
+{
+    aria::handle<aria::skinned_model_asset> model_handle; ///< Model geometrisi (raw_skinned_vertex içeren).
+    size_t sub_mesh_index{ 0 };                           ///< Çizilecek alt ağ indeksi.
+    bool cast_shadows{ true };                            ///< Gölge haritasına dahil edilme durumu.
+};
+
+/**
+ * @struct skeleton_component
+ * @brief Bir varlığın çalışma zamanındaki canlı kemik pozlarını ve GPU matris paletini barındırır.
+ */
+struct skeleton_component
+{
+    aria::handle<aria::skeleton_asset> skeleton_handle;
+
+    /// @brief Her kemiğin ebeveynine göre anlık yerel TRS dönüşümü (Animatör veya IK tarafından yazılır).
+    std::vector<bone_transform> local_pose;
+
+    /// @brief Kemiğin aktif animasyonda bir kanalı olup olmadığını belirtir (1: animasyonlu, 0: bind pose kullanılır).
+    std::vector<uint8_t> bone_animated;
+
+    /// @brief Her kemiğin model kök uzayındaki global matrisi (Hiyerarşi çözülünce hesaplanır).
+    std::vector<glm::mat4> global_pose;
+
+    /// @brief GPU Vertex Shader'a aktarılacak nihai matris paleti: GlobalInverse * GlobalPose * OffsetMatrix.
+    std::vector<glm::mat4> skinning_palette;
+
+    bool is_dirty{ true }; ///< Poz değiştiğinde hiyerarşinin yeniden hesaplanmasını tetikler.
+};
+
+/**
+ * @struct animation_blend_state
+ * @brief İki animasyon arasındaki yumuşak geçiş (Crossfade) durum bilgisi.
+ */
+struct animation_blend_state
+{
+    aria::handle<aria::animation_clip_asset> target_clip;
+    float current_weight{ 0.0f };  ///< 0.0 (mevcut klip) ile 1.0 (hedef klip) arası.
+    float target_weight{ 1.0f };
+    float fade_duration{ 0.25f };  ///< Geçiş süresi (saniye cinsinden).
+    float fade_timer{ 0.0f };
+    float target_time{ 0.0f };     ///< Hedef klibin zaman sayacı.
+    bool is_blending{ false };
+};
+
+/**
+ * @struct animator_component
+ * @brief İskelete animasyon klibi uygulayan oynatıcı bileşen.
+ */
+struct animator_component
+{
+    aria::handle<aria::animation_clip_asset> current_clip;
+    float playback_time{ 0.0f };    ///< Klip içindeki mevcut zaman (saniye).
+    float playback_speed{ 1.0f };   ///< Oynatma hızı çarpanı (1.0 normal, 0.5 yavaş, -1.0 ters).
+    bool is_playing{ true };
+    bool is_looping{ true };
+    bool apply_root_motion{ false };
+
+    animation_blend_state blend_state;
+
+    void play(aria::handle<aria::animation_clip_asset> clip, bool loop = true)
+    {
+        current_clip = clip;
+        playback_time = 0.0f;
+        is_playing = true;
+        is_looping = loop;
+        blend_state.is_blending = false;
+    }
+
+    void stop()
+    {
+        playback_time = 0.0f;
+        is_playing = false;
+    }
+
+    void pause()
+    {
+        is_playing = false;
+    }
+
+    void resume()
+    {
+        is_playing = true;
+    }
+
+    void crossfade(aria::handle<aria::animation_clip_asset> targetClip, float duration = 0.25f)
+    {
+        if (!targetClip.is_valid() || current_clip == targetClip)
+        {
+            return;
+        }
+
+        blend_state.target_clip = targetClip;
+        blend_state.current_weight = 0.0f;
+        blend_state.target_weight = 1.0f;
+        blend_state.fade_duration = duration > 0.0f ? duration : 0.001f;
+        blend_state.fade_timer = 0.0f;
+        blend_state.target_time = 0.0f;
+        blend_state.is_blending = true;
+    }
+};
+
+/**
+ * @struct bone_attachment_component
+ * @brief Bir varlığın başka bir varlığın belirli bir kemiğine yapışmasını sağlar (Silah, kalkan vb.).
+ */
+struct bone_attachment_component
+{
+    entity target_skeleton_entity{ 0 }; ///< İskelet bileşenine sahip ebeveyn varlık.
+    std::string bone_name;              ///< Takip edilecek kemik adı (Örn: "mixamorig:RightHand").
+    int cached_bone_index{ -1 };        ///< Hızlı erişim için önbelleklenmiş kemik indeksi.
+
+    glm::vec3 local_offset{ 0.0f };     ///< Kemik eksenine göre yerel konum sapması.
+    glm::vec3 local_rotation{ 0.0f };   ///< Kemik eksenine göre yerel açı sapması (Euler açıları).
+    glm::vec3 local_scale{ 1.0f };      ///< Yerel ölçek sapması.
 };
 
 struct material_component
@@ -225,4 +368,28 @@ DESCRIBE_COMPONENT(collider_component,
 
 DESCRIBE_COMPONENT(native_script_component,
     SERA_FIELD(script_name)
+)
+
+DESCRIBE_COMPONENT(skinned_mesh_component,
+    SERA_FIELD(sub_mesh_index),
+    SERA_FIELD(cast_shadows)
+)
+
+DESCRIBE_COMPONENT(skeleton_component,
+    SERA_FIELD(is_dirty)
+)
+
+DESCRIBE_COMPONENT(animator_component,
+    SERA_FIELD(playback_speed),
+    SERA_FIELD(is_playing),
+    SERA_FIELD(is_looping),
+    SERA_FIELD(apply_root_motion)
+)
+
+DESCRIBE_COMPONENT(bone_attachment_component,
+    SERA_FIELD(target_skeleton_entity),
+    SERA_FIELD(bone_name),
+    SERA_FIELD(local_offset),
+    SERA_FIELD(local_rotation),
+    SERA_FIELD(local_scale)
 )

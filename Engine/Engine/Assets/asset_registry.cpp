@@ -159,7 +159,7 @@ namespace aria {
         if (!loaded) return {};
 
         uint32_t idx = m_texture_free_slots.empty()
-            ? (m_texture_slots.emplace_back(), m_texture_slots.size() - 1)
+            ? (m_texture_slots.emplace_back(), static_cast<uint32_t>(m_texture_slots.size() - 1))
             : (m_texture_free_slots.back());
 
         if (!m_texture_free_slots.empty()) m_texture_free_slots.pop_back();
@@ -345,6 +345,209 @@ namespace aria {
     }
 
     // ========================================================================
+    // İSKELET (SKELETON) YÖNETİMİ
+    // ========================================================================
+
+    static const uuids::uuid asset_internal_namespace = uuids::uuid{ {
+        0x6b, 0xa7, 0xb8, 0x10,
+        0x9d, 0xad, 0x11, 0xd1,
+        0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8
+    } };
+
+    handle<skeleton_asset> asset_registry::load_skeleton(const asset_guid& guid, const std::string& file_path) {
+        if (auto it = m_skeleton_map.find(guid); it != m_skeleton_map.end()) {
+            return it->second;
+        }
+
+        if (guid.is_nil()) return {};
+
+        auto loaded = asset_loader::load_skeleton_to_cpu(file_path);
+        if (!loaded) return {};
+
+        return add_procedural_skeleton(guid, *loaded);
+    }
+
+    handle<skeleton_asset> asset_registry::add_procedural_skeleton(const asset_guid& guid, const raw_skeleton_data& raw_data) {
+        uint32_t slot_idx;
+        uint32_t gen = 1;
+
+        if (!m_skeleton_free_slots.empty()) {
+            slot_idx = m_skeleton_free_slots.back();
+            m_skeleton_free_slots.pop_back();
+            gen = m_skeleton_slots[slot_idx].generation;
+        }
+        else {
+            m_skeleton_slots.emplace_back();
+            slot_idx = static_cast<uint32_t>(m_skeleton_slots.size() - 1);
+        }
+
+        auto& slot = m_skeleton_slots[slot_idx];
+        slot.is_allocated = true;
+        slot.asset.guid = guid;
+        slot.asset.raw_data = raw_data;
+
+        handle<skeleton_asset> h{ slot_idx, gen };
+        m_skeleton_map[guid] = h;
+        return h;
+    }
+
+    skeleton_asset* asset_registry::get_skeleton(handle<skeleton_asset> h) {
+        if (h.index < m_skeleton_slots.size() && m_skeleton_slots[h.index].generation == h.generation && m_skeleton_slots[h.index].is_allocated) {
+            return &m_skeleton_slots[h.index].asset;
+        }
+        return nullptr;
+    }
+
+    void asset_registry::destroy_skeleton(handle<skeleton_asset> h) {
+        if (h.index < m_skeleton_slots.size() && m_skeleton_slots[h.index].generation == h.generation && m_skeleton_slots[h.index].is_allocated) {
+            m_skeleton_map.erase(m_skeleton_slots[h.index].asset.guid);
+            m_skeleton_slots[h.index].asset.raw_data.clear_raw_data();
+            m_skeleton_slots[h.index].is_allocated = false;
+            m_skeleton_slots[h.index].generation++;
+            m_skeleton_free_slots.push_back(h.index);
+        }
+    }
+
+    // ========================================================================
+    // ANİMASYON KLİBİ (ANIMATION CLIP) YÖNETİMİ
+    // ========================================================================
+
+    handle<animation_clip_asset> asset_registry::load_animation(const asset_guid& guid, const std::string& file_path) {
+        if (auto it = m_animation_map.find(guid); it != m_animation_map.end()) {
+            return it->second;
+        }
+
+        if (guid.is_nil()) return {};
+
+        auto loaded = asset_loader::load_animations_to_cpu(file_path);
+        if (!loaded || loaded->empty()) return {};
+
+        return add_procedural_animation(guid, (*loaded)[0]);
+    }
+
+    handle<animation_clip_asset> asset_registry::add_procedural_animation(const asset_guid& guid, const raw_animation_data& raw_data) {
+        uint32_t slot_idx;
+        uint32_t gen = 1;
+
+        if (!m_animation_free_slots.empty()) {
+            slot_idx = m_animation_free_slots.back();
+            m_animation_free_slots.pop_back();
+            gen = m_animation_slots[slot_idx].generation;
+        }
+        else {
+            m_animation_slots.emplace_back();
+            slot_idx = static_cast<uint32_t>(m_animation_slots.size() - 1);
+        }
+
+        auto& slot = m_animation_slots[slot_idx];
+        slot.is_allocated = true;
+        slot.asset.guid = guid;
+        slot.asset.raw_data = raw_data;
+
+        handle<animation_clip_asset> h{ slot_idx, gen };
+        m_animation_map[guid] = h;
+        return h;
+    }
+
+    animation_clip_asset* asset_registry::get_animation(handle<animation_clip_asset> h) {
+        if (h.index < m_animation_slots.size() && m_animation_slots[h.index].generation == h.generation && m_animation_slots[h.index].is_allocated) {
+            return &m_animation_slots[h.index].asset;
+        }
+        return nullptr;
+    }
+
+    void asset_registry::destroy_animation(handle<animation_clip_asset> h) {
+        if (h.index < m_animation_slots.size() && m_animation_slots[h.index].generation == h.generation && m_animation_slots[h.index].is_allocated) {
+            m_animation_map.erase(m_animation_slots[h.index].asset.guid);
+            m_animation_slots[h.index].asset.raw_data.clear_raw_data();
+            m_animation_slots[h.index].is_allocated = false;
+            m_animation_slots[h.index].generation++;
+            m_animation_free_slots.push_back(h.index);
+        }
+    }
+
+    // ========================================================================
+    // İSKELETLİ MODEL (SKINNED MODEL) YÖNETİMİ
+    // ========================================================================
+
+    handle<skinned_model_asset> asset_registry::load_skinned_model(const asset_guid& guid, const std::string& file_path) {
+        if (auto it = m_skinned_model_map.find(guid); it != m_skinned_model_map.end()) {
+            return it->second;
+        }
+
+        if (guid.is_nil()) return {};
+
+        auto loaded = asset_loader::load_skinned_model_to_cpu(file_path);
+        if (!loaded) return {};
+
+        return add_procedural_skinned_model(guid, *loaded);
+    }
+
+    handle<skinned_model_asset> asset_registry::add_procedural_skinned_model(const asset_guid& guid, const raw_skinned_model_data& raw_data) {
+        uint32_t slot_idx;
+        uint32_t gen = 1;
+
+        if (!m_skinned_model_free_slots.empty()) {
+            slot_idx = m_skinned_model_free_slots.back();
+            m_skinned_model_free_slots.pop_back();
+            gen = m_skinned_model_slots[slot_idx].generation;
+        }
+        else {
+            m_skinned_model_slots.emplace_back();
+            slot_idx = static_cast<uint32_t>(m_skinned_model_slots.size() - 1);
+        }
+
+        auto& slot = m_skinned_model_slots[slot_idx];
+        slot.is_allocated = true;
+        slot.asset.guid = guid;
+        slot.asset.raw_data = raw_data;
+
+        // Submesh meta verilerini doldur
+        slot.asset.sub_meshes.resize(raw_data.sub_meshes.size());
+        for (size_t i = 0; i < raw_data.sub_meshes.size(); ++i) {
+            slot.asset.sub_meshes[i].index_count = static_cast<unsigned int>(raw_data.sub_meshes[i].indices.size());
+            slot.asset.sub_meshes[i].local_center = raw_data.sub_meshes[i].local_center;
+            slot.asset.sub_meshes[i].local_radius = raw_data.sub_meshes[i].local_radius;
+        }
+
+        // Eğer iskelet varsa, alt iskelet varlığı olarak da kaydet ve bağla
+        if (!raw_data.skeleton.bones.empty()) {
+            uuids::uuid_name_generator gen_sk(asset_internal_namespace);
+            asset_guid sk_guid = gen_sk(raw_data.debug_path + ":skeleton");
+            slot.asset.skeleton_handle = add_procedural_skeleton(sk_guid, raw_data.skeleton);
+        }
+
+        // Varsa animasyonları da kaydet ve bağla
+        for (size_t i = 0; i < raw_data.animations.size(); ++i) {
+            uuids::uuid_name_generator gen_anim(asset_internal_namespace);
+            asset_guid anim_guid = gen_anim(raw_data.debug_path + ":anim:" + std::to_string(i));
+            slot.asset.animation_handles.push_back(add_procedural_animation(anim_guid, raw_data.animations[i]));
+        }
+
+        handle<skinned_model_asset> h{ slot_idx, gen };
+        m_skinned_model_map[guid] = h;
+        return h;
+    }
+
+    skinned_model_asset* asset_registry::get_skinned_model(handle<skinned_model_asset> h) {
+        if (h.index < m_skinned_model_slots.size() && m_skinned_model_slots[h.index].generation == h.generation && m_skinned_model_slots[h.index].is_allocated) {
+            return &m_skinned_model_slots[h.index].asset;
+        }
+        return nullptr;
+    }
+
+    void asset_registry::destroy_skinned_model(handle<skinned_model_asset> h) {
+        if (h.index < m_skinned_model_slots.size() && m_skinned_model_slots[h.index].generation == h.generation && m_skinned_model_slots[h.index].is_allocated) {
+            m_skinned_model_map.erase(m_skinned_model_slots[h.index].asset.guid);
+            m_skinned_model_slots[h.index].asset.raw_data.clear_raw_data();
+            m_skinned_model_slots[h.index].asset.sub_meshes.clear();
+            m_skinned_model_slots[h.index].is_allocated = false;
+            m_skinned_model_slots[h.index].generation++;
+            m_skinned_model_free_slots.push_back(h.index);
+        }
+    }
+
+    // ========================================================================
     // SİSTEM YÖNETİMİ
     // ========================================================================
 
@@ -353,6 +556,9 @@ namespace aria {
         m_model_slots.clear(); m_model_free_slots.clear(); m_model_map.clear();
         m_material_slots.clear(); m_material_free_slots.clear(); m_material_map.clear();
         m_shader_slots.clear(); m_shader_free_slots.clear(); m_shader_map.clear();
+        m_skeleton_slots.clear(); m_skeleton_free_slots.clear(); m_skeleton_map.clear();
+        m_animation_slots.clear(); m_animation_free_slots.clear(); m_animation_map.clear();
+        m_skinned_model_slots.clear(); m_skinned_model_free_slots.clear(); m_skinned_model_map.clear();
     }
 
 } // namespace aria

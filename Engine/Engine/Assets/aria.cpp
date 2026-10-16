@@ -78,6 +78,24 @@ namespace aria {
         return m_registry.load_model(guid, file_path);
     }
 
+    handle<skinned_model_asset> system::import_skinned_model(const asset_guid& guid, const std::string& file_path)
+    {
+        register_asset_path(guid, file_path);
+        return m_registry.load_skinned_model(guid, file_path);
+    }
+
+    handle<skeleton_asset> system::import_skeleton(const asset_guid& guid, const std::string& file_path)
+    {
+        register_asset_path(guid, file_path);
+        return m_registry.load_skeleton(guid, file_path);
+    }
+
+    handle<animation_clip_asset> system::import_animation(const asset_guid& guid, const std::string& file_path)
+    {
+        register_asset_path(guid, file_path);
+        return m_registry.load_animation(guid, file_path);
+    }
+
     handle<material_asset> system::import_material(const asset_guid& guid, const std::string& file_path) 
     {
         register_asset_path(guid, file_path);
@@ -128,6 +146,36 @@ namespace aria {
         return 0;
     }
 
+    submesh_runtime_info system::get_skinned_submesh_info(handle<skinned_model_asset> h, size_t sub_mesh_index)
+    {
+        return m_cache.get_skinned_submesh_info(h, sub_mesh_index);
+    }
+
+    size_t system::get_skinned_mesh_index_count(handle<skinned_model_asset> h, size_t sub_mesh_index)
+    {
+        const skinned_model_asset* model = m_registry.get_skinned_model(h);
+        if (model && sub_mesh_index < model->sub_meshes.size())
+        {
+            return model->sub_meshes[sub_mesh_index].index_count;
+        }
+        return 0;
+    }
+
+    const skeleton_asset* system::get_skeleton_data(handle<skeleton_asset> h)
+    {
+        return m_registry.get_skeleton(h);
+    }
+
+    const animation_clip_asset* system::get_animation_data(handle<animation_clip_asset> h)
+    {
+        return m_registry.get_animation(h);
+    }
+
+    const skinned_model_asset* system::get_skinned_model_data(handle<skinned_model_asset> h)
+    {
+        return m_registry.get_skinned_model(h);
+    }
+
     void system::unload_texture(handle<texture_asset> h) 
     { 
         m_cache.evict_texture(h); 
@@ -138,6 +186,22 @@ namespace aria {
     { 
         m_cache.evict_model(h); 
         m_registry.destroy_model(h); 
+    }
+
+    void system::unload_skinned_model(handle<skinned_model_asset> h)
+    {
+        m_cache.evict_skinned_model(h);
+        m_registry.destroy_skinned_model(h);
+    }
+
+    void system::unload_skeleton(handle<skeleton_asset> h)
+    {
+        m_registry.destroy_skeleton(h);
+    }
+
+    void system::unload_animation(handle<animation_clip_asset> h)
+    {
+        m_registry.destroy_animation(h);
     }
     
     void system::unload_shader(handle<shader_asset> h) 

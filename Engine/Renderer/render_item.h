@@ -19,8 +19,14 @@ struct render_item
     aria::gpu_shader_id gpu_shader_id{ 0 };                     ///< Çizimde kullanılacak aktif GPU shader kimliği (Toplu çizim anahtarı).
 
     // Ağ (Mesh) referansları
-    aria::handle<aria::model_asset> model_handle;               ///< Aria model varlık tanıtıcısı.
+    bool is_skinned{ false };                                   ///< Çizimin iskeletli (derili) model olup olmadığını belirler.
+    aria::handle<aria::model_asset> model_handle;               ///< Aria statik model varlık tanıtıcısı.
+    aria::handle<aria::skinned_model_asset> skinned_model_handle; ///< Aria derili model varlık tanıtıcısı.
     size_t sub_mesh_index{ 0 };                                 ///< Çizilecek alt ağ (submesh) indeksi.
+
+    // İskelet / Deri Yüzme (Skinning) Matris Referansları
+    unsigned int bone_ubo{ 0 };                                 ///< Varsa doğrudan bağlanacak kemik UBO kimliği.
+    const std::vector<glm::mat4>* bone_matrices{ nullptr };     ///< CPU üzerindeki anlık kemik matris paleti referansı.
 
     // Doku tanıtıcıları
     aria::handle<aria::texture_asset> diffuse_handle;           ///< Albedo/Diffuse doku bileti.

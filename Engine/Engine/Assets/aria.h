@@ -93,6 +93,9 @@ namespace aria {
 
         handle<texture_asset>  import_texture(const asset_guid& guid, const std::string& file_path);
         handle<model_asset>    import_model(const asset_guid& guid, const std::string& file_path);
+        handle<skinned_model_asset>   import_skinned_model(const asset_guid& guid, const std::string& file_path);
+        handle<skeleton_asset>        import_skeleton(const asset_guid& guid, const std::string& file_path);
+        handle<animation_clip_asset>  import_animation(const asset_guid& guid, const std::string& file_path);
         handle<material_asset> import_material(const asset_guid& guid, const std::string& file_path);
         handle<shader_asset>   import_shader(const asset_guid& guid, const std::string& file_path);
 
@@ -113,6 +116,11 @@ namespace aria {
         [[nodiscard]] gpu_texture_id        get_texture_id(handle<texture_asset> h);
         [[nodiscard]] submesh_runtime_info  get_submesh_info(handle<model_asset> h, size_t sub_mesh_index);
         [[nodiscard]] size_t                get_mesh_index_count(handle<model_asset> h, size_t sub_mesh_index);
+        [[nodiscard]] submesh_runtime_info  get_skinned_submesh_info(handle<skinned_model_asset> h, size_t sub_mesh_index);
+        [[nodiscard]] size_t                get_skinned_mesh_index_count(handle<skinned_model_asset> h, size_t sub_mesh_index);
+        [[nodiscard]] const skeleton_asset* get_skeleton_data(handle<skeleton_asset> h);
+        [[nodiscard]] const animation_clip_asset* get_animation_data(handle<animation_clip_asset> h);
+        [[nodiscard]] const skinned_model_asset*  get_skinned_model_data(handle<skinned_model_asset> h);
         [[nodiscard]] gpu_shader_id         get_shader_id(handle<shader_asset> h);
 
         // =========================================================
@@ -121,6 +129,9 @@ namespace aria {
 
         void unload_texture(handle<texture_asset> h);
         void unload_model(handle<model_asset> h);
+        void unload_skinned_model(handle<skinned_model_asset> h);
+        void unload_skeleton(handle<skeleton_asset> h);
+        void unload_animation(handle<animation_clip_asset> h);
         void unload_shader(handle<shader_asset> h);
 
         /**

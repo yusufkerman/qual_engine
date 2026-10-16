@@ -5,19 +5,83 @@
 
 #include "MeshRenderer.h"
 #include <glad/glad.h>
- // #include "../Systems/aria_system.h" // Projendeki Aria başlık yolunu buraya ekle
+#include <algorithm>
+#include <vector>
+
+MeshRenderer::~MeshRenderer()
+{
+    if (m_dynamicBoneUBO != 0)
+    {
+        glDeleteBuffers(1, &m_dynamicBoneUBO);
+        m_dynamicBoneUBO = 0;
+    }
+}
+
+void MeshRenderer::ensure_bone_ubo_allocated()
+{
+    if (m_dynamicBoneUBO == 0)
+    {
+        glGenBuffers(1, &m_dynamicBoneUBO);
+        glBindBuffer(GL_UNIFORM_BUFFER, m_dynamicBoneUBO);
+
+        // 128 adet birim matris (Identity) ile ilklendir
+        std::vector<glm::mat4> identityMatrices(aria::MAX_BONES_PER_SKELETON, glm::mat4(1.0f));
+        glBufferData(GL_UNIFORM_BUFFER, identityMatrices.size() * sizeof(glm::mat4), identityMatrices.data(), GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+}
 
 void MeshRenderer::Draw(const render_item& item, aria::system* ariaSystem)
 {
     if (!ariaSystem) return;
 
-    // 1. Ağ (Mesh) indis sayısını al. Çizilecek veri yoksa erken çıkış yap.
-    const unsigned int indexCount = ariaSystem->get_mesh_index_count(item.model_handle, item.sub_mesh_index);
-    if (indexCount == 0) return;
+    unsigned int indexCount = 0;
+    unsigned int targetVAO = 0;
 
-    // 2. Aria önbelleğinden GPU VAO kimliğini çek.
-    const aria::submesh_runtime_info meshInfo = ariaSystem->get_submesh_info(item.model_handle, item.sub_mesh_index);
-    const unsigned int targetVAO = meshInfo.gpu_id.vao_or_buffer_id;
+    // 1. Statik vs İskeletli (Skinned) Mesh Ayrımı
+    if (item.is_skinned)
+    {
+        if (!item.skinned_model_handle.is_valid()) return;
+
+        indexCount = static_cast<unsigned int>(ariaSystem->get_skinned_mesh_index_count(item.skinned_model_handle, item.sub_mesh_index));
+        if (indexCount == 0) return;
+
+        const aria::submesh_runtime_info meshInfo = ariaSystem->get_skinned_submesh_info(item.skinned_model_handle, item.sub_mesh_index);
+        targetVAO = meshInfo.gpu_id.vao_or_buffer_id;
+
+        // 2. Kemik Matrislerini UBO ile GPU'ya İlet
+        if (item.bone_ubo != 0)
+        {
+            glBindBufferBase(GL_UNIFORM_BUFFER, RenderConstants::BONE_UBO_BINDING_SLOT, item.bone_ubo);
+        }
+        else if (item.bone_matrices != nullptr && !item.bone_matrices->empty())
+        {
+            ensure_bone_ubo_allocated();
+            size_t uploadCount = std::min(item.bone_matrices->size(), static_cast<size_t>(aria::MAX_BONES_PER_SKELETON));
+
+            glBindBuffer(GL_UNIFORM_BUFFER, m_dynamicBoneUBO);
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, uploadCount * sizeof(glm::mat4), item.bone_matrices->data());
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+            glBindBufferBase(GL_UNIFORM_BUFFER, RenderConstants::BONE_UBO_BINDING_SLOT, m_dynamicBoneUBO);
+        }
+        else
+        {
+            // Eğer kemik matrisi atanmamışsa bind pose (Birim matrisler) ile güvenle çiz
+            ensure_bone_ubo_allocated();
+            glBindBufferBase(GL_UNIFORM_BUFFER, RenderConstants::BONE_UBO_BINDING_SLOT, m_dynamicBoneUBO);
+        }
+    }
+    else
+    {
+        if (!item.model_handle.is_valid()) return;
+
+        indexCount = static_cast<unsigned int>(ariaSystem->get_mesh_index_count(item.model_handle, item.sub_mesh_index));
+        if (indexCount == 0) return;
+
+        const aria::submesh_runtime_info meshInfo = ariaSystem->get_submesh_info(item.model_handle, item.sub_mesh_index);
+        targetVAO = meshInfo.gpu_id.vao_or_buffer_id;
+    }
 
     if (targetVAO == 0) return;
 
@@ -30,18 +94,18 @@ void MeshRenderer::Draw(const render_item& item, aria::system* ariaSystem)
 
     // 4. DOKU DURUM ÖNBELLEĞİ
     auto bindTextureIfValid = [&](const auto& handle, unsigned int slot)
+    {
+        if (handle.is_valid())
         {
-            if (handle.is_valid())
+            const unsigned int texID = ariaSystem->get_texture_id(handle);
+            if (m_currentTextures[slot] != texID)
             {
-                const unsigned int texID = ariaSystem->get_texture_id(handle);
-                if (m_currentTextures[slot] != texID)
-                {
-                    glActiveTexture(GL_TEXTURE0 + slot);
-                    glBindTexture(GL_TEXTURE_2D, texID);
-                    m_currentTextures[slot] = texID;
-                }
+                glActiveTexture(GL_TEXTURE0 + slot);
+                glBindTexture(GL_TEXTURE_2D, texID);
+                m_currentTextures[slot] = texID;
             }
-        };
+        }
+    };
 
     bindTextureIfValid(item.diffuse_handle, RenderConstants::DIFFUSE_TEXTURE_SLOT);
     bindTextureIfValid(item.normal_handle, RenderConstants::NORMAL_TEXTURE_SLOT);
@@ -52,8 +116,6 @@ void MeshRenderer::Draw(const render_item& item, aria::system* ariaSystem)
 
     // ========================================================================
     // 6. GÜVENLİK TEMİZLİĞİ (SAFE UNBIND)
-    // Diğer sistemlerin (Skybox, Gizmo, UI) güncel durumu yanlış yorumlamaması 
-    // için çizim sonrası bağlı kaynakları serbest bırakıyoruz.
     // ========================================================================
     if (item.diffuse_handle.is_valid()) {
         glActiveTexture(GL_TEXTURE0 + RenderConstants::DIFFUSE_TEXTURE_SLOT);
@@ -69,6 +131,11 @@ void MeshRenderer::Draw(const render_item& item, aria::system* ariaSystem)
         glActiveTexture(GL_TEXTURE0 + RenderConstants::SPECULAR_TEXTURE_SLOT);
         glBindTexture(GL_TEXTURE_2D, 0);
         m_currentTextures[RenderConstants::SPECULAR_TEXTURE_SLOT] = 0;
+    }
+
+    if (item.is_skinned)
+    {
+        glBindBufferBase(GL_UNIFORM_BUFFER, RenderConstants::BONE_UBO_BINDING_SLOT, 0);
     }
 
     glBindVertexArray(0);

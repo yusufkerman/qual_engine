@@ -25,6 +25,7 @@
 #include "../Systems/physics_system.h"
 #include "../Systems/render_system.h"
 #include "../Systems/camera_system.h"
+#include "../Systems/animation_system.h"
 #include "../Importers/ModelLoader.h"
 #include "../Renderer/shadow_map_fbo.h"
 #include "../Renderer/Debug/gizmo_system.h"
@@ -32,6 +33,7 @@
 #include "Assets/aria.h"
 #include "../Editor/engine_mode.h"
 #include "fly_camera.h"
+#include "../Renderer/fog_settings.h"
 
 struct GLFWwindow;
 
@@ -76,6 +78,7 @@ struct EngineContext
     RenderTarget gameTarget;            ///< Oyun kamerasının çizildiği render hedefi.
     vesta::vesta_system vestaSys;       ///< Vesta arayüz/pencere yönetim sistemi.
     gizmo_system gizmoSystem;           ///< Editör içi manipülasyon araçları (transform, rotate, scale gizmo).
+    fog_settings fog;                   ///< Sahne ve oyun içi sis (Exponential Fog) ayarları.
 
     // ==========================================
     // RENDER VE VARLIK (ASSET) SİSTEMLERİ
@@ -91,6 +94,7 @@ struct EngineContext
     render_system renderSystem;         ///< Genel render yönetim sistemi.
     camera_system cameraSystem;         ///< Kamera yaşam döngüsü ve hesaplama sistemi.
     physics_system physicsSystem;       ///< Fizik motoru köprü sistemi (Jolt, PhysX vb. sarıcı).
+    animation_system animationSystem;   ///< İskelet ve animasyon yönetim sistemi.
 
     ModelLoader modelLoader;            ///< 3D model yükleyici servisi.
     shadow_map_fbo shadowFBO;           ///< Gölge haritalama için çerçeve arabelleği nesnesi (FBO).
@@ -105,6 +109,8 @@ struct EngineContext
     aria::handle<aria::shader_asset> gridShaderHandle;  ///< Izgara (grid) çizimi için shader referansı.
     aria::handle<aria::shader_asset> skyboxShaderHandle;///< Gökyüzü (skybox) çizimi için shader referansı.
     aria::handle<aria::shader_asset> defaultShaderHandle; ///< Varsayılan materyal shader referansı.
+    aria::handle<aria::shader_asset> skinnedShaderHandle;///< İskelet animasyonlu (GPU skinning) nesneler için varsayılan shader referansı.
     aria::handle<aria::shader_asset> gizmoShaderHandle; ///< Gizmo çizimi için shader referansı.
     aria::handle<aria::shader_asset> shadowShaderHandle;///< Gölge hesaplamaları için shader referansı.
+    aria::handle<aria::shader_asset> skinnedShadowShaderHandle; ///< İskeletli modellerin gölge hesaplamaları için shader referansı.
 };

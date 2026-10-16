@@ -121,6 +121,10 @@ private:
     std::unordered_map<entity, collider_component> colliders;
     std::unordered_map<entity, native_script_component> scriptable_components;
     std::unordered_map<entity, hierarchy_component> hierarchies;
+    std::unordered_map<entity, skinned_mesh_component> skinned_meshes;
+    std::unordered_map<entity, skeleton_component> skeletons;
+    std::unordered_map<entity, animator_component> animators;
+    std::unordered_map<entity, bone_attachment_component> bone_attachments;
 
     template<typename T>
     std::unordered_map<entity, T>& pool();
@@ -152,6 +156,10 @@ inline std::unordered_map<entity, T>& registry::pool()
     if constexpr (std::is_same_v<T, collider_component>) return colliders;
     if constexpr (std::is_same_v<T, native_script_component>) return scriptable_components;
     if constexpr (std::is_same_v<T, hierarchy_component>) return hierarchies;
+    if constexpr (std::is_same_v<T, skinned_mesh_component>) return skinned_meshes;
+    if constexpr (std::is_same_v<T, skeleton_component>) return skeletons;
+    if constexpr (std::is_same_v<T, animator_component>) return animators;
+    if constexpr (std::is_same_v<T, bone_attachment_component>) return bone_attachments;
 
     static std::unordered_map<entity, T> dummy;
     return dummy;
@@ -171,6 +179,10 @@ inline const std::unordered_map<entity, T>& registry::pool() const
     if constexpr (std::is_same_v<T, collider_component>) return colliders;
     if constexpr (std::is_same_v<T, native_script_component>) return scriptable_components;
     if constexpr (std::is_same_v<T, hierarchy_component>) return hierarchies;
+    if constexpr (std::is_same_v<T, skinned_mesh_component>) return skinned_meshes;
+    if constexpr (std::is_same_v<T, skeleton_component>) return skeletons;
+    if constexpr (std::is_same_v<T, animator_component>) return animators;
+    if constexpr (std::is_same_v<T, bone_attachment_component>) return bone_attachments;
 
     static std::unordered_map<entity, T> dummy;
     return dummy;

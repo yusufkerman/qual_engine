@@ -175,6 +175,10 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Editor\Vesta\Inspector\Components\native_script_component_ui.h" />
     <ClInclude Include="Editor\Vesta\Inspector\Components\rigidbody_component_ui.h" />
     <ClInclude Include="Editor\Vesta\Inspector\Components\transform_component_ui.h" />
+    <ClInclude Include="Editor\Vesta\Inspector\Components\skinned_mesh_component_ui.h" />
+    <ClInclude Include="Editor\Vesta\Inspector\Components\animator_component_ui.h" />
+    <ClInclude Include="Editor\Vesta\Inspector\Components\skeleton_component_ui.h" />
+    <ClInclude Include="Editor\Vesta\Inspector\Components\bone_attachment_component_ui.h" />
     <ClInclude Include="Editor\editor.h" />
     <ClInclude Include="Editor\editor_camera.h" />
     <ClInclude Include="Editor\editor_context.h" />
@@ -654,6 +658,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="shader.h" />
     <ClInclude Include="shader_manager.h" />
     <ClInclude Include="Systems\camera_system.h" />
+    <ClInclude Include="Systems\animation_system.h" />
     <ClInclude Include="Systems\light_system.h" />
     <ClInclude Include="Systems\physics_bridge.h" />
     <ClInclude Include="Systems\physics_system.h" />
@@ -669,13 +674,21 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Gameplay\gameplay_entity.h" />
     <ClInclude Include="Gameplay\gameplay_scene.h" />
     <ClInclude Include="Gameplay\gameplay_script.h" />
+    <ClInclude Include="Gameplay\gameplay_gizmos.h" />
     <ClInclude Include="Gameplay\gameplay.h" />
+    <ClInclude Include="Renderer\Debug\gizmo_settings.h" />
+    <ClInclude Include="Renderer\fog_settings.h" />
+    <ClInclude Include="Renderer\Passes\gizmo_pass.h" />
+    <ClInclude Include="Editor\Vesta\Panels\scene_gizmo_overlay.h" />
+    <ClInclude Include="Editor\Vesta\Panels\lighting_panel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ECS\registry.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\game_viewport_panel.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\hierarchy_panel.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\scene_viewport_panel.cpp" />
+    <ClCompile Include="Editor\Vesta\Panels\scene_gizmo_overlay.cpp" />
+    <ClCompile Include="Editor\Vesta\Panels\lighting_panel.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\top_bar_panel.cpp" />
     <ClCompile Include="Editor\Vesta\Services\asset_browser_system.cpp" />
     <ClCompile Include="Editor\editor.cpp" />
@@ -875,6 +888,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClCompile Include="Renderer\Passes\editor_pass.cpp" />
     <ClCompile Include="Renderer\Passes\game_pass.cpp" />
     <ClCompile Include="Renderer\Passes\grid_pass.cpp" />
+    <ClCompile Include="Renderer\Passes\gizmo_pass.cpp" />
     <ClCompile Include="Renderer\Passes\skybox_pass.cpp" />
     <ClCompile Include="Renderer\Passes\ui_pass.cpp" />
     <ClCompile Include="Renderer\render_target.cpp" />
@@ -891,6 +905,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="shader_manager.cpp" />
     <ClCompile Include="Systems\camera_system.cpp" />
+    <ClCompile Include="Systems\animation_system.cpp" />
     <ClCompile Include="Systems\light_system.cpp" />
     <ClCompile Include="Systems\physics_api.cpp" />
     <ClCompile Include="Systems\physics_bridge.cpp" />
@@ -904,6 +919,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClCompile Include="Gameplay\rigidbody_wrapper.cpp" />
     <ClCompile Include="Gameplay\gameplay_entity.cpp" />
     <ClCompile Include="Gameplay\gameplay_scene.cpp" />
+    <ClCompile Include="Gameplay\gameplay_gizmos.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Externals\Jolt\Core\FixedSizeFreeList.inl" />

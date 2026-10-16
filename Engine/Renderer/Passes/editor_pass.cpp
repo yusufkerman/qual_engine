@@ -1,6 +1,6 @@
 /**
  * @file editor_pass.cpp
- * @brief Editör sahne çizim geçişi, FBO yönetimi ve fiziksel sınır kutusu (Collider) gizmo çizim uygulaması.
+ * @brief Editör sahne çizim geçişi ve FBO yönetimi uygulaması.
  */
 
 #include "editor_pass.h"
@@ -8,8 +8,6 @@
 #include "../../Editor/editor_context.h"
 #include "../../Editor/editor_camera.h"
 #include "skybox_pass.h"
-#include "../../Systems/physics_api.h"
-#include "../../Editor/Vesta/vesta.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
 
@@ -52,70 +50,4 @@ void editor_pass::render(EngineContext& ctx, EditorContext& editorCtx)
         editorView,
         editorProj
     );
-
-    // 5. Seçili varlık için sınır kutusu / çarpıştırıcı (Collider Gizmo) çizimi
-    auto& reg = ctx.session.editor_scene().get_registry();
-    const int selectedID = ctx.vestaSys.selection().get_first_selected_entity();
-
-    if (selectedID != -1)
-    {
-        const auto selectedEntity = static_cast<entity>(selectedID);
-
-        const auto* transform = reg.get_component<transform_component>(selectedEntity);
-        const auto* collider = reg.get_component<collider_component>(selectedEntity);
-        const auto* rb = reg.get_component<rigidbody_component>(selectedEntity);
-
-        if (transform && collider)
-        {
-            glm::mat4 modelMatrix = glm::mat4(1.0f);
-            bool physicsActive = false;
-
-            // Simülasyon modunda dönüşümü fizik motorundan (Jolt) al
-            if (rb && !rb->body_id.IsInvalid())
-            {
-                modelMatrix = ctx.physicsSystem.api().get_jolt_transform(selectedEntity);
-                physicsActive = true;
-            }
-
-            // Editör modunda yerel dönüşüm bileşenini kullan
-            if (!physicsActive)
-            {
-                modelMatrix = glm::translate(modelMatrix, transform->position);
-                modelMatrix = glm::rotate(modelMatrix, transform->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-                modelMatrix = glm::rotate(modelMatrix, transform->rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-                modelMatrix = glm::rotate(modelMatrix, transform->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-            }
-
-            constexpr glm::vec4 gizmoColor(0.0f, 1.0f, 0.0f, 1.0f);
-
-            switch (collider->type)
-            {
-            case collider_type::box:
-                ctx.gizmoSystem.DrawWireCube(
-                    modelMatrix,
-                    collider->extents,
-                    gizmoColor
-                );
-                break;
-
-            case collider_type::sphere:
-                ctx.gizmoSystem.DrawWireSphere(
-                    modelMatrix,
-                    collider->extents.x,
-                    gizmoColor
-                );
-                break;
-
-            default:
-                break;
-            }
-        }
-    }
-
-    // 6. Aria varlık önbelleğinden gizmo shader programını al ve çizgileri ekrana boşalt
-    if (ctx.aria_system)
-    {
-        const unsigned int gizmoGLShaderID = ctx.aria_system->get_shader_id(ctx.gizmoShaderHandle);
-        ctx.gizmoSystem.Flush(editorView, editorProj, gizmoGLShaderID);
-    }
-}
+}

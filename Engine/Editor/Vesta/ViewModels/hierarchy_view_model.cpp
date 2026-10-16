@@ -238,4 +238,29 @@ namespace vesta {
         }
     }
 
+    void hierarchy_view_model::request_create_camera() {
+        entity e = m_world.spawn_entity("Camera");
+        if (!m_registry.has_component<camera_component>(e)) {
+            m_registry.add_component<camera_component>(e);
+        }
+        m_selection_manager.select_entity(e, false);
+        m_world.mark_scene_dirty();
+    }
+
+    void hierarchy_view_model::request_create_light(light_type type) {
+        const char* defaultName = "Point Light";
+        if (type == light_type::directional) defaultName = "Directional Light";
+        else if (type == light_type::spot)   defaultName = "Spot Light";
+
+        entity e = m_world.spawn_entity(defaultName);
+        if (!m_registry.has_component<light_component>(e)) {
+            m_registry.add_component<light_component>(e);
+        }
+        if (auto* lc = m_registry.get_component<light_component>(e)) {
+            lc->type = type;
+        }
+        m_selection_manager.select_entity(e, false);
+        m_world.mark_scene_dirty();
+    }
+
 } // namespace vesta

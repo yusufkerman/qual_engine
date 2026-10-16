@@ -34,6 +34,33 @@ namespace asset_pipeline
     aria::handle<aria::model_asset>    import_model(aria::system* aria_system, const std::string& path);
 
     /**
+     * @brief İskeletli 3D model dosyasını Aria'ya kaydeder.
+     *
+     * @param aria_system Kullanılacak aria sistem nesnesi.
+     * @param path Modelin dosya yolu.
+     * @return aria::handle<aria::skinned_model_asset> İçe aktarılan derili modele ait handle.
+     */
+    aria::handle<aria::skinned_model_asset>  import_skinned_model(aria::system* aria_system, const std::string& path);
+
+    /**
+     * @brief İskelet dosyasını Aria'ya kaydeder.
+     *
+     * @param aria_system Kullanılacak aria sistem nesnesi.
+     * @param path İskelet dosya yolu.
+     * @return aria::handle<aria::skeleton_asset> İçe aktarılan iskelete ait handle.
+     */
+    aria::handle<aria::skeleton_asset>       import_skeleton(aria::system* aria_system, const std::string& path);
+
+    /**
+     * @brief Animasyon klibi dosyasını Aria'ya kaydeder.
+     *
+     * @param aria_system Kullanılacak aria sistem nesnesi.
+     * @param path Animasyon dosya yolu.
+     * @return aria::handle<aria::animation_clip_asset> İçe aktarılan animasyona ait handle.
+     */
+    aria::handle<aria::animation_clip_asset> import_animation(aria::system* aria_system, const std::string& path);
+
+    /**
      * @brief Dışarıdan gelen gerçek doku (texture) dosyalarını Aria'ya kaydeder.
      *
      * @param ctx Motor bağlam (context) nesnesi.

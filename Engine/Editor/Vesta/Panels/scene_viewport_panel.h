@@ -8,7 +8,11 @@
 #include "IEditorPanel.h"
 #include "../ViewModels/scene_viewport_view_model.h"
 #include "../CoreState/editor_viewport_state.h"
+#include "scene_gizmo_overlay.h"
 #include <string>
+
+struct EngineContext;
+struct EditorContext;
 
 namespace vesta {
 
@@ -24,10 +28,14 @@ namespace vesta {
          *
          * @param vm Panel mantığını ve doku kimliğini yöneten ViewModel.
          * @param viewportState Editörün genel görünüm (viewport) durum yöneticisi.
+         * @param engineCtx Motor bağlamı işaretçisi (Gizmo ve sahne erişimi için).
+         * @param editorCtx Editör bağlamı işaretçisi (Kamera erişimi için).
          */
         scene_viewport_panel(
             scene_viewport_view_model& vm,
-            editor_viewport_state& viewportState);
+            editor_viewport_state& viewportState,
+            EngineContext* engineCtx = nullptr,
+            EditorContext* editorCtx = nullptr);
 
         ~scene_viewport_panel() override = default;
 
@@ -43,9 +51,12 @@ namespace vesta {
     private:
         scene_viewport_view_model& m_vm;
         editor_viewport_state& m_viewport_state;
+        EngineContext* m_engine_ctx = nullptr;
+        EditorContext* m_editor_ctx = nullptr;
+        scene_gizmo_overlay m_gizmo_overlay;
 
         std::string m_title = "Scene";
         bool m_is_open = true;
     };
 
-} // namespace vesta
+} // namespace vesta

@@ -33,8 +33,10 @@ void ui_manager::setupDockLayout(ImGuiID dockspace_id, const ImVec2& size)
     // Inspector (Sol panel)
     ImGui::DockBuilderSplitNode(center, ImGuiDir_Left, 0.22f, &left, &center);
 
-    // Hierarchy (Sağ panel)
-    ImGui::DockBuilderSplitNode(center, ImGuiDir_Right, 0.22f, &right, &center);
+    // Hierarchy ve Asset Browser (Sağ panel - Üst: Hierarchy, Alt: Asset Browser)
+    ImGuiID right_bottom = 0;
+    ImGui::DockBuilderSplitNode(center, ImGuiDir_Right, 0.24f, &right, &center);
+    ImGui::DockBuilderSplitNode(right, ImGuiDir_Down, 0.45f, &right_bottom, &right);
 
     // Game Viewport (Alt panel)
     ImGui::DockBuilderSplitNode(center, ImGuiDir_Down, 0.30f, &bottom, &center);
@@ -42,7 +44,9 @@ void ui_manager::setupDockLayout(ImGuiID dockspace_id, const ImVec2& size)
     // Panelleri kimliklerine göre yuvalarına sabitle
     ImGui::DockBuilderDockWindow("TopBar", top);
     ImGui::DockBuilderDockWindow("Inspector", left);
+    ImGui::DockBuilderDockWindow("Lighting", left);
     ImGui::DockBuilderDockWindow("Hierarchy", right);
+    ImGui::DockBuilderDockWindow("Asset Browser", right_bottom);
     ImGui::DockBuilderDockWindow("Scene", center);
     ImGui::DockBuilderDockWindow("Game", bottom);
 

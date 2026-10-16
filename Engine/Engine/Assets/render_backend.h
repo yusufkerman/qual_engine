@@ -75,6 +75,7 @@ namespace aria {
 
         [[nodiscard]] virtual gpu_texture_id create_texture(const raw_texture_data& raw_data) = 0;
         [[nodiscard]] virtual std::vector<submesh_bridge> create_model(const raw_model_data& raw_data) = 0;
+        [[nodiscard]] virtual std::vector<submesh_bridge> create_skinned_model(const raw_skinned_model_data& raw_data) = 0;
         [[nodiscard]] virtual gpu_shader_id create_shader(const raw_shader_data& raw_data) = 0;
 
         // --- YEDEK (FALLBACK) KAYNAK ÜRETİMİ ---

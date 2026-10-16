@@ -73,6 +73,18 @@ void registry::copy_components_internal(entity srcEntity, entity dstEntity, regi
     if (const auto* c = get_component<native_script_component>(srcEntity))
         dstRegistry.add_component<native_script_component>(dstEntity, *c);
 
+    if (const auto* c = get_component<skinned_mesh_component>(srcEntity))
+        dstRegistry.add_component<skinned_mesh_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<skeleton_component>(srcEntity))
+        dstRegistry.add_component<skeleton_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<animator_component>(srcEntity))
+        dstRegistry.add_component<animator_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<bone_attachment_component>(srcEntity))
+        dstRegistry.add_component<bone_attachment_component>(dstEntity, *c);
+
     // Hiyerarşi gibi diğer kopyalanması gereken bileşenler varsa buraya eklenebilir.
 }
 

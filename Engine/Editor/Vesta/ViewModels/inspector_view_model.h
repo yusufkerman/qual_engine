@@ -108,6 +108,7 @@ namespace vesta
 
         bool has_selected_entity() const;
         entity get_selected_entity() const;
+        const std::unordered_set<entity>& get_selected_entities() const;
 
         bool has_selected_asset() const;
         std::string get_selected_asset() const;
@@ -124,6 +125,8 @@ namespace vesta
 
         void request_add_component(size_t type_hash);
         void request_remove_component(size_t type_hash);
+        void request_add_component_to_all(size_t type_hash);
+        void request_remove_component_from_all(size_t type_hash);
 
         // ==========================================
         // DOĞRULAMA (VALIDATION)

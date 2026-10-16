@@ -7,6 +7,7 @@
 
 #include "IEditorPanel.h"
 #include "../ViewModels/inspector_view_model.h"
+#include "../../../Renderer/Debug/gizmo_settings.h"
 #include <memory>
 #include <string>
 
@@ -22,8 +23,9 @@ namespace vesta
         /**
          * @brief Inspector panelini görünüm modeli (ViewModel) sahipliği ile başlatır.
          * @param vm Panel mantığını ve veri akışını yönetecek olan ViewModel.
+         * @param gizmoSettings Seçili varlığa Unity tarzı sahne ikonu atamak için gizmo ayarları işaretçisi.
          */
-        explicit inspector_panel(std::unique_ptr<inspector_view_model> vm);
+        explicit inspector_panel(std::unique_ptr<inspector_view_model> vm, gizmo_settings* gizmoSettings = nullptr);
         ~inspector_panel() override;
 
         // ==========================================
@@ -37,8 +39,9 @@ namespace vesta
 
     private:
         std::unique_ptr<inspector_view_model> m_vm;
+        gizmo_settings* m_gizmo_settings = nullptr;
         std::string m_title = "Inspector";
         bool m_is_open = true;
     };
 
-} // namespace vesta
+} // namespace vesta

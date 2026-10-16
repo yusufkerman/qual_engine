@@ -1,24 +1,32 @@
 /**
  * @file hierarchy_panel.cpp
- * @brief Sahne hiyerarşisi panelinin ImGui çizim ve kısayol dinleme işlemlerini barındırır.
+ * @brief Sahne hiyerarşisi panelinin ImGui çizim, Unity tarzı ikon rozeti/ataması ve kısayol dinleme işlemlerini barındırır.
  */
 
 #include "hierarchy_panel.h"
+#include "scene_gizmo_overlay.h"
 #include <imgui.h>
 #include <cstdio> // snprintf için
 
 namespace vesta {
 
-    hierarchy_panel::hierarchy_panel(IEditableWorld& world, registry& reg, editor_selection_manager& selection)
+    hierarchy_panel::hierarchy_panel(
+        IEditableWorld& world,
+        registry& reg,
+        editor_selection_manager& selection,
+        gizmo_settings* gizmoSettings)
         : m_vm(std::make_unique<hierarchy_view_model>(world, reg, selection))
+        , m_gizmo_settings(gizmoSettings)
     {
     }
 
     /**
-     * @brief Ağaç yapısındaki tekil bir varlığı (Entity) çizer.
-     * @note Static tanımlanarak sadece bu derleme birimine (translation unit) özel hale getirilmiştir.
+     * @brief Ağaç yapısındaki tekil bir varlığı (Entity) ve Unity tarzı ikon rozetini çizer.
      */
-    static void draw_entity_node(hierarchy_view_model* vm, const hierarchy_node_data& node)
+    static void draw_entity_node(
+        hierarchy_view_model* vm,
+        const hierarchy_node_data& node,
+        gizmo_settings* gizmoSettings)
     {
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 
@@ -43,8 +51,6 @@ namespace vesta {
             if (editing_entity != node.id)
             {
                 editing_entity = node.id;
-
-                // Güvenli ve cross-platform (MSVC/GCC/Clang) metin kopyalama
                 snprintf(rename_buffer, sizeof(rename_buffer), "%s", vm->get_rename_buffer().c_str());
                 ImGui::SetKeyboardFocusHere();
             }
@@ -82,11 +88,39 @@ namespace vesta {
         }
         else
         {
-            opened = ImGui::TreeNodeEx(
-                reinterpret_cast<void*>(static_cast<uintptr_t>(node.id)),
-                flags,
-                "%s",
-                node.name.c_str());
+            // İkon rozeti aktifse ağaç düğümünün sağında veya solunda rozet çiz
+            entity_icon_type resolvedIcon = entity_icon_type::none;
+            glm::vec3 iconTint(1.0f);
+            if (gizmoSettings && gizmoSettings->show_hierarchy_badges)
+            {
+                resolvedIcon = scene_gizmo_overlay::resolve_entity_icon(node.id, vm->get_registry(), *gizmoSettings);
+                if (const auto* lc = vm->get_registry().get_component<light_component>(node.id))
+                {
+                    iconTint = lc->color;
+                }
+            }
+
+            if (resolvedIcon != entity_icon_type::none && resolvedIcon != entity_icon_type::auto_detect)
+            {
+                const ImVec2 cursorBefore = ImGui::GetCursorScreenPos();
+                opened = ImGui::TreeNodeEx(
+                    reinterpret_cast<void*>(static_cast<uintptr_t>(node.id)),
+                    flags,
+                    "     %s",
+                    node.name.c_str());
+
+                const float lineH = ImGui::GetFrameHeight();
+                const glm::vec2 badgeCenter(cursorBefore.x + 28.0f, cursorBefore.y + lineH * 0.48f);
+                scene_gizmo_overlay::draw_icon_badge_2d(resolvedIcon, badgeCenter, 7.2f, iconTint);
+            }
+            else
+            {
+                opened = ImGui::TreeNodeEx(
+                    reinterpret_cast<void*>(static_cast<uintptr_t>(node.id)),
+                    flags,
+                    "%s",
+                    node.name.c_str());
+            }
         }
 
         // ==========================================
@@ -126,12 +160,28 @@ namespace vesta {
         }
 
         // ==========================================
-        // İÇERİK MENÜSÜ (CONTEXT MENU)
+        // İÇERİK MENÜSÜ (CONTEXT MENU) & UNITY TARZI İKON SEÇİMİ
         // ==========================================
         if (ImGui::BeginPopupContextItem()) {
             if (ImGui::MenuItem("Rename")) {
                 vm->start_rename(node.id);
             }
+
+            if (gizmoSettings && ImGui::BeginMenu("Set Icon (Gizmo)"))
+            {
+                const entity_icon_type currentAssigned = gizmoSettings->get_entity_icon(node.id);
+                for (int i = 0; i <= static_cast<int>(entity_icon_type::label_purple); ++i)
+                {
+                    const auto candidate = static_cast<entity_icon_type>(i);
+                    const bool isCurrent = (currentAssigned == candidate);
+                    if (ImGui::MenuItem(scene_gizmo_overlay::get_icon_type_name(candidate), nullptr, isCurrent))
+                    {
+                        gizmoSettings->set_entity_icon(node.id, candidate);
+                    }
+                }
+                ImGui::EndMenu();
+            }
+
             ImGui::Separator();
             if (ImGui::MenuItem("Copy")) {
                 vm->request_copy(node.id);
@@ -151,7 +201,7 @@ namespace vesta {
         // ==========================================
         if (opened) {
             for (entity child : node.children) {
-                draw_entity_node(vm, vm->get_node_data(child));
+                draw_entity_node(vm, vm->get_node_data(child), gizmoSettings);
             }
             ImGui::TreePop();
         }
@@ -200,6 +250,31 @@ namespace vesta {
         if (ImGui::Button("Create Object")) {
             m_vm->request_create_entity();
         }
+        ImGui::SameLine();
+        if (ImGui::Button("+ Preset")) {
+            ImGui::OpenPopup("HierarchyCreatePresetPopup");
+        }
+
+        if (ImGui::BeginPopup("HierarchyCreatePresetPopup"))
+        {
+            if (ImGui::MenuItem("Empty Entity")) {
+                m_vm->request_create_entity("Empty Entity");
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Camera")) {
+                m_vm->request_create_camera();
+            }
+            if (ImGui::MenuItem("Point Light")) {
+                m_vm->request_create_light(light_type::point);
+            }
+            if (ImGui::MenuItem("Spot Light")) {
+                m_vm->request_create_light(light_type::spot);
+            }
+            if (ImGui::MenuItem("Directional Light")) {
+                m_vm->request_create_light(light_type::directional);
+            }
+            ImGui::EndPopup();
+        }
 
         ImGui::Separator();
 
@@ -208,6 +283,22 @@ namespace vesta {
         // ==========================================
         if (ImGui::BeginPopupContextWindow("Hierarchy_Context", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
         {
+            if (ImGui::MenuItem("Create Empty")) {
+                m_vm->request_create_entity();
+            }
+            if (ImGui::MenuItem("Create Camera")) {
+                m_vm->request_create_camera();
+            }
+            if (ImGui::MenuItem("Create Point Light")) {
+                m_vm->request_create_light(light_type::point);
+            }
+            if (ImGui::MenuItem("Create Spot Light")) {
+                m_vm->request_create_light(light_type::spot);
+            }
+            if (ImGui::MenuItem("Create Directional Light")) {
+                m_vm->request_create_light(light_type::directional);
+            }
+            ImGui::Separator();
             if (ImGui::MenuItem("Paste", nullptr, false, m_vm->can_paste())) {
                 m_vm->request_paste();
             }
@@ -219,7 +310,7 @@ namespace vesta {
         // ==========================================
         const auto root_nodes = m_vm->get_root_nodes();
         for (const auto& node : root_nodes) {
-            draw_entity_node(m_vm.get(), node);
+            draw_entity_node(m_vm.get(), node, m_gizmo_settings);
         }
 
         // ==========================================
@@ -250,4 +341,4 @@ namespace vesta {
         m_is_open = open;
     }
 
-} // namespace vesta
+} // namespace vesta

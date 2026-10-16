@@ -1,8 +1,10 @@
-﻿#include <Engine/engine.h>
+#include <Engine/engine.h>
 #include <Editor/editor_context.h>
 #include "sandbox.h"
 #include <iostream>
+#include <fstream>
 #include <Scene/scene_serializer.h>
+#include <Engine/Assets/asset_loader.h>
 
 int main()
 {

@@ -99,6 +99,49 @@ namespace aria {
         return submesh_runtime_info{};
     }
 
+    submesh_runtime_info gpu_resource_cache::get_skinned_submesh_info(handle<skinned_model_asset> h, size_t sub_mesh_index) {
+        if (auto it = m_skinned_model_cache.find(h); it != m_skinned_model_cache.end()) {
+            if (sub_mesh_index < it->second.size()) {
+                return it->second[sub_mesh_index];
+            }
+            return submesh_runtime_info{};
+        }
+
+        skinned_model_asset* asset = m_registry->get_skinned_model(h);
+        if (!asset || asset->raw_data.sub_meshes.empty()) {
+            return submesh_runtime_info{};
+        }
+
+        std::vector<submesh_bridge> bridges = m_backend->create_skinned_model(asset->raw_data);
+
+        std::vector<submesh_runtime_info> runtime_infos;
+        runtime_infos.reserve(bridges.size());
+
+        for (size_t i = 0; i < bridges.size(); ++i) {
+            submesh_runtime_info info;
+            info.gpu_id = bridges[i].gpu_data;
+            info.local_center = bridges[i].bounds.local_center;
+            info.local_radius = bridges[i].bounds.local_radius;
+
+            runtime_infos.push_back(info);
+
+            if (i < asset->sub_meshes.size()) {
+                asset->sub_meshes[i].vao = bridges[i].gpu_data.vao_or_buffer_id;
+                asset->sub_meshes[i].vbo = bridges[i].gpu_data.vbo;
+                asset->sub_meshes[i].ebo = bridges[i].gpu_data.ebo;
+            }
+        }
+
+        m_skinned_model_cache[h] = runtime_infos;
+        asset->raw_data.clear_raw_data();
+
+        if (sub_mesh_index < runtime_infos.size()) {
+            return runtime_infos[sub_mesh_index];
+        }
+
+        return submesh_runtime_info{};
+    }
+
     gpu_shader_id gpu_resource_cache::get_shader_id(handle<shader_asset> h) {
         if (auto it = m_shader_cache.find(h); it != m_shader_cache.end()) {
             return it->second;
@@ -149,6 +192,20 @@ namespace aria {
         }
     }
 
+    void gpu_resource_cache::evict_skinned_model(handle<skinned_model_asset> h) {
+        if (auto it = m_skinned_model_cache.find(h); it != m_skinned_model_cache.end()) {
+            std::vector<gpu_mesh_id> ids_to_destroy;
+            ids_to_destroy.reserve(it->second.size());
+
+            for (const auto& info : it->second) {
+                ids_to_destroy.push_back(info.gpu_id);
+            }
+
+            m_backend->destroy_model(ids_to_destroy);
+            m_skinned_model_cache.erase(it);
+        }
+    }
+
     void gpu_resource_cache::evict_shader(handle<shader_asset> h) {
         if (auto it = m_shader_cache.find(h); it != m_shader_cache.end()) {
             m_backend->destroy_shader(it->second);
@@ -193,6 +250,18 @@ namespace aria {
             m_backend->destroy_model(ids_to_destroy);
         }
         m_model_cache.clear();
+
+        // İskeletli modelleri temizle
+        for (auto const& [handle, runtime_infos] : m_skinned_model_cache) {
+            std::vector<gpu_mesh_id> ids_to_destroy;
+            ids_to_destroy.reserve(runtime_infos.size());
+
+            for (const auto& info : runtime_infos) {
+                ids_to_destroy.push_back(info.gpu_id);
+            }
+            m_backend->destroy_model(ids_to_destroy);
+        }
+        m_skinned_model_cache.clear();
 
         // Shader'ları temizle
         for (auto const& [handle, id] : m_shader_cache) {

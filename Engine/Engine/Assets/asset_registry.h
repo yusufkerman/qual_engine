@@ -49,6 +49,18 @@ namespace aria {
         std::vector<uint32_t> m_shader_free_slots;
         std::map<asset_guid, handle<shader_asset>> m_shader_map;
 
+        std::vector<registry_slot<skeleton_asset>> m_skeleton_slots;
+        std::vector<uint32_t> m_skeleton_free_slots;
+        std::map<asset_guid, handle<skeleton_asset>> m_skeleton_map;
+
+        std::vector<registry_slot<animation_clip_asset>> m_animation_slots;
+        std::vector<uint32_t> m_animation_free_slots;
+        std::map<asset_guid, handle<animation_clip_asset>> m_animation_map;
+
+        std::vector<registry_slot<skinned_model_asset>> m_skinned_model_slots;
+        std::vector<uint32_t> m_skinned_model_free_slots;
+        std::map<asset_guid, handle<skinned_model_asset>> m_skinned_model_map;
+
         /**
          * @brief Type trait: static_assert için derleme zamanında her zaman false döndüren yardımcı yapı.
          */
@@ -61,10 +73,13 @@ namespace aria {
          */
         template <typename T>
         [[nodiscard]] const auto& get_asset_map() const {
-            if constexpr (std::is_same_v<T, texture_asset>)        return m_texture_map;
-            else if constexpr (std::is_same_v<T, model_asset>)     return m_model_map;
-            else if constexpr (std::is_same_v<T, material_asset>)  return m_material_map;
-            else if constexpr (std::is_same_v<T, shader_asset>)    return m_shader_map;
+            if constexpr (std::is_same_v<T, texture_asset>)             return m_texture_map;
+            else if constexpr (std::is_same_v<T, model_asset>)          return m_model_map;
+            else if constexpr (std::is_same_v<T, material_asset>)       return m_material_map;
+            else if constexpr (std::is_same_v<T, shader_asset>)         return m_shader_map;
+            else if constexpr (std::is_same_v<T, skeleton_asset>)       return m_skeleton_map;
+            else if constexpr (std::is_same_v<T, animation_clip_asset>) return m_animation_map;
+            else if constexpr (std::is_same_v<T, skinned_model_asset>)  return m_skinned_model_map;
             else static_assert(always_false_v<T>, "Desteklenmeyen varlik turu (get_asset_map)!");
         }
 
@@ -141,6 +156,30 @@ namespace aria {
 
                 return load_material(guid, path);
             }
+            else if constexpr (std::is_same_v<T, skeleton_asset>)
+            {
+                if (!m_database) return {};
+                std::string path = m_database->resolve_path(guid);
+                if (path.empty()) return {};
+
+                return load_skeleton(guid, path);
+            }
+            else if constexpr (std::is_same_v<T, animation_clip_asset>)
+            {
+                if (!m_database) return {};
+                std::string path = m_database->resolve_path(guid);
+                if (path.empty()) return {};
+
+                return load_animation(guid, path);
+            }
+            else if constexpr (std::is_same_v<T, skinned_model_asset>)
+            {
+                if (!m_database) return {};
+                std::string path = m_database->resolve_path(guid);
+                if (path.empty()) return {};
+
+                return load_skinned_model(guid, path);
+            }
             else
             {
                 static_assert(always_false_v<T>, "Desteklenmeyen varlik turu (load_asset_by_guid)!");
@@ -161,6 +200,24 @@ namespace aria {
          * @brief Prosedürel olarak (kod ile) üretilmiş model verisini doğrudan kayıt defterine yazar.
          */
         handle<model_asset> add_procedural_model(const asset_guid& guid, const raw_model_data& raw_data);
+
+        // --- İskelet (Skeleton) ---
+        handle<skeleton_asset> load_skeleton(const asset_guid& guid, const std::string& file_path);
+        handle<skeleton_asset> add_procedural_skeleton(const asset_guid& guid, const raw_skeleton_data& raw_data);
+        [[nodiscard]] skeleton_asset* get_skeleton(handle<skeleton_asset> h);
+        void destroy_skeleton(handle<skeleton_asset> h);
+
+        // --- Animasyon Klibi (Animation Clip) ---
+        handle<animation_clip_asset> load_animation(const asset_guid& guid, const std::string& file_path);
+        handle<animation_clip_asset> add_procedural_animation(const asset_guid& guid, const raw_animation_data& raw_data);
+        [[nodiscard]] animation_clip_asset* get_animation(handle<animation_clip_asset> h);
+        void destroy_animation(handle<animation_clip_asset> h);
+
+        // --- İskeletli Model (Skinned Model) ---
+        handle<skinned_model_asset> load_skinned_model(const asset_guid& guid, const std::string& file_path);
+        handle<skinned_model_asset> add_procedural_skinned_model(const asset_guid& guid, const raw_skinned_model_data& raw_data);
+        [[nodiscard]] skinned_model_asset* get_skinned_model(handle<skinned_model_asset> h);
+        void destroy_skinned_model(handle<skinned_model_asset> h);
 
         // --- Materyal (Material) ---
         handle<material_asset> load_material(const asset_guid& guid, const std::string& file_path);

@@ -54,6 +54,10 @@ bool scene_serializer::serialize(const std::string& filepath, const scene& curre
         serialize_component_if_exists<rigidbody_component>(e, reg, entityJson, "rigidbody_component");
         serialize_component_if_exists<collider_component>(e, reg, entityJson, "collider_component");
         serialize_component_if_exists<native_script_component>(e, reg, entityJson, "native_script_component");
+        serialize_component_if_exists<skinned_mesh_component>(e, reg, entityJson, "skinned_mesh_component");
+        serialize_component_if_exists<skeleton_component>(e, reg, entityJson, "skeleton_component");
+        serialize_component_if_exists<animator_component>(e, reg, entityJson, "animator_component");
+        serialize_component_if_exists<bone_attachment_component>(e, reg, entityJson, "bone_attachment_component");
 
         sceneJson["entities"].push_back(entityJson);
     }
@@ -153,6 +157,30 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
             {
                 material_component matComp = entityJson["material_component"].get<material_component>();
                 reg.add_component<material_component>(newE, matComp);
+            }
+
+            if (entityJson.contains("skinned_mesh_component"))
+            {
+                skinned_mesh_component skinnedMeshComp = entityJson["skinned_mesh_component"].get<skinned_mesh_component>();
+                reg.add_component<skinned_mesh_component>(newE, skinnedMeshComp);
+            }
+
+            if (entityJson.contains("skeleton_component"))
+            {
+                skeleton_component skelComp = entityJson["skeleton_component"].get<skeleton_component>();
+                reg.add_component<skeleton_component>(newE, skelComp);
+            }
+
+            if (entityJson.contains("animator_component"))
+            {
+                animator_component animComp = entityJson["animator_component"].get<animator_component>();
+                reg.add_component<animator_component>(newE, animComp);
+            }
+
+            if (entityJson.contains("bone_attachment_component"))
+            {
+                bone_attachment_component attachComp = entityJson["bone_attachment_component"].get<bone_attachment_component>();
+                reg.add_component<bone_attachment_component>(newE, attachComp);
             }
         }
     }

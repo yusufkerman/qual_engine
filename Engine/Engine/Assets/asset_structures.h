@@ -56,6 +56,49 @@ namespace aria {
     };
 
     /**
+     * @struct skeleton_asset
+     * @brief İskelet hiyerarşisi, kemik bilgileri ve ters bağlama matrislerini tutan varlık.
+     */
+    struct skeleton_asset {
+        asset_guid guid;                        ///< İskeletin benzersiz kimliği.
+        raw_skeleton_data raw_data;             ///< İskelet hiyerarşi ve kemik verisi.
+    };
+
+    /**
+     * @struct animation_clip_asset
+     * @brief İskelete uygulanabilir zaman damgalı hareket (keyframe) verilerini tutan varlık.
+     */
+    struct animation_clip_asset {
+        asset_guid guid;                        ///< Animasyonun benzersiz kimliği.
+        raw_animation_data raw_data;            ///< Anahtar kare ve kanal verisi.
+    };
+
+    /**
+     * @struct skinned_mesh_asset
+     * @brief İskeletli tekil bir alt ağın GPU tampon tanımlayıcılarını tutar.
+     */
+    struct skinned_mesh_asset {
+        unsigned int vao{ 0 };                  ///< Vertex Array Object (OpenGL Kimliği).
+        unsigned int vbo{ 0 };                  ///< Vertex Buffer Object (OpenGL Kimliği).
+        unsigned int ebo{ 0 };                  ///< Element Buffer Object (OpenGL Kimliği).
+        unsigned int index_count{ 0 };          ///< Çizilecek toplam indeks sayısı.
+        glm::vec3 local_center{ 0.0f };         ///< Sınırlayıcı küre için yerel merkez noktası.
+        float local_radius{ 0.0f };             ///< Sınırlayıcı küre yarıçapı.
+    };
+
+    /**
+     * @struct skinned_model_asset
+     * @brief İskeletli alt ağlardan, bağlı iskeletten ve gömülü animasyonlardan oluşan tam 3D model varlığı.
+     */
+    struct skinned_model_asset {
+        asset_guid guid;                                            ///< Modelin benzersiz kimliği.
+        std::vector<skinned_mesh_asset> sub_meshes;                 ///< Modele ait iskeletli alt ağlar.
+        raw_skinned_model_data raw_data;                            ///< CPU üzerinde tutulan ham model verisi.
+        handle<skeleton_asset> skeleton_handle;                     ///< Bağlı iskelet varlığı tanıtıcısı.
+        std::vector<handle<animation_clip_asset>> animation_handles; ///< Modele gömülü animasyon klipleri.
+    };
+
+    /**
      * @struct shader_asset
      * @brief GPU üzerinde derlenecek olan gölgelendirici (shader) programı varlığı.
      */

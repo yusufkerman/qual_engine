@@ -195,6 +195,83 @@ namespace sera {
                 }
             }
 
+            // 11. Skinned Mesh Component (Aria Entegrasyonu)
+            if (reg.has_component<skinned_mesh_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<skinned_mesh_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    const aria::asset_guid guid =
+                        m_asset_resolver.to_guid<aria::skinned_model_asset>(comp->model_handle);
+
+                    comp_json["model_guid"] = uuids::to_string(guid);
+                    comp_json["sub_mesh_index"] = comp->sub_mesh_index;
+                    comp_json["cast_shadows"] = comp->cast_shadows;
+
+                    comps_out["skinned_mesh_component"] = comp_json;
+                }
+            }
+
+            // 12. Skeleton Component
+            if (reg.has_component<skeleton_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<skeleton_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    const aria::asset_guid guid =
+                        m_asset_resolver.to_guid<aria::skeleton_asset>(comp->skeleton_handle);
+
+                    comp_json["skeleton_guid"] = uuids::to_string(guid);
+                    comps_out["skeleton_component"] = comp_json;
+                }
+            }
+
+            // 13. Animator Component (Aria Animasyon Klibi Entegrasyonu)
+            if (reg.has_component<animator_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<animator_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    const aria::asset_guid guid =
+                        m_asset_resolver.to_guid<aria::animation_clip_asset>(comp->current_clip);
+
+                    comp_json["clip_guid"] = uuids::to_string(guid);
+                    comp_json["playback_time"] = comp->playback_time;
+                    comp_json["playback_speed"] = comp->playback_speed;
+                    comp_json["is_playing"] = comp->is_playing;
+                    comp_json["is_looping"] = comp->is_looping;
+                    comp_json["apply_root_motion"] = comp->apply_root_motion;
+
+                    comps_out["animator_component"] = comp_json;
+                }
+            }
+
+            // 14. Bone Attachment Component (Kemik Soketi)
+            if (reg.has_component<bone_attachment_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<bone_attachment_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    std::string target_uuid = "";
+                    if (comp->target_skeleton_entity != 0)
+                    {
+                        target_uuid = m_entity_registry.get_uuid(comp->target_skeleton_entity);
+                    }
+
+                    comp_json["target_skeleton_uuid"] = target_uuid;
+                    comp_json["bone_name"] = comp->bone_name;
+                    comp_json["local_offset"] = { comp->local_offset.x, comp->local_offset.y, comp->local_offset.z };
+                    comp_json["local_rotation"] = { comp->local_rotation.x, comp->local_rotation.y, comp->local_rotation.z };
+                    comp_json["local_scale"] = { comp->local_scale.x, comp->local_scale.y, comp->local_scale.z };
+
+                    comps_out["bone_attachment_component"] = comp_json;
+                }
+            }
+
             scene_json["entities"].push_back(entity_json);
         }
 
@@ -380,6 +457,129 @@ namespace sera {
                         comp.script_name = name;
                         script_factory::instantiate_script(name, current_e, reg);
                     }
+                }
+
+                // 11. Skinned Mesh Component
+                if (comps_json.contains("skinned_mesh_component"))
+                {
+                    skinned_mesh_component comp{};
+
+                    const std::string guid_str = comps_json["skinned_mesh_component"].value("model_guid", "");
+                    const auto parsed = uuids::uuid::from_string(guid_str);
+
+                    if (parsed)
+                    {
+                        comp.model_handle = m_asset_resolver.to_handle<aria::skinned_model_asset>(*parsed);
+                    }
+
+                    comp.sub_mesh_index = comps_json["skinned_mesh_component"].value("sub_mesh_index", size_t{ 0 });
+                    comp.cast_shadows = comps_json["skinned_mesh_component"].value("cast_shadows", true);
+
+                    reg.add_component<skinned_mesh_component>(current_e, comp);
+
+                    // Eğer model yüklendiyse ve entity'de henüz skeleton_component yoksa, modelden otomatik bağla
+                    if (comp.model_handle.is_valid() && m_ctx.aria_system)
+                    {
+                        const auto* modelData = m_ctx.aria_system->get_skinned_model_data(comp.model_handle);
+                        if (modelData && modelData->skeleton_handle.is_valid())
+                        {
+                            if (!reg.has_component<skeleton_component>(current_e))
+                            {
+                                auto& skelComp = reg.add_component<skeleton_component>(current_e);
+                                skelComp.skeleton_handle = modelData->skeleton_handle;
+                                skelComp.is_dirty = true;
+                            }
+                        }
+                    }
+                }
+
+                // 12. Skeleton Component
+                if (comps_json.contains("skeleton_component"))
+                {
+                    skeleton_component comp{};
+
+                    const std::string guid_str = comps_json["skeleton_component"].value("skeleton_guid", "");
+                    const auto parsed = uuids::uuid::from_string(guid_str);
+
+                    if (parsed)
+                    {
+                        comp.skeleton_handle = m_asset_resolver.to_handle<aria::skeleton_asset>(*parsed);
+                    }
+                    comp.is_dirty = true;
+
+                    if (reg.has_component<skeleton_component>(current_e))
+                    {
+                        auto* existing = reg.get_component<skeleton_component>(current_e);
+                        if (comp.skeleton_handle.is_valid())
+                        {
+                            existing->skeleton_handle = comp.skeleton_handle;
+                        }
+                    }
+                    else
+                    {
+                        reg.add_component<skeleton_component>(current_e, comp);
+                    }
+                }
+
+                // 13. Animator Component
+                if (comps_json.contains("animator_component"))
+                {
+                    animator_component comp{};
+
+                    const std::string guid_str = comps_json["animator_component"].value("clip_guid", "");
+                    const auto parsed = uuids::uuid::from_string(guid_str);
+
+                    if (parsed)
+                    {
+                        comp.current_clip = m_asset_resolver.to_handle<aria::animation_clip_asset>(*parsed);
+                    }
+
+                    comp.playback_time = comps_json["animator_component"].value("playback_time", 0.0f);
+                    comp.playback_speed = comps_json["animator_component"].value("playback_speed", 1.0f);
+                    comp.is_playing = comps_json["animator_component"].value("is_playing", true);
+                    comp.is_looping = comps_json["animator_component"].value("is_looping", true);
+                    comp.apply_root_motion = comps_json["animator_component"].value("apply_root_motion", false);
+
+                    reg.add_component<animator_component>(current_e, comp);
+                }
+
+                // 14. Bone Attachment Component
+                if (comps_json.contains("bone_attachment_component"))
+                {
+                    bone_attachment_component comp{};
+
+                    const std::string target_uuid = comps_json["bone_attachment_component"].value("target_skeleton_uuid", "");
+                    if (!target_uuid.empty())
+                    {
+                        auto it = uuid_to_runtime_entity_map.find(target_uuid);
+                        if (it != uuid_to_runtime_entity_map.end())
+                        {
+                            comp.target_skeleton_entity = it->second;
+                        }
+                    }
+
+                    comp.bone_name = comps_json["bone_attachment_component"].value("bone_name", "");
+
+                    if (comps_json["bone_attachment_component"].contains("local_offset"))
+                    {
+                        const auto& v = comps_json["bone_attachment_component"]["local_offset"];
+                        if (v.is_array() && v.size() == 3)
+                            comp.local_offset = glm::vec3(v[0].get<float>(), v[1].get<float>(), v[2].get<float>());
+                    }
+                    if (comps_json["bone_attachment_component"].contains("local_rotation"))
+                    {
+                        const auto& v = comps_json["bone_attachment_component"]["local_rotation"];
+                        if (v.is_array() && v.size() == 3)
+                            comp.local_rotation = glm::vec3(v[0].get<float>(), v[1].get<float>(), v[2].get<float>());
+                    }
+                    if (comps_json["bone_attachment_component"].contains("local_scale"))
+                    {
+                        const auto& v = comps_json["bone_attachment_component"]["local_scale"];
+                        if (v.is_array() && v.size() == 3)
+                            comp.local_scale = glm::vec3(v[0].get<float>(), v[1].get<float>(), v[2].get<float>());
+                    }
+
+                    reg.add_component<bone_attachment_component>(current_e, comp);
                 }
             }
         }

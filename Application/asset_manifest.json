@@ -35,14 +35,17 @@
     "8be082d0-aec8-5a89-adeb-3603feae9e3e": "engine://builtin/sphere",
     "8c7ed28a-ca8c-4b66-acbc-c8717df22f1c": "Assets\\Textures\\TreePack\\Models\\tree07.fbx",
     "93f89b33-630a-488c-9ca0-8c7fe6babee2": "Assets\\BlueMat.json",
+    "94477553-e874-4f21-babd-f06e8d8d2b84": "Assets\\X Bot.fbx",
     "97b99630-a078-4374-bdf8-c6c54bfe7bbb": "Assets\\Textures\\TreePack\\Models\\grass03.fbx",
     "98f5da30-a21e-4590-9b54-a09722397752": "Assets\\Textures\\TreePack\\Models\\grass07.fbx",
     "9a413a23-309e-40e7-9833-f456aecbea6d": "Assets\\Textures\\Grass_02-512x512.png",
+    "9d4ec282-55e2-4bb6-987d-d1eedc319a52": "Assets\\Capoeira.fbx",
     "9d54835d-85d2-418f-8066-39b28346c1a4": "Assets\\Textures\\TreePack\\Textures\\Plants.png",
     "9d7cefde-d73a-4948-b44e-7cda1ea1a7f2": "Assets\\Scripts\\player_controller.h",
     "a124749c-c358-4e77-aacb-78f2ddc74924": "Assets\\Textures\\TreePack\\Models\\grass02.fbx",
     "ab217918-3c47-43c5-b01e-e4a5feae6a82": "Shaders/Skybox/skybox",
     "afc0c330-5fd2-441b-bc8e-7f0b5ca72df3": "Assets\\grassMat.json",
+    "b3a89030-9d05-40bf-81c1-e0019fdff525": "Assets\\Capoeira (1).fbx",
     "b8796d4b-89c3-411c-b3eb-1cbb876256eb": "Assets\\Textures\\rockModelNormal.png",
     "b96d4145-ff54-48eb-a12c-139a77b25f40": "Assets\\Textures\\TreePack\\Textures\\treee03.png",
     "c10d2850-634a-4e41-bd53-add2e817e129": "Shaders/default_shader",
@@ -51,6 +54,7 @@
     "ca6418ad-3833-40aa-9847-5bbc212a890a": "Shaders/Debug/grid",
     "cbded88b-e6ae-4798-8f31-0ecc9768ff7d": "Assets\\Textures\\TreePack\\Models\\tree04.fbx",
     "cbf0808c-dd75-4252-b7c7-bd135b53a6cd": "Assets\\Textures\\TreePack\\Models\\tree06.fbx",
+    "cd5743f9-dbda-4c13-8a08-c41f6c9bfa71": "Shaders/skinned_default",
     "cdfe8a95-927e-4209-9227-86469bdddb56": "Assets\\rockModel.obj",
     "d23a0aff-3fdc-5851-a6c3-e9623da3cd11": "engine://builtin/cube",
     "d7408a69-7564-4a39-ad6f-bbb3c9d379c7": "Assets\\Textures\\TreePack\\Models\\grass04.fbx",
@@ -59,5 +63,6 @@
     "de1452e3-0457-4f92-add9-59575ee45715": "Assets\\Scripts\\camera_controller.h",
     "df9ac4df-e050-43a3-b6a9-f880a62c80a7": "Assets\\Test\\test.txt",
     "e0ab67b5-d815-45b4-99ac-af0455c267ad": "Assets\\Textures\\TreePack\\Models\\tree05.fbx",
-    "e42141b8-c6e4-473e-ac8e-6596325f4861": "Assets\\YellowMat.json"
+    "e42141b8-c6e4-473e-ac8e-6596325f4861": "Assets\\YellowMat.json",
+    "e5c2194b-4b19-4824-a749-33b684cb32fa": "Shaders/shadow_skinned"
 }

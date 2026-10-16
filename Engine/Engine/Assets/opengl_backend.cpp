@@ -86,6 +86,59 @@ namespace aria {
         return out_submeshes;
     }
 
+    std::vector<submesh_bridge> opengl_backend::create_skinned_model(const raw_skinned_model_data& raw_data) {
+        std::vector<submesh_bridge> out_submeshes;
+        out_submeshes.reserve(raw_data.sub_meshes.size());
+
+        for (const auto& raw_mesh : raw_data.sub_meshes) {
+            submesh_bridge submesh;
+
+            glGenVertexArrays(1, &submesh.gpu_data.vao_or_buffer_id);
+            glGenBuffers(1, &submesh.gpu_data.vbo);
+            glGenBuffers(1, &submesh.gpu_data.ebo);
+
+            glBindVertexArray(submesh.gpu_data.vao_or_buffer_id);
+
+            glBindBuffer(GL_ARRAY_BUFFER, submesh.gpu_data.vbo);
+            glBufferData(GL_ARRAY_BUFFER, raw_mesh.vertices.size() * sizeof(raw_skinned_vertex), raw_mesh.vertices.data(), GL_STATIC_DRAW);
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, submesh.gpu_data.ebo);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, raw_mesh.indices.size() * sizeof(uint32_t), raw_mesh.indices.data(), GL_STATIC_DRAW);
+
+            // Pozisyon (location = 0)
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(raw_skinned_vertex), (void*)offsetof(raw_skinned_vertex, position));
+
+            // Normal (location = 1)
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(raw_skinned_vertex), (void*)offsetof(raw_skinned_vertex, normal));
+
+            // UV Koordinatları (location = 2)
+            glEnableVertexAttribArray(2);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(raw_skinned_vertex), (void*)offsetof(raw_skinned_vertex, tex_coord));
+
+            // Tanjant (location = 3)
+            glEnableVertexAttribArray(3);
+            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(raw_skinned_vertex), (void*)offsetof(raw_skinned_vertex, tangent));
+
+            // Kemik ID'leri (location = 4 - KRİTİK: Tamsayı için glVertexAttribIPointer!)
+            glEnableVertexAttribArray(4);
+            glVertexAttribIPointer(4, 4, GL_INT, sizeof(raw_skinned_vertex), (void*)offsetof(raw_skinned_vertex, bone_ids));
+
+            // Kemik Ağırlıkları (location = 5)
+            glEnableVertexAttribArray(5);
+            glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(raw_skinned_vertex), (void*)offsetof(raw_skinned_vertex, bone_weights));
+
+            submesh.bounds.local_center = raw_mesh.local_center;
+            submesh.bounds.local_radius = raw_mesh.local_radius;
+
+            glBindVertexArray(0);
+            out_submeshes.push_back(submesh);
+        }
+
+        return out_submeshes;
+    }
+
     gpu_texture_id opengl_backend::create_fallback_texture() {
         GLuint tex_id;
         glGenTextures(1, &tex_id);
@@ -173,6 +226,12 @@ namespace aria {
         }
         else {
             std::cout << "[ARIA OpenGL] Uyari: LightBuffer uniform blogu shader (" << programID << ") icinde bulunamadi!\n";
+        }
+
+        // İskelet / Deri Yüzme Kemik Matris Bloğu Entegrasyonu
+        unsigned int boneBlockIndex = glGetUniformBlockIndex(programID, "BoneMatricesBlock");
+        if (boneBlockIndex != GL_INVALID_INDEX) {
+            glUniformBlockBinding(programID, boneBlockIndex, 1);
         }
 
         glDeleteShader(vs);

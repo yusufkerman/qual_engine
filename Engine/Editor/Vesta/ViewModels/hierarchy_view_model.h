@@ -127,6 +127,12 @@ namespace vesta {
         void request_copy_selected();
         void request_duplicate_selected();
         void request_delete_selected();
+
+        void request_create_camera();
+        void request_create_light(light_type type);
+
+        registry& get_registry() noexcept { return m_registry; }
+        const registry& get_registry() const noexcept { return m_registry; }
     };
 
 } // namespace vesta

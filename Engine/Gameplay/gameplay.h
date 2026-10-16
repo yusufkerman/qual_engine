@@ -26,4 +26,5 @@
 #include "gameplay_entity.h"
 #include "gameplay_scene.h"
 #include "gameplay_script.h"
+#include "gameplay_gizmos.h"
 

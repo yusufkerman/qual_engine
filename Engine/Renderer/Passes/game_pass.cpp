@@ -88,6 +88,13 @@ void game_pass::render(EngineContext& ctx)
                 gameView,
                 gameProj
             );
+
+            // İsteğe bağlı çalışma zamanı (Gameplay API) gizmolarını oyun ekranında çiz
+            if (ctx.aria_system && ctx.gizmoSystem.settings().enabled && ctx.gizmoSystem.settings().show_gameplay_gizmos_in_game)
+            {
+                const unsigned int gizmoShaderID = ctx.aria_system->get_shader_id(ctx.gizmoShaderHandle);
+                ctx.gizmoSystem.RenderGameplayGizmos(gameView, gameProj, gizmoShaderID);
+            }
         }
     }
 

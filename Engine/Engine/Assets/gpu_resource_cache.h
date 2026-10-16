@@ -32,6 +32,7 @@ namespace aria {
 
         std::map<handle<texture_asset>, gpu_texture_id> m_texture_cache;
         std::map<handle<model_asset>, std::vector<submesh_runtime_info>> m_model_cache;
+        std::map<handle<skinned_model_asset>, std::vector<submesh_runtime_info>> m_skinned_model_cache;
         std::map<handle<shader_asset>, gpu_shader_id> m_shader_cache;
 
         gpu_texture_id m_fallback_texture_id{ 0 };  ///< Hatalı veya eksik dokular için yedek (fallback) doku kimliği.
@@ -67,6 +68,11 @@ namespace aria {
         submesh_runtime_info get_submesh_info(handle<model_asset> h, size_t sub_mesh_index);
 
         /**
+         * @brief İskeletli modele ait alt mesh'in GPU kimliğini ve sınırlarını döndürür. GPU'ya yüklenmemişse yükler.
+         */
+        submesh_runtime_info get_skinned_submesh_info(handle<skinned_model_asset> h, size_t sub_mesh_index);
+
+        /**
          * @brief Varlığa ait shader programının GPU kimliğini döndürür. Derlenmemişse derler ve yükler.
          */
         gpu_shader_id get_shader_id(handle<shader_asset> h);
@@ -75,6 +81,7 @@ namespace aria {
 
         void evict_texture(handle<texture_asset> h);
         void evict_model(handle<model_asset> h);
+        void evict_skinned_model(handle<skinned_model_asset> h);
         void evict_shader(handle<shader_asset> h);
 
         /**

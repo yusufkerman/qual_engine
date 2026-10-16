@@ -35,6 +35,30 @@ namespace aria {
         [[nodiscard]] static std::optional<raw_model_data> load_model_to_cpu(const std::string& file_path);
 
         /**
+         * @brief İskelet ve animasyon içeren 3D model dosyasını (Mixamo FBX vb.) diskten okur ve CPU tarafında ham derili model verisine dönüştürür.
+         *
+         * @param file_path Model dosyasının tam veya göreceli yolu.
+         * @return std::optional<raw_skinned_model_data> Yükleme başarılıysa derili model, iskelet ve animasyon verisi döner.
+         */
+        [[nodiscard]] static std::optional<raw_skinned_model_data> load_skinned_model_to_cpu(const std::string& file_path);
+
+        /**
+         * @brief Model dosyasından sadece iskelet hiyerarşisi ve kemik verilerini ayrıştırır.
+         *
+         * @param file_path Model dosyasının yolu.
+         * @return std::optional<raw_skeleton_data> Yükleme başarılıysa iskelet verisi döner.
+         */
+        [[nodiscard]] static std::optional<raw_skeleton_data> load_skeleton_to_cpu(const std::string& file_path);
+
+        /**
+         * @brief FBX veya benzeri animasyon dosyasından gömülü veya salt animasyon kliplerini ayrıştırır.
+         *
+         * @param file_path Animasyon dosyasının yolu.
+         * @return std::optional<std::vector<raw_animation_data>> Dosyadaki tüm animasyon klipleri koleksiyonu.
+         */
+        [[nodiscard]] static std::optional<std::vector<raw_animation_data>> load_animations_to_cpu(const std::string& file_path);
+
+        /**
          * @brief JSON formatındaki materyal dosyasını diskten okur ve CPU tarafında ham materyal verisine dönüştürür.
          *
          * @param file_path Materyal dosyasının tam veya göreceli yolu.

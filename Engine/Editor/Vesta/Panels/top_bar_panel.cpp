@@ -1,6 +1,6 @@
 /**
  * @file top_bar_panel.cpp
- * @brief Üst kontrol çubuğu panelinin ImGui ve dosya seçici (NFD) çizim uygulaması.
+ * @brief Üst kontrol çubuğu paneli ve Window açılır menüsü çizim uygulaması.
  */
 
 #include "top_bar_panel.h"
@@ -10,9 +10,23 @@
 
 namespace vesta {
 
-    top_bar_panel::top_bar_panel(top_bar_view_model& vm)
+    top_bar_panel::top_bar_panel(top_bar_view_model& vm, const std::vector<IEditorPanel*>* panels)
         : m_vm(vm)
+        , m_panels(panels)
     {
+    }
+
+    IEditorPanel* top_bar_panel::find_panel(const std::string& title) const
+    {
+        if (!m_panels) return nullptr;
+        for (auto* p : *m_panels)
+        {
+            if (p && p->get_title() == title)
+            {
+                return p;
+            }
+        }
+        return nullptr;
     }
 
     void top_bar_panel::render()
@@ -69,6 +83,59 @@ namespace vesta {
                     NFD_FreePath(outPath);
                 }
             }
+        }
+
+        ImGui::SameLine();
+        ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+        ImGui::SameLine();
+
+        // ====================================================================
+        // WINDOW MENÜSÜ (GENERAL VE RENDERING PENCERELERİ)
+        // ====================================================================
+        if (ImGui::Button("Window"))
+        {
+            ImGui::OpenPopup("TopBarWindowMenuPopup");
+        }
+
+        if (ImGui::BeginPopup("TopBarWindowMenuPopup"))
+        {
+            if (ImGui::BeginMenu("General"))
+            {
+                auto drawWindowItem = [this](const char* title) {
+                    IEditorPanel* p = find_panel(title);
+                    if (!p) return;
+                    const bool isOpen = p->is_open();
+                    // Zaten açık ise devre dışı (disabled) bırakılır, açılamaz
+                    if (ImGui::MenuItem(title, nullptr, isOpen, !isOpen))
+                    {
+                        p->set_open(true);
+                    }
+                };
+
+                drawWindowItem("Scene");
+                drawWindowItem("Game");
+                drawWindowItem("Hierarchy");
+                drawWindowItem("Inspector");
+                drawWindowItem("Asset Browser");
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Rendering"))
+            {
+                IEditorPanel* p = find_panel("Lighting");
+                if (p)
+                {
+                    const bool isOpen = p->is_open();
+                    if (ImGui::MenuItem("Lighting", nullptr, isOpen, !isOpen))
+                    {
+                        p->set_open(true);
+                    }
+                }
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndPopup();
         }
 
         ImGui::End();

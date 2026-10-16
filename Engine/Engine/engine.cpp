@@ -14,6 +14,7 @@
 #include "../Externals/nfd/nfd.h"
 #include "../Renderer/Passes/ui_pass.h"
 #include "../Renderer/Passes/grid_pass.h"
+#include "../Renderer/Passes/gizmo_pass.h"
 #include "../Engine/asset_pipeline.h"
 #include "../Sera/sera.h"
 #include "../Editor/editor_context.h"
@@ -88,11 +89,13 @@ namespace
 
         if (editorCtx.mode == EngineMode::PLAY)
         {
+            ctx.gizmoSystem.ClearGameplay();
             ctx.session.play(ctx);
             physics_bridge::create_physics_world(ctx, ctx.session.game_scene());
         }
         else
         {
+            ctx.gizmoSystem.ClearGameplay();
             physics_bridge::destroy_physics_world(ctx, ctx.session.runtime_scene());
             ctx.session.stop();
         }
@@ -164,8 +167,10 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
 
     // Gerekli Shader'ları Aria üzerinden içe aktar
     ctx.defaultShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/default_shader");
+    ctx.skinnedShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/skinned_default");
     ctx.gizmoShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Debug/gizmo");
     ctx.shadowShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/shadow");
+    ctx.skinnedShadowShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/shadow_skinned");
     ctx.gridShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Debug/grid");
     ctx.skyboxShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Skybox/skybox");
 
@@ -176,6 +181,17 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
         glUseProgram(mainGLid);
         glUniform1i(glGetUniformLocation(mainGLid, "diffuseTex"), 0);
         glUniform1i(glGetUniformLocation(mainGLid, "normalTex"), 1);
+        glUseProgram(0);
+    }
+
+    // İskelet animasyon shader'ı için ilk uniform değerlerini bağla
+    unsigned int skinnedGLid = ctx.aria_system->get_shader_id(ctx.skinnedShaderHandle);
+    if (skinnedGLid != 0)
+    {
+        glUseProgram(skinnedGLid);
+        glUniform1i(glGetUniformLocation(skinnedGLid, "diffuseTex"), 0);
+        glUniform1i(glGetUniformLocation(skinnedGLid, "normalTex"), 1);
+        glUniform1i(glGetUniformLocation(skinnedGLid, "shadowMap"), 2);
         glUseProgram(0);
     }
 
@@ -224,7 +240,11 @@ void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
         // TODO: Sabit delta time (dt) ileride dinamik zaman ölçümüne çevrilmelidir.
         float dt = 0.016f;
         ctx.inputState.active = (!ctx.isEditorBuild) || (ctx.vestaSys.viewport_state().game().focused);
+        ctx.gizmoSystem.ClearGameplay();
+        ctx.gizmoSystem.SetGameplayWriteMode(true);
         ctx.session.game_scene().on_update_runtime(dt);
+        ctx.gizmoSystem.SetGameplayWriteMode(false);
+        ctx.animationSystem.update(ctx.session.game_scene().get_registry(), ctx.aria_system, dt);
     }
 
     ctx.session.game_scene().update_light_batch();
@@ -232,6 +252,10 @@ void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 
     if (ctx.isEditorBuild)
     {
+        if (editorCtx.mode != EngineMode::PLAY)
+        {
+            ctx.animationSystem.update(ctx.session.editor_scene().get_registry(), ctx.aria_system, 0.0f);
+        }
         editor_layer::update(ctx, editorCtx);
         ctx.session.editor_scene().update_light_batch();
     }
@@ -246,6 +270,7 @@ void Engine::render(EngineContext& ctx, EditorContext& editorCtx)
     {
         editor_pass::render(ctx, editorCtx);
         grid_pass::render(ctx, editorCtx);
+        gizmo_pass::render(ctx, editorCtx);
         editor_layer::render(ctx, editorCtx);
     }
 

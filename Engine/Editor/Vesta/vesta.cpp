@@ -14,6 +14,10 @@
 #include "Inspector/Components/native_script_component_ui.h"
 #include "Inspector/Components/rigidbody_component_ui.h"
 #include "Inspector/Components/transform_component_ui.h"
+#include "Inspector/Components/skinned_mesh_component_ui.h"
+#include "Inspector/Components/animator_component_ui.h"
+#include "Inspector/Components/skeleton_component_ui.h"
+#include "Inspector/Components/bone_attachment_component_ui.h"
 #include "Inspector/Assets/material_inspector.h"
 
 // --- Çekirdek Sistemler ve Fizik ---
@@ -42,6 +46,10 @@ namespace vesta {
         register_native_script_ui_system();
         register_material_ui_system(*engineCtx.aria_system);
         register_mesh_ui_system(*engineCtx.aria_system);
+        register_skinned_mesh_ui_system(*engineCtx.aria_system);
+        register_animator_ui_system(*engineCtx.aria_system);
+        register_skeleton_ui_system(*engineCtx.aria_system);
+        register_bone_attachment_ui_system();
 
         // 2. Çekirdek Servislerin Hazırlanması
         registry& reg = engineCtx.session.game_scene().get_registry();
@@ -56,11 +64,18 @@ namespace vesta {
 
         // 4. Editör Panelleri ve ViewModel'lerin Başlatılması
         init_top_bar(engineCtx, editorCtx);
-        init_scene_viewport(engineCtx);
+        init_scene_viewport(engineCtx, editorCtx);
         init_game_viewport(engineCtx);
-        init_hierarchy(reg);
-        init_inspector(reg);
+        init_hierarchy(reg, engineCtx);
+        init_inspector(reg, engineCtx);
         init_asset_browser(*ariaSys);
+        init_lighting(engineCtx);
+
+        // Top bar Window menüsü için panel listesi referansını ata
+        if (m_top_bar_panel)
+        {
+            m_top_bar_panel->set_panels_reference(&m_panels);
+        }
 
         // 5. Fizik Kancalarının (Hooks) Uygulanması
         auto& physApi = engineCtx.physicsSystem.api();
@@ -115,15 +130,20 @@ namespace vesta {
         register_panel(m_top_bar_panel.get());
     }
 
-    void vesta_system::init_scene_viewport(EngineContext& ctx)
+    void vesta_system::init_scene_viewport(EngineContext& engineCtx, EditorContext& editorCtx)
     {
         m_scene_viewport_vm = std::make_unique<scene_viewport_view_model>(m_viewport_state);
 
         if (m_scene_viewport_vm) {
-            m_scene_viewport_vm->set_texture_id(ctx.editorTarget.tex);
+            m_scene_viewport_vm->set_texture_id(engineCtx.editorTarget.tex);
         }
 
-        m_scene_viewport_panel = std::make_unique<scene_viewport_panel>(*m_scene_viewport_vm, m_viewport_state);
+        m_scene_viewport_panel = std::make_unique<scene_viewport_panel>(
+            *m_scene_viewport_vm,
+            m_viewport_state,
+            &engineCtx,
+            &editorCtx
+        );
         register_panel(m_scene_viewport_panel.get());
     }
 
@@ -139,18 +159,19 @@ namespace vesta {
         register_panel(m_game_viewport_panel.get());
     }
 
-    void vesta_system::init_hierarchy(registry& registry)
+    void vesta_system::init_hierarchy(registry& registry, EngineContext& engineCtx)
     {
         m_hierarchy_panel = std::make_unique<hierarchy_panel>(
             *m_editable_world,
             registry,
-            *m_selection_manager
+            *m_selection_manager,
+            &engineCtx.gizmoSystem.settings()
         );
 
         register_panel(m_hierarchy_panel.get());
     }
 
-    void vesta_system::init_inspector(registry& reg)
+    void vesta_system::init_inspector(registry& reg, EngineContext& engineCtx)
     {
         m_inspector_vm = std::make_unique<inspector_view_model>(
             *m_editable_world,
@@ -158,7 +179,10 @@ namespace vesta {
             *m_selection_manager
         );
 
-        m_inspector_panel = std::make_unique<inspector_panel>(std::move(m_inspector_vm));
+        m_inspector_panel = std::make_unique<inspector_panel>(
+            std::move(m_inspector_vm),
+            &engineCtx.gizmoSystem.settings()
+        );
         register_panel(m_inspector_panel.get());
     }
 
@@ -194,6 +218,12 @@ namespace vesta {
         m_asset_browser_panel->init();
 
         register_panel(m_asset_browser_panel.get());
+    }
+
+    void vesta_system::init_lighting(EngineContext& engineCtx)
+    {
+        m_lighting_panel = std::make_unique<lighting_panel>(engineCtx);
+        register_panel(m_lighting_panel.get());
     }
 
     void vesta_system::update()
