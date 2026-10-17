@@ -34,7 +34,7 @@ namespace {
 
 } // anonymous namespace
 
-void runtime_layer::update(EngineContext& ctx, EditorContext& editorCtx)
+void runtime_layer::fixed_update(EngineContext& ctx, EditorContext& editorCtx, float fixedDeltaTime)
 {
     // Yalnızca oyun oynatma modundayken simülasyonu yürüt
     if (editorCtx.mode != EngineMode::PLAY) {
@@ -52,9 +52,14 @@ void runtime_layer::update(EngineContext& ctx, EditorContext& editorCtx)
     // 2. Kamera mantığını işlet
     update_runtime_camera(ctx);
 
-    // 3. Fizik motorunu sabit adımla ilerlet
-    ctx.physicsSystem.update(FIXED_DELTA_TIME);
+    // 3. Fizik motorunu sabit adımla ilerlet (Glenn Fiedler Accumulator parametresi)
+    ctx.physicsSystem.update(fixedDeltaTime);
 
     // 4. Simülasyon sonuçlarını (konum/rotasyon) tekrar canlı ECS bileşenlerine yaz (Zero-Copy: kopyalama yapılmaz)
     physics_bridge::sync_physics_to_ecs(ctx, ctx.session.game_scene());
+}
+
+void runtime_layer::update(EngineContext& ctx, EditorContext& editorCtx)
+{
+    fixed_update(ctx, editorCtx, ctx.time.fixed_delta_time());
 }

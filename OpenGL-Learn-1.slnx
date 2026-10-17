@@ -5,4 +5,5 @@
   </Configurations>
   <Project Path="Application/Application.vcxproj" Id="88494d56-2c91-4d9d-9bce-0cd8b869e24c" />
   <Project Path="Engine/Engine.vcxproj" Id="da9090cf-8df0-4e1d-85d3-b7c07df3e6e0" />
+  <Project Path="GameRuntime/GameRuntime.vcxproj" Id="47e690b1-56a8-4309-8c2d-a480ee6e80a1" />
 </Solution>

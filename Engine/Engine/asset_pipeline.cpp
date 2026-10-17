@@ -5,6 +5,7 @@
 
 #include "asset_pipeline.h"
 #include "engine_context.h"
+#include "../Resources/engine_resources.h"
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -24,6 +25,11 @@ namespace asset_pipeline
      */
     aria::asset_guid get_or_create_meta_guid(const std::string& asset_path)
     {
+        // 1. Motor dahili kaynağı ise sabit deterministik GUID'i doğrudan dön, diske meta yazma
+        if (auto builtin = engine_resources::get_builtin_guid_for_path(asset_path)) {
+            return *builtin;
+        }
+
         std::string meta_path = asset_path + ".meta";
 
         if (fs::exists(meta_path)) {
@@ -158,6 +164,14 @@ namespace asset_pipeline
         return aria_system->import_material(guid, path);
     }
 
+    aria::handle<aria::material_asset> reload_material(aria::system* aria_system, const std::string& path)
+    {
+        if (!aria_system) return {};
+
+        aria::asset_guid guid = get_or_create_meta_guid(path);
+        return aria_system->reload_material(guid, path);
+    }
+
     /**
      * @brief Shader dosyasını sisteme içe aktarır.
      *
@@ -169,8 +183,9 @@ namespace asset_pipeline
     {
         if (!ctx.aria_system) return {};
 
+        std::string resolved = engine_resources::resolve_path(path);
         aria::asset_guid guid = get_or_create_meta_guid(path);
-        return ctx.aria_system->import_shader(guid, path);
+        return ctx.aria_system->import_shader(guid, resolved);
     }
 
     /**

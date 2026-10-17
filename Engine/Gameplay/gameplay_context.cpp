@@ -29,6 +29,11 @@ namespace gameplay
         return s_engine_ctx != nullptr;
     }
 
+    bool context::is_editor_build()
+    {
+        return s_engine_ctx ? s_engine_ctx->isEditorBuild : false;
+    }
+
     EngineContext* context::get_engine_context()
     {
         return s_engine_ctx;

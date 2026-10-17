@@ -16,16 +16,9 @@ void camera_system::update(scene& scn)
     bool foundPrimary = false;
 
     // 1. Birincil kamerayı bul ve birden fazla primary varsa fazlalıkları sıfırla
-    for (const entity e : scn.get_entities())
+    for (auto& [e, cam] : reg.get_all<camera_component>())
     {
-        if (!reg.has_component<camera_component>(e))
-        {
-            continue;
-        }
-
-        auto* cam = reg.get_component<camera_component>(e);
-
-        if (cam->primary)
+        if (cam.primary)
         {
             if (!foundPrimary)
             {
@@ -34,7 +27,7 @@ void camera_system::update(scene& scn)
             }
             else
             {
-                cam->primary = false;
+                cam.primary = false;
             }
         }
     }
@@ -42,14 +35,9 @@ void camera_system::update(scene& scn)
     // 2. Birincil kamera atanmamışsa bulunan ilk kamerayı birincil yap
     if (!foundPrimary)
     {
-        for (const entity e : scn.get_entities())
+        for (auto& [e, cam] : reg.get_all<camera_component>())
         {
-            if (!reg.has_component<camera_component>(e))
-            {
-                continue;
-            }
-
-            reg.get_component<camera_component>(e)->primary = true;
+            cam.primary = true;
             bestCamera = e;
             break;
         }

@@ -221,6 +221,7 @@ namespace aria {
 
         // --- Materyal (Material) ---
         handle<material_asset> load_material(const asset_guid& guid, const std::string& file_path);
+        handle<material_asset> reload_material(const asset_guid& guid, const std::string& file_path);
         [[nodiscard]] material_asset* get_material(handle<material_asset> h);
         void destroy_material(handle<material_asset> h);
 

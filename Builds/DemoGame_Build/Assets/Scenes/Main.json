@@ -1,0 +1,127 @@
+{
+    "active_camera_uuid": "de02aeaa-11e3-463e-83da-f5c81db5821d",
+    "entities": [
+        {
+            "components": {
+                "bounds_component": {
+                    "localCenter": [0.0, 0.0, 0.0],
+                    "localRadius": 1.0
+                },
+                "collider_component": {
+                    "extents": [75.0, 0.5, 75.0],
+                    "type": 0
+                },
+                "mesh_component": {
+                    "model_guid": "d23a0aff-3fdc-5851-a6c3-e9623da3cd11",
+                    "source": 0,
+                    "sub_mesh_index": 0
+                },
+                "name_component": {
+                    "name": "Zemin (Static)"
+                },
+                "rigidbody_component": {
+                    "freeze_rotation_x": false,
+                    "freeze_rotation_y": false,
+                    "freeze_rotation_z": false,
+                    "friction": 0.6,
+                    "mass": 0.0,
+                    "motion": 1,
+                    "restitution": 0.0
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [0.0, -10.0, 0.0],
+                    "rotation": [0.0, 0.0, 0.0],
+                    "scale": [150.0, 1.0, 150.0]
+                }
+            },
+            "uuid": "f9040b50-29a0-4434-bea4-b642304e1188"
+        },
+        {
+            "components": {
+                "bounds_component": {
+                    "localCenter": [0.0, 0.0, 0.0],
+                    "localRadius": 1.0
+                },
+                "collider_component": {
+                    "extents": [1.0, 2.5, 1.0],
+                    "type": 0
+                },
+                "mesh_component": {
+                    "model_guid": "d23a0aff-3fdc-5851-a6c3-e9623da3cd11",
+                    "source": 0,
+                    "sub_mesh_index": 0
+                },
+                "name_component": {
+                    "name": "Player"
+                },
+                "native_script_component": {
+                    "script_name": "player_controller"
+                },
+                "rigidbody_component": {
+                    "freeze_rotation_x": true,
+                    "freeze_rotation_y": false,
+                    "freeze_rotation_z": true,
+                    "friction": 0.3,
+                    "mass": 70.0,
+                    "motion": 2,
+                    "restitution": 0.0
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [0.0, -5.0, 0.0],
+                    "rotation": [0.0, 0.0, 0.0],
+                    "scale": [2.0, 5.0, 2.0]
+                }
+            },
+            "uuid": "5a89b293-50e0-4d21-bc60-0b80c0e10f23"
+        },
+        {
+            "components": {
+                "camera_component": {
+                    "farPlane": 1000.0,
+                    "fov": 45.0,
+                    "nearPlane": 0.1,
+                    "primary": true,
+                    "priority": 0
+                },
+                "name_component": {
+                    "name": "MainCamera"
+                },
+                "native_script_component": {
+                    "script_name": "camera_controller"
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [0.0, 0.0, 10.0],
+                    "rotation": [0.0, 0.0, 0.0],
+                    "scale": [1.0, 1.0, 1.0]
+                }
+            },
+            "uuid": "de02aeaa-11e3-463e-83da-f5c81db5821d"
+        },
+        {
+            "components": {
+                "light_component": {
+                    "cast_shadows": true,
+                    "color": [1.0, 0.95, 0.8],
+                    "inner_cone": 10.0,
+                    "intensity": 2.0,
+                    "outer_cone": 30.0,
+                    "range": 200.0,
+                    "type": 0
+                },
+                "name_component": {
+                    "name": "Main Light"
+                },
+                "transform_component": {
+                    "boundingRadius": 1.0,
+                    "position": [20.0, 50.0, 20.0],
+                    "rotation": [-0.5, 0.5, 0.0],
+                    "scale": [1.0, 1.0, 1.0]
+                }
+            },
+            "uuid": "ca597886-e7fe-4d99-9894-a196e10f9817"
+        }
+    ]
+}

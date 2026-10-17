@@ -6,7 +6,10 @@
 #include "scene.h"
 #include "../Systems/light_system.h"
 #include "../Scene/scriptable_entity.h"
+#include "../Project/project_module.h"
+#include "../Engine/Scripting/script_factory.h"
 #include <iostream>
+#include <vector>
 
 struct EngineContext;
 
@@ -27,23 +30,47 @@ void scene::new_scene()
 
 void scene::on_runtime_start(EngineContext& ctx)
 {
+    project::project_module::instance().sync_context();
     registry& currentReg = get_registry();
+
+    // 1. Modül sonradan yüklendiği veya sahne modülden önce açıldığı için bağlanmamış betikleri fabrikadan bağla
+    std::vector<std::pair<entity, std::string>> scriptsToBind;
+    for (const auto& [e, scriptComp] : currentReg.get_all<native_script_component>())
+    {
+        if (!scriptComp.bind_instantiate && !scriptComp.script_name.empty() && scriptComp.script_name != "None")
+        {
+            scriptsToBind.emplace_back(e, scriptComp.script_name);
+        }
+    }
+    for (const auto& [e, name] : scriptsToBind)
+    {
+        script_factory::instantiate_script(name, e, currentReg);
+    }
+
+    // 2. Betik örneklerini oluştur ve on_create olaylarını tetikle
     for (auto& [e, scriptComp] : currentReg.get_all<native_script_component>())
     {
         if (!scriptComp.bind_instantiate) {
+            std::cerr << "[Scene] Uyari: '" << scriptComp.script_name << "' icin bind_instantiate bulunamadi! (Entity ID: " << e << ")\n";
             continue;
         }
 
         scriptComp.instance = scriptComp.bind_instantiate();
+        if (!scriptComp.instance) {
+            std::cerr << "[Scene] Hata: '" << scriptComp.script_name << "' instance olusturulamadi! (Entity ID: " << e << ")\n";
+            continue;
+        }
         scriptComp.instance->set_entity(e);
         scriptComp.instance->set_registry(&currentReg);
         scriptComp.instance->setContext(&ctx);
         scriptComp.instance->on_create();
+        std::cout << "[Scene] Native script baslatildi: " << scriptComp.script_name << " (Entity ID: " << e << ")\n";
     }
 }
 
 void scene::on_update_runtime(float deltaTime)
 {
+    project::project_module::instance().sync_context();
     registry& currentReg = get_registry();
     for (auto& [e, scriptComp] : currentReg.get_all<native_script_component>())
     {
@@ -52,6 +79,20 @@ void scene::on_update_runtime(float deltaTime)
         }
 
         scriptComp.instance->on_update(deltaTime);
+    }
+}
+
+void scene::on_fixed_update_runtime(float fixedDeltaTime)
+{
+    project::project_module::instance().sync_context();
+    registry& currentReg = get_registry();
+    for (auto& [e, scriptComp] : currentReg.get_all<native_script_component>())
+    {
+        if (!scriptComp.instance) {
+            continue;
+        }
+
+        scriptComp.instance->on_fixed_update(fixedDeltaTime);
     }
 }
 

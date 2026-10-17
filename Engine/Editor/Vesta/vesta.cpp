@@ -25,6 +25,11 @@
 #include "../../Systems/physics_system.h"
 #include "../../Systems/physics_api.h"    
 #include "../../Sera/sera.h"
+#include "../Project/project.h"
+#include "../Project/project_module.h"
+#include "../Project/project_exporter.h"
+#include "../../Externals/nfd/nfd.h"
+#include <imgui.h>
 
 #include <iostream>
 
@@ -70,6 +75,7 @@ namespace vesta {
         init_inspector(reg, engineCtx);
         init_asset_browser(*ariaSys);
         init_lighting(engineCtx);
+        init_rendering_settings(engineCtx);
 
         // Top bar Window menüsü için panel listesi referansını ata
         if (m_top_bar_panel)
@@ -224,6 +230,476 @@ namespace vesta {
     {
         m_lighting_panel = std::make_unique<lighting_panel>(engineCtx);
         register_panel(m_lighting_panel.get());
+    }
+
+    void vesta_system::init_rendering_settings(EngineContext& engineCtx)
+    {
+        m_rendering_panel = std::make_unique<rendering_panel>(engineCtx);
+        register_panel(m_rendering_panel.get());
+    }
+
+    void vesta_system::set_asset_root(const std::string& newPath)
+    {
+        if (m_asset_browser_system)
+        {
+            m_asset_browser_system->set_root_path(newPath);
+        }
+        if (m_asset_browser_vm)
+        {
+            m_asset_browser_vm->refresh();
+        }
+    }
+
+    IEditorPanel* vesta_system::find_panel(const std::string& title) const
+    {
+        for (auto* p : m_panels)
+        {
+            if (p && p->get_title() == title)
+            {
+                return p;
+            }
+        }
+        return nullptr;
+    }
+
+    void vesta_system::render_main_menu_bar(EngineContext& engineCtx, EditorContext& editorCtx)
+    {
+        static bool s_showNewProjectModal = false;
+        static char s_projectNameBuf[128] = "MyGame";
+        static char s_projectParentFolderBuf[512] = "";
+
+        static bool s_showExportModal = false;
+        static char s_exportFolderBuf[512] = "";
+        static bool s_exportCompileScripts = true;
+        static bool s_exportEngineResources = true;
+        static bool s_exportDependencies = true;
+        static bool s_exportFullscreen = false;
+        static std::string s_exportStatusMsg = "";
+        static bool s_exportSuccess = false;
+
+        static bool s_showScriptStatusModal = false;
+        static bool s_scriptStatusSuccess = false;
+        static std::string s_scriptStatusMsg = "";
+
+        if (s_exportFolderBuf[0] == '\0')
+        {
+            const std::string defaultExport = (std::filesystem::current_path() / "Builds").string();
+            snprintf(s_exportFolderBuf, sizeof(s_exportFolderBuf), "%s", defaultExport.c_str());
+        }
+
+        if (s_projectParentFolderBuf[0] == '\0')
+        {
+            const std::string currentDir = std::filesystem::current_path().string();
+            snprintf(s_projectParentFolderBuf, sizeof(s_projectParentFolderBuf), "%s", currentDir.c_str());
+        }
+
+        // ========================================================================
+        // 1. FILE MENÜSÜ (PROJE VE SAHNE YÖNETİMİ)
+        // ========================================================================
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("New Project...", "Ctrl+N"))
+            {
+                s_showNewProjectModal = true;
+            }
+
+            if (ImGui::MenuItem("Open Project...", "Ctrl+O"))
+            {
+                nfdu8char_t* outPath = nullptr;
+                nfdu8filteritem_t filterItem[1] = { { "Project File", "json" } };
+
+                if (NFD_OpenDialogU8(&outPath, filterItem, 1, nullptr) == NFD_OKAY)
+                {
+                    if (outPath != nullptr)
+                    {
+                        project::project_manager::instance().open_project(outPath, engineCtx);
+                        NFD_FreePathU8(outPath);
+                    }
+                }
+            }
+
+            const bool hasActiveProj = project::project_manager::instance().has_active_project();
+            if (ImGui::MenuItem("Save Project", "Ctrl+Shift+S", false, hasActiveProj))
+            {
+                project::project_manager::instance().save_project(engineCtx);
+                if (engineCtx.sera && !project::project_manager::instance().get_descriptor().start_scene.empty())
+                {
+                    const std::string scenePath = project::project_manager::instance().get_project_root() + "/" +
+                        project::project_manager::instance().get_descriptor().start_scene;
+                    engineCtx.sera->save_scene(scenePath, engineCtx.session.editor_scene());
+                }
+            }
+
+            ImGui::Separator();
+
+            const bool isPlaying = (editorCtx.mode == EngineMode::PLAY);
+
+            if (ImGui::MenuItem("New Scene", nullptr, false, !isPlaying))
+            {
+                project::project_manager::setup_starter_scene(engineCtx);
+            }
+
+            if (ImGui::MenuItem("Save Scene", "Ctrl+S", false, !isPlaying))
+            {
+                nfdu8char_t* outPath = nullptr;
+                nfdu8filteritem_t filterItem[1] = { { "Engine Scene", "json" } };
+
+                if (NFD_SaveDialogU8(&outPath, filterItem, 1, nullptr, "scene.json") == NFD_OKAY)
+                {
+                    if (outPath != nullptr)
+                    {
+                        if (engineCtx.sera)
+                        {
+                            engineCtx.sera->save_scene(std::string(outPath), engineCtx.session.editor_scene());
+                        }
+                        NFD_FreePathU8(outPath);
+                    }
+                }
+            }
+
+            if (ImGui::MenuItem("Load Scene...", nullptr, false, !isPlaying))
+            {
+                nfdu8char_t* outPath = nullptr;
+                nfdu8filteritem_t filterItem[1] = { { "Engine Scene", "json" } };
+
+                if (NFD_OpenDialogU8(&outPath, filterItem, 1, nullptr) == NFD_OKAY)
+                {
+                    if (outPath != nullptr)
+                    {
+                        if (engineCtx.sera)
+                        {
+                            engineCtx.sera->load_scene(std::string(outPath), engineCtx.session.editor_scene());
+                        }
+                        NFD_FreePathU8(outPath);
+                    }
+                }
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Exit", "Alt+F4"))
+            {
+                if (engineCtx.window)
+                {
+                    glfwSetWindowShouldClose(engineCtx.window, GLFW_TRUE);
+                }
+            }
+
+            ImGui::EndMenu();
+        }
+
+        // ========================================================================
+        // 2. PROJECT MENÜSÜ (BETİK DERLEME VE STANDALONE EXPORT)
+        // ========================================================================
+        if (ImGui::BeginMenu("Project"))
+        {
+            const bool hasActiveProj = project::project_manager::instance().has_active_project();
+
+            if (ImGui::MenuItem("Build Project Scripts", "F7", false, hasActiveProj))
+            {
+                std::string log;
+                const std::string& root = project::project_manager::instance().get_project_root();
+                project::project_module::instance().unload_module();
+                bool ok = project::project_module::compile_project_scripts(root, log);
+                if (ok)
+                {
+                    std::filesystem::path dllPath = std::filesystem::path(root) / "Binaries" / "GameModule.dll";
+                    bool loaded = project::project_module::instance().load_module(dllPath.string());
+                    s_showScriptStatusModal = true;
+                    s_scriptStatusSuccess = loaded;
+                    if (loaded)
+                    {
+                        const auto& scripts = project::project_module::instance().get_loaded_scripts();
+                        s_scriptStatusMsg = "Project scripts compiled and loaded successfully!\n\nRegistered (" + 
+                                            std::to_string(scripts.size()) + ") script class(es):\n";
+                        for (const auto& s : scripts)
+                        {
+                            s_scriptStatusMsg += "  * " + s + "\n";
+                        }
+                    }
+                    else
+                    {
+                        s_scriptStatusMsg = "Build succeeded but failed to load GameModule.dll:\n" + dllPath.string() + "\n\nBuild Log:\n" + log;
+                    }
+                }
+                else
+                {
+                    s_showScriptStatusModal = true;
+                    s_scriptStatusSuccess = false;
+                    s_scriptStatusMsg = "Failed to compile project scripts:\n\n" + log;
+                }
+            }
+
+            if (ImGui::MenuItem("Reload Game Module", "Ctrl+R", false, hasActiveProj))
+            {
+                project::project_module::instance().reload_module();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Export Standalone Game...", "Ctrl+E", false, hasActiveProj))
+            {
+                s_showExportModal = true;
+                s_exportStatusMsg = "";
+            }
+
+            ImGui::EndMenu();
+        }
+
+        // ========================================================================
+        // 3. WINDOW MENÜSÜ (GENERAL VE RENDERING PENCERELERİ)
+        // ========================================================================
+        if (ImGui::BeginMenu("Window"))
+        {
+            if (ImGui::BeginMenu("General"))
+            {
+                auto drawPanelItem = [this](const char* title) {
+                    IEditorPanel* p = find_panel(title);
+                    if (!p) return;
+                    const bool isOpen = p->is_open();
+                    if (ImGui::MenuItem(title, nullptr, isOpen, !isOpen))
+                    {
+                        p->set_open(true);
+                    }
+                };
+
+                drawPanelItem("Scene");
+                drawPanelItem("Game");
+                drawPanelItem("Hierarchy");
+                drawPanelItem("Inspector");
+                drawPanelItem("Asset Browser");
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Rendering"))
+            {
+                auto drawPanelItem = [this](const char* title) {
+                    IEditorPanel* p = find_panel(title);
+                    if (!p) return;
+                    const bool isOpen = p->is_open();
+                    if (ImGui::MenuItem(title, nullptr, isOpen, !isOpen))
+                    {
+                        p->set_open(true);
+                    }
+                };
+
+                drawPanelItem("Rendering Settings");
+                drawPanelItem("Lighting");
+
+                ImGui::EndMenu();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Reset Layout"))
+            {
+                engineCtx.uiManager.resetLayout();
+            }
+
+            ImGui::EndMenu();
+        }
+
+        // ========================================================================
+        // 3. MODAL POPUP: YENİ PROJE OLUŞTURMA
+        // ========================================================================
+        if (s_showNewProjectModal)
+        {
+            ImGui::OpenPopup("New Project Dialog");
+            s_showNewProjectModal = false;
+        }
+
+        if (ImGui::BeginPopupModal("New Project Dialog", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::TextColored(ImVec4(0.45f, 0.78f, 1.0f, 1.0f), "Create New Game Project");
+            ImGui::TextDisabled("Initialize project directory, assets, and starter scene with only a camera.");
+            ImGui::Separator();
+
+            ImGui::Text("Project Name:");
+            ImGui::InputText("##NewProjectName", s_projectNameBuf, sizeof(s_projectNameBuf));
+
+            ImGui::Spacing();
+            ImGui::Text("Location:");
+            ImGui::InputText("##NewProjectLocation", s_projectParentFolderBuf, sizeof(s_projectParentFolderBuf));
+            ImGui::SameLine();
+            if (ImGui::Button("Browse..."))
+            {
+                nfdu8char_t* outFolder = nullptr;
+                if (NFD_PickFolderU8(&outFolder, s_projectParentFolderBuf) == NFD_OKAY)
+                {
+                    if (outFolder != nullptr)
+                    {
+                        snprintf(s_projectParentFolderBuf, sizeof(s_projectParentFolderBuf), "%s", outFolder);
+                        NFD_FreePathU8(outFolder);
+                    }
+                }
+            }
+
+            ImGui::Spacing();
+            ImGui::TextDisabled("Will create: %s/%s/Assets/ (with starter camera scene)", s_projectParentFolderBuf, s_projectNameBuf);
+            ImGui::Separator();
+
+            if (ImGui::Button("Create Project", ImVec2(140, 0)))
+            {
+                if (strlen(s_projectNameBuf) > 0 && strlen(s_projectParentFolderBuf) > 0)
+                {
+                    project::project_manager::instance().create_project(s_projectParentFolderBuf, s_projectNameBuf, engineCtx);
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel", ImVec2(100, 0)))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        // ========================================================================
+        // 4. MODAL POPUP: STANDALONE OYUN DIŞA AKTARMA (EXPORT)
+        // ========================================================================
+        if (s_showExportModal)
+        {
+            ImGui::OpenPopup("Export Standalone Game");
+            s_showExportModal = false;
+        }
+
+        if (ImGui::BeginPopupModal("Export Standalone Game", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::TextColored(ImVec4(0.45f, 0.78f, 1.0f, 1.0f), "Export Standalone Game (Executable)");
+            ImGui::TextDisabled("Bundles executable player, GameModule.dll, assets, shaders, and boot.config.");
+            ImGui::Separator();
+
+            ImGui::Text("Destination Directory:");
+            ImGui::InputText("##ExportLocation", s_exportFolderBuf, sizeof(s_exportFolderBuf));
+            ImGui::SameLine();
+            if (ImGui::Button("Browse...##Export"))
+            {
+                nfdu8char_t* outFolder = nullptr;
+                if (NFD_PickFolderU8(&outFolder, s_exportFolderBuf) == NFD_OKAY)
+                {
+                    if (outFolder != nullptr)
+                    {
+                        snprintf(s_exportFolderBuf, sizeof(s_exportFolderBuf), "%s", outFolder);
+                        NFD_FreePathU8(outFolder);
+                    }
+                }
+            }
+
+            ImGui::Spacing();
+            ImGui::Checkbox("Recompile Scripts (GameModule.dll)", &s_exportCompileScripts);
+            ImGui::Checkbox("Bundle Engine Resources (EngineResources/)", &s_exportEngineResources);
+            ImGui::Checkbox("Copy Dependencies (assimp-vc145-mt.dll)", &s_exportDependencies);
+            ImGui::Checkbox("Start in Fullscreen", &s_exportFullscreen);
+
+            ImGui::Spacing();
+            ImGui::TextDisabled("Resolution: 1280 x 720 (Defined in boot.config)");
+
+            if (!s_exportStatusMsg.empty())
+            {
+                ImGui::Spacing();
+                ImGui::Separator();
+                if (s_exportSuccess)
+                    ImGui::TextColored(ImVec4(0.35f, 0.92f, 0.52f, 1.0f), "%s", s_exportStatusMsg.c_str());
+                else
+                    ImGui::TextColored(ImVec4(0.92f, 0.35f, 0.35f, 1.0f), "%s", s_exportStatusMsg.c_str());
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Package & Export", ImVec2(160, 0)))
+            {
+                project::export_options opt;
+                opt.output_directory = s_exportFolderBuf;
+                opt.compile_scripts = s_exportCompileScripts;
+                opt.copy_engine_resources = s_exportEngineResources;
+                opt.copy_dependencies = s_exportDependencies;
+                opt.fullscreen = s_exportFullscreen;
+                opt.screen_width = 1280;
+                opt.screen_height = 720;
+
+                auto res = project::project_exporter::export_project(opt);
+                s_exportSuccess = res.success;
+                if (res.success)
+                {
+                    s_exportStatusMsg = "Success: Exported to " + res.target_executable;
+                }
+                else
+                {
+                    s_exportStatusMsg = res.error_message;
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Close", ImVec2(100, 0)))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        // ========================================================================
+        // 5. MODAL POPUP: BETIK DERLEME DURUMU (SCRIPT BUILD STATUS)
+        // ========================================================================
+        if (s_showScriptStatusModal)
+        {
+            ImGui::OpenPopup("Project Scripts Status");
+            s_showScriptStatusModal = false;
+        }
+
+        if (ImGui::BeginPopupModal("Project Scripts Status", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            if (s_scriptStatusSuccess)
+            {
+                ImGui::TextColored(ImVec4(0.35f, 0.92f, 0.52f, 1.0f), "Scripts Built & Loaded Successfully!");
+            }
+            else
+            {
+                ImGui::TextColored(ImVec4(0.92f, 0.35f, 0.35f, 1.0f), "Script Build / Load Failed!");
+            }
+            ImGui::Separator();
+
+            ImGui::BeginChild("ScriptStatusScroll", ImVec2(520, 220), true);
+            ImGui::TextUnformatted(s_scriptStatusMsg.c_str());
+            ImGui::EndChild();
+
+            ImGui::Separator();
+            if (ImGui::Button("Copy to Clipboard"))
+            {
+                ImGui::SetClipboardText(s_scriptStatusMsg.c_str());
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Close", ImVec2(100, 0)))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    void vesta_system::shutdown()
+    {
+        m_panels.clear();
+        m_asset_browser_panel.reset();
+        m_asset_browser_vm.reset();
+        m_asset_browser_system.reset();
+        m_material_service.reset();
+        m_inspector_panel.reset();
+        m_inspector_vm.reset();
+        m_hierarchy_panel.reset();
+        m_game_viewport_panel.reset();
+        m_game_viewport_vm.reset();
+        m_scene_viewport_panel.reset();
+        m_scene_viewport_vm.reset();
+        m_top_bar_panel.reset();
+        m_top_bar_vm.reset();
+        m_lighting_panel.reset();
+        m_rendering_panel.reset();
+        m_command_stack.reset();
+        m_editable_world.reset();
+        m_selection_manager.reset();
     }
 
     void vesta_system::update()

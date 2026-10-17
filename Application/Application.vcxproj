@@ -70,6 +70,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -113,6 +121,8 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine;C:\Libraries\glfw\include;C:\Libraries\glad\include;C:\Libraries\glm;C:\dev\assimp-6.0.5\include;C:\dev\assimp-6.0.5\assimp_build\include;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals\nfd;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals\imgui;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +143,8 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,16 +155,13 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\Libraries\glad\src\glad.c" />
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Assets\Scripts\camera_controller.cpp" />
-    <ClCompile Include="Assets\Scripts\player_controller.cpp" />
-    <ClCompile Include="sandbox.cpp" />
+    <ProjectReference Include="..\Engine\Engine.vcxproj">
+      <Project>{da9090cf-8df0-4e1d-85d3-b7c07df3e6e0}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Assets\Scripts\camera_controller.h" />
-    <ClInclude Include="Assets\Scripts\player_controller.h" />
-    <ClInclude Include="sandbox.h" />
+    <ClCompile Include="..\..\..\..\..\..\Libraries\glad\src\glad.c" />
+    <ClCompile Include="Application.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Debug\gizmo.frag" />

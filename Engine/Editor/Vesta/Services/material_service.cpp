@@ -6,6 +6,7 @@
 #include "material_service.h"
 #include "../../../Engine/asset_pipeline.h" 
 #include "../../../Externals/uuid/uuid.h"   
+#include "../../../Resources/engine_resources.h"
 #include <fstream>
 #include <iostream>
 
@@ -25,8 +26,8 @@ namespace vesta {
             return {};
         }
 
-        // Varsayılan shader için sistemden GUID sorgulanır
-        aria::asset_guid default_shader_guid = asset_pipeline::get_or_create_meta_guid("Shaders/default_shader");
+        // Varsayılan shader için motor dahili GUID'i kullanılır
+        aria::asset_guid default_shader_guid = engine_resources::builtin_guid::default_shader;
 
         // Standart materyal JSON şablonu dosyaya yazılır
         file << "{\n"
@@ -100,7 +101,13 @@ namespace vesta {
         file << serialized_data;
         file.close();
 
-        // Sahnenin (dünyanın) değiştirildiğini sisteme bildir (Kaydedilmemiş değişiklikler için)
+        // 1. Materyali bellekte ve GPU boru hattında anında yeniden yükle (Hot-Reload)
+        if (m_world.get_aria_system()) {
+            m_world.get_aria_system()->reload_material(guid, path_str);
+            m_world.get_aria_system()->save_asset_database();
+        }
+
+        // 2. Sahnenin (dünyanın) değiştirildiğini sisteme bildir (Kaydedilmemiş değişiklikler için)
         m_world.mark_scene_dirty();
         return true;
     }

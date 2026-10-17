@@ -6,6 +6,7 @@
 #include "asset_loader.h"
 #include "../Externals/stb/stb_image.h"
 #include "../Externals/nlohmann/json.hpp"
+#include "../../Resources/engine_resources.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -646,8 +647,9 @@ namespace aria {
     }
 
     std::optional<raw_shader_data> asset_loader::load_shader_to_cpu(const std::string& file_path) {
-        std::string vert_path = file_path + ".vert";
-        std::string frag_path = file_path + ".frag";
+        std::string resolved = engine_resources::resolve_path(file_path);
+        std::string vert_path = resolved + ".vert";
+        std::string frag_path = resolved + ".frag";
 
         std::ifstream vFile(vert_path);
         std::ifstream fFile(frag_path);
@@ -664,7 +666,7 @@ namespace aria {
         }
 
         raw_shader_data raw;
-        raw.debug_path = file_path;
+        raw.debug_path = resolved;
 
         std::stringstream vStr, fStr;
         vStr << vFile.rdbuf();

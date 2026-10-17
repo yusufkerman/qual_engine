@@ -119,6 +119,8 @@ namespace vesta {
 
         virtual const AssetUIInfo* get_asset_ui(const std::string& asset_type) const = 0;
         virtual const std::unordered_map<std::string, AssetUIInfo>& get_asset_registry() const = 0;
+
+        virtual aria::system* get_aria_system() = 0;
     };
 
 } // namespace vesta

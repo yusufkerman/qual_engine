@@ -21,7 +21,17 @@ void InputSystem::update(EngineContext& ctx, EditorContext& editorCtx)
 
     GLFWwindow* window = ctx.window;
     InputState& state = ctx.inputState;
-    const InputMap& map = ctx.inputMap; // Referans ile bağlandı, gereksiz kopya önlendi
+    const InputMap& map = ctx.inputMap;
+
+    // Standalone oyun modunda fare tıklandığında imleci anında yeniden kilitle (Focus geri kazanma)
+    if (!ctx.isEditorBuild && window)
+    {
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS ||
+            glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        {
+            state.cursorLocked = true;
+        }
+    }
 
     // İmleç kilit durumu değiştiyse GLFW API'sine yansıt
     if (state.cursorLocked != m_lastCursorLockState)
@@ -59,8 +69,13 @@ void InputSystem::update(EngineContext& ctx, EditorContext& editorCtx)
     }
 
     // Eylemleri tuş eşlemelerine göre güncelle
-    const auto& bindings = map.getBindings();
+    for (int a = 0; a < static_cast<int>(InputAction::COUNT); ++a)
+    {
+        state.prevActions[a] = state.actions[a];
+        state.actions[a] = false;
+    }
 
+    const auto& bindings = map.getBindings();
     for (const auto& [key, action] : bindings)
     {
         if (key < 0 || key > GLFW_KEY_LAST)
@@ -69,9 +84,10 @@ void InputSystem::update(EngineContext& ctx, EditorContext& editorCtx)
         }
 
         const int a = static_cast<int>(action);
-
-        state.prevActions[a] = state.actions[a];
-        state.actions[a] = state.keys[key];
+        if (state.keys[key])
+        {
+            state.actions[a] = true;
+        }
     }
 
     // Fare koordinatlarını ve delta farkını hesapla
@@ -92,13 +108,13 @@ void InputSystem::update(EngineContext& ctx, EditorContext& editorCtx)
     {
         state.mouseDelta = currentPos - state.mousePos;
 
-        if (state.gameViewportSize.x > 1.0f && state.gameViewportSize.y > 1.0f)
+        if (state.cursorLocked)
         {
             state.gameMouseDelta = state.mouseDelta;
         }
         else
         {
-            state.gameMouseDelta = state.mouseDelta;
+            state.gameMouseDelta = glm::vec2(0.0f, 0.0f);
         }
 
         state.mousePos = currentPos;

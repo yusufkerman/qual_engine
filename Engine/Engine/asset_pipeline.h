@@ -77,6 +77,7 @@ namespace asset_pipeline
      * @return aria::handle<aria::material_asset> İçe aktarılan materyale ait handle.
      */
     aria::handle<aria::material_asset> import_material(aria::system* aria_system, const std::string& path);
+    aria::handle<aria::material_asset> reload_material(aria::system* aria_system, const std::string& path);
 
     /**
      * @brief Dışarıdan gelen gerçek shader dosyalarını Aria'ya kaydeder.

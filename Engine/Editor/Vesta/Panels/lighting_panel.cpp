@@ -5,6 +5,7 @@
 
 #include "lighting_panel.h"
 #include "../../../Engine/engine_context.h"
+#include "../../../Project/project.h"
 #include <imgui.h>
 
 namespace vesta {
@@ -22,6 +23,27 @@ namespace vesta {
         ImGui::Begin(m_title.c_str(), &m_is_open);
 
         ImGui::TextColored(ImVec4(0.45f, 0.78f, 1.0f, 1.0f), "Environment & Lighting Settings");
+
+        // Proje durumu ve ayarları kaydetme butonu
+        const bool hasProj = project::project_manager::instance().has_active_project();
+        if (hasProj)
+        {
+            ImGui::Text("Project: %s", project::project_manager::instance().get_project_name().c_str());
+            ImGui::SameLine();
+            if (ImGui::Button("Save to Project"))
+            {
+                project::project_manager::instance().save_project(m_engine_ctx);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Saves current environment and fog settings directly into project.json");
+            }
+        }
+        else
+        {
+            ImGui::TextDisabled("No active project. (Use File -> New Project / Open Project)");
+        }
+
         ImGui::Separator();
 
         // ====================================================================

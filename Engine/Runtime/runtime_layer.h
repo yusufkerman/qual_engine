@@ -18,10 +18,17 @@ public:
     runtime_layer() = delete;
 
     /**
-     * @brief Oyun sahnesini bir kare simüle eder. Yalnızca EngineMode::PLAY aktifken çalışır.
+     * @brief Sabit zaman adımlı fizik simülasyonunu ve ECS senkronizasyonunu icra eder.
+     * Glenn Fiedler Accumulator döngüsünden sabit zaman adımıyla çağrılır.
      *
-     * @param ctx Motor bağlamı, oturum (session) ve fizik sistemi referansları.
-     * @param editorCtx Editör çalışma durumu ve mod bilgisi (PLAY/EDIT).
+     * @param ctx Motor bağlamı.
+     * @param editorCtx Editör bağlamı.
+     * @param fixedDeltaTime Sabit simülasyon adımı (sn).
+     */
+    static void fixed_update(EngineContext& ctx, EditorContext& editorCtx, float fixedDeltaTime);
+
+    /**
+     * @brief Geriye dönük uyumluluk güncelleme fonksiyonu.
      */
     static void update(EngineContext& ctx, EditorContext& editorCtx);
 };

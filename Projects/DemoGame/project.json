@@ -1,0 +1,32 @@
+{
+    "name": "DemoGame",
+    "version": "1.0.0",
+    "asset_directory": "Assets",
+    "start_scene": "Assets/Scenes/Main.json",
+    "rendering": {
+        "backface_culling": false,
+        "clear_color_game": [0.1, 0.1, 0.1],
+        "clear_color_scene": [0.15, 0.15, 0.15],
+        "cull_bias": 0.0,
+        "enable_frustum_culling": true,
+        "enable_shadows": true,
+        "enable_skybox": true,
+        "shadow_camera_height": 50.0,
+        "shadow_distance": 100.0,
+        "shadow_far_plane": 150.0,
+        "shadow_map_resolution": 2048,
+        "shadow_near_plane": 0.1,
+        "shadow_ortho_size": 40.0,
+        "show_shadow_map_debug": false,
+        "skybox_path": "",
+        "vsync": true,
+        "wireframe": false
+    },
+    "lighting": {
+        "color": [0.7, 0.75, 0.8],
+        "density": 0.015,
+        "enabled": false,
+        "show_in_scene": true
+    }
+}
+

@@ -32,6 +32,17 @@ namespace vesta {
         }
     }
 
+    void asset_browser_system::set_root_path(const std::filesystem::path& new_path) {
+        m_root_path = new_path;
+        m_root_entry.name = new_path.filename().string();
+        if (m_root_entry.name.empty()) {
+            m_root_entry.name = new_path.string();
+        }
+        m_root_entry.full_path = std::filesystem::absolute(new_path);
+        m_root_entry.type = asset_type::folder;
+        refresh();
+    }
+
     asset_type asset_browser_system::get_type_from_extension(const std::filesystem::path& path) {
         if (std::filesystem::is_directory(path)) return asset_type::folder;
 

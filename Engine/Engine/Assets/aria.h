@@ -97,6 +97,7 @@ namespace aria {
         handle<skeleton_asset>        import_skeleton(const asset_guid& guid, const std::string& file_path);
         handle<animation_clip_asset>  import_animation(const asset_guid& guid, const std::string& file_path);
         handle<material_asset> import_material(const asset_guid& guid, const std::string& file_path);
+        handle<material_asset> reload_material(const asset_guid& guid, const std::string& file_path);
         handle<shader_asset>   import_shader(const asset_guid& guid, const std::string& file_path);
 
         // =========================================================

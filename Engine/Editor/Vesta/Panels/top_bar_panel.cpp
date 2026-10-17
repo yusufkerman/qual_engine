@@ -49,6 +49,7 @@ namespace vesta {
         if (ImGui::Button(isPaused ? "Resume" : "Play"))
         {
             m_vm.play();
+            ImGui::SetWindowFocus("Game");
         }
         if (playActive)
         {
@@ -169,59 +170,6 @@ namespace vesta {
         }
 
         ImGui::EndDisabled();
-
-        ImGui::SameLine();
-        ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-        ImGui::SameLine();
-
-        // ====================================================================
-        // WINDOW MENÜSÜ (GENERAL VE RENDERING PENCERELERİ)
-        // ====================================================================
-        if (ImGui::Button("Window"))
-        {
-            ImGui::OpenPopup("TopBarWindowMenuPopup");
-        }
-
-        if (ImGui::BeginPopup("TopBarWindowMenuPopup"))
-        {
-            if (ImGui::BeginMenu("General"))
-            {
-                auto drawWindowItem = [this](const char* title) {
-                    IEditorPanel* p = find_panel(title);
-                    if (!p) return;
-                    const bool isOpen = p->is_open();
-                    // Zaten açık ise devre dışı (disabled) bırakılır, açılamaz
-                    if (ImGui::MenuItem(title, nullptr, isOpen, !isOpen))
-                    {
-                        p->set_open(true);
-                    }
-                };
-
-                drawWindowItem("Scene");
-                drawWindowItem("Game");
-                drawWindowItem("Hierarchy");
-                drawWindowItem("Inspector");
-                drawWindowItem("Asset Browser");
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Rendering"))
-            {
-                IEditorPanel* p = find_panel("Lighting");
-                if (p)
-                {
-                    const bool isOpen = p->is_open();
-                    if (ImGui::MenuItem("Lighting", nullptr, isOpen, !isOpen))
-                    {
-                        p->set_open(true);
-                    }
-                }
-                ImGui::EndMenu();
-            }
-
-            ImGui::EndPopup();
-        }
 
         ImGui::End();
     }

@@ -7,6 +7,7 @@
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
+#include <functional>
 
  /**
   * @class ui_manager
@@ -26,8 +27,9 @@ public:
 
     /**
      * @brief Yeni bir ImGui çerçevesi başlatır ve ana DockSpace'i oluşturur.
+     * @param mainMenuBarCallback İsteğe bağlı ana menü çubuğu (File, Window vb.) çizim fonksiyonu.
      */
-    void beginFrame();
+    void beginFrame(std::function<void()> mainMenuBarCallback = nullptr);
 
     /**
      * @brief Çizim verilerini derler ve OpenGL üzerinden ekrana yansıtır.
@@ -39,8 +41,14 @@ public:
      */
     void shutdown();
 
+    /**
+     * @brief DockSpace panel yerleşimini bir sonraki karede varsayılan düzene sıfırlar.
+     */
+    void resetLayout() { m_resetLayout = true; }
+
 private:
     GLFWwindow* m_window = nullptr;
+    bool m_resetLayout = false;
 
     /**
      * @brief İlk açılışta varsayılan panel yerleşimini (TopBar, Inspector, Hierarchy, Viewports) inşa eder.

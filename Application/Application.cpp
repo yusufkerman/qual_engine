@@ -1,56 +1,78 @@
+/**
+ * @file Application.cpp
+ * @brief Vesta Editör Başlatıcısı (EditorLauncher).
+ * @note Bu katman hiçbir demo veya oyun betiği barındırmaz; yalnızca Vesta Editör ortamını ilklendirir
+ * ve aktif kullanıcı projesini yönetir.
+ */
+
 #include <Engine/engine.h>
 #include <Editor/editor_context.h>
-#include "sandbox.h"
+#include <Project/project.h>
+#include <Project/project_exporter.h>
 #include <iostream>
-#include <fstream>
-#include <Scene/scene_serializer.h>
-#include <Engine/Assets/asset_loader.h>
+#include <cstring>
 
-int main()
+int main(int argc, char** argv)
 {
-    // Motorun çalışması için gereken tüm global/runtime state burada tutulur.
-    // Window, renderer, input, scene session, editor vb. sistemler bu context içindedir.
+    std::cout << std::unitbuf;
+
+    // Motor ve Editör çalışma zamanı bağlamları (Engine & Editor Contexts)
     EngineContext ctx;
-	EditorContext editorCtx;
+    EditorContext editorCtx;
 
     ctx.isEditorBuild = true;
 
-    // OpenGL, GLFW, ImGui, shaderlar ve render target'lar oluşturulur.
-    // Başarısız olursa program sonlandırılır.
+    // 1. OpenGL, GLFW, ImGui, Vesta ve Aria sistemlerini başlat
     if (!Engine::init(ctx, editorCtx))
-        return -1;
-
-    // Varsayılan test/sandbox sahnesini yükler.
-    // Önemli:
-    // Motor artık hangi modeli veya sahneyi yükleyeceğini bilmez.
-    // İçerik oluşturma sorumluluğu Sandbox katmanındadır.
-    sandbox_load_demo_game(ctx, editorCtx);
-    std::cout << "mat size: " << ctx.materialManager.get_all_materials().size() << "\n";
-
-    bool sceneLoaded = false;
-
-  
-    if (!ctx.isEditorBuild)
     {
-        ctx.session.play(ctx);
-        editorCtx.mode = EngineMode::PLAY;
-        ctx.prevMode = EngineMode::EDITOR;
+        std::cerr << "[EditorLauncher] Hata: Engine::init basarisiz oldu.\n";
+        return -1;
     }
 
-    // Ana oyun döngüsü
+    // Headless CLI export desteği: Application.exe --export <project.json> <output_folder>
+    if (argc >= 4 && std::string(argv[1]) == "--export")
+    {
+        std::cout << "[EditorLauncher] Headless Export Modu: " << argv[2] << " -> " << argv[3] << "\n";
+        project::project_manager::instance().open_project(argv[2], ctx);
+
+        project::export_options opt;
+        opt.output_directory = argv[3];
+        opt.compile_scripts = true;
+        opt.copy_engine_resources = true;
+        opt.copy_dependencies = true;
+
+        auto res = project::project_exporter::export_project(opt);
+        for (const auto& log : res.log_messages) {
+            std::cout << log << "\n";
+        }
+
+        if (res.success) {
+            std::cout << "[EditorLauncher] Export Basarili: " << res.target_executable << "\n";
+        } else {
+            std::cerr << "[EditorLauncher] Export Hatasi: " << res.error_message << "\n";
+        }
+
+        std::_Exit(res.success ? 0 : 1);
+    }
+
+    // 2. Komut satırından proje yolu verildiyse o projeyi aç
+    if (argc > 1 && argv[1] != nullptr && std::strlen(argv[1]) > 0)
+    {
+        std::cout << "[EditorLauncher] Komut satirindan proje aciliyor: " << argv[1] << "\n";
+        project::project_manager::instance().open_project(argv[1], ctx);
+    }
+
+    // 3. Ana Editör Döngüsü
     while (!glfwWindowShouldClose(ctx.window))
     {
-
-        // Input, editor güncellemeleri,
-        // play/editor geçişleri ve runtime mantıkları çalıştırılır.
+        // Girdiler, sahne ve editör panelleri güncellenir
         Engine::update(ctx, editorCtx);
 
-        // Editor viewport, game viewport ve UI render edilir.
+        // Editör ve oyun viewportları render edilir
         Engine::render(ctx, editorCtx);
     }
 
-    // GPU kaynakları, render target'lar,
-    // ImGui ve pencere sistemi temizlenir.
+    // 4. Motor ve kaynaklar temizlenir
     Engine::shutdown(ctx, editorCtx);
 
     return 0;

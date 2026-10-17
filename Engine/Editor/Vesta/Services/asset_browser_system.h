@@ -60,6 +60,16 @@ namespace vesta {
         void refresh();
 
         /**
+         * @brief Varlık tarayıcısının kök dizinini günceller ve yeniden tarar (Örn: Proje değiştirildiğinde).
+         */
+        void set_root_path(const std::filesystem::path& new_path);
+
+        /**
+         * @brief Güncel kök dizin yolunu döndürür.
+         */
+        const std::filesystem::path& root_path() const { return m_root_path; }
+
+        /**
          * @brief Güncel dosya hiyerarşisinin kök düğümünü döndürür.
          */
         const asset_file_entry& root_entry() const { return m_root_entry; }

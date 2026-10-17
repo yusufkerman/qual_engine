@@ -1,0 +1,16 @@
+{
+    "131abe23-37c3-4e0f-9fff-8581e52f1266": "Assets\\Scripts\\player_controller.cpp",
+    "1a96340a-1192-4f27-b8fd-0439b686f63b": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Builds\\DemoGame_Build\\EngineResources\\Shaders\\Debug\\gizmo",
+    "378a1b89-f270-4cd9-be15-f20819bdb80b": "Assets\\Scripts\\GameModule.cpp",
+    "8b9da46e-f801-4f4e-8064-8094ce3993b2": "Assets\\Scripts\\camera_controller.cpp",
+    "9d7cefde-d73a-4948-b44e-7cda1ea1a7f2": "Assets\\Scripts\\player_controller.h",
+    "ab217918-3c47-43c5-b01e-e4a5feae6a82": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Builds\\DemoGame_Build\\EngineResources\\Shaders\\Skybox\\skybox",
+    "c10d2850-634a-4e41-bd53-add2e817e129": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Builds\\DemoGame_Build\\EngineResources\\Shaders\\default_shader",
+    "ca6418ad-3833-40aa-9847-5bbc212a890a": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Builds\\DemoGame_Build\\EngineResources\\Shaders\\Debug\\grid",
+    "cd5743f9-dbda-4c13-8a08-c41f6c9bfa71": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Builds\\DemoGame_Build\\EngineResources\\Shaders\\skinned_default",
+    "d23a0aff-3fdc-5851-a6c3-e9623da3cd11": "engine://builtin/cube",
+    "dab2ae4c-56df-4dcb-a781-82fabfacee3d": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Builds\\DemoGame_Build\\EngineResources\\Shaders\\shadow",
+    "de1452e3-0457-4f92-add9-59575ee45715": "Assets\\Scripts\\camera_controller.h",
+    "e5c2194b-4b19-4824-a749-33b684cb32fa": "C:\\Users\\yusuf\\source\\repos\\OpenGL-Learn-1\\Builds\\DemoGame_Build\\EngineResources\\Shaders\\shadow_skinned",
+    "f18b3e21-9541-4770-bc2d-5b3a8829f001": "engine://builtin/sphere"
+}

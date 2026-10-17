@@ -6,6 +6,7 @@
  */
 
 #include "../Scene/scriptable_entity.h"
+#include "gameplay_context.h"
 #include "collision_types.h"
 #include "gameplay_entity.h"
 #include "gameplay_scene.h"
@@ -21,6 +22,12 @@ namespace gameplay
     {
     public:
         virtual ~script() override = default;
+
+        void setContext(EngineContext* context) override
+        {
+            scriptable_entity::setContext(context);
+            context::set_engine_context(context);
+        }
 
         // ==========================================
         // YAŞAM DÖNGÜSÜ (LIFECYCLE) OLAYLARI

@@ -80,6 +80,11 @@ public:
     void on_update_runtime(float deltaTime);
 
     /**
+     * @brief Sabit fizik adımlarında çalışan native script on_fixed_update mantığını işletir.
+     */
+    void on_fixed_update_runtime(float fixedDeltaTime);
+
+    /**
      * @brief PLAY modundan çıkarken script örneklerini yok eder ve belleklerini serbest bırakır.
      */
     void clean_up_scripts();

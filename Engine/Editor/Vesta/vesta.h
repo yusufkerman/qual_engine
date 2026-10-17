@@ -21,6 +21,7 @@
 #include "ViewModels/top_bar_view_model.h"
 #include "Panels/top_bar_panel.h"
 #include "Panels/lighting_panel.h"
+#include "Panels/rendering_panel.h"
 #include "../../ECS/registry.h"
 #include "CoreState/editor_viewport_state.h"
 
@@ -54,6 +55,11 @@ namespace vesta {
         void init(aria::system* ariaSys, EngineContext& engineCtx, EditorContext& editorCtx);
 
         /**
+         * @brief Tüm panelleri, ViewModel ve servisleri bellekten temizler.
+         */
+        void shutdown();
+
+        /**
          * @brief Kayıtlı tüm editör panellerinin render döngülerini tetikler.
          */
         void update();
@@ -72,6 +78,21 @@ namespace vesta {
         editor_selection_manager& selection() { return *m_selection_manager; }
         const editor_selection_manager& selection() const { return *m_selection_manager; }
 
+        /**
+         * @brief Varlık tarayıcısının kök dizinini günceller (Örn: Proje değiştirildiğinde).
+         */
+        void set_asset_root(const std::string& newPath);
+
+        /**
+         * @brief Pencerenin en üstünde yer alan ana menü çubuğunu (File, Window) çizer.
+         */
+        void render_main_menu_bar(EngineContext& engineCtx, EditorContext& editorCtx);
+
+        /**
+         * @brief Başlığı verilen paneli kayıtlı paneller arasında arar.
+         */
+        IEditorPanel* find_panel(const std::string& title) const;
+
     private:
 
         /**
@@ -86,6 +107,7 @@ namespace vesta {
         void init_hierarchy(registry& registry, EngineContext& engineCtx);
         void init_asset_browser(aria::system& ariaSys);
         void init_lighting(EngineContext& engineCtx);
+        void init_rendering_settings(EngineContext& engineCtx);
 
     private:
         editor_viewport_state m_viewport_state;
@@ -115,6 +137,7 @@ namespace vesta {
         std::unique_ptr<top_bar_panel> m_top_bar_panel;
 
         std::unique_ptr<lighting_panel> m_lighting_panel;
+        std::unique_ptr<rendering_panel> m_rendering_panel;
 
         std::unique_ptr<command_stack> m_command_stack;
         std::unique_ptr<editable_world_impl> m_editable_world;

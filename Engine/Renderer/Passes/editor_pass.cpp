@@ -29,7 +29,12 @@ void editor_pass::render(EngineContext& ctx, EditorContext& editorCtx)
 
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
-    glClearColor(0.08f, 0.08f, 0.12f, 1.0f);
+    glClearColor(
+        ctx.renderSettings.clear_color_scene.r,
+        ctx.renderSettings.clear_color_scene.g,
+        ctx.renderSettings.clear_color_scene.b,
+        1.0f
+    );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 2. Kamera matrislerini hesapla (sıfıra bölme koruması ile)

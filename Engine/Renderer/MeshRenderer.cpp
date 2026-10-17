@@ -151,11 +151,8 @@ void MeshRenderer::SetViewport(int x, int y, int width, int height)
 
 void MeshRenderer::BindFramebuffer(unsigned int fboID)
 {
-    if (m_currentFBO != fboID)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, fboID);
-        m_currentFBO = fboID;
-    }
+    glBindFramebuffer(GL_FRAMEBUFFER, fboID);
+    m_currentFBO = fboID;
 }
 
 void MeshRenderer::BindTextureSlot(unsigned int slot, unsigned int textureID)

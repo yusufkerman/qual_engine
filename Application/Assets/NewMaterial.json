@@ -1,0 +1,12 @@
+{
+  "type": "material",
+  "name": "NewMaterial",
+  "base_color": [1.0, 1.0, 1.0, 1.0],
+  "specular_strength": 0.5,
+  "shininess": 32,
+  "normal_strength": 1.0,
+  "shader_guid": "c10d2850-634a-4e41-bd53-add2e817e129",
+  "diffuse_texture_guid": "00000000-0000-0000-0000-000000000000",
+  "normal_texture_guid": "00000000-0000-0000-0000-000000000000",
+  "specular_texture_guid": "00000000-0000-0000-0000-000000000000"
+}

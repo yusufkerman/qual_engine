@@ -102,6 +102,12 @@ namespace aria {
         return m_registry.load_material(guid, file_path);
     }
 
+    handle<material_asset> system::reload_material(const asset_guid& guid, const std::string& file_path) 
+    {
+        register_asset_path(guid, file_path);
+        return m_registry.reload_material(guid, file_path);
+    }
+
     handle<shader_asset> system::import_shader(const asset_guid& guid, const std::string& file_path) 
     {
         register_asset_path(guid, file_path);

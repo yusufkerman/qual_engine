@@ -121,13 +121,16 @@ void render_system::render(
     glm::mat4 lightSpaceMatrix(1.0f);
     bool hasDirectionalLight = false;
 
-    for (int i = 0; i < lightCount; ++i)
+    if (ctx.renderSettings.enable_shadows)
     {
-        if (lights[i].type == 0) // Directional
+        for (int i = 0; i < lightCount; ++i)
         {
-            lightSpaceMatrix = calculate_light_space_matrix(lights[i], cameraPosition);
-            hasDirectionalLight = true;
-            break;
+            if (lights[i].type == 0) // Directional
+            {
+                lightSpaceMatrix = calculate_light_space_matrix(ctx, lights[i], cameraPosition);
+                hasDirectionalLight = true;
+                break;
+            }
         }
     }
 
@@ -169,6 +172,7 @@ void render_system::render(
             }
         }
 
+        glBindFramebuffer(GL_FRAMEBUFFER, previousFBO);
         ctx.renderer.BindFramebuffer(previousFBO);
     }
 
@@ -272,9 +276,9 @@ void render_system::extract(
             absoluteScale.x,
             glm::max(absoluteScale.y, absoluteScale.z));
 
-        const float radius = (meshInfo.local_radius * maxScale) + kCullBias;
+        const float radius = (meshInfo.local_radius * maxScale) + ctx.renderSettings.cull_bias;
 
-        if (!f.is_inside(worldCenter, radius))
+        if (ctx.renderSettings.enable_frustum_culling && !f.is_inside(worldCenter, radius))
         {
             ++outStats.culled_submeshes;
             continue;
@@ -286,6 +290,8 @@ void render_system::extract(
         item.model = model;
         item.model_handle = meshComp.model_handle;
         item.sub_mesh_index = meshComp.sub_mesh_index;
+
+        const unsigned int defaultShaderID = ctx.aria_system->get_shader_id(ctx.defaultShaderHandle);
 
         if (matComp && matComp->material_handle.is_valid())
         {
@@ -299,7 +305,7 @@ void render_system::extract(
                 }
                 else
                 {
-                    item.gpu_shader_id = ctx.aria_system->get_shader_id(aria::handle<aria::shader_asset>());
+                    item.gpu_shader_id = defaultShaderID;
                 }
 
                 item.mode = mat->mode;
@@ -315,11 +321,11 @@ void render_system::extract(
             }
             else
             {
-                // Varlık çözümlemesi başarısız olursa güvenli varsayılan değerler atanır
-                item.gpu_shader_id = ctx.aria_system->get_shader_id(aria::handle<aria::shader_asset>());
+                // Varlık çözümlemesi başarısız olursa varsayılan lit shader atanır
+                item.gpu_shader_id = defaultShaderID;
                 item.mode = aria::render_mode::opaque;
                 item.alpha_threshold = 0.1f;
-                item.base_color = glm::vec3(1.0f, 0.0f, 1.0f);
+                item.base_color = glm::vec3(1.0f);
                 item.texture_scale = glm::vec2(1.0f);
                 item.specular_strength = 0.5f;
                 item.shininess = 32.0f;
@@ -327,8 +333,8 @@ void render_system::extract(
         }
         else
         {
-            // Materyal bileşeni yoksa varsayılan değerler atanır
-            item.gpu_shader_id = ctx.aria_system->get_shader_id(aria::handle<aria::shader_asset>());
+            // Materyal bileşeni yoksa varsayılan lit shader atanır
+            item.gpu_shader_id = defaultShaderID;
             item.mode = aria::render_mode::opaque;
             item.alpha_threshold = 0.1f;
             item.base_color = glm::vec3(1.0f);
@@ -380,9 +386,9 @@ void render_system::extract(
                 absoluteScale.x,
                 glm::max(absoluteScale.y, absoluteScale.z));
 
-            const float radius = (meshInfo.local_radius * maxScale) + kCullBias;
+            const float radius = (meshInfo.local_radius * maxScale) + ctx.renderSettings.cull_bias;
 
-            if (!f.is_inside(worldCenter, radius))
+            if (ctx.renderSettings.enable_frustum_culling && !f.is_inside(worldCenter, radius))
             {
                 ++outStats.culled_submeshes;
                 continue;
@@ -459,11 +465,12 @@ void render_system::extract(
     }
 }
 
-glm::mat4 render_system::calculate_light_space_matrix(const light_data& light, const glm::vec3& viewPos)
+glm::mat4 render_system::calculate_light_space_matrix(const EngineContext& ctx, const light_data& light, const glm::vec3& viewPos)
 {
-    const float near_plane = 0.1f;
-    const float far_plane = 500.0f;
-    const glm::mat4 lightProjection = glm::ortho(-150.0f, 150.0f, -150.0f, 150.0f, near_plane, far_plane);
+    const float near_plane = ctx.renderSettings.shadow_near_plane;
+    const float far_plane = ctx.renderSettings.shadow_far_plane;
+    const float ortho_size = ctx.renderSettings.shadow_ortho_size;
+    const glm::mat4 lightProjection = glm::ortho(-ortho_size, ortho_size, -ortho_size, ortho_size, near_plane, far_plane);
 
     glm::vec3 lightPos = light.position;
 
@@ -473,8 +480,9 @@ glm::mat4 render_system::calculate_light_space_matrix(const light_data& light, c
         // kamerayı dengeli takip etmesi için ışık merkezi kameranın yatay düzlemine (X, Z) sabitlenir.
         const glm::vec3 shadowCenter = glm::vec3(viewPos.x, 0.0f, viewPos.z);
 
-        // Sabit yükseklik (100.0f) belirlenip, ışık yönünün tersine doğru izdüşüm mesafesi kadar geri çekilir.
-        lightPos = shadowCenter + glm::vec3(0.0f, 100.0f, 0.0f) - (glm::normalize(light.direction) * 150.0f);
+        // Belirlenen yükseklik ve takip mesafesine göre ışık yönünün tersine konumlandırılır
+        lightPos = shadowCenter + glm::vec3(0.0f, ctx.renderSettings.shadow_camera_height, 0.0f)
+            - (glm::normalize(light.direction) * ctx.renderSettings.shadow_distance);
 
         const glm::vec3 target = shadowCenter + light.direction;
         const glm::mat4 lightView = glm::lookAt(lightPos, target, glm::vec3(0.0f, 1.0f, 0.0f));

@@ -37,12 +37,13 @@ public:
      * @brief Motor bağlamına (EngineContext) erişim sağlar.
      */
     [[nodiscard]] EngineContext& getContext() const { return *ctx; }
-    void setContext(EngineContext* context) { ctx = context; }
+    virtual void setContext(EngineContext* context) { ctx = context; }
 
     // Yaşam döngüsü (Lifecycle) fonksiyonları
     virtual void on_create() {}
     virtual void on_destroy() {}
     virtual void on_update(float delta_time) {}
+    virtual void on_fixed_update(float fixed_delta_time) {}
 
     // Yardımcı fonksiyonlar
 

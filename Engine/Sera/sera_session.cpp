@@ -38,6 +38,16 @@ namespace sera {
             scene_json["active_camera_uuid"] = "";
         }
 
+        // Çevre, Sis ve Renk Ayarları (Environment)
+        json env_json = json::object();
+        env_json["fog"]["enabled"] = m_ctx.fog.enabled;
+        env_json["fog"]["show_in_scene"] = m_ctx.fog.show_in_scene;
+        env_json["fog"]["color"] = { m_ctx.fog.color.r, m_ctx.fog.color.g, m_ctx.fog.color.b };
+        env_json["fog"]["density"] = m_ctx.fog.density;
+        env_json["rendering"]["clear_color_scene"] = { m_ctx.renderSettings.clear_color_scene.r, m_ctx.renderSettings.clear_color_scene.g, m_ctx.renderSettings.clear_color_scene.b };
+        env_json["rendering"]["clear_color_game"] = { m_ctx.renderSettings.clear_color_game.r, m_ctx.renderSettings.clear_color_game.g, m_ctx.renderSettings.clear_color_game.b };
+        scene_json["environment"] = env_json;
+
         scene_json["entities"] = json::array();
 
         for (const entity e : all_entities)
@@ -316,6 +326,35 @@ namespace sera {
         out_scene.new_scene();
         m_entity_registry.clear();
         registry& reg = out_scene.get_registry();
+
+        // 0. Çevre, Sis ve Renk Ayarlarını (Environment) geri yükle
+        if (scene_json.contains("environment"))
+        {
+            const auto& env = scene_json["environment"];
+            if (env.contains("fog"))
+            {
+                const auto& fogJ = env["fog"];
+                m_ctx.fog.enabled = fogJ.value("enabled", true);
+                m_ctx.fog.show_in_scene = fogJ.value("show_in_scene", true);
+                if (fogJ.contains("color") && fogJ["color"].is_array() && fogJ["color"].size() >= 3)
+                {
+                    m_ctx.fog.color = glm::vec3(fogJ["color"][0], fogJ["color"][1], fogJ["color"][2]);
+                }
+                m_ctx.fog.density = fogJ.value("density", 0.008f);
+            }
+            if (env.contains("rendering"))
+            {
+                const auto& rendJ = env["rendering"];
+                if (rendJ.contains("clear_color_scene") && rendJ["clear_color_scene"].is_array() && rendJ["clear_color_scene"].size() >= 3)
+                {
+                    m_ctx.renderSettings.clear_color_scene = glm::vec3(rendJ["clear_color_scene"][0], rendJ["clear_color_scene"][1], rendJ["clear_color_scene"][2]);
+                }
+                if (rendJ.contains("clear_color_game") && rendJ["clear_color_game"].is_array() && rendJ["clear_color_game"].size() >= 3)
+                {
+                    m_ctx.renderSettings.clear_color_game = glm::vec3(rendJ["clear_color_game"][0], rendJ["clear_color_game"][1], rendJ["clear_color_game"][2]);
+                }
+            }
+        }
 
         std::unordered_map<std::string, entity> uuid_to_runtime_entity_map;
 

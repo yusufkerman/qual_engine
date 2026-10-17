@@ -39,7 +39,7 @@ inline void render_material_ui(entity e, registry& reg, aria::system& ariaSys)
         vesta::asset_payload_type::material,
         [&](const vesta::asset_drag_payload& payload)
         {
-            auto handle = asset_pipeline::import_material(&ariaSys, payload.path);
+            auto handle = asset_pipeline::reload_material(&ariaSys, payload.path);
 
             if (handle.is_valid()) {
                 matComp->material_handle = handle;

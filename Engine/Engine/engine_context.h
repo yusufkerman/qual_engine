@@ -34,6 +34,8 @@
 #include "../Editor/engine_mode.h"
 #include "fly_camera.h"
 #include "../Renderer/fog_settings.h"
+#include "../Renderer/render_settings.h"
+#include "time_step.h"
 
 struct GLFWwindow;
 
@@ -79,6 +81,8 @@ struct EngineContext
     vesta::vesta_system vestaSys;       ///< Vesta arayüz/pencere yönetim sistemi.
     gizmo_system gizmoSystem;           ///< Editör içi manipülasyon araçları (transform, rotate, scale gizmo).
     fog_settings fog;                   ///< Sahne ve oyun içi sis (Exponential Fog) ayarları.
+    render_settings renderSettings;     ///< Arka uç grafik, culling, gölge ve skybox ayarları.
+    core::time_step time;               ///< Yüksek hassasiyetli dinamik zaman ve accumulator yöneticisi.
 
     // ==========================================
     // RENDER VE VARLIK (ASSET) SİSTEMLERİ

@@ -108,9 +108,10 @@ private:
 
     /**
      * @brief Yönlü ışıklar (Directional) için gölge izdüşüm ve görünüm matrisini hesaplar.
+     * @param ctx Motor bağlamı (Gölge projeksiyon ayarları için).
      * @param light Matrisi hesaplanacak ışık verisi.
      * @param viewPos Kameranın dünya uzayındaki konumu.
      * @return Işık uzayı (Light Space) dönüşüm matrisi.
      */
-    glm::mat4 calculate_light_space_matrix(const light_data& light, const glm::vec3& viewPos);
+    glm::mat4 calculate_light_space_matrix(const struct EngineContext& ctx, const light_data& light, const glm::vec3& viewPos);
 };

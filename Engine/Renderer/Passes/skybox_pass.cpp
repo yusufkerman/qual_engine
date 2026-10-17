@@ -80,7 +80,7 @@ namespace {
 
 void skybox_pass::render(EngineContext& ctx, const glm::mat4& view, const glm::mat4& projection)
 {
-    if (!ctx.aria_system || ctx.skyboxTexture == 0) {
+    if (!ctx.renderSettings.enable_skybox || !ctx.aria_system || ctx.skyboxTexture == 0) {
         return;
     }
 

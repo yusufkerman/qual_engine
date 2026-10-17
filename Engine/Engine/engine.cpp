@@ -20,6 +20,10 @@
 #include "../Editor/editor_context.h"
 #include "../Editor/editor_camera.h"
 #include "../Gameplay/gameplay_context.h"
+#include "../Project/project.h"
+#include "../Project/project_module.h"
+#include "../Resources/engine_resources.h"
+#include <imgui.h>
 
 namespace
 {
@@ -85,6 +89,8 @@ namespace
         }
 
         ctx.runtimeCameraState = fly_camera_state{};
+        ctx.inputState.cursorLocked = false;
+        ctx.inputState.firstMouse = true;
         glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
         if (editorCtx.mode == EngineMode::PLAY)
@@ -117,6 +123,7 @@ namespace
             }
         }
 
+        ctx.time.reset_accumulator();
         ctx.prevMode = editorCtx.mode;
     }
 }
@@ -145,6 +152,9 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
         ctx.aria_system = new aria::system();
     }
     ctx.aria_system->init(); // Varsayılan shader ve dokuları belleğe yükler
+
+    // Motor dahili kaynaklarını (Built-in Shaders & Primitives) Aria sistemine kaydet
+    engine_resources::register_builtin_resources(ctx.aria_system);
 
     // Sera Sistemini başlat
     ctx.sera = new sera::sera();
@@ -182,14 +192,14 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
         return false;
     }
 
-    // Gerekli Shader'ları Aria üzerinden içe aktar
-    ctx.defaultShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/default_shader");
-    ctx.skinnedShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/skinned_default");
-    ctx.gizmoShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Debug/gizmo");
-    ctx.shadowShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/shadow");
-    ctx.skinnedShadowShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/shadow_skinned");
-    ctx.gridShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Debug/grid");
-    ctx.skyboxShaderHandle = asset_pipeline::import_shader(ctx, "Shaders/Skybox/skybox");
+    // Gerekli Shader'ları Aria üzerinden içe aktar (Dahili motor kaynakları)
+    ctx.defaultShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/default_shader");
+    ctx.skinnedShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/skinned_default");
+    ctx.gizmoShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Debug/gizmo");
+    ctx.shadowShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/shadow");
+    ctx.skinnedShadowShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/shadow_skinned");
+    ctx.gridShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Debug/grid");
+    ctx.skyboxShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Skybox/skybox");
 
     // Ana shader için ilk uniform değerlerini bağla
     unsigned int mainGLid = ctx.aria_system->get_shader_id(ctx.defaultShaderHandle);
@@ -212,28 +222,40 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
         glUseProgram(0);
     }
 
-    ctx.editorTarget.create(1, 1);
-    ctx.gameTarget.create(1, 1);
-
-    ctx.vestaSys.init(ctx.aria_system, ctx, editorCtx);
-
-    // Editör modundaysa ve kamera henüz oluşturulmadıysa başlat
-    if (ctx.isEditorBuild && !editorCtx.camera)
+    if (ctx.isEditorBuild)
     {
-        editorCtx.camera = new EditorCamera();
+        ctx.editorTarget.create(1, 1);
+        ctx.gameTarget.create(1, 1);
+        ctx.vestaSys.init(ctx.aria_system, ctx, editorCtx);
+        if (!editorCtx.camera)
+        {
+            editorCtx.camera = new EditorCamera();
+        }
     }
 
     init_input(ctx);
     gameplay::context::set_engine_context(&ctx);
     ctx.prevMode = editorCtx.mode;
 
-    // Gökyüzü (Skybox) küp haritasını yükle
-    ctx.skyboxTexture = cubemap_loader::load_atlas("Assets/sky/skybox1.png");
+    // Gökyüzü (Skybox) küp haritasını yükle (Dahili motor kaynağı veya proje yolu)
+    std::string skyboxPath = ctx.renderSettings.skybox_path;
+    if (skyboxPath.empty() || skyboxPath == "Assets/sky/skybox1.png") {
+        skyboxPath = "@engine/Textures/sky/skybox1.png";
+    }
+    std::string resolvedSkybox = engine_resources::resolve_path(skyboxPath);
+    if (std::filesystem::exists(resolvedSkybox)) {
+        ctx.skyboxTexture = cubemap_loader::load_atlas(resolvedSkybox);
+    } else if (std::filesystem::exists(skyboxPath)) {
+        ctx.skyboxTexture = cubemap_loader::load_atlas(skyboxPath);
+    }
 
     if (NFD_Init() != NFD_OKAY)
     {
         std::cout << "[NFD] Hata: init basarisiz.\n";
     }
+
+    // Proje sistemini ve varsayılan proje ayarlarını (Render & Lighting) ilklendir
+    project::project_manager::instance().init_default_project(ctx);
 
     std::cout << "[Engine] Basariyla baslatildi. Default handle index="
         << ctx.defaultShaderHandle.index
@@ -244,24 +266,50 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
 
 void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 {
+    // 1. Dinamik kare süresini (delta time) ve birikmiş simülasyon zamanını hesapla
+    ctx.time.tick();
+
     gameplay::context::set_engine_context(&ctx);
     gameplay::context::set_active_scene(&ctx.session.game_scene());
+    project::project_module::instance().sync_context();
 
-    ctx.inputSystem.update(ctx, editorCtx);
+    // Girdi aktiflik durumunu belirle (inputSystem.update'den ÖNCE hesaplanmalıdır)
+    if (editorCtx.mode == EngineMode::PLAY && !editorCtx.isPaused)
+    {
+        // Editörde PLAY modundayken eğer ImGui bir metin kutusuna odaklı değilse input serbesttir
+        const bool imguiTextActive = ctx.isEditorBuild && ImGui::GetCurrentContext() && ImGui::GetIO().WantTextInput;
+        ctx.inputState.active = !imguiTextActive;
+    }
+    else
+    {
+        ctx.inputState.active = (!ctx.isEditorBuild);
+    }
+
     handle_mode_transition(ctx, editorCtx);
+    ctx.inputSystem.update(ctx, editorCtx);
 
-    runtime_layer::update(ctx, editorCtx);
+    const float dt = ctx.time.delta_time();
 
     if (editorCtx.mode == EngineMode::PLAY && !editorCtx.isPaused)
     {
-        // TODO: Sabit delta time (dt) ileride dinamik zaman ölçümüne çevrilmelidir.
-        float dt = 0.016f;
-        ctx.inputState.active = (!ctx.isEditorBuild) || (ctx.vestaSys.viewport_state().game().focused);
+        // 2. Sabit zaman adımlı fizik ve simülasyon (Glenn Fiedler - Fix Your Timestep Accumulator)
+        while (ctx.time.consume_fixed_step())
+        {
+            runtime_layer::fixed_update(ctx, editorCtx, ctx.time.fixed_delta_time());
+            ctx.session.game_scene().on_fixed_update_runtime(ctx.time.fixed_delta_time());
+        }
+
+        // 3. Dinamik delta time ile değişken grafik ve betik güncellemeleri
         ctx.gizmoSystem.ClearGameplay();
         ctx.gizmoSystem.SetGameplayWriteMode(true);
         ctx.session.game_scene().on_update_runtime(dt);
         ctx.gizmoSystem.SetGameplayWriteMode(false);
         ctx.animationSystem.update(ctx.session.game_scene().get_registry(), ctx.aria_system, dt);
+    }
+    else
+    {
+        // Editörde veya duraklatmada birikmiş süreyi sıfırla (zaman sıçraması olmaması için)
+        ctx.time.reset_accumulator();
     }
 
     if (ctx.isEditorBuild)
@@ -297,18 +345,22 @@ void Engine::render(EngineContext& ctx, EditorContext& editorCtx)
 void Engine::shutdown(EngineContext& ctx, EditorContext& editorCtx)
 {
     ctx.session.game_scene().clean_up_scripts();
-    ctx.uiManager.shutdown();
+    if (ctx.isEditorBuild)
+    {
+        ctx.uiManager.shutdown();
+        ctx.vestaSys.shutdown();
+        ctx.editorTarget.destroy();
+        ctx.gameTarget.destroy();
 
-    ctx.editorTarget.destroy();
-    ctx.gameTarget.destroy();
+        if (editorCtx.camera)
+        {
+            delete editorCtx.camera;
+            editorCtx.camera = nullptr;
+        }
+    }
+
     ctx.grid.shutdown();
     ctx.physicsSystem.shutdown();
-
-    if (editorCtx.camera)
-    {
-        delete editorCtx.camera;
-        editorCtx.camera = nullptr;
-    }
 
     // Sera sistemini temizle
     if (ctx.sera)

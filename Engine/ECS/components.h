@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <string>
 #include <vector>
+#include <functional>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 #include "../Engine/Assets/aria.h"
@@ -285,8 +286,8 @@ struct native_script_component
     std::string script_name;
 
     // Çalışma zamanında script nesnesinin bellek döngüsünü (allocation/deallocation) yönetecek köprü fonksiyonlar.
-    scriptable_entity* (*bind_instantiate)() = nullptr;
-    void (*bind_destroy)(native_script_component*) = nullptr;
+    std::function<scriptable_entity*()> bind_instantiate = nullptr;
+    std::function<void(native_script_component*)> bind_destroy = nullptr;
 
     /**
      * @brief İlgili betik sınıfını varlığa çalışma zamanında bağlar.

@@ -10,6 +10,7 @@
 #include "../../Services/material_service.h"
 #include "../../../Engine/asset_pipeline.h"
 #include "../../../Externals/uuid/uuid.h"
+#include "../../../Resources/engine_resources.h"
 #include "../../Services/asset_entry.h"
 
 #include <imgui.h>
@@ -118,9 +119,19 @@ namespace vesta {
          * @brief String GUID verisini Aria varlık sistemi üzerinden fiziksel dosya yoluna dönüştürür.
          */
         inline std::string mat_resolve_guid_path(const std::string& guid_str, aria::system* aria_sys) {
-            if (guid_str.empty() || guid_str == "00000000-0000-0000-0000-000000000000" || !aria_sys) return "";
+            if (guid_str.empty() || guid_str == "00000000-0000-0000-0000-000000000000") return "";
             auto parsed = uuids::uuid::from_string(guid_str);
-            if (parsed) return aria_sys->resolve_asset_path(*parsed);
+            if (!parsed) return "";
+
+            if (aria_sys) {
+                std::string path = aria_sys->resolve_asset_path(*parsed);
+                if (!path.empty()) return path;
+            }
+
+            if (engine_resources::is_builtin_guid(*parsed)) {
+                return engine_resources::get_builtin_virtual_path_for_guid(*parsed);
+            }
+
             return "";
         }
 
@@ -190,7 +201,7 @@ namespace vesta {
                     snprintf(specular_texture_path, sizeof(specular_texture_path), "%s", detail::mat_resolve_guid_path(specular_guid, aria_sys).c_str());
 
                     if (std::strlen(shader_path) == 0) {
-                        snprintf(shader_path, sizeof(shader_path), "%s", detail::mat_parse_string(content, "shader_path", "Shaders/default_shader").c_str());
+                        snprintf(shader_path, sizeof(shader_path), "%s", detail::mat_parse_string(content, "shader_path", "@engine/Shaders/default_shader").c_str());
                     }
                 }
                 last_loaded_path = asset_path;
@@ -199,21 +210,22 @@ namespace vesta {
             // ========================================================
             // RENDER AYARLARI
             // ========================================================
+            bool changed = false;
             ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.2f, 1.0f), "Render Settings");
             ImGui::Separator();
 
             const char* render_modes[] = { "Opaque (0)", "Cutout / Alpha Test (1)", "Transparent (2)" };
-            ImGui::Combo("Render Mode", &render_mode, render_modes, IM_ARRAYSIZE(render_modes));
+            changed |= ImGui::Combo("Render Mode", &render_mode, render_modes, IM_ARRAYSIZE(render_modes));
             if (render_mode == 1) {
-                ImGui::SliderFloat("Alpha Threshold", &alpha_threshold, 0.0f, 1.0f, "%.2f");
+                changed |= ImGui::SliderFloat("Alpha Threshold", &alpha_threshold, 0.0f, 1.0f, "%.2f");
             }
             ImGui::Spacing();
 
-            ImGui::ColorEdit4("Base Color", base_color);
-            ImGui::DragFloat("Specular Strength", &specular_strength, 0.01f, 0.0f, 1.0f);
-            ImGui::DragFloat("Shininess", &shininess, 0.5f, 1.0f, 256.0f);
-            ImGui::DragFloat("Normal Strength", &normal_strength, 0.01f, 0.0f, 5.0f);
-            ImGui::DragFloat2("Texture Scale (Tiling)", texture_scale, 0.05f, 0.001f, 100.0f);
+            changed |= ImGui::ColorEdit4("Base Color", base_color);
+            changed |= ImGui::DragFloat("Specular Strength", &specular_strength, 0.01f, 0.0f, 1.0f);
+            changed |= ImGui::DragFloat("Shininess", &shininess, 0.5f, 1.0f, 256.0f);
+            changed |= ImGui::DragFloat("Normal Strength", &normal_strength, 0.01f, 0.0f, 5.0f);
+            changed |= ImGui::DragFloat2("Texture Scale (Tiling)", texture_scale, 0.05f, 0.001f, 100.0f);
 
             // ========================================================
             // KAYNAK (ASSET/RESOURCE) BAĞLANTILARI
@@ -230,6 +242,7 @@ namespace vesta {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ARIA_ASSET_PAYLOAD")) {
                     auto* data = static_cast<vesta::asset_drag_payload*>(payload->Data);
                     snprintf(shader_path, sizeof(shader_path), "%s", data->path);
+                    changed = true;
                 }
                 ImGui::EndDragDropTarget();
             }
@@ -243,6 +256,7 @@ namespace vesta {
                     auto* data = static_cast<vesta::asset_drag_payload*>(payload->Data);
                     if (data->type == vesta::asset_payload_type::texture) {
                         snprintf(diffuse_texture_path, sizeof(diffuse_texture_path), "%s", data->path);
+                        changed = true;
                     }
                 }
                 ImGui::EndDragDropTarget();
@@ -257,6 +271,7 @@ namespace vesta {
                     auto* data = static_cast<vesta::asset_drag_payload*>(payload->Data);
                     if (data->type == vesta::asset_payload_type::texture) {
                         snprintf(normal_texture_path, sizeof(normal_texture_path), "%s", data->path);
+                        changed = true;
                     }
                 }
                 ImGui::EndDragDropTarget();
@@ -265,22 +280,26 @@ namespace vesta {
             ImGui::Spacing();
 
             // ========================================================
-            // KAYDETME İŞLEMİ
+            // KAYDETME VE CANLI HOT-RELOAD İŞLEMİ
             // ========================================================
-            if (ImGui::Button("Save Material Configuration", ImVec2(-1, 35))) {
+            const bool saveClicked = ImGui::Button("Save Material Configuration", ImVec2(-1, 35));
+            if (changed || saveClicked) {
 
-                std::string shader_guid_str = (std::strlen(shader_path) > 0)
-                    ? uuids::to_string(asset_pipeline::get_or_create_meta_guid(shader_path))
-                    : "00000000-0000-0000-0000-000000000000";
-                std::string diffuse_guid_str = (std::strlen(diffuse_texture_path) > 0)
-                    ? uuids::to_string(asset_pipeline::get_or_create_meta_guid(diffuse_texture_path))
-                    : "00000000-0000-0000-0000-000000000000";
-                std::string normal_guid_str = (std::strlen(normal_texture_path) > 0)
-                    ? uuids::to_string(asset_pipeline::get_or_create_meta_guid(normal_texture_path))
-                    : "00000000-0000-0000-0000-000000000000";
-                std::string specular_guid_str = (std::strlen(specular_texture_path) > 0)
-                    ? uuids::to_string(asset_pipeline::get_or_create_meta_guid(specular_texture_path))
-                    : "00000000-0000-0000-0000-000000000000";
+                auto resolveAndRegisterGuid = [aria_sys](const char* pathBuf) -> std::string {
+                    if (!pathBuf || std::strlen(pathBuf) == 0) {
+                        return "00000000-0000-0000-0000-000000000000";
+                    }
+                    aria::asset_guid g = asset_pipeline::get_or_create_meta_guid(pathBuf);
+                    if (aria_sys && !g.is_nil()) {
+                        aria_sys->register_asset_path(g, pathBuf);
+                    }
+                    return uuids::to_string(g);
+                };
+
+                std::string shader_guid_str = resolveAndRegisterGuid(shader_path);
+                std::string diffuse_guid_str = resolveAndRegisterGuid(diffuse_texture_path);
+                std::string normal_guid_str = resolveAndRegisterGuid(normal_texture_path);
+                std::string specular_guid_str = resolveAndRegisterGuid(specular_texture_path);
 
                 std::ostringstream json;
                 json << "{\n"
@@ -299,14 +318,18 @@ namespace vesta {
                     << "  \"specular_texture_guid\": \"" << specular_guid_str << "\"\n"
                     << "}";
 
-                // Materyal servisi üzerinden GUID bazlı kayıt işlemi
+                // Materyal servisi üzerinden GUID bazlı kayıt ve canlı Hot-Reload işlemi
                 aria::asset_guid guid = asset_pipeline::get_or_create_meta_guid(asset_path);
+                if (aria_sys && !guid.is_nil()) {
+                    aria_sys->register_asset_path(guid, asset_path);
+                }
+
                 if (mat_service && !guid.is_nil()) {
                     bool ok = mat_service->save_material_changes(guid, json.str());
-                    if (ok) {
+                    if (ok && saveClicked) {
                         std::cout << "[Vesta MaterialSystem] Basariyla serilestirildi ve kaydedildi: " << asset_path << std::endl;
                     }
-                    else {
+                    else if (!ok) {
                         std::cerr << "[Vesta MaterialSystem] Hata: save_material_changes basarisiz oldu: " << asset_path << std::endl;
                     }
                 }

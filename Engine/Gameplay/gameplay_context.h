@@ -47,6 +47,11 @@ namespace gameplay
         [[nodiscard]] static bool is_initialized();
 
         /**
+         * @brief Motorun editor modunda mi yoksa standalone oyun modunda mi calistigini doner.
+         */
+        [[nodiscard]] static bool is_editor_build();
+
+        /**
          * @brief Ham motor bağlamını döner.
          */
         [[nodiscard]] static EngineContext* get_engine_context();

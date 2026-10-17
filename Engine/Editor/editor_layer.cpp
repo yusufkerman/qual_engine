@@ -26,11 +26,12 @@ namespace {
             return;
         }
 
+        const float frameScaledSpeed = ctx.moveSpeed * (ctx.time.unscaled_delta_time() * 60.0f);
         editorCtx.camera->update(
             ctx.window,
             ctx.inputState,
             ctx.sensitivity,
-            ctx.moveSpeed,
+            frameScaledSpeed,
             ctx.vestaSys.viewport_state().scene().focused
         );
     }
@@ -96,7 +97,9 @@ void editor_layer::render(EngineContext& ctx, EditorContext& editorCtx)
     editorCtx.gameTarget = &ctx.gameTarget;
 
     // ImGui / Vesta arayüz çerçevesini başlat ve çiz
-    ctx.uiManager.beginFrame();
+    ctx.uiManager.beginFrame([&ctx, &editorCtx]() {
+        ctx.vestaSys.render_main_menu_bar(ctx, editorCtx);
+    });
     ctx.vestaSys.update();
     ctx.uiManager.endFrame();
 }

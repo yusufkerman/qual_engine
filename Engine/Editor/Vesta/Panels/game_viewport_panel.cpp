@@ -4,6 +4,7 @@
  */
 
 #include "game_viewport_panel.h"
+#include "../../../Gameplay/gameplay_input.h"
 #include <imgui.h>
 
 namespace vesta {
@@ -54,6 +55,11 @@ namespace vesta {
                 ImVec2(0, 1),
                 ImVec2(1, 0)
             );
+
+            if (ImGui::IsItemClicked())
+            {
+                gameplay::input::set_cursor_locked(true);
+            }
         }
 
         ImGui::PopStyleVar(2);

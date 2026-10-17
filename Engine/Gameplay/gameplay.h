@@ -27,4 +27,5 @@
 #include "gameplay_scene.h"
 #include "gameplay_script.h"
 #include "gameplay_gizmos.h"
+#include "gameplay_time.h"
 

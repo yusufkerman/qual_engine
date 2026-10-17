@@ -23,6 +23,20 @@ public:
     }
 
     /**
+     * @brief Kayıtlı bir script şablonunu fabrikadan kaldırır.
+     */
+    static void unregister_script(const std::string& name) {
+        get_registry().erase(name);
+    }
+
+    /**
+     * @brief Fabrikadaki tüm script kayıtlarını temizler (Proje değiştiğinde kullanılır).
+     */
+    static void unregister_all_scripts() {
+        get_registry().clear();
+    }
+
+    /**
      * @brief Diskten okunan isme göre ilgili script'i entity'ye otomatik bind eder.
      */
     static bool instantiate_script(const std::string& name, entity e, registry& reg) {

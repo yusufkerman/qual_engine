@@ -82,10 +82,14 @@ void registry::copy_components_internal(entity srcEntity, entity dstEntity, regi
     if (const auto* c = get_component<animator_component>(srcEntity))
         dstRegistry.add_component<animator_component>(dstEntity, *c);
 
+    if (const auto* c = get_component<name_component>(srcEntity))
+        dstRegistry.add_component<name_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<hierarchy_component>(srcEntity))
+        dstRegistry.add_component<hierarchy_component>(dstEntity, *c);
+
     if (const auto* c = get_component<bone_attachment_component>(srcEntity))
         dstRegistry.add_component<bone_attachment_component>(dstEntity, *c);
-
-    // Hiyerarşi gibi diğer kopyalanması gereken bileşenler varsa buraya eklenebilir.
 }
 
 void registry::clone_entity(entity e, registry& dst) const

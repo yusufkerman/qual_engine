@@ -10,6 +10,18 @@
 #include <filesystem>
 #include <algorithm>
 
+namespace {
+    const char* get_node_icon(vesta::asset_type type) {
+        switch (type) {
+        case vesta::asset_type::folder:   return "[DIR] ";
+        case vesta::asset_type::material: return "[MAT] ";
+        case vesta::asset_type::texture:  return "[TEX] ";
+        case vesta::asset_type::model:    return "[MESH] ";
+        default:                          return "[FILE] ";
+        }
+    }
+}
+
 namespace vesta {
 
     asset_browser_panel::asset_browser_panel(asset_browser_view_model& vm)
@@ -42,8 +54,8 @@ namespace vesta {
         // BOŞ ALANA SAĞ TIK MENÜSÜ (KÖK DİZİNE VARLIK EKLEME)
         // ========================================================================
         if (ImGui::BeginPopupContextWindow("AssetBrowserContextMenu", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)) {
-            if (ImGui::MenuItem("➕ Create Material...")) {
-                m_context_target_path = "Assets";
+            if (ImGui::MenuItem("[+] Create Material...")) {
+                m_context_target_path = m_vm.root().full_path;
                 m_open_create_popup = true;
                 snprintf(m_create_buffer, sizeof(m_create_buffer), "NewMaterial");
             }
@@ -56,13 +68,25 @@ namespace vesta {
         const auto& root = m_vm.root();
         ImGuiTreeNodeFlags root_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
 
-        if (m_vm.is_selected("Assets")) {
+        const std::string rootPathStr = root.full_path.string();
+        if (m_vm.is_selected(rootPathStr) || m_vm.is_selected("Assets")) {
             root_flags |= ImGuiTreeNodeFlags_Selected;
         }
 
-        bool root_open = ImGui::TreeNodeEx("📁 Assets", root_flags);
+        const std::string rootLabel = std::string("[DIR] ") + (root.name.empty() ? "Assets" : root.name);
+        bool root_open = ImGui::TreeNodeEx(rootLabel.c_str(), root_flags);
         if (ImGui::IsItemClicked()) {
-            m_vm.select("Assets");
+            m_vm.select(rootPathStr);
+        }
+
+        if (ImGui::BeginPopupContextItem("RootContextMenu")) {
+            m_vm.select(rootPathStr);
+            if (ImGui::MenuItem("[+] Create Material Here...")) {
+                m_context_target_path = root.full_path;
+                m_open_create_popup = true;
+                snprintf(m_create_buffer, sizeof(m_create_buffer), "NewMaterial");
+            }
+            ImGui::EndPopup();
         }
 
         if (root_open) {
@@ -82,10 +106,10 @@ namespace vesta {
 
         if (ImGui::BeginPopupModal("Create Asset Name", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text("Enter material name:");
-            ImGui::InputText("##create_name", m_create_buffer, sizeof(m_create_buffer));
+            bool enter_pressed = ImGui::InputText("##create_name", m_create_buffer, sizeof(m_create_buffer), ImGuiInputTextFlags_EnterReturnsTrue);
             ImGui::Spacing();
 
-            if (ImGui::Button("Create", ImVec2(120, 0))) {
+            if (ImGui::Button("Create", ImVec2(120, 0)) || enter_pressed) {
                 m_vm.request_create_material(m_context_target_path, m_create_buffer);
                 ImGui::CloseCurrentPopup();
             }
@@ -109,10 +133,10 @@ namespace vesta {
 
         if (ImGui::BeginPopupModal("Rename Asset", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text("Rename '%s' to:", m_context_target_path.filename().string().c_str());
-            ImGui::InputText("##rename_input", m_rename_buffer, sizeof(m_rename_buffer));
+            bool rename_enter = ImGui::InputText("##rename_input", m_rename_buffer, sizeof(m_rename_buffer), ImGuiInputTextFlags_EnterReturnsTrue);
             ImGui::Spacing();
 
-            if (ImGui::Button("OK", ImVec2(120, 0))) {
+            if (ImGui::Button("OK", ImVec2(120, 0)) || rename_enter) {
                 m_vm.request_rename(m_context_target_path, m_rename_buffer);
                 ImGui::CloseCurrentPopup();
             }
@@ -135,7 +159,7 @@ namespace vesta {
         // Aynı isimde klasörler olabileceği için ImGui state karışmasını engelliyoruz
         ImGui::PushID(path_str.c_str());
 
-        std::string prefix = (entry.type == asset_type::folder) ? "📁 " : "📄 ";
+        std::string prefix = get_node_icon(entry.type);
         std::string label = prefix + entry.name;
         bool is_selected = m_vm.is_selected(path_str);
 
@@ -169,27 +193,35 @@ namespace vesta {
             m_vm.select_and_notify(path_str);
 
             if (entry.type == asset_type::folder) {
-                if (ImGui::MenuItem("➕ Create Material Here...")) {
+                if (ImGui::MenuItem("[+] Create Material Here...")) {
                     m_context_target_path = entry.full_path;
                     m_open_create_popup = true;
                     snprintf(m_create_buffer, sizeof(m_create_buffer), "NewMaterial");
                 }
                 ImGui::Separator();
             }
+            else {
+                if (ImGui::MenuItem("[+] Create Material in Folder...")) {
+                    m_context_target_path = entry.full_path.parent_path();
+                    m_open_create_popup = true;
+                    snprintf(m_create_buffer, sizeof(m_create_buffer), "NewMaterial");
+                }
+                ImGui::Separator();
+            }
 
-            if (ImGui::MenuItem("📝 Rename")) {
+            if (ImGui::MenuItem("Rename")) {
                 m_context_target_path = entry.full_path;
                 snprintf(m_rename_buffer, sizeof(m_rename_buffer), "%s", entry.full_path.stem().string().c_str());
                 m_open_rename_popup = true;
             }
 
-            if (ImGui::MenuItem("👯 Duplicate / Copy")) {
+            if (ImGui::MenuItem("Duplicate / Copy")) {
                 m_vm.request_duplicate(entry.full_path);
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("🗑️ Delete")) {
+            if (ImGui::MenuItem("Delete")) {
                 m_vm.request_delete(entry.full_path);
             }
 
@@ -225,7 +257,7 @@ namespace vesta {
             ImGui::SetDragDropPayload("ARIA_ASSET_PAYLOAD", &payload, sizeof(payload));
 
             // Sürüklerken farenin altında görünecek olan önizleme metni
-            ImGui::Text("%s %s", (entry.type == asset_type::folder ? "📁" : "📄"), entry.name.c_str());
+            ImGui::Text("%s %s", (entry.type == asset_type::folder ? "[DIR]" : "[FILE]"), entry.name.c_str());
             ImGui::EndDragDropSource();
         }
 

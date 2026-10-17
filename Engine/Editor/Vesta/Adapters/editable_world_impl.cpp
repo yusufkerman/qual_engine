@@ -213,7 +213,11 @@ namespace vesta {
     }
 
     aria::asset_guid editable_world_impl::get_guid_from_path(const std::string& path) {
-        return asset_pipeline::get_or_create_meta_guid(path);
+        aria::asset_guid guid = asset_pipeline::get_or_create_meta_guid(path);
+        if (m_aria_system && !guid.is_nil()) {
+            m_aria_system->register_asset_path(guid, path);
+        }
+        return guid;
     }
 
     const ComponentUIInfo* editable_world_impl::get_component_ui(size_t hash) const {

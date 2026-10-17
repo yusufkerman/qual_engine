@@ -79,6 +79,8 @@ namespace vesta {
 
         const AssetUIInfo* get_asset_ui(const std::string& asset_type) const override;
         const std::unordered_map<std::string, AssetUIInfo>& get_asset_registry() const override;
+
+        aria::system* get_aria_system() override { return m_aria_system; }
     };
 
 } // namespace vesta

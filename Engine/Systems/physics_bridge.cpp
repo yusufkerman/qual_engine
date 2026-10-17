@@ -161,16 +161,21 @@ namespace physics_bridge
             const JPH::RVec3 jolt_pos = body_interface.GetPosition(rb.body_id);
             const glm::vec3 ecs_pos = transform->position;
 
-            if (glm::distance(glm::vec3(jolt_pos.GetX(), jolt_pos.GetY(), jolt_pos.GetZ()), ecs_pos) > 0.005f)
+            glm::mat4 rotMatrix = glm::mat4(1.0f);
+            rotMatrix = glm::rotate(rotMatrix, transform->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+            rotMatrix = glm::rotate(rotMatrix, transform->rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+            rotMatrix = glm::rotate(rotMatrix, transform->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+            const glm::quat q = glm::quat_cast(rotMatrix);
+            const JPH::Quat jolt_quat(q.x, q.y, q.z, q.w);
+            const JPH::Quat current_jolt_quat = body_interface.GetRotation(rb.body_id);
+            const glm::quat current_q(current_jolt_quat.GetW(), current_jolt_quat.GetX(), current_jolt_quat.GetY(), current_jolt_quat.GetZ());
+
+            const bool posChanged = glm::distance(glm::vec3(jolt_pos.GetX(), jolt_pos.GetY(), jolt_pos.GetZ()), ecs_pos) > 0.005f;
+            const bool rotChanged = (1.0f - std::abs(glm::dot(q, current_q))) > 0.0001f;
+
+            if (posChanged || rotChanged)
             {
-                glm::mat4 rotMatrix = glm::mat4(1.0f);
-                rotMatrix = glm::rotate(rotMatrix, transform->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-                rotMatrix = glm::rotate(rotMatrix, transform->rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-                rotMatrix = glm::rotate(rotMatrix, transform->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-
-                const glm::quat q = glm::quat_cast(rotMatrix);
-                const JPH::Quat jolt_quat(q.x, q.y, q.z, q.w);
-
                 body_interface.SetPositionAndRotation(
                     rb.body_id,
                     JPH::RVec3(ecs_pos.x, ecs_pos.y, ecs_pos.z),

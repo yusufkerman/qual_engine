@@ -243,6 +243,55 @@ namespace aria {
         return h;
     }
 
+    handle<material_asset> asset_registry::reload_material(const asset_guid& guid, const std::string& file_path) {
+        auto loaded = asset_loader::load_material_to_cpu(file_path);
+        if (!loaded)
+            return {};
+
+        uint32_t idx = 0;
+        auto it = m_material_map.find(guid);
+        if (it != m_material_map.end()) {
+            idx = it->second.index;
+        }
+        else {
+            return load_material(guid, file_path);
+        }
+
+        if (idx >= m_material_slots.size()) {
+            return load_material(guid, file_path);
+        }
+
+        auto& slot = m_material_slots[idx];
+
+        // Slot verilerini diskteki yeni verilerle güncelle (Hot-Reload)
+        slot.is_allocated = true;
+        slot.asset.guid = guid;
+        slot.asset.name = loaded->name;
+        slot.asset.mode = loaded->mode;
+        slot.asset.alpha_threshold = loaded->alpha_threshold;
+        slot.asset.base_color = loaded->base_color;
+        slot.asset.specular_strength = loaded->specular_strength;
+        slot.asset.shininess = loaded->shininess;
+        slot.asset.normal_strength = loaded->normal_strength;
+        slot.asset.texture_scale = loaded->texture_scale;
+
+        // Bağımlı Varlıkları Yükle (Doku ve Shader)
+        slot.asset.diffuse_texture_handle = (!loaded->diffuse_texture_guid.is_nil())
+            ? this->load_texture(loaded->diffuse_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.normal_texture_handle = (!loaded->normal_texture_guid.is_nil())
+            ? this->load_texture(loaded->normal_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.specular_texture_handle = (!loaded->specular_texture_guid.is_nil())
+            ? this->load_texture(loaded->specular_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.shader_handle = (!loaded->shader_guid.is_nil())
+            ? this->load_shader(loaded->shader_guid) : handle<shader_asset>{};
+
+        std::cout << "[Aria Registry] Materyal basariyla yeniden yuklendi (Hot-Reload): " << loaded->name << "\n";
+        return it->second;
+    }
+
     material_asset* asset_registry::get_material(handle<material_asset> h) {
         if (h.index >= m_material_slots.size()) return nullptr;
 

@@ -41,7 +41,12 @@ void game_pass::render(EngineContext& ctx)
 
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
-    glClearColor(0.03f, 0.03f, 0.05f, 1.0f);
+    glClearColor(
+        ctx.renderSettings.clear_color_game.r,
+        ctx.renderSettings.clear_color_game.g,
+        ctx.renderSettings.clear_color_game.b,
+        1.0f
+    );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 2. Sahnedeki aktif oyun kamerasını sorgula
