@@ -72,6 +72,7 @@ inline void register_rigidbody_ui_system() {
     // 1. UI Çizim Kaydı
     vesta::ComponentUIInfo ui_info;
     ui_info.display_name = "Rigidbody";
+    ui_info.category = "Physics";
     ui_info.render_fn = render_rigidbody_ui;
     vesta::component_ui_registry::register_component(comp_hash, ui_info);
 

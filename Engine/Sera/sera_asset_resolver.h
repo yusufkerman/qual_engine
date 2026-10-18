@@ -62,7 +62,14 @@ namespace sera {
                 return {};
             }
 
-            return m_ctx.aria_system->get_or_load_asset_by_guid<T>(guid);
+            try
+            {
+                return m_ctx.aria_system->get_or_load_asset_by_guid<T>(guid);
+            }
+            catch (...)
+            {
+                return {};
+            }
         }
 
     private:

@@ -28,4 +28,5 @@
 #include "gameplay_script.h"
 #include "gameplay_gizmos.h"
 #include "gameplay_time.h"
+#include "gameplay_ui.h"
 

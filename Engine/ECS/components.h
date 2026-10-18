@@ -49,9 +49,116 @@ enum class mesh_source_type
     primitive_sphere
 };
 
+enum class canvas_render_mode
+{
+    screen_space_overlay,
+    world_space
+};
+
+enum class canvas_scaler_mode
+{
+    constant_pixel_size,
+    scale_with_screen_size
+};
+
+enum class ui_text_alignment
+{
+    top_left,
+    top_center,
+    top_right,
+    middle_left,
+    center,
+    middle_right,
+    bottom_left,
+    bottom_center,
+    bottom_right
+};
+
+enum class ui_button_state
+{
+    normal,
+    hovered,
+    pressed,
+    disabled
+};
+
 // ============================================================================
 // BİLEŞENLER (COMPONENTS)
 // ============================================================================
+
+/**
+ * @struct canvas_component
+ * @brief Tüm 2B UI hiyerarşisinin kök bileşenidir. Ekran uzayı veya dünya uzayı modlarını yönetir.
+ */
+struct canvas_component
+{
+    canvas_render_mode render_mode = canvas_render_mode::screen_space_overlay;
+    canvas_scaler_mode scaler_mode = canvas_scaler_mode::scale_with_screen_size;
+    glm::vec2 reference_resolution{ 1920.0f, 1080.0f };
+    float match_width_or_height = 0.5f; ///< 0.0f = Genişliğe göre, 1.0f = Yüksekliğe göre ölçekleme
+    int sorting_order = 0;              ///< Çizim sırası önceliği
+};
+
+/**
+ * @struct rect_transform_component
+ * @brief 2B UI elemanlarının anchor, pivot ve boyut koordinatlarını tanımlayan arayüz dönüşüm bileşeni.
+ */
+struct rect_transform_component
+{
+    glm::vec2 anchored_position{ 0.0f, 0.0f };
+    glm::vec2 size{ 100.0f, 100.0f };
+    glm::vec2 anchor_min{ 0.5f, 0.5f }; ///< [0..1] Sol-alt: (0,0), Sağ-üst: (1,1)
+    glm::vec2 anchor_max{ 0.5f, 0.5f }; ///< [0..1]
+    glm::vec2 pivot{ 0.5f, 0.5f };      ///< [0..1] Kendi eksen merkezi (0.5, 0.5 = tam orta)
+    float rotation = 0.0f;              ///< 2B Z ekseni rotasyonu (derece)
+    glm::vec2 scale{ 1.0f, 1.0f };
+    bool visible = true;                ///< UI elemanının görünürlüğü
+
+    /// @brief Sistem tarafından hesaplanan son mutlak ekran koordinatları: (x = sol, y = üst, z = genişlik, w = yükseklik)
+    glm::vec4 computed_screen_rect{ 0.0f };
+};
+
+/**
+ * @struct ui_text_component
+ * @brief Ekran üzerinde metin çizilmesini sağlayan arayüz bileşeni.
+ */
+struct ui_text_component
+{
+    std::string text = "New Text";
+    std::string font_path = "EngineResources/Fonts/Roboto-Regular.ttf";
+    float font_size = 24.0f;
+    glm::vec4 color{ 1.0f, 1.0f, 1.0f, 1.0f };
+    ui_text_alignment alignment = ui_text_alignment::center;
+    bool wrap_text = false;
+    float line_spacing = 1.2f;
+};
+
+/**
+ * @struct ui_image_component
+ * @brief Renkli kutular veya dokulu görseller çizen arayüz bileşeni.
+ */
+struct ui_image_component
+{
+    glm::vec4 color{ 1.0f, 1.0f, 1.0f, 1.0f };
+    aria::handle<aria::texture_asset> texture_handle;
+    bool raycast_target = true; ///< Tıklama/hover etkileşimi algılansın mı?
+};
+
+/**
+ * @struct ui_button_component
+ * @brief Etkileşimli buton ve tıklama/durum mantığını barındıran arayüz bileşeni.
+ */
+struct ui_button_component
+{
+    bool interactable = true;
+    glm::vec4 normal_color{ 0.8f, 0.8f, 0.8f, 1.0f };
+    glm::vec4 hover_color{ 1.0f, 1.0f, 1.0f, 1.0f };
+    glm::vec4 pressed_color{ 0.6f, 0.6f, 0.6f, 1.0f };
+    glm::vec4 disabled_color{ 0.4f, 0.4f, 0.4f, 0.5f };
+
+    ui_button_state current_state = ui_button_state::normal;
+    std::function<void()> on_click = nullptr; ///< Tıklama olayı tetiklendiğinde çalıştırılacak fonksiyon
+};
 
 struct transform_component
 {
@@ -393,4 +500,46 @@ DESCRIBE_COMPONENT(bone_attachment_component,
     SERA_FIELD(local_offset),
     SERA_FIELD(local_rotation),
     SERA_FIELD(local_scale)
+)
+
+DESCRIBE_COMPONENT(canvas_component,
+    SERA_FIELD(render_mode),
+    SERA_FIELD(scaler_mode),
+    SERA_FIELD(reference_resolution),
+    SERA_FIELD(match_width_or_height),
+    SERA_FIELD(sorting_order)
+)
+
+DESCRIBE_COMPONENT(rect_transform_component,
+    SERA_FIELD(anchored_position),
+    SERA_FIELD(size),
+    SERA_FIELD(anchor_min),
+    SERA_FIELD(anchor_max),
+    SERA_FIELD(pivot),
+    SERA_FIELD(rotation),
+    SERA_FIELD(scale),
+    SERA_FIELD(visible)
+)
+
+DESCRIBE_COMPONENT(ui_text_component,
+    SERA_FIELD(text),
+    SERA_FIELD(font_path),
+    SERA_FIELD(font_size),
+    SERA_FIELD(color),
+    SERA_FIELD(alignment),
+    SERA_FIELD(wrap_text),
+    SERA_FIELD(line_spacing)
+)
+
+DESCRIBE_COMPONENT(ui_image_component,
+    SERA_FIELD(color),
+    SERA_FIELD(raycast_target)
+)
+
+DESCRIBE_COMPONENT(ui_button_component,
+    SERA_FIELD(interactable),
+    SERA_FIELD(normal_color),
+    SERA_FIELD(hover_color),
+    SERA_FIELD(pressed_color),
+    SERA_FIELD(disabled_color)
 )

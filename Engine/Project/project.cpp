@@ -43,29 +43,33 @@ namespace project {
 
         void render_settings_from_json(const nlohmann::json& j, render_settings& r)
         {
-            if (j.contains("enable_frustum_culling")) r.enable_frustum_culling = j["enable_frustum_culling"].get<bool>();
-            if (j.contains("cull_bias")) r.cull_bias = j["cull_bias"].get<float>();
-            if (j.contains("enable_shadows")) r.enable_shadows = j["enable_shadows"].get<bool>();
-            if (j.contains("shadow_map_resolution")) r.shadow_map_resolution = j["shadow_map_resolution"].get<int>();
-            if (j.contains("shadow_ortho_size")) r.shadow_ortho_size = j["shadow_ortho_size"].get<float>();
-            if (j.contains("shadow_near_plane")) r.shadow_near_plane = j["shadow_near_plane"].get<float>();
-            if (j.contains("shadow_far_plane")) r.shadow_far_plane = j["shadow_far_plane"].get<float>();
-            if (j.contains("shadow_distance")) r.shadow_distance = j["shadow_distance"].get<float>();
-            if (j.contains("shadow_camera_height")) r.shadow_camera_height = j["shadow_camera_height"].get<float>();
-            if (j.contains("show_shadow_map_debug")) r.show_shadow_map_debug = j["show_shadow_map_debug"].get<bool>();
-            if (j.contains("enable_skybox")) r.enable_skybox = j["enable_skybox"].get<bool>();
-            if (j.contains("skybox_path")) r.skybox_path = j["skybox_path"].get<std::string>();
-            if (j.contains("clear_color_scene") && j["clear_color_scene"].is_array() && j["clear_color_scene"].size() >= 3)
-            {
-                r.clear_color_scene = glm::vec3(j["clear_color_scene"][0], j["clear_color_scene"][1], j["clear_color_scene"][2]);
-            }
-            if (j.contains("clear_color_game") && j["clear_color_game"].is_array() && j["clear_color_game"].size() >= 3)
-            {
-                r.clear_color_game = glm::vec3(j["clear_color_game"][0], j["clear_color_game"][1], j["clear_color_game"][2]);
-            }
-            if (j.contains("vsync")) r.vsync = j["vsync"].get<bool>();
-            if (j.contains("wireframe")) r.wireframe = j["wireframe"].get<bool>();
-            if (j.contains("backface_culling")) r.backface_culling = j["backface_culling"].get<bool>();
+            try { if (j.contains("enable_frustum_culling")) r.enable_frustum_culling = j.value("enable_frustum_culling", r.enable_frustum_culling); } catch (...) {}
+            try { if (j.contains("cull_bias")) r.cull_bias = j.value("cull_bias", r.cull_bias); } catch (...) {}
+            try { if (j.contains("enable_shadows")) r.enable_shadows = j.value("enable_shadows", r.enable_shadows); } catch (...) {}
+            try { if (j.contains("shadow_map_resolution")) r.shadow_map_resolution = j.value("shadow_map_resolution", r.shadow_map_resolution); } catch (...) {}
+            try { if (j.contains("shadow_ortho_size")) r.shadow_ortho_size = j.value("shadow_ortho_size", r.shadow_ortho_size); } catch (...) {}
+            try { if (j.contains("shadow_near_plane")) r.shadow_near_plane = j.value("shadow_near_plane", r.shadow_near_plane); } catch (...) {}
+            try { if (j.contains("shadow_far_plane")) r.shadow_far_plane = j.value("shadow_far_plane", r.shadow_far_plane); } catch (...) {}
+            try { if (j.contains("shadow_distance")) r.shadow_distance = j.value("shadow_distance", r.shadow_distance); } catch (...) {}
+            try { if (j.contains("shadow_camera_height")) r.shadow_camera_height = j.value("shadow_camera_height", r.shadow_camera_height); } catch (...) {}
+            try { if (j.contains("show_shadow_map_debug")) r.show_shadow_map_debug = j.value("show_shadow_map_debug", r.show_shadow_map_debug); } catch (...) {}
+            try { if (j.contains("enable_skybox")) r.enable_skybox = j.value("enable_skybox", r.enable_skybox); } catch (...) {}
+            try { if (j.contains("skybox_path")) r.skybox_path = j.value("skybox_path", r.skybox_path); } catch (...) {}
+            try {
+                if (j.contains("clear_color_scene") && j["clear_color_scene"].is_array() && j["clear_color_scene"].size() >= 3)
+                {
+                    r.clear_color_scene = glm::vec3(j["clear_color_scene"][0].get<float>(), j["clear_color_scene"][1].get<float>(), j["clear_color_scene"][2].get<float>());
+                }
+            } catch (...) {}
+            try {
+                if (j.contains("clear_color_game") && j["clear_color_game"].is_array() && j["clear_color_game"].size() >= 3)
+                {
+                    r.clear_color_game = glm::vec3(j["clear_color_game"][0].get<float>(), j["clear_color_game"][1].get<float>(), j["clear_color_game"][2].get<float>());
+                }
+            } catch (...) {}
+            try { if (j.contains("vsync")) r.vsync = j.value("vsync", r.vsync); } catch (...) {}
+            try { if (j.contains("wireframe")) r.wireframe = j.value("wireframe", r.wireframe); } catch (...) {}
+            try { if (j.contains("backface_culling")) r.backface_culling = j.value("backface_culling", r.backface_culling); } catch (...) {}
         }
 
         nlohmann::json fog_settings_to_json(const fog_settings& f)
@@ -80,13 +84,15 @@ namespace project {
 
         void fog_settings_from_json(const nlohmann::json& j, fog_settings& f)
         {
-            if (j.contains("enabled")) f.enabled = j["enabled"].get<bool>();
-            if (j.contains("show_in_scene")) f.show_in_scene = j["show_in_scene"].get<bool>();
-            if (j.contains("color") && j["color"].is_array() && j["color"].size() >= 3)
-            {
-                f.color = glm::vec3(j["color"][0], j["color"][1], j["color"][2]);
-            }
-            if (j.contains("density")) f.density = j["density"].get<float>();
+            try { if (j.contains("enabled")) f.enabled = j.value("enabled", f.enabled); } catch (...) {}
+            try { if (j.contains("show_in_scene")) f.show_in_scene = j.value("show_in_scene", f.show_in_scene); } catch (...) {}
+            try {
+                if (j.contains("color") && j["color"].is_array() && j["color"].size() >= 3)
+                {
+                    f.color = glm::vec3(j["color"][0].get<float>(), j["color"][1].get<float>(), j["color"][2].get<float>());
+                }
+            } catch (...) {}
+            try { if (j.contains("density")) f.density = j.value("density", f.density); } catch (...) {}
         }
 
     } // anonymous namespace
@@ -316,24 +322,45 @@ namespace project {
             }
 
             nlohmann::json j;
-            inFile >> j;
+            try
+            {
+                inFile >> j;
+            }
+            catch (const std::exception& e)
+            {
+                inFile.close();
+                std::cerr << "[ProjectManager] Hata: project.json parse edilemedi: " << e.what() << "\n";
+                return false;
+            }
             inFile.close();
 
             m_descriptor.name = j.value("name", rootPath.filename().string());
+            if (m_descriptor.name.empty()) m_descriptor.name = rootPath.filename().string();
+
             m_descriptor.version = j.value("version", "1.0.0");
             m_descriptor.asset_directory = j.value("asset_directory", "Assets");
-            m_descriptor.start_scene = j.value("start_scene", "Assets/Scenes/Main.json");
+            if (m_descriptor.asset_directory.empty()) m_descriptor.asset_directory = "Assets";
 
-            // Grafik ve sis ayarlarını yükle
-            if (j.contains("rendering"))
+            m_descriptor.start_scene = j.value("start_scene", "Assets/Scenes/Main.json");
+            if (m_descriptor.start_scene.empty()) m_descriptor.start_scene = "Assets/Scenes/Main.json";
+
+            // Grafik ve sis ayarlarını güvenli yükle
+            try
             {
-                render_settings_from_json(j["rendering"], m_descriptor.rendering);
-                ctx.renderSettings = m_descriptor.rendering;
+                if (j.contains("rendering") && j["rendering"].is_object())
+                {
+                    render_settings_from_json(j["rendering"], m_descriptor.rendering);
+                    ctx.renderSettings = m_descriptor.rendering;
+                }
+                if (j.contains("lighting") && j["lighting"].is_object())
+                {
+                    fog_settings_from_json(j["lighting"], m_descriptor.lighting);
+                    ctx.fog = m_descriptor.lighting;
+                }
             }
-            if (j.contains("lighting"))
+            catch (const std::exception& e)
             {
-                fog_settings_from_json(j["lighting"], m_descriptor.lighting);
-                ctx.fog = m_descriptor.lighting;
+                std::cerr << "[ProjectManager] Uyari: Render/Lighting ayarlari yuklenirken hata: " << e.what() << "\n";
             }
 
             m_hasActiveProject = true;
@@ -359,29 +386,93 @@ namespace project {
             apply_render_settings(ctx);
 
             // 4. Proje script iskeletini hazirla / tara
-            std::string scaffoldLog;
-            project_module::ensure_script_scaffolding(m_projectRootPath, scaffoldLog);
+            try
+            {
+                std::string scaffoldLog;
+                project_module::ensure_script_scaffolding(m_projectRootPath, scaffoldLog);
+            }
+            catch (const std::exception& e)
+            {
+                std::cerr << "[ProjectManager] Uyari: Script scaffolding hatasi: " << e.what() << "\n";
+            }
 
             // 5. Projeye ait dinamik GameModule.dll varsa sahneyi yuklemeden ONCE yukle ki betikler script_factory'de hazir olsun
-            const std::filesystem::path gameModulePath = rootPath / "Binaries" / "GameModule.dll";
-            if (std::filesystem::exists(gameModulePath))
+            try
             {
-                project_module::instance().load_module(gameModulePath.string());
+                const std::filesystem::path gameModulePath = rootPath / "Binaries" / "GameModule.dll";
+                if (std::filesystem::exists(gameModulePath))
+                {
+                    project_module::instance().load_module(gameModulePath.string());
+                }
+                else
+                {
+                    project_module::instance().unload_module();
+                }
             }
-            else
+            catch (const std::exception& e)
             {
-                project_module::instance().unload_module();
+                std::cerr << "[ProjectManager] Uyari: GameModule yukleme hatasi: " << e.what() << "\n";
             }
 
-            // 6. Başlangıç sahnesini yükle (Betikler fabrikada hazir oldugu icin otomatik baglanir)
+            // 6. Başlangıç sahnesini yükle (Dayanıklı ve geri dönüşlü)
+            bool sceneLoaded = false;
             const std::filesystem::path startSceneFile = rootPath / m_descriptor.start_scene;
             if (std::filesystem::exists(startSceneFile) && ctx.sera)
             {
-                ctx.sera->load_scene(startSceneFile.string(), ctx.session.editor_scene());
+                try
+                {
+                    auto report = ctx.sera->load_scene(startSceneFile.string(), ctx.session.editor_scene());
+                    sceneLoaded = report.success && !report.has_critical_errors();
+                    if (!sceneLoaded)
+                    {
+                        std::cerr << "[ProjectManager] Uyari: Baslangic sahnesi kritik hatalarla karsilasti: " << startSceneFile << "\n";
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    std::cerr << "[ProjectManager] Uyari: Sahne dosyasi yuklenemedi: " << e.what() << "\n";
+                    sceneLoaded = false;
+                }
+                catch (...)
+                {
+                    std::cerr << "[ProjectManager] Uyari: Sahne dosyasi yuklenirken bilinmeyen bir hata olustu.\n";
+                    sceneLoaded = false;
+                }
             }
-            else
+
+            // Eğer başlangıç sahnesi açılamadıysa veya dosya yoksa, alternatif sahneleri tara
+            if (!sceneLoaded)
             {
-                // Sahne dosyası yoksa en azından bir kamera ile başlat
+                const std::vector<std::filesystem::path> fallbackScenes = {
+                    rootPath / "Assets" / "Scenes" / "Main.json",
+                    rootPath / "Assets" / "scene.json",
+                    rootPath / "Assets" / "scene2.json"
+                };
+
+                for (const auto& altPath : fallbackScenes)
+                {
+                    if (std::filesystem::exists(altPath) && altPath != startSceneFile && ctx.sera)
+                    {
+                        try
+                        {
+                            auto report = ctx.sera->load_scene(altPath.string(), ctx.session.editor_scene());
+                            if (report.success && !report.has_critical_errors())
+                            {
+                                sceneLoaded = true;
+                                std::cout << "[ProjectManager] Alternatif sahne basariyla yuklendi: " << altPath << "\n";
+                                m_descriptor.start_scene = std::filesystem::relative(altPath, rootPath).generic_string();
+                                break;
+                            }
+                        }
+                        catch (...) {}
+                    }
+                }
+            }
+
+            // Hiçbir sahne dosyası açılamadıysa güvenli başlangıç sahnesi oluştur
+            if (!sceneLoaded)
+            {
+                std::cout << "[ProjectManager] Gecerli sahne bulunamadi, varsayilan baslangic sahnesi hazirlaniyor.\n";
                 setup_starter_scene(ctx);
             }
 
@@ -390,7 +481,7 @@ namespace project {
         }
         catch (const std::exception& e)
         {
-            std::cerr << "[ProjectManager] Proje yukleme sirasinda hata: " << e.what() << "\n";
+            std::cerr << "[ProjectManager] Proje yukleme sirasinda beklenmeyen hata: " << e.what() << "\n";
             return false;
         }
     }

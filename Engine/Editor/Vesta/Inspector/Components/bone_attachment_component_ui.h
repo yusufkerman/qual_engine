@@ -68,6 +68,7 @@ inline void register_bone_attachment_ui_system() {
 
     vesta::ComponentUIInfo ui;
     ui.display_name = "Bone Attachment";
+    ui.category = "Animation";
     ui.render_fn = [](entity e, registry& reg) {
         render_bone_attachment_ui(e, reg);
     };

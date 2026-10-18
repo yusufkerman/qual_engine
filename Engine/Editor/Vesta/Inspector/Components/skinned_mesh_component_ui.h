@@ -118,6 +118,7 @@ inline void register_skinned_mesh_ui_system(aria::system& ariaSys) {
 
     vesta::ComponentUIInfo ui;
     ui.display_name = "Skinned Mesh Renderer";
+    ui.category = "Rendering";
     ui.render_fn = [&ariaSys](entity e, registry& reg) {
         render_skinned_mesh_ui(e, reg, ariaSys);
     };

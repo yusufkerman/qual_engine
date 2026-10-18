@@ -54,9 +54,20 @@ namespace glm {
 
     inline void from_json(const json& j, vec3& v)
     {
-        v.x = j.value("x", 0.0f);
-        v.y = j.value("y", 0.0f);
-        v.z = j.value("z", 0.0f);
+        try {
+            if (j.is_array() && j.size() >= 3)
+            {
+                v.x = j[0].get<float>();
+                v.y = j[1].get<float>();
+                v.z = j[2].get<float>();
+            }
+            else if (j.is_object())
+            {
+                v.x = j.value("x", 0.0f);
+                v.y = j.value("y", 0.0f);
+                v.z = j.value("z", 0.0f);
+            }
+        } catch (...) {}
     }
 
     inline void to_json(json& j, const vec2& v)
@@ -66,8 +77,43 @@ namespace glm {
 
     inline void from_json(const json& j, vec2& v)
     {
-        v.x = j.value("x", 0.0f);
-        v.y = j.value("y", 0.0f);
+        try {
+            if (j.is_array() && j.size() >= 2)
+            {
+                v.x = j[0].get<float>();
+                v.y = j[1].get<float>();
+            }
+            else if (j.is_object())
+            {
+                v.x = j.value("x", 0.0f);
+                v.y = j.value("y", 0.0f);
+            }
+        } catch (...) {}
+    }
+
+    inline void to_json(json& j, const vec4& v)
+    {
+        j = json{ {"x", v.x}, {"y", v.y}, {"z", v.z}, {"w", v.w} };
+    }
+
+    inline void from_json(const json& j, vec4& v)
+    {
+        try {
+            if (j.is_array() && j.size() >= 4)
+            {
+                v.x = j[0].get<float>();
+                v.y = j[1].get<float>();
+                v.z = j[2].get<float>();
+                v.w = j[3].get<float>();
+            }
+            else if (j.is_object())
+            {
+                v.x = j.value("x", j.value("r", 0.0f));
+                v.y = j.value("y", j.value("g", 0.0f));
+                v.z = j.value("z", j.value("b", 0.0f));
+                v.w = j.value("w", j.value("a", 0.0f));
+            }
+        } catch (...) {}
     }
 
 } // namespace glm
@@ -96,6 +142,35 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
         {mesh_source_type::model, "model"},
         {mesh_source_type::primitive_cube, "cube"},
         {mesh_source_type::primitive_sphere, "sphere"}
+        })
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(canvas_render_mode, {
+        {canvas_render_mode::screen_space_overlay, "screen_space_overlay"},
+        {canvas_render_mode::world_space, "world_space"}
+        })
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(canvas_scaler_mode, {
+        {canvas_scaler_mode::constant_pixel_size, "constant_pixel_size"},
+        {canvas_scaler_mode::scale_with_screen_size, "scale_with_screen_size"}
+        })
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(ui_text_alignment, {
+        {ui_text_alignment::top_left, "top_left"},
+        {ui_text_alignment::top_center, "top_center"},
+        {ui_text_alignment::top_right, "top_right"},
+        {ui_text_alignment::middle_left, "middle_left"},
+        {ui_text_alignment::center, "center"},
+        {ui_text_alignment::middle_right, "middle_right"},
+        {ui_text_alignment::bottom_left, "bottom_left"},
+        {ui_text_alignment::bottom_center, "bottom_center"},
+        {ui_text_alignment::bottom_right, "bottom_right"}
+        })
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(ui_button_state, {
+        {ui_button_state::normal, "normal"},
+        {ui_button_state::hovered, "hovered"},
+        {ui_button_state::pressed, "pressed"},
+        {ui_button_state::disabled, "disabled"}
         })
 
     // ======================================================
@@ -146,6 +221,21 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(bone_attachment_component,
         target_skeleton_entity, bone_name, local_offset, local_rotation, local_scale)
 
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(canvas_component,
+        render_mode, scaler_mode, reference_resolution, match_width_or_height, sorting_order)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(rect_transform_component,
+        anchored_position, size, anchor_min, anchor_max, pivot, rotation, scale, visible)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ui_text_component,
+        text, font_path, font_size, color, alignment, wrap_text, line_spacing)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ui_image_component,
+        color, raycast_target)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ui_button_component,
+        interactable, normal_color, hover_color, pressed_color, disabled_color)
+
     // ======================================================
     // 5. NATIVE SCRIPT COMPONENT
     // ======================================================
@@ -175,7 +265,12 @@ using EngineComponentList = std::tuple<
     skinned_mesh_component,
     skeleton_component,
     animator_component,
-    bone_attachment_component
+    bone_attachment_component,
+    canvas_component,
+    rect_transform_component,
+    ui_text_component,
+    ui_image_component,
+    ui_button_component
 >;
 
 // ======================================================

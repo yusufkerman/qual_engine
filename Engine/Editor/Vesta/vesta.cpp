@@ -18,7 +18,9 @@
 #include "Inspector/Components/animator_component_ui.h"
 #include "Inspector/Components/skeleton_component_ui.h"
 #include "Inspector/Components/bone_attachment_component_ui.h"
+#include "Inspector/Components/ui_components_ui.h"
 #include "Inspector/Assets/material_inspector.h"
+#include "Inspector/Assets/texture_inspector.h"
 
 // --- Çekirdek Sistemler ve Fizik ---
 #include "CoreState/vesta_module.h" 
@@ -55,6 +57,11 @@ namespace vesta {
         register_animator_ui_system(*engineCtx.aria_system);
         register_skeleton_ui_system(*engineCtx.aria_system);
         register_bone_attachment_ui_system();
+        register_canvas_ui_system();
+        register_rect_transform_ui_system();
+        register_ui_text_ui_system();
+        register_ui_image_ui_system(engineCtx.aria_system);
+        register_ui_button_ui_system();
 
         // 2. Çekirdek Servislerin Hazırlanması
         registry& reg = engineCtx.session.game_scene().get_registry();
@@ -66,6 +73,7 @@ namespace vesta {
 
         // 3. Varlık (Asset) Arayüz Kayıtları
         register_material_asset_ui_system(engineCtx.aria_system, m_material_service.get());
+        register_texture_asset_ui_system(engineCtx.aria_system);
 
         // 4. Editör Panelleri ve ViewModel'lerin Başlatılması
         init_top_bar(engineCtx, editorCtx);
@@ -161,7 +169,7 @@ namespace vesta {
             m_game_viewport_vm->set_texture_id(ctx.gameTarget.tex);
         }
 
-        m_game_viewport_panel = std::make_unique<game_viewport_panel>(*m_game_viewport_vm, m_viewport_state);
+        m_game_viewport_panel = std::make_unique<game_viewport_panel>(*m_game_viewport_vm, m_viewport_state, &ctx);
         register_panel(m_game_viewport_panel.get());
     }
 
@@ -312,7 +320,18 @@ namespace vesta {
                 {
                     if (outPath != nullptr)
                     {
-                        project::project_manager::instance().open_project(outPath, engineCtx);
+                        try
+                        {
+                            project::project_manager::instance().open_project(outPath, engineCtx);
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            std::cerr << "[Vesta] Proje acilirken hata: " << ex.what() << "\n";
+                        }
+                        catch (...)
+                        {
+                            std::cerr << "[Vesta] Proje acilirken bilinmeyen hata olustu.\n";
+                        }
                         NFD_FreePathU8(outPath);
                     }
                 }
@@ -368,7 +387,18 @@ namespace vesta {
                     {
                         if (engineCtx.sera)
                         {
-                            engineCtx.sera->load_scene(std::string(outPath), engineCtx.session.editor_scene());
+                            try
+                            {
+                                engineCtx.sera->load_scene(std::string(outPath), engineCtx.session.editor_scene());
+                            }
+                            catch (const std::exception& e)
+                            {
+                                std::cerr << "[Vesta] Sahne yukleme hatasi: " << e.what() << "\n";
+                            }
+                            catch (...)
+                            {
+                                std::cerr << "[Vesta] Sahne yuklenirken bilinmeyen bir hata olustu.\n";
+                            }
                         }
                         NFD_FreePathU8(outPath);
                     }

@@ -78,6 +78,7 @@ inline void register_skeleton_ui_system(aria::system& ariaSys) {
 
     vesta::ComponentUIInfo ui;
     ui.display_name = "Skeleton";
+    ui.category = "Animation";
     ui.render_fn = [&ariaSys](entity e, registry& reg) {
         render_skeleton_ui(e, reg, ariaSys);
     };

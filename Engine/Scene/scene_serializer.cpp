@@ -58,6 +58,11 @@ bool scene_serializer::serialize(const std::string& filepath, const scene& curre
         serialize_component_if_exists<skeleton_component>(e, reg, entityJson, "skeleton_component");
         serialize_component_if_exists<animator_component>(e, reg, entityJson, "animator_component");
         serialize_component_if_exists<bone_attachment_component>(e, reg, entityJson, "bone_attachment_component");
+        serialize_component_if_exists<canvas_component>(e, reg, entityJson, "canvas_component");
+        serialize_component_if_exists<rect_transform_component>(e, reg, entityJson, "rect_transform_component");
+        serialize_component_if_exists<ui_text_component>(e, reg, entityJson, "ui_text_component");
+        serialize_component_if_exists<ui_image_component>(e, reg, entityJson, "ui_image_component");
+        serialize_component_if_exists<ui_button_component>(e, reg, entityJson, "ui_button_component");
 
         sceneJson["entities"].push_back(entityJson);
     }
@@ -182,6 +187,12 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
                 bone_attachment_component attachComp = entityJson["bone_attachment_component"].get<bone_attachment_component>();
                 reg.add_component<bone_attachment_component>(newE, attachComp);
             }
+
+            deserialize_component_if_exists<canvas_component>(newE, reg, entityJson, "canvas_component");
+            deserialize_component_if_exists<rect_transform_component>(newE, reg, entityJson, "rect_transform_component");
+            deserialize_component_if_exists<ui_text_component>(newE, reg, entityJson, "ui_text_component");
+            deserialize_component_if_exists<ui_image_component>(newE, reg, entityJson, "ui_image_component");
+            deserialize_component_if_exists<ui_button_component>(newE, reg, entityJson, "ui_button_component");
         }
     }
 

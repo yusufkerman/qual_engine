@@ -122,6 +122,7 @@ inline void register_animator_ui_system(aria::system& ariaSys) {
 
     vesta::ComponentUIInfo ui;
     ui.display_name = "Animator";
+    ui.category = "Animation";
     ui.render_fn = [&ariaSys](entity e, registry& reg) {
         render_animator_ui(e, reg, ariaSys);
     };

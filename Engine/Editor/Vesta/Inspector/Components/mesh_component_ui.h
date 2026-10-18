@@ -137,6 +137,7 @@ inline void register_mesh_ui_system(aria::system& ariaSys) {
     // 2. UI Çizim Kaydı (Aria sistemi referansı closure içine yakalanır)
     vesta::ComponentUIInfo ui;
     ui.display_name = "Mesh Renderer";
+    ui.category = "Rendering";
     ui.render_fn = [&ariaSys](entity e, registry& reg) {
         render_mesh_ui(e, reg, ariaSys);
         };

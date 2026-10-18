@@ -4,6 +4,7 @@
  */
 
 #include "inspector_view_model.h"
+#include "../../../ECS/components.h"
 
 namespace vesta
 {
@@ -119,9 +120,19 @@ namespace vesta
 
         entity e = get_selected_entity();
 
+        const size_t transformHash = typeid(transform_component).hash_code();
+        const size_t rectTransformHash = typeid(rect_transform_component).hash_code();
+        const bool hasRectTransform = m_world.has_component_by_hash(e, rectTransformHash);
+
         // UI Registry'deki tüm kayıtlı arayüzleri tara
         for (const auto& [hash, info] : m_world.get_component_registry())
         {
+            // Eğer nesnede RectTransform varsa 3B Transform bileşenini Inspector'da gösterme
+            if (hasRectTransform && hash == transformHash)
+            {
+                continue;
+            }
+
             // Varlık gerçekten bu bileşene sahipse UI verisini hazırla
             if (m_world.has_component_by_hash(e, hash))
             {
@@ -145,7 +156,15 @@ namespace vesta
         if (!has_selected_entity())
             return false;
 
-        return !m_world.has_component_by_hash(get_selected_entity(), hash);
+        entity e = get_selected_entity();
+        const size_t transformHash = typeid(transform_component).hash_code();
+        const size_t rectTransformHash = typeid(rect_transform_component).hash_code();
+
+        // RectTransform varken 3B Transform eklenemez
+        if (hash == transformHash && m_world.has_component_by_hash(e, rectTransformHash))
+            return false;
+
+        return !m_world.has_component_by_hash(e, hash);
     }
 
     bool inspector_view_model::can_remove(size_t hash) const
@@ -177,7 +196,17 @@ namespace vesta
         if (!can_add(hash))
             return;
 
-        m_world.add_component_by_hash(get_selected_entity(), hash);
+        entity e = get_selected_entity();
+        const size_t transformHash = typeid(transform_component).hash_code();
+        const size_t rectTransformHash = typeid(rect_transform_component).hash_code();
+
+        // Eğer RectTransform ekleniyorsa, varsa 3B Transform bileşenini kaldır (UI nesneleri Transform içermemeli)
+        if (hash == rectTransformHash && m_world.has_component_by_hash(e, transformHash))
+        {
+            m_world.remove_component_by_hash(e, transformHash);
+        }
+
+        m_world.add_component_by_hash(e, hash);
     }
 
     void inspector_view_model::request_remove_component(size_t hash)

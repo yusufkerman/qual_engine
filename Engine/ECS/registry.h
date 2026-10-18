@@ -125,6 +125,11 @@ private:
     std::unordered_map<entity, skeleton_component> skeletons;
     std::unordered_map<entity, animator_component> animators;
     std::unordered_map<entity, bone_attachment_component> bone_attachments;
+    std::unordered_map<entity, canvas_component> canvases;
+    std::unordered_map<entity, rect_transform_component> rect_transforms;
+    std::unordered_map<entity, ui_text_component> ui_texts;
+    std::unordered_map<entity, ui_image_component> ui_images;
+    std::unordered_map<entity, ui_button_component> ui_buttons;
 
     template<typename T>
     std::unordered_map<entity, T>& pool();
@@ -160,6 +165,11 @@ inline std::unordered_map<entity, T>& registry::pool()
     if constexpr (std::is_same_v<T, skeleton_component>) return skeletons;
     if constexpr (std::is_same_v<T, animator_component>) return animators;
     if constexpr (std::is_same_v<T, bone_attachment_component>) return bone_attachments;
+    if constexpr (std::is_same_v<T, canvas_component>) return canvases;
+    if constexpr (std::is_same_v<T, rect_transform_component>) return rect_transforms;
+    if constexpr (std::is_same_v<T, ui_text_component>) return ui_texts;
+    if constexpr (std::is_same_v<T, ui_image_component>) return ui_images;
+    if constexpr (std::is_same_v<T, ui_button_component>) return ui_buttons;
 
     static std::unordered_map<entity, T> dummy;
     return dummy;
@@ -183,6 +193,11 @@ inline const std::unordered_map<entity, T>& registry::pool() const
     if constexpr (std::is_same_v<T, skeleton_component>) return skeletons;
     if constexpr (std::is_same_v<T, animator_component>) return animators;
     if constexpr (std::is_same_v<T, bone_attachment_component>) return bone_attachments;
+    if constexpr (std::is_same_v<T, canvas_component>) return canvases;
+    if constexpr (std::is_same_v<T, rect_transform_component>) return rect_transforms;
+    if constexpr (std::is_same_v<T, ui_text_component>) return ui_texts;
+    if constexpr (std::is_same_v<T, ui_image_component>) return ui_images;
+    if constexpr (std::is_same_v<T, ui_button_component>) return ui_buttons;
 
     static std::unordered_map<entity, T> dummy;
     return dummy;

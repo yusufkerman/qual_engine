@@ -37,6 +37,15 @@ void registry::remove_entity(entity e)
     colliders.erase(e);
     scriptable_components.erase(e);
     hierarchies.erase(e);
+    skinned_meshes.erase(e);
+    skeletons.erase(e);
+    animators.erase(e);
+    bone_attachments.erase(e);
+    canvases.erase(e);
+    rect_transforms.erase(e);
+    ui_texts.erase(e);
+    ui_images.erase(e);
+    ui_buttons.erase(e);
 }
 
 const std::unordered_set<entity>& registry::get_all_entities() const
@@ -90,6 +99,21 @@ void registry::copy_components_internal(entity srcEntity, entity dstEntity, regi
 
     if (const auto* c = get_component<bone_attachment_component>(srcEntity))
         dstRegistry.add_component<bone_attachment_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<canvas_component>(srcEntity))
+        dstRegistry.add_component<canvas_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<rect_transform_component>(srcEntity))
+        dstRegistry.add_component<rect_transform_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<ui_text_component>(srcEntity))
+        dstRegistry.add_component<ui_text_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<ui_image_component>(srcEntity))
+        dstRegistry.add_component<ui_image_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<ui_button_component>(srcEntity))
+        dstRegistry.add_component<ui_button_component>(dstEntity, *c);
 }
 
 void registry::clone_entity(entity e, registry& dst) const

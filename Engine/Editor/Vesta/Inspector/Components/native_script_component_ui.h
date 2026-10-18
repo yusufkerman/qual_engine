@@ -95,6 +95,7 @@ inline void register_native_script_ui_system() {
     // 2. UI Çizim Kaydı
     vesta::ComponentUIInfo ui;
     ui.display_name = "Native Script";
+    ui.category = "Scripting";
     ui.render_fn = [](entity e, registry& reg) {
         render_native_script_ui(e, reg);
         };

@@ -31,6 +31,17 @@ public:
 
     fly_camera_state flyState;                ///< Uçuş kamerası girdi ve hız durumu.
 
+    bool is2DMode = false;                    ///< 2B Ortografik mod aktif mi.
+    float orthographicSize = 10.0f;           ///< 2B Ortografik görünüm dikey boyutu.
+    glm::vec3 saved3DPosition{ 0.0f, 2.0f, 5.0f };
+    glm::vec3 saved3DRotation{ 0.0f, 0.0f, 0.0f };
+
+    /**
+     * @brief 2B Ortografik mod ile 3B Perspektif mod arasında geçiş yapar.
+     */
+    void set2DMode(bool enabled);
+    void toggle2DMode();
+
     /**
      * @brief Fare girdi durumunu ve kaydırma adımlarını sıfırlar.
      */
@@ -59,7 +70,7 @@ public:
     glm::mat4 getViewMatrix() const;
 
     /**
-     * @brief Verilen en/boy oranına (aspect ratio) göre perspektif projeksiyon matrisini hesaplar.
+     * @brief Verilen en/boy oranına (aspect ratio) göre projeksiyon (Perspektif / Ortografik) matrisini hesaplar.
      */
     glm::mat4 getProjectionMatrix(float aspect) const;
 };

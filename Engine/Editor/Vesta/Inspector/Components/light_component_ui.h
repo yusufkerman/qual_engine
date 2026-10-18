@@ -48,6 +48,7 @@ inline void register_light_ui_system() {
     // 1. UI Çizim Kaydı
     vesta::ComponentUIInfo ui_info;
     ui_info.display_name = "Light";
+    ui_info.category = "Rendering";
     ui_info.render_fn = render_light_ui;
     vesta::component_ui_registry::register_component(comp_hash, ui_info);
 

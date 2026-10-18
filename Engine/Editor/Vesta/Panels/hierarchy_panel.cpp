@@ -5,6 +5,7 @@
 
 #include "hierarchy_panel.h"
 #include "scene_gizmo_overlay.h"
+#include "../Inspector/Components/ui_components_ui.h"
 #include <imgui.h>
 #include <cstdio> // snprintf için
 
@@ -273,6 +274,60 @@ namespace vesta {
             if (ImGui::MenuItem("Directional Light")) {
                 m_vm->request_create_light(light_type::directional);
             }
+            ImGui::Separator();
+            if (ImGui::BeginMenu("UI"))
+            {
+                if (ImGui::MenuItem("Canvas"))
+                {
+                    registry& reg = m_vm->get_registry();
+                    entity canvas = ensure_canvas_exists(reg);
+                    m_vm->request_select(canvas, false);
+                }
+                if (ImGui::MenuItem("Text"))
+                {
+                    registry& reg = m_vm->get_registry();
+                    entity e = reg.create_entity();
+                    reg.add_component<name_component>(e, name_component{ "Text" });
+                    reg.add_component<rect_transform_component>(e, rect_transform_component{ glm::vec2(0.0f), glm::vec2(160.0f, 40.0f) });
+                    reg.add_component<ui_text_component>(e, ui_text_component{ "New Text" });
+                    prepare_ui_entity(e, reg, false);
+                    m_vm->request_select(e, false);
+                }
+                if (ImGui::MenuItem("Image"))
+                {
+                    registry& reg = m_vm->get_registry();
+                    entity e = reg.create_entity();
+                    reg.add_component<name_component>(e, name_component{ "Image" });
+                    reg.add_component<rect_transform_component>(e, rect_transform_component{ glm::vec2(0.0f), glm::vec2(100.0f, 100.0f) });
+                    reg.add_component<ui_image_component>(e, ui_image_component{});
+                    prepare_ui_entity(e, reg, false);
+                    m_vm->request_select(e, false);
+                }
+                if (ImGui::MenuItem("Button"))
+                {
+                    registry& reg = m_vm->get_registry();
+                    entity e = reg.create_entity();
+                    reg.add_component<name_component>(e, name_component{ "Button" });
+                    reg.add_component<rect_transform_component>(e, rect_transform_component{ glm::vec2(0.0f), glm::vec2(160.0f, 48.0f) });
+                    reg.add_component<ui_image_component>(e, ui_image_component{});
+                    reg.add_component<ui_button_component>(e, ui_button_component{});
+                    prepare_ui_entity(e, reg, false);
+
+                    // Alt çocuk (Child) Text nesnesi
+                    entity textChild = reg.create_entity();
+                    reg.add_component<name_component>(textChild, name_component{ "Text" });
+                    reg.add_component<rect_transform_component>(textChild, rect_transform_component{
+                        glm::vec2(0.0f), glm::vec2(160.0f, 48.0f), glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec2(0.5f, 0.5f)
+                    });
+                    reg.add_component<ui_text_component>(textChild, ui_text_component{
+                        "Button", "EngineResources/Fonts/Roboto-Regular.ttf", 20.0f, glm::vec4(0.12f, 0.12f, 0.12f, 1.0f)
+                    });
+                    attach_child_to_parent(reg, textChild, e);
+
+                    m_vm->request_select(e, false);
+                }
+                ImGui::EndMenu();
+            }
             ImGui::EndPopup();
         }
 
@@ -297,6 +352,59 @@ namespace vesta {
             }
             if (ImGui::MenuItem("Create Directional Light")) {
                 m_vm->request_create_light(light_type::directional);
+            }
+            ImGui::Separator();
+            if (ImGui::BeginMenu("UI"))
+            {
+                if (ImGui::MenuItem("Canvas"))
+                {
+                    registry& reg = m_vm->get_registry();
+                    entity canvas = ensure_canvas_exists(reg);
+                    m_vm->request_select(canvas, false);
+                }
+                if (ImGui::MenuItem("Text"))
+                {
+                    registry& reg = m_vm->get_registry();
+                    entity e = reg.create_entity();
+                    reg.add_component<name_component>(e, name_component{ "Text" });
+                    reg.add_component<rect_transform_component>(e, rect_transform_component{ glm::vec2(0.0f), glm::vec2(160.0f, 40.0f) });
+                    reg.add_component<ui_text_component>(e, ui_text_component{ "New Text" });
+                    prepare_ui_entity(e, reg, false);
+                    m_vm->request_select(e, false);
+                }
+                if (ImGui::MenuItem("Image"))
+                {
+                    registry& reg = m_vm->get_registry();
+                    entity e = reg.create_entity();
+                    reg.add_component<name_component>(e, name_component{ "Image" });
+                    reg.add_component<rect_transform_component>(e, rect_transform_component{ glm::vec2(0.0f), glm::vec2(100.0f, 100.0f) });
+                    reg.add_component<ui_image_component>(e, ui_image_component{});
+                    prepare_ui_entity(e, reg, false);
+                    m_vm->request_select(e, false);
+                }
+                if (ImGui::MenuItem("Button"))
+                {
+                    registry& reg = m_vm->get_registry();
+                    entity e = reg.create_entity();
+                    reg.add_component<name_component>(e, name_component{ "Button" });
+                    reg.add_component<rect_transform_component>(e, rect_transform_component{ glm::vec2(0.0f), glm::vec2(160.0f, 48.0f) });
+                    reg.add_component<ui_image_component>(e, ui_image_component{});
+                    reg.add_component<ui_button_component>(e, ui_button_component{});
+                    prepare_ui_entity(e, reg, false);
+
+                    entity textChild = reg.create_entity();
+                    reg.add_component<name_component>(textChild, name_component{ "Text" });
+                    reg.add_component<rect_transform_component>(textChild, rect_transform_component{
+                        glm::vec2(0.0f), glm::vec2(160.0f, 48.0f), glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec2(0.5f, 0.5f)
+                    });
+                    reg.add_component<ui_text_component>(textChild, ui_text_component{
+                        "Button", "EngineResources/Fonts/Roboto-Regular.ttf", 20.0f, glm::vec4(0.12f, 0.12f, 0.12f, 1.0f)
+                    });
+                    attach_child_to_parent(reg, textChild, e);
+
+                    m_vm->request_select(e, false);
+                }
+                ImGui::EndMenu();
             }
             ImGui::Separator();
             if (ImGui::MenuItem("Paste", nullptr, false, m_vm->can_paste())) {

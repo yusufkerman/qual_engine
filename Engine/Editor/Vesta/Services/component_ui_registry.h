@@ -30,6 +30,7 @@ namespace vesta
     struct ComponentUIInfo
     {
         std::string display_name;       ///< Bileşenin Inspector panelinde görünecek olan başlığı (Örn: "Transform", "Mesh Renderer").
+        std::string category = "General"; ///< Bileşenin "Add Component" menüsündeki kategorisi (Örn: "Rendering", "Physics", "UI", "Animation", "Scripting").
         ComponentRenderFn render_fn;    ///< Bileşeni ekrana çizdirecek olan (ImGui) fonksiyon.
     };
 

@@ -468,8 +468,8 @@ namespace vesta
             return;
         }
 
-        // 1. Kısayol Tuşlarını İşle (Q, W, E, R, X, G)
-        process_shortcuts(engineCtx, isViewportFocused, isViewportHovered);
+        // 1. Kısayol Tuşlarını İşle (Q, W, E, R, T, X, G, 2)
+        process_shortcuts(engineCtx, editorCtx, isViewportFocused, isViewportHovered);
 
         const float aspect = viewportSize.x / std::max(1.0f, viewportSize.y);
         const glm::mat4 view = editorCtx.camera->getViewMatrix();
@@ -493,18 +493,28 @@ namespace vesta
                 render_interactive_light_handles(engineCtx, view, proj, camPos, viewportPos, viewportSize);
             }
 
-            // 3. Etkileşimli 3B Dönüşüm Gizmosu (Translate, Rotate, Scale)
-            render_transform_gizmo(
-                engineCtx,
-                view,
-                proj,
-                camPos,
-                editorCtx.camera->fov,
-                viewportPos,
-                viewportSize
-            );
+            // 3. UI Katmanı (Canvas Sınırları, Metinler, Görseller ve UI Sınır Çizgileri)
+            render_ui_overlay(engineCtx, viewportPos, viewportSize);
 
-            // 4. Görünmez Nesneler (Kamera, Işıklar ve Özel İkonlu Varlıklar) için Billboard İkonlar
+            // 4. Etkileşimli 3B Dönüşüm Gizmosu veya 2B UI Rect Tool
+            if (settings.active_tool == gizmo_tool_mode::rect_tool)
+            {
+                render_rect_tool(engineCtx, viewportPos, viewportSize);
+            }
+            else
+            {
+                render_transform_gizmo(
+                    engineCtx,
+                    view,
+                    proj,
+                    camPos,
+                    editorCtx.camera->fov,
+                    viewportPos,
+                    viewportSize
+                );
+            }
+
+            // 5. Görünmez Nesneler (Kamera, Işıklar ve Özel İkonlu Varlıklar) için Billboard İkonlar
             if (settings.show_icons)
             {
                 const bool allowIconClick = isViewportHovered && !is_interacting();
@@ -514,10 +524,10 @@ namespace vesta
 
         dl->PopClipRect();
 
-        // 5. Üst Araç Çubuğu ve Gizmos Ayar Menüsü (Her zaman erişilebilir)
-        render_toolbar(engineCtx, viewportPos, viewportSize);
+        // 6. Üst Araç Çubuğu ve Gizmos Ayar Menüsü (Her zaman erişilebilir)
+        render_toolbar(engineCtx, editorCtx, viewportPos, viewportSize);
 
-        // 6. Gerçek Zamanlı Performans ve Render İstatistikleri Penceresi (Stats Overlay)
+        // 7. Gerçek Zamanlı Performans ve Render İstatistikleri Penceresi (Stats Overlay)
         if (settings.show_stats_overlay)
         {
             render_stats_overlay(engineCtx, editorCtx, viewportPos, viewportSize);
@@ -525,11 +535,12 @@ namespace vesta
     }
 
     // ========================================================================
-    // 1. KISAYOL TUŞLARI (Q / W / E / R / X / G)
+    // 1. KISAYOL TUŞLARI (Q / W / E / R / T / X / G / 2)
     // ========================================================================
 
     void scene_gizmo_overlay::process_shortcuts(
         EngineContext& engineCtx,
+        EditorContext& editorCtx,
         bool isViewportFocused,
         bool isViewportHovered)
     {
@@ -560,6 +571,9 @@ namespace vesta
         else if (ImGui::IsKeyPressed(ImGuiKey_R, false)) {
             settings.active_tool = gizmo_tool_mode::scale;
         }
+        else if (ImGui::IsKeyPressed(ImGuiKey_T, false)) {
+            settings.active_tool = gizmo_tool_mode::rect_tool;
+        }
         else if (ImGui::IsKeyPressed(ImGuiKey_X, false)) {
             settings.transform_space = (settings.transform_space == gizmo_space::local)
                 ? gizmo_space::world
@@ -576,6 +590,7 @@ namespace vesta
 
     void scene_gizmo_overlay::render_toolbar(
         EngineContext& engineCtx,
+        EditorContext& editorCtx,
         const glm::vec2& viewportPos,
         const glm::vec2& viewportSize)
     {
@@ -589,7 +604,7 @@ namespace vesta
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.0f, 4.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
 
-        const float barWidth = std::min(viewportSize.x - 2.0f * pad, 785.0f);
+        const float barWidth = std::min(viewportSize.x - 2.0f * pad, 860.0f);
         if (ImGui::BeginChild("##SceneGizmoToolbar", ImVec2(barWidth, 32.0f), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
             auto drawToolBtn = [&](const char* label, gizmo_tool_mode mode, const char* tooltip)
@@ -615,6 +630,7 @@ namespace vesta
             drawToolBtn("W: Move",   gizmo_tool_mode::translate, "Move Tool (Shortcut: W)");
             drawToolBtn("E: Rotate", gizmo_tool_mode::rotate, "Rotate Tool (Shortcut: E)");
             drawToolBtn("R: Scale",  gizmo_tool_mode::scale, "Scale Tool (Shortcut: R)");
+            drawToolBtn("T: Rect",   gizmo_tool_mode::rect_tool, "2D UI Rect Tool (Shortcut: T)");
 
             ImGui::TextDisabled("|");
             ImGui::SameLine(0.0f, 6.0f);
@@ -1951,6 +1967,426 @@ namespace vesta
                 ImVec2(originScreen.x - cBox, originScreen.y - cBox),
                 ImVec2(originScreen.x + cBox, originScreen.y + cBox),
                 IM_COL32(20, 22, 28, 235), 1.5f, 0, 1.5f);
+        }
+    }
+
+    // ========================================================================
+    // 2B OYUN İÇİ UI KATMANI VE CANVAS GİZMO ÇİZİMİ
+    // ========================================================================
+    void scene_gizmo_overlay::render_ui_overlay(
+        EngineContext& engineCtx,
+        const glm::vec2& viewportPos,
+        const glm::vec2& viewportSize)
+    {
+        scene& activeScene = engineCtx.session.editor_scene();
+        registry& reg = activeScene.get_registry();
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+
+        bool hasCanvas = false;
+        entity canvasEntity = 0;
+        for (entity e : reg.get_all_entities())
+        {
+            if (reg.has_component<canvas_component>(e))
+            {
+                hasCanvas = true;
+                canvasEntity = e;
+                break;
+            }
+        }
+
+        // 1. Canvas Dış Sınır Çizgisi (Gizmo)
+        if (hasCanvas)
+        {
+            const ImVec2 canvasMin(viewportPos.x + 1.0f, viewportPos.y + 1.0f);
+            const ImVec2 canvasMax(viewportPos.x + viewportSize.x - 1.0f, viewportPos.y + viewportSize.y - 1.0f);
+
+            // Çerçeve (Açık Mavi / Cyan)
+            dl->AddRect(canvasMin, canvasMax, IM_COL32(65, 175, 255, 180), 0.0f, 0, 1.5f);
+
+            // Sol üst Canvas bilgi etiketi
+            auto* canvasComp = canvasEntity != 0 ? reg.get_component<canvas_component>(canvasEntity) : nullptr;
+            char canvasTag[128];
+            if (canvasComp) {
+                snprintf(canvasTag, sizeof(canvasTag), "Canvas: Screen Space (%.0fx%.0f)", canvasComp->reference_resolution.x, canvasComp->reference_resolution.y);
+            } else {
+                snprintf(canvasTag, sizeof(canvasTag), "Canvas: Screen Space");
+            }
+
+            const ImVec2 tagPos(viewportPos.x + 8.0f, viewportPos.y + 46.0f);
+            ImVec2 tagSize = ImGui::CalcTextSize(canvasTag);
+            dl->AddRectFilled(ImVec2(tagPos.x - 4.0f, tagPos.y - 2.0f), ImVec2(tagPos.x + tagSize.x + 6.0f, tagPos.y + tagSize.y + 2.0f), IM_COL32(20, 32, 48, 190), 3.0f);
+            dl->AddText(tagPos, IM_COL32(140, 210, 255, 230), canvasTag);
+        }
+
+        const auto& selectedEntities = engineCtx.vestaSys.selection().get_selected_entities();
+
+        // 2. Tüm UI Elemanlarının Çizimi (Görseller, Metinler ve Sınır Çizgileri)
+        for (entity e : reg.get_all_entities())
+        {
+            if (!reg.has_component<rect_transform_component>(e))
+            {
+                continue;
+            }
+
+            // Eğer Canvas kök varlığıysa ve üzerinde ayrı bir resim/yazı yoksa atla
+            if (reg.has_component<canvas_component>(e) &&
+                !reg.has_component<ui_image_component>(e) &&
+                !reg.has_component<ui_text_component>(e))
+            {
+                continue;
+            }
+
+            auto* rt = reg.get_component<rect_transform_component>(e);
+            if (!rt) continue;
+
+            // 1. Ebeveyn (Parent) Ekran Sınırlarını Belirle (Canvas veya Ebeveyn RectTransform)
+            glm::vec4 parentRect(viewportPos.x, viewportPos.y, viewportSize.x, viewportSize.y);
+            if (auto* hc = reg.get_component<hierarchy_component>(e))
+            {
+                entity parent = hc->parent;
+                if (parent != 0 && reg.has_component<rect_transform_component>(parent) && !reg.has_component<canvas_component>(parent))
+                {
+                    auto* parentRt = reg.get_component<rect_transform_component>(parent);
+                    if (parentRt->computed_screen_rect.z > 0.0f && parentRt->computed_screen_rect.w > 0.0f)
+                    {
+                        parentRect = parentRt->computed_screen_rect;
+                    }
+                }
+            }
+
+            // 2. Unity Modeli Anchor ve Pivot Ekran Koordinatı Hesabı
+            const float anchorMinX = parentRect.x + rt->anchor_min.x * parentRect.z;
+            const float anchorMaxX = parentRect.x + rt->anchor_max.x * parentRect.z;
+            const float anchorTopY = parentRect.y + (1.0f - rt->anchor_max.y) * parentRect.w;
+            const float anchorBottomY = parentRect.y + (1.0f - rt->anchor_min.y) * parentRect.w;
+
+            const float anchorW = anchorMaxX - anchorMinX;
+            const float anchorH = anchorBottomY - anchorTopY;
+
+            const glm::vec2 elemSize = rt->size * rt->scale;
+            const glm::vec2 pivotScreen(
+                anchorMinX + anchorW * rt->pivot.x + rt->anchored_position.x,
+                anchorTopY + anchorH * (1.0f - rt->pivot.y) - rt->anchored_position.y
+            );
+
+            const float x0 = pivotScreen.x - rt->pivot.x * elemSize.x;
+            const float y0 = pivotScreen.y - (1.0f - rt->pivot.y) * elemSize.y;
+            const float x1 = x0 + elemSize.x;
+            const float y1 = y0 + elemSize.y;
+
+            rt->computed_screen_rect = glm::vec4(x0, y0, x1 - x0, y1 - y0);
+
+            const bool isSelected = (selectedEntities.find(e) != selectedEntities.end());
+
+            // A. UI Image / Box Çizimi (Doku desteğiyle)
+            if (reg.has_component<ui_image_component>(e) && rt->visible)
+            {
+                auto* img = reg.get_component<ui_image_component>(e);
+                glm::vec4 col = img->color;
+                if (reg.has_component<ui_button_component>(e))
+                {
+                    auto* btn = reg.get_component<ui_button_component>(e);
+                    col = btn->normal_color;
+                }
+                const ImU32 fillCol = ImColor(col.r, col.g, col.b, col.a);
+
+                bool renderedTex = false;
+                if (img->texture_handle.is_valid() && engineCtx.aria_system)
+                {
+                    aria::gpu_texture_id texId = engineCtx.aria_system->get_texture_id(img->texture_handle);
+                    if (texId != 0)
+                    {
+                        dl->AddImage((ImTextureID)(intptr_t)texId, ImVec2(x0, y0), ImVec2(x1, y1), ImVec2(0, 0), ImVec2(1, 1), fillCol);
+                        renderedTex = true;
+                    }
+                }
+
+                if (!renderedTex)
+                {
+                    dl->AddRectFilled(ImVec2(x0, y0), ImVec2(x1, y1), fillCol, 4.0f);
+                }
+            }
+
+            // B. UI Text Çizimi (Font boyut ölçeklemeli)
+            if (reg.has_component<ui_text_component>(e) && rt->visible)
+            {
+                auto* txt = reg.get_component<ui_text_component>(e);
+                if (txt && !txt->text.empty())
+                {
+                    const ImU32 textCol = ImColor(txt->color.r, txt->color.g, txt->color.b, txt->color.a);
+                    ImFont* font = ImGui::GetFont();
+                    const float fontSize = (txt->font_size > 0.0f) ? txt->font_size : ImGui::GetFontSize();
+
+                    ImVec2 textSize = font->CalcTextSizeA(fontSize, FLT_MAX, 0.0f, txt->text.c_str());
+                    ImVec2 textPos(x0, y0);
+
+                    switch (txt->alignment)
+                    {
+                    case ui_text_alignment::top_left:
+                        textPos = ImVec2(x0, y0);
+                        break;
+                    case ui_text_alignment::top_center:
+                        textPos = ImVec2(x0 + (x1 - x0 - textSize.x) * 0.5f, y0);
+                        break;
+                    case ui_text_alignment::top_right:
+                        textPos = ImVec2(x1 - textSize.x, y0);
+                        break;
+                    case ui_text_alignment::middle_left:
+                        textPos = ImVec2(x0, y0 + (y1 - y0 - textSize.y) * 0.5f);
+                        break;
+                    case ui_text_alignment::center:
+                        textPos = ImVec2(x0 + (x1 - x0 - textSize.x) * 0.5f, y0 + (y1 - y0 - textSize.y) * 0.5f);
+                        break;
+                    case ui_text_alignment::middle_right:
+                        textPos = ImVec2(x1 - textSize.x, y0 + (y1 - y0 - textSize.y) * 0.5f);
+                        break;
+                    case ui_text_alignment::bottom_left:
+                        textPos = ImVec2(x0, y1 - textSize.y);
+                        break;
+                    case ui_text_alignment::bottom_center:
+                        textPos = ImVec2(x0 + (x1 - x0 - textSize.x) * 0.5f, y1 - textSize.y);
+                        break;
+                    case ui_text_alignment::bottom_right:
+                        textPos = ImVec2(x1 - textSize.x, y1 - textSize.y);
+                        break;
+                    }
+
+                    dl->AddText(font, fontSize, textPos, textCol, txt->text.c_str());
+                }
+            }
+
+            // C. UI Elemanının Sınır / Çerçeve Çizgisi ve Görsel Anchor Gizmoları
+            if (!isSelected)
+            {
+                // Seçili olmayan tüm UI elemanlarının etrafına ince sınır çizgisi (Gizmo outline)
+                dl->AddRect(ImVec2(x0, y0), ImVec2(x1, y1), IM_COL32(110, 165, 235, 90), 0.0f, 0, 1.0f);
+            }
+            else
+            {
+                // Seçili eleman için belirgin mavi çerçeve
+                dl->AddRect(ImVec2(x0, y0), ImVec2(x1, y1), IM_COL32(65, 175, 255, 240), 0.0f, 0, 1.8f);
+
+                // --- GÖRSEL ANCHOR VE PIVOT GIZMOLARI (UNITY TARZI SARI TUTAMAÇLAR) ---
+                const glm::vec2 anchorPoint(anchorMinX + anchorW * 0.5f, anchorTopY + anchorH * 0.5f);
+
+                // Kesikli kılavuz çizgi: Anchor noktasından Pivot noktasına
+                dl->AddLine(ImVec2(anchorPoint.x, anchorPoint.y), ImVec2(pivotScreen.x, pivotScreen.y), IM_COL32(255, 230, 70, 190), 1.2f);
+
+                // 4 Sarı Üçgen (Anchor Tutamaç Göstergeleri)
+                const float tS = 7.0f;
+                const ImU32 triFill = IM_COL32(255, 230, 70, 245);
+                const ImU32 triBorder = IM_COL32(20, 22, 28, 220);
+
+                // Üst üçgen
+                dl->AddTriangleFilled(ImVec2(anchorPoint.x, anchorPoint.y), ImVec2(anchorPoint.x - tS, anchorPoint.y - tS), ImVec2(anchorPoint.x + tS, anchorPoint.y - tS), triFill);
+                dl->AddTriangle(ImVec2(anchorPoint.x, anchorPoint.y), ImVec2(anchorPoint.x - tS, anchorPoint.y - tS), ImVec2(anchorPoint.x + tS, anchorPoint.y - tS), triBorder, 1.0f);
+
+                // Alt üçgen
+                dl->AddTriangleFilled(ImVec2(anchorPoint.x, anchorPoint.y), ImVec2(anchorPoint.x - tS, anchorPoint.y + tS), ImVec2(anchorPoint.x + tS, anchorPoint.y + tS), triFill);
+                dl->AddTriangle(ImVec2(anchorPoint.x, anchorPoint.y), ImVec2(anchorPoint.x - tS, anchorPoint.y + tS), ImVec2(anchorPoint.x + tS, anchorPoint.y + tS), triBorder, 1.0f);
+
+                // Sol üçgen
+                dl->AddTriangleFilled(ImVec2(anchorPoint.x, anchorPoint.y), ImVec2(anchorPoint.x - tS, anchorPoint.y - tS), ImVec2(anchorPoint.x - tS, anchorPoint.y + tS), triFill);
+                dl->AddTriangle(ImVec2(anchorPoint.x, anchorPoint.y), ImVec2(anchorPoint.x - tS, anchorPoint.y - tS), ImVec2(anchorPoint.x - tS, anchorPoint.y + tS), triBorder, 1.0f);
+
+                // Sağ üçgen
+                dl->AddTriangleFilled(ImVec2(anchorPoint.x, anchorPoint.y), ImVec2(anchorPoint.x + tS, anchorPoint.y - tS), ImVec2(anchorPoint.x + tS, anchorPoint.y + tS), triFill);
+                dl->AddTriangle(ImVec2(anchorPoint.x, anchorPoint.y), ImVec2(anchorPoint.x + tS, anchorPoint.y - tS), ImVec2(anchorPoint.x + tS, anchorPoint.y + tS), triBorder, 1.0f);
+
+                // Mavi Pivot Merkezi Noktası
+                dl->AddCircleFilled(ImVec2(pivotScreen.x, pivotScreen.y), 4.0f, IM_COL32(65, 185, 255, 255));
+                dl->AddCircle(ImVec2(pivotScreen.x, pivotScreen.y), 4.0f, IM_COL32(20, 22, 28, 220), 0, 1.2f);
+            }
+
+            // D. Scene Viewport üzerinden doğrudan UI elemanına tıklayarak seçme
+            const ImVec2 mousePos = ImGui::GetIO().MousePos;
+            const bool isLeftClicked = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+            if (isLeftClicked && !is_interacting() && m_HoveredHandle == HandleID::None)
+            {
+                if (mousePos.x >= x0 && mousePos.x <= x1 && mousePos.y >= y0 && mousePos.y <= y1)
+                {
+                    engineCtx.vestaSys.selection().select_entity(e);
+                }
+            }
+        }
+    }
+
+    // ========================================================================
+    // 2B UI DİKDÖRTGEN BOYUTLANDIRMA VE TAŞIMA ARACI (RECT TOOL)
+    // ========================================================================
+    void scene_gizmo_overlay::render_rect_tool(
+        EngineContext& engineCtx,
+        const glm::vec2& viewportPos,
+        const glm::vec2& viewportSize)
+    {
+        scene& activeScene = engineCtx.session.editor_scene();
+        registry& reg = activeScene.get_registry();
+        const auto& selectedEntities = engineCtx.vestaSys.selection().get_selected_entities();
+        if (selectedEntities.empty())
+        {
+            m_ActiveHandle = HandleID::None;
+            m_HoveredHandle = HandleID::None;
+            return;
+        }
+
+        entity selectedEnt = *selectedEntities.begin();
+
+        if (selectedEnt == 0 || !reg.has_component<rect_transform_component>(selectedEnt))
+        {
+            m_ActiveHandle = HandleID::None;
+            m_HoveredHandle = HandleID::None;
+            return;
+        }
+
+        auto* rt = reg.get_component<rect_transform_component>(selectedEnt);
+        if (!rt) return;
+
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        const ImVec2 mousePos = ImGui::GetIO().MousePos;
+        const bool isMouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Left);
+
+        // rt->computed_screen_rect önbelleğinden doğru ekran sınırlarını al
+        float minX = rt->computed_screen_rect.x;
+        float minY = rt->computed_screen_rect.y;
+        float maxX = minX + rt->computed_screen_rect.z;
+        float maxY = minY + rt->computed_screen_rect.w;
+
+        if (rt->computed_screen_rect.z <= 0.0f || rt->computed_screen_rect.w <= 0.0f)
+        {
+            const glm::vec2 halfSize = (rt->size * rt->scale) * 0.5f;
+            minX = viewportPos.x + viewportSize.x * 0.5f + rt->anchored_position.x - halfSize.x;
+            maxX = minX + rt->size.x * rt->scale.x;
+            minY = viewportPos.y + viewportSize.y * 0.5f - rt->anchored_position.y - halfSize.y;
+            maxY = minY + rt->size.y * rt->scale.y;
+        }
+
+        const ImU32 boxOutlineCol = IM_COL32(65, 160, 255, 230);
+        const ImU32 boxFillCol = IM_COL32(65, 160, 255, 25);
+        const ImU32 handleFillCol = IM_COL32(245, 245, 250, 240);
+        const ImU32 handleHoverCol = IM_COL32(255, 220, 50, 255);
+        const ImU32 handleOutlineCol = IM_COL32(20, 22, 28, 220);
+
+        // 1. Ana Dikdörtgen Çizimi
+        dl->AddRectFilled(ImVec2(minX, minY), ImVec2(maxX, maxY), boxFillCol);
+        dl->AddRect(ImVec2(minX, minY), ImVec2(maxX, maxY), boxOutlineCol, 0.0f, 0, 1.5f);
+
+        // Tutamaç noktaları
+        const float hRadius = 5.0f;
+        auto drawHandle = [&](HandleID id, const ImVec2& pos, ImGuiMouseCursor cursor) -> bool
+        {
+            const bool hovered = (std::abs(mousePos.x - pos.x) <= hRadius + 2.0f && std::abs(mousePos.y - pos.y) <= hRadius + 2.0f);
+            if (hovered && m_ActiveHandle == HandleID::None)
+            {
+                m_HoveredHandle = id;
+                ImGui::SetMouseCursor(cursor);
+            }
+
+            const bool hot = (m_HoveredHandle == id || m_ActiveHandle == id);
+            dl->AddRectFilled(ImVec2(pos.x - hRadius, pos.y - hRadius), ImVec2(pos.x + hRadius, pos.y + hRadius), hot ? handleHoverCol : handleFillCol, 1.0f);
+            dl->AddRect(ImVec2(pos.x - hRadius, pos.y - hRadius), ImVec2(pos.x + hRadius, pos.y + hRadius), handleOutlineCol, 1.0f, 0, 1.2f);
+            return hot;
+        };
+
+        if (m_ActiveHandle == HandleID::None)
+        {
+            m_HoveredHandle = HandleID::None;
+        }
+
+        // 8 Tutamaç: 4 Köşe + 4 Kenar
+        drawHandle(HandleID::RectTopLeft, ImVec2(minX, minY), ImGuiMouseCursor_ResizeNWSE);
+        drawHandle(HandleID::RectTopRight, ImVec2(maxX, minY), ImGuiMouseCursor_ResizeNESW);
+        drawHandle(HandleID::RectBottomLeft, ImVec2(minX, maxY), ImGuiMouseCursor_ResizeNESW);
+        drawHandle(HandleID::RectBottomRight, ImVec2(maxX, maxY), ImGuiMouseCursor_ResizeNWSE);
+
+        drawHandle(HandleID::RectLeft, ImVec2(minX, (minY + maxY) * 0.5f), ImGuiMouseCursor_ResizeEW);
+        drawHandle(HandleID::RectRight, ImVec2(maxX, (minY + maxY) * 0.5f), ImGuiMouseCursor_ResizeEW);
+        drawHandle(HandleID::RectTop, ImVec2((minX + maxX) * 0.5f, minY), ImGuiMouseCursor_ResizeNS);
+        drawHandle(HandleID::RectBottom, ImVec2((minX + maxX) * 0.5f, maxY), ImGuiMouseCursor_ResizeNS);
+
+        // Kutu içi gövde hover (Taşıma)
+        if (m_HoveredHandle == HandleID::None)
+        {
+            if (mousePos.x >= minX && mousePos.x <= maxX && mousePos.y >= minY && mousePos.y <= maxY)
+            {
+                m_HoveredHandle = HandleID::RectBody;
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+            }
+        }
+
+        // 2. Etkileşim ve Sürükleme Mantığı
+        if (m_ActiveHandle == HandleID::None)
+        {
+            if (isMouseDown && m_HoveredHandle != HandleID::None)
+            {
+                m_ActiveHandle = m_HoveredHandle;
+                m_DragEntity = selectedEnt;
+                m_DragStartPosition = glm::vec3(rt->anchored_position.x, rt->anchored_position.y, 0.0f);
+                m_DragStartScale = glm::vec3(rt->size.x, rt->size.y, 1.0f);
+                m_DragStartMousePos = glm::vec2(mousePos.x, mousePos.y);
+            }
+        }
+        else if (m_ActiveHandle >= HandleID::RectBody && m_ActiveHandle <= HandleID::RectBottom)
+        {
+            if (!isMouseDown)
+            {
+                m_ActiveHandle = HandleID::None;
+                m_HoveredHandle = HandleID::None;
+            }
+            else
+            {
+                const glm::vec2 mouseDelta(mousePos.x - m_DragStartMousePos.x, mousePos.y - m_DragStartMousePos.y);
+
+                if (m_ActiveHandle == HandleID::RectBody)
+                {
+                    rt->anchored_position.x = m_DragStartPosition.x + mouseDelta.x;
+                    rt->anchored_position.y = m_DragStartPosition.y - mouseDelta.y;
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+                }
+                else if (m_ActiveHandle == HandleID::RectRight)
+                {
+                    rt->size.x = std::max(10.0f, m_DragStartScale.x + mouseDelta.x * 2.0f);
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+                }
+                else if (m_ActiveHandle == HandleID::RectLeft)
+                {
+                    rt->size.x = std::max(10.0f, m_DragStartScale.x - mouseDelta.x * 2.0f);
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+                }
+                else if (m_ActiveHandle == HandleID::RectBottom)
+                {
+                    rt->size.y = std::max(10.0f, m_DragStartScale.y + mouseDelta.y * 2.0f);
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+                }
+                else if (m_ActiveHandle == HandleID::RectTop)
+                {
+                    rt->size.y = std::max(10.0f, m_DragStartScale.y - mouseDelta.y * 2.0f);
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+                }
+                else if (m_ActiveHandle == HandleID::RectBottomRight)
+                {
+                    rt->size.x = std::max(10.0f, m_DragStartScale.x + mouseDelta.x * 2.0f);
+                    rt->size.y = std::max(10.0f, m_DragStartScale.y + mouseDelta.y * 2.0f);
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+                }
+                else if (m_ActiveHandle == HandleID::RectTopLeft)
+                {
+                    rt->size.x = std::max(10.0f, m_DragStartScale.x - mouseDelta.x * 2.0f);
+                    rt->size.y = std::max(10.0f, m_DragStartScale.y - mouseDelta.y * 2.0f);
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+                }
+                else if (m_ActiveHandle == HandleID::RectTopRight)
+                {
+                    rt->size.x = std::max(10.0f, m_DragStartScale.x + mouseDelta.x * 2.0f);
+                    rt->size.y = std::max(10.0f, m_DragStartScale.y - mouseDelta.y * 2.0f);
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNESW);
+                }
+                else if (m_ActiveHandle == HandleID::RectBottomLeft)
+                {
+                    rt->size.x = std::max(10.0f, m_DragStartScale.x - mouseDelta.x * 2.0f);
+                    rt->size.y = std::max(10.0f, m_DragStartScale.y + mouseDelta.y * 2.0f);
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNESW);
+                }
+            }
         }
     }
 

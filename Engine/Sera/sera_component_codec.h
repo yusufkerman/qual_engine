@@ -29,9 +29,14 @@ namespace sera {
          */
         template <typename T>
         static void write(json& j, const std::string& key, const T& value,
-            typename std::enable_if<!std::is_same<T, glm::vec3>::value>::type* = nullptr)
+            typename std::enable_if<!std::is_same<T, glm::vec2>::value && !std::is_same<T, glm::vec3>::value && !std::is_same<T, glm::vec4>::value>::type* = nullptr)
         {
             j[key] = value;
+        }
+
+        static void write(json& j, const std::string& key, const glm::vec2& value)
+        {
+            j[key] = { value.x, value.y };
         }
 
         /**
@@ -42,29 +47,120 @@ namespace sera {
             j[key] = { value.x, value.y, value.z };
         }
 
+        static void write(json& j, const std::string& key, const glm::vec4& value)
+        {
+            j[key] = { value.x, value.y, value.z, value.w };
+        }
+
         /**
-         * @brief Standart veri tiplerini JSON nesnesinden okur ve değişkene atar.
+         * @brief Standart veri tiplerini JSON nesnesinden okur ve degiskene atar (Hata ve tip uyusmazligi korumali).
          */
         template <typename T>
         static void read(const json& j, const std::string& key, T& value,
-            typename std::enable_if<!std::is_same<T, glm::vec3>::value>::type* = nullptr)
+            typename std::enable_if<!std::is_same<T, glm::vec2>::value && !std::is_same<T, glm::vec3>::value && !std::is_same<T, glm::vec4>::value>::type* = nullptr)
         {
             if (j.contains(key))
             {
-                value = j.at(key).get<T>();
+                try
+                {
+                    value = j.at(key).get<T>();
+                }
+                catch (...)
+                {
+                    if constexpr (std::is_enum_v<T>)
+                    {
+                        try
+                        {
+                            if (j.at(key).is_number_integer())
+                            {
+                                value = static_cast<T>(j.at(key).get<int>());
+                            }
+                        }
+                        catch (...) {}
+                    }
+                }
+            }
+        }
+
+        static void read(const json& j, const std::string& key, glm::vec2& value)
+        {
+            if (j.contains(key))
+            {
+                try
+                {
+                    const auto& item = j.at(key);
+                    if (item.is_array() && item.size() >= 2)
+                    {
+                        value.x = item[0].get<float>();
+                        value.y = item[1].get<float>();
+                    }
+                    else if (item.is_object())
+                    {
+                        if (item.contains("x")) value.x = item["x"].get<float>();
+                        if (item.contains("y")) value.y = item["y"].get<float>();
+                    }
+                }
+                catch (...) {}
             }
         }
 
         /**
-         * @brief JSON dizisinden glm::vec3 değerini okur ve vektör bileşenlerine ayrıştırır.
+         * @brief JSON dizisinden veya nesnesinden ({x,y,z}) glm::vec3 degerini okur.
          */
         static void read(const json& j, const std::string& key, glm::vec3& value)
         {
-            if (j.contains(key) && j.at(key).is_array() && j.at(key).size() == 3)
+            if (j.contains(key))
             {
-                value.x = j.at(key)[0].get<float>();
-                value.y = j.at(key)[1].get<float>();
-                value.z = j.at(key)[2].get<float>();
+                try
+                {
+                    const auto& item = j.at(key);
+                    if (item.is_array() && item.size() >= 3)
+                    {
+                        value.x = item[0].get<float>();
+                        value.y = item[1].get<float>();
+                        value.z = item[2].get<float>();
+                    }
+                    else if (item.is_object())
+                    {
+                        if (item.contains("x")) value.x = item["x"].get<float>();
+                        if (item.contains("y")) value.y = item["y"].get<float>();
+                        if (item.contains("z")) value.z = item["z"].get<float>();
+                    }
+                }
+                catch (...) {}
+            }
+        }
+
+        static void read(const json& j, const std::string& key, glm::vec4& value)
+        {
+            if (j.contains(key))
+            {
+                try
+                {
+                    const auto& item = j.at(key);
+                    if (item.is_array() && item.size() >= 4)
+                    {
+                        value.x = item[0].get<float>();
+                        value.y = item[1].get<float>();
+                        value.z = item[2].get<float>();
+                        value.w = item[3].get<float>();
+                    }
+                    else if (item.is_object())
+                    {
+                        if (item.contains("x")) value.x = item["x"].get<float>();
+                        else if (item.contains("r")) value.x = item["r"].get<float>();
+
+                        if (item.contains("y")) value.y = item["y"].get<float>();
+                        else if (item.contains("g")) value.y = item["g"].get<float>();
+
+                        if (item.contains("z")) value.z = item["z"].get<float>();
+                        else if (item.contains("b")) value.z = item["b"].get<float>();
+
+                        if (item.contains("w")) value.w = item["w"].get<float>();
+                        else if (item.contains("a")) value.w = item["a"].get<float>();
+                    }
+                }
+                catch (...) {}
             }
         }
     };

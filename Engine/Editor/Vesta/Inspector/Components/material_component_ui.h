@@ -100,6 +100,7 @@ inline void register_material_ui_system(aria::system& ariaSys) {
     // 2. UI Çizim Kaydı (Aria sistemi closure içerisine yakalanır)
     vesta::ComponentUIInfo ui;
     ui.display_name = "Material";
+    ui.category = "Rendering";
     ui.render_fn = [&ariaSys](entity e, registry& reg) {
         render_material_ui(e, reg, ariaSys);
         };

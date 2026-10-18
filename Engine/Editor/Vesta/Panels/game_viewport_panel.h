@@ -10,6 +10,8 @@
 #include "../CoreState/editor_viewport_state.h"
 #include <string>
 
+struct EngineContext;
+
 namespace vesta {
 
     /**
@@ -27,7 +29,8 @@ namespace vesta {
          */
         game_viewport_panel(
             game_viewport_view_model& vm,
-            editor_viewport_state& viewportState);
+            editor_viewport_state& viewportState,
+            EngineContext* engineCtx = nullptr);
 
         // ==========================================
         // IEditorPanel ARAYÜZÜ (INTERFACE)
@@ -41,9 +44,11 @@ namespace vesta {
     private:
         game_viewport_view_model& m_vm;
         editor_viewport_state& m_viewport_state;
+        EngineContext* m_engine_ctx = nullptr;
 
         std::string m_title = "Game";
         bool m_is_open = true;
+        int m_selected_aspect_idx = 0; ///< 0: Free Aspect
     };
 
 } // namespace vesta

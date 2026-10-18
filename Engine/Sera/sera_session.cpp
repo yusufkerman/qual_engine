@@ -282,6 +282,92 @@ namespace sera {
                 }
             }
 
+            // 15. Canvas Component
+            if (reg.has_component<canvas_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<canvas_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    serialize_visitor visitor{ comp_json };
+                    sera_reflect_component(*comp, visitor);
+                    comps_out["canvas_component"] = comp_json;
+                }
+            }
+
+            // 16. Rect Transform Component
+            if (reg.has_component<rect_transform_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<rect_transform_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    serialize_visitor visitor{ comp_json };
+                    sera_reflect_component(*comp, visitor);
+                    comps_out["rect_transform_component"] = comp_json;
+                }
+            }
+
+            // 17. UI Text Component
+            if (reg.has_component<ui_text_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<ui_text_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    serialize_visitor visitor{ comp_json };
+                    sera_reflect_component(*comp, visitor);
+                    comps_out["ui_text_component"] = comp_json;
+                }
+            }
+
+            // 18. UI Image Component (Doku GUID ile)
+            if (reg.has_component<ui_image_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<ui_image_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    serialize_visitor visitor{ comp_json };
+                    sera_reflect_component(*comp, visitor);
+
+                    const aria::asset_guid guid =
+                        m_asset_resolver.to_guid<aria::texture_asset>(comp->texture_handle);
+                    comp_json["texture_guid"] = uuids::to_string(guid);
+
+                    comps_out["ui_image_component"] = comp_json;
+                }
+            }
+
+            // 19. UI Button Component
+            if (reg.has_component<ui_button_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<ui_button_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    serialize_visitor visitor{ comp_json };
+                    sera_reflect_component(*comp, visitor);
+                    comps_out["ui_button_component"] = comp_json;
+                }
+            }
+
+            // 20. Hierarchy Component (Ebeveyn - Çocuk İlişkisi)
+            if (reg.has_component<hierarchy_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<hierarchy_component>(e);
+                if (comp && comp->parent != 0)
+                {
+                    std::string parent_uuid = m_entity_registry.get_uuid(comp->parent);
+                    if (!parent_uuid.empty())
+                    {
+                        json hier_json = json::object();
+                        hier_json["parent_uuid"] = parent_uuid;
+                        comps_out["hierarchy_component"] = hier_json;
+                    }
+                }
+            }
+
             scene_json["entities"].push_back(entity_json);
         }
 
@@ -357,12 +443,22 @@ namespace sera {
         }
 
         std::unordered_map<std::string, entity> uuid_to_runtime_entity_map;
+        std::unordered_map<unsigned int, entity> legacy_id_to_runtime_entity_map;
+        std::vector<entity> created_entities;
 
-        if (scene_json.contains("entities"))
+        if (scene_json.contains("entities") && scene_json["entities"].is_array())
         {
+            created_entities.reserve(scene_json["entities"].size());
+
             // 1. Aşama: Varlık tanıtıcılarını oluştur ve UUID bağlantılarını kur
             for (const auto& entity_json : scene_json["entities"])
             {
+                if (!entity_json.is_object())
+                {
+                    created_entities.push_back(0);
+                    continue;
+                }
+
                 std::string uuid = entity_json.value("uuid", "");
                 if (uuid.empty())
                 {
@@ -372,22 +468,42 @@ namespace sera {
                 const entity new_e = out_scene.create_entity();
                 m_entity_registry.register_link(new_e, uuid);
                 uuid_to_runtime_entity_map[uuid] = new_e;
+
+                if (entity_json.contains("id"))
+                {
+                    try
+                    {
+                        if (entity_json["id"].is_number())
+                        {
+                            const unsigned int legacy_id = entity_json["id"].get<unsigned int>();
+                            legacy_id_to_runtime_entity_map[legacy_id] = new_e;
+                        }
+                    }
+                    catch (...) {}
+                }
+
+                created_entities.push_back(new_e);
             }
 
             // 2. Aşama: Bileşenleri ilgili varlıklara deserialize et
-            for (const auto& entity_json : scene_json["entities"])
+            for (size_t i = 0; i < scene_json["entities"].size(); ++i)
             {
-                const std::string uuid = entity_json["uuid"];
-                const entity current_e = uuid_to_runtime_entity_map[uuid];
+                if (i >= created_entities.size()) break;
+                const auto& entity_json = scene_json["entities"][i];
+                const entity current_e = created_entities[i];
 
-                if (!entity_json.contains("components"))
+                if (current_e == 0 || !entity_json.is_object())
                 {
                     continue;
                 }
-                const auto& comps_json = entity_json["components"];
+
+                // SERA formatında "components" altında, eski/legacy formatta ise doğrudan entity_json içinde bulunabilir
+                const auto& comps_json = (entity_json.contains("components") && entity_json["components"].is_object())
+                    ? entity_json["components"]
+                    : entity_json;
 
                 // Transform Component
-                if (comps_json.contains("transform_component"))
+                if (comps_json.contains("transform_component") && comps_json["transform_component"].is_object())
                 {
                     transform_component comp{};
                     deserialize_visitor visitor{ comps_json["transform_component"] };
@@ -396,7 +512,7 @@ namespace sera {
                 }
 
                 // Name Component
-                if (comps_json.contains("name_component"))
+                if (comps_json.contains("name_component") && comps_json["name_component"].is_object())
                 {
                     name_component comp{};
                     deserialize_visitor visitor{ comps_json["name_component"] };
@@ -404,17 +520,29 @@ namespace sera {
                     reg.add_component<name_component>(current_e, comp);
                 }
 
-                // Mesh Component (Aria Model Handle)
-                if (comps_json.contains("mesh_component"))
+                // Mesh Component (Aria Model Handle veya legacy model_path)
+                if (comps_json.contains("mesh_component") && comps_json["mesh_component"].is_object())
                 {
                     mesh_component comp{};
 
                     const std::string guid_str = comps_json["mesh_component"].value("model_guid", "");
                     const auto parsed = uuids::uuid::from_string(guid_str);
 
-                    if (parsed)
+                    if (parsed && !parsed->is_nil())
                     {
                         comp.model_handle = m_asset_resolver.to_handle<aria::model_asset>(*parsed);
+                    }
+                    else if (comps_json["mesh_component"].contains("model_path"))
+                    {
+                        const std::string model_path = comps_json["mesh_component"].value("model_path", "");
+                        if (!model_path.empty() && m_ctx.aria_system)
+                        {
+                            const auto gen_guid = uuids::uuid::from_string(sera_entity_registry::generate_uuid());
+                            if (gen_guid)
+                            {
+                                comp.model_handle = m_ctx.aria_system->import_model(*gen_guid, model_path);
+                            }
+                        }
                     }
 
                     comp.sub_mesh_index = comps_json["mesh_component"].value("sub_mesh_index", size_t{ 0 });
@@ -620,21 +748,277 @@ namespace sera {
 
                     reg.add_component<bone_attachment_component>(current_e, comp);
                 }
+
+                // 15. Canvas Component
+                if (comps_json.contains("canvas_component"))
+                {
+                    canvas_component comp{};
+                    deserialize_visitor visitor{ comps_json["canvas_component"] };
+                    sera_reflect_component(comp, visitor);
+                    reg.add_component<canvas_component>(current_e, comp);
+                }
+
+                // 16. Rect Transform Component
+                if (comps_json.contains("rect_transform_component"))
+                {
+                    rect_transform_component comp{};
+                    deserialize_visitor visitor{ comps_json["rect_transform_component"] };
+                    sera_reflect_component(comp, visitor);
+                    reg.add_component<rect_transform_component>(current_e, comp);
+                }
+
+                // 17. UI Text Component
+                if (comps_json.contains("ui_text_component"))
+                {
+                    ui_text_component comp{};
+                    deserialize_visitor visitor{ comps_json["ui_text_component"] };
+                    sera_reflect_component(comp, visitor);
+                    reg.add_component<ui_text_component>(current_e, comp);
+                }
+
+                // 18. UI Image Component (Doku GUID ile geri yükleme)
+                if (comps_json.contains("ui_image_component"))
+                {
+                    ui_image_component comp{};
+                    deserialize_visitor visitor{ comps_json["ui_image_component"] };
+                    sera_reflect_component(comp, visitor);
+
+                    const std::string guid_str = comps_json["ui_image_component"].value("texture_guid", "");
+                    const auto parsed = uuids::uuid::from_string(guid_str);
+                    if (parsed && !parsed->is_nil())
+                    {
+                        comp.texture_handle = m_asset_resolver.to_handle<aria::texture_asset>(*parsed);
+                    }
+
+                    reg.add_component<ui_image_component>(current_e, comp);
+                }
+
+                // 19. UI Button Component
+                if (comps_json.contains("ui_button_component"))
+                {
+                    ui_button_component comp{};
+                    deserialize_visitor visitor{ comps_json["ui_button_component"] };
+                    sera_reflect_component(comp, visitor);
+                    reg.add_component<ui_button_component>(current_e, comp);
+                }
             }
         }
 
-        // Aktif kameranın geri yüklenmesi
-        if (scene_json.contains("active_camera_uuid"))
+        // 3. Aşama: Hiyerarşi (Parent-Child) bağlantılarını yeniden kur
+        if (scene_json.contains("entities") && scene_json["entities"].is_array())
         {
-            const std::string cam_uuid = scene_json["active_camera_uuid"];
-            if (!cam_uuid.empty())
+            for (const auto& entity_json : scene_json["entities"])
             {
-                const auto it = uuid_to_runtime_entity_map.find(cam_uuid);
-                if (it != uuid_to_runtime_entity_map.end())
+                if (!entity_json.is_object()) continue;
+                const auto& comps_json = (entity_json.contains("components") && entity_json["components"].is_object())
+                    ? entity_json["components"]
+                    : entity_json;
+
+                if (comps_json.contains("hierarchy_component") && comps_json["hierarchy_component"].is_object())
                 {
-                    out_scene.set_active_camera(it->second);
+                    const std::string child_uuid = entity_json.value("uuid", "");
+                    const std::string parent_uuid = comps_json["hierarchy_component"].value("parent_uuid", "");
+
+                    if (!child_uuid.empty() && !parent_uuid.empty() && child_uuid != parent_uuid)
+                    {
+                        auto it_child = uuid_to_runtime_entity_map.find(child_uuid);
+                        auto it_parent = uuid_to_runtime_entity_map.find(parent_uuid);
+
+                        if (it_child != uuid_to_runtime_entity_map.end() && it_parent != uuid_to_runtime_entity_map.end())
+                        {
+                            entity child_e = it_child->second;
+                            entity parent_e = it_parent->second;
+
+                            if (child_e != 0 && parent_e != 0 && child_e != parent_e)
+                            {
+                                if (!reg.has_component<hierarchy_component>(parent_e))
+                                {
+                                    reg.add_component<hierarchy_component>(parent_e);
+                                }
+                                if (!reg.has_component<hierarchy_component>(child_e))
+                                {
+                                    reg.add_component<hierarchy_component>(child_e);
+                                }
+
+                                auto* child_hc = reg.get_component<hierarchy_component>(child_e);
+                                auto* parent_hc = reg.get_component<hierarchy_component>(parent_e);
+
+                                if (child_hc && parent_hc)
+                                {
+                                    child_hc->parent = parent_e;
+                                    child_hc->next_sibling = parent_hc->first_child;
+                                    child_hc->prev_sibling = 0;
+
+                                    if (parent_hc->first_child != 0)
+                                    {
+                                        auto* old_first = reg.get_component<hierarchy_component>(parent_hc->first_child);
+                                        if (old_first)
+                                        {
+                                            old_first->prev_sibling = child_e;
+                                        }
+                                    }
+                                    parent_hc->first_child = child_e;
+                                }
+                            }
+                        }
+                    }
                 }
             }
+        }
+
+        // 4. Aşama: Sahnedeki UI Nesnelerinin Canvas Altında Yaşamasını Garanti Et
+        entity sceneCanvas = 0;
+        for (entity e : reg.get_all_entities())
+        {
+            if (reg.has_component<canvas_component>(e))
+            {
+                sceneCanvas = e;
+                break;
+            }
+        }
+
+        // Eğer sahnede UI nesneleri var ancak Canvas yoksa, otomatik bir Canvas varlığı oluştur
+        if (sceneCanvas == 0)
+        {
+            bool hasUIElements = false;
+            for (entity e : reg.get_all_entities())
+            {
+                if (reg.has_component<rect_transform_component>(e))
+                {
+                    hasUIElements = true;
+                    break;
+                }
+            }
+
+            if (hasUIElements)
+            {
+                sceneCanvas = out_scene.create_entity();
+                reg.add_component<name_component>(sceneCanvas, "Canvas");
+                reg.add_component<canvas_component>(sceneCanvas);
+                reg.add_component<rect_transform_component>(sceneCanvas, rect_transform_component{
+                    glm::vec2(0.0f), glm::vec2(1920.0f, 1080.0f), glm::vec2(0.0f), glm::vec2(1.0f), glm::vec2(0.5f)
+                });
+                reg.add_component<hierarchy_component>(sceneCanvas);
+                m_entity_registry.register_link(sceneCanvas, sera_entity_registry::generate_uuid());
+            }
+        }
+
+        if (sceneCanvas != 0)
+        {
+            if (!reg.has_component<hierarchy_component>(sceneCanvas))
+            {
+                reg.add_component<hierarchy_component>(sceneCanvas);
+            }
+
+            for (entity e : reg.get_all_entities())
+            {
+                if (e != sceneCanvas && reg.has_component<rect_transform_component>(e))
+                {
+                    bool hasParent = false;
+                    if (auto* hc = reg.get_component<hierarchy_component>(e))
+                    {
+                        hasParent = (hc->parent != 0);
+                    }
+                    if (!hasParent)
+                    {
+                        if (!reg.has_component<hierarchy_component>(e))
+                        {
+                            reg.add_component<hierarchy_component>(e);
+                        }
+                        auto* child_hc = reg.get_component<hierarchy_component>(e);
+                        auto* parent_hc = reg.get_component<hierarchy_component>(sceneCanvas);
+
+                        if (child_hc && parent_hc)
+                        {
+                            child_hc->parent = sceneCanvas;
+                            child_hc->next_sibling = parent_hc->first_child;
+                            child_hc->prev_sibling = 0;
+
+                            if (parent_hc->first_child != 0)
+                            {
+                                auto* old_first = reg.get_component<hierarchy_component>(parent_hc->first_child);
+                                if (old_first)
+                                {
+                                    old_first->prev_sibling = e;
+                                }
+                            }
+                            parent_hc->first_child = e;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Aktif kameranın geri yüklenmesi (SERA active_camera_uuid veya Legacy active_camera)
+        bool activeCamSet = false;
+        if (scene_json.contains("active_camera_uuid"))
+        {
+            try
+            {
+                const std::string cam_uuid = scene_json.value("active_camera_uuid", "");
+                if (!cam_uuid.empty())
+                {
+                    const auto it = uuid_to_runtime_entity_map.find(cam_uuid);
+                    if (it != uuid_to_runtime_entity_map.end() && it->second != 0)
+                    {
+                        out_scene.set_active_camera(it->second);
+                        activeCamSet = true;
+                    }
+                }
+            }
+            catch (...) {}
+        }
+
+        if (!activeCamSet && scene_json.contains("active_camera"))
+        {
+            try
+            {
+                if (scene_json["active_camera"].is_number())
+                {
+                    const unsigned int legacy_cam_id = scene_json["active_camera"].get<unsigned int>();
+                    auto it = legacy_id_to_runtime_entity_map.find(legacy_cam_id);
+                    if (it != legacy_id_to_runtime_entity_map.end() && it->second != 0)
+                    {
+                        out_scene.set_active_camera(it->second);
+                        activeCamSet = true;
+                    }
+                }
+            }
+            catch (...) {}
+        }
+
+        // Eğer aktif kamera hala belirlenemediyse, sahnedeki ilk kamera bileşenine sahip varlığı seç
+        if (!activeCamSet)
+        {
+            for (entity e : reg.get_all_entities())
+            {
+                if (reg.has_component<camera_component>(e))
+                {
+                    out_scene.set_active_camera(e);
+                    activeCamSet = true;
+                    break;
+                }
+            }
+        }
+
+        // Eğer sahnede hiç kamera yoksa, editörün çökmesini önlemek için varsayılan bir kamera oluştur
+        if (!activeCamSet)
+        {
+            const entity defaultCam = out_scene.create_entity();
+            reg.add_component<name_component>(defaultCam, "Main Camera");
+            reg.add_component<transform_component>(
+                defaultCam,
+                glm::vec3(0.0f, 2.0f, 5.0f),
+                glm::vec3(0.0f),
+                glm::vec3(1.0f)
+            );
+            reg.add_component<camera_component>(
+                defaultCam,
+                60.0f,      // fov
+                0.1f,       // nearPlane
+                500.0f      // farPlane
+            );
+            out_scene.set_active_camera(defaultCam);
         }
 
         out_scene.update_light_batch();

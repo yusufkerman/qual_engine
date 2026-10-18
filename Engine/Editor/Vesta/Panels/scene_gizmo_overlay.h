@@ -75,13 +75,37 @@ namespace vesta
             PlaneXY = 4,
             PlaneXZ = 5,
             PlaneYZ = 6,
-            Center = 7
+            Center = 7,
+            RectBody = 8,
+            RectTopLeft = 9,
+            RectTopRight = 10,
+            RectBottomLeft = 11,
+            RectBottomRight = 12,
+            RectLeft = 13,
+            RectRight = 14,
+            RectTop = 15,
+            RectBottom = 16
         };
 
-        void process_shortcuts(EngineContext& engineCtx, bool isViewportFocused, bool isViewportHovered);
+        void process_shortcuts(
+            EngineContext& engineCtx,
+            EditorContext& editorCtx,
+            bool isViewportFocused,
+            bool isViewportHovered);
+
+        void render_ui_overlay(
+            EngineContext& engineCtx,
+            const glm::vec2& viewportPos,
+            const glm::vec2& viewportSize);
+
+        void render_rect_tool(
+            EngineContext& engineCtx,
+            const glm::vec2& viewportPos,
+            const glm::vec2& viewportSize);
 
         void render_toolbar(
             EngineContext& engineCtx,
+            EditorContext& editorCtx,
             const glm::vec2& viewportPos,
             const glm::vec2& viewportSize);
 

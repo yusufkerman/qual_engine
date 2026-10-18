@@ -17,7 +17,8 @@ enum class gizmo_tool_mode : int
     select = 0,     ///< Sadece seçim (Q) - Dönüşüm tutamaçları gizlenir.
     translate = 1,  ///< Konum taşıma aracı (W).
     rotate = 2,     ///< Döndürme aracı (E).
-    scale = 3       ///< Ölçeklendirme aracı (R).
+    scale = 3,      ///< Ölçeklendirme aracı (R).
+    rect_tool = 4   ///< 2B UI Dikdörtgen Boyutlandırma ve Taşıma Aracı (T).
 };
 
 /**

@@ -91,12 +91,68 @@ namespace vesta
                 }
                 if (ImGui::BeginPopup("MultiAddComponentPopup"))
                 {
-                    for (const auto& compEntry : m_vm->get_addable_components())
+                    static char multiSearchBuf[64] = "";
+                    ImGui::SetNextItemWidth(220.0f);
+                    if (ImGui::IsWindowAppearing())
                     {
-                        if (ImGui::MenuItem(compEntry.info->display_name.c_str()))
+                        multiSearchBuf[0] = '\0';
+                        ImGui::SetKeyboardFocusHere();
+                    }
+                    ImGui::InputTextWithHint("##MultiCompSearch", "Search Component...", multiSearchBuf, sizeof(multiSearchBuf));
+                    ImGui::Separator();
+
+                    std::string filterStr = multiSearchBuf;
+                    std::transform(filterStr.begin(), filterStr.end(), filterStr.begin(), ::tolower);
+
+                    const auto& addableList = m_vm->get_addable_components();
+
+                    if (!filterStr.empty())
+                    {
+                        // Arama modunda düz eşleşenler
+                        int matchCount = 0;
+                        for (const auto& compEntry : addableList)
                         {
-                            m_vm->request_add_component_to_all(compEntry.hash);
-                            ImGui::CloseCurrentPopup();
+                            std::string lowerName = compEntry.info->display_name;
+                            std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+                            if (lowerName.find(filterStr) != std::string::npos)
+                            {
+                                matchCount++;
+                                if (ImGui::MenuItem(compEntry.info->display_name.c_str()))
+                                {
+                                    m_vm->request_add_component_to_all(compEntry.hash);
+                                    ImGui::CloseCurrentPopup();
+                                }
+                            }
+                        }
+                        if (matchCount == 0)
+                        {
+                            ImGui::TextDisabled("No components match.");
+                        }
+                    }
+                    else
+                    {
+                        // Kategorili görünüm
+                        std::map<std::string, std::vector<const add_component_entry*>> categorized;
+                        for (const auto& compEntry : addableList)
+                        {
+                            std::string cat = compEntry.info->category.empty() ? "General" : compEntry.info->category;
+                            categorized[cat].push_back(&compEntry);
+                        }
+
+                        for (const auto& [catName, entries] : categorized)
+                        {
+                            if (ImGui::BeginMenu(catName.c_str()))
+                            {
+                                for (const auto* compEntry : entries)
+                                {
+                                    if (ImGui::MenuItem(compEntry->info->display_name.c_str()))
+                                    {
+                                        m_vm->request_add_component_to_all(compEntry->hash);
+                                        ImGui::CloseCurrentPopup();
+                                    }
+                                }
+                                ImGui::EndMenu();
+                            }
                         }
                     }
                     ImGui::EndPopup();
@@ -458,12 +514,66 @@ namespace vesta
 
             if (ImGui::BeginPopup("AddComponentPopup"))
             {
-                for (const auto& component : m_vm->get_addable_components())
+                static char singleSearchBuf[64] = "";
+                ImGui::SetNextItemWidth(220.0f);
+                if (ImGui::IsWindowAppearing())
                 {
-                    if (ImGui::MenuItem(component.info->display_name.c_str()))
+                    singleSearchBuf[0] = '\0';
+                    ImGui::SetKeyboardFocusHere();
+                }
+                ImGui::InputTextWithHint("##SingleCompSearch", "Search Component...", singleSearchBuf, sizeof(singleSearchBuf));
+                ImGui::Separator();
+
+                std::string filterStr = singleSearchBuf;
+                std::transform(filterStr.begin(), filterStr.end(), filterStr.begin(), ::tolower);
+
+                const auto& addableList = m_vm->get_addable_components();
+
+                if (!filterStr.empty())
+                {
+                    int matchCount = 0;
+                    for (const auto& component : addableList)
                     {
-                        m_vm->request_add_component(component.hash);
-                        ImGui::CloseCurrentPopup();
+                        std::string lowerName = component.info->display_name;
+                        std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+                        if (lowerName.find(filterStr) != std::string::npos)
+                        {
+                            matchCount++;
+                            if (ImGui::MenuItem(component.info->display_name.c_str()))
+                            {
+                                m_vm->request_add_component(component.hash);
+                                ImGui::CloseCurrentPopup();
+                            }
+                        }
+                    }
+                    if (matchCount == 0)
+                    {
+                        ImGui::TextDisabled("No components match.");
+                    }
+                }
+                else
+                {
+                    std::map<std::string, std::vector<const add_component_entry*>> categorized;
+                    for (const auto& component : addableList)
+                    {
+                        std::string cat = component.info->category.empty() ? "General" : component.info->category;
+                        categorized[cat].push_back(&component);
+                    }
+
+                    for (const auto& [catName, entries] : categorized)
+                    {
+                        if (ImGui::BeginMenu(catName.c_str()))
+                        {
+                            for (const auto* component : entries)
+                            {
+                                if (ImGui::MenuItem(component->info->display_name.c_str()))
+                                {
+                                    m_vm->request_add_component(component->hash);
+                                    ImGui::CloseCurrentPopup();
+                                }
+                            }
+                            ImGui::EndMenu();
+                        }
                     }
                 }
                 ImGui::EndPopup();
@@ -534,22 +644,6 @@ namespace vesta
                             m_vm->get_selected_entity(),
                             m_vm->get_registry()
                         );
-                    }
-
-                    if (component.removable)
-                    {
-                        ImGui::Spacing();
-                        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.55f, 0.20f, 0.20f, 0.55f));
-                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0.22f, 0.22f, 0.85f));
-                        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.90f, 0.15f, 0.15f, 1.0f));
-                        if (ImGui::Button("Remove Component", ImVec2(-1.0f, 0.0f)))
-                        {
-                            m_vm->request_remove_component(component.hash);
-                            ImGui::PopStyleColor(3);
-                            ImGui::PopID();
-                            continue;
-                        }
-                        ImGui::PopStyleColor(3);
                     }
                 }
 

@@ -19,33 +19,33 @@ physics_api::physics_api(physics_system* phys, registry* reg)
 
 void physics_api::set_velocity(entity e, const glm::vec3& v)
 {
-    const auto* rb = m_reg->get_component<rigidbody_component>(e);
+    if (!m_reg || !m_phys || !m_phys->get_jolt_system())
+        return;
 
-    if (!rb)
+    const auto* rb = m_reg->get_component<rigidbody_component>(e);
+    if (!rb || rb->body_id.IsInvalid())
     {
-        std::cerr << "[PhysicsAPI] Hata: Varlikta Rigidbody bulunamadi (ID: " << e << ").\n";
         return;
     }
 
     const JPH::BodyID id = rb->body_id;
     auto& bodyInterface = m_phys->get_jolt_system()->GetBodyInterface();
-
     bodyInterface.SetLinearVelocity(id, JPH::Vec3(v.x, v.y, v.z));
 }
 
 glm::vec3 physics_api::get_velocity(entity e)
 {
-    const auto* rb = m_reg->get_component<rigidbody_component>(e);
+    if (!m_reg || !m_phys || !m_phys->get_jolt_system())
+        return glm::vec3(0.0f);
 
-    if (!rb)
+    const auto* rb = m_reg->get_component<rigidbody_component>(e);
+    if (!rb || rb->body_id.IsInvalid())
     {
-        std::cerr << "[PhysicsAPI] Hata: Varlikta Rigidbody bulunamadi (ID: " << e << ").\n";
-        return glm::vec3(0.0f, 0.0f, 0.0f);
+        return glm::vec3(0.0f);
     }
 
     const JPH::BodyID id = rb->body_id;
     auto& bodyInterface = m_phys->get_jolt_system()->GetBodyInterface();
-
     const JPH::Vec3 vel = bodyInterface.GetLinearVelocity(id);
 
     return glm::vec3(vel.GetX(), vel.GetY(), vel.GetZ());
@@ -53,8 +53,11 @@ glm::vec3 physics_api::get_velocity(entity e)
 
 void physics_api::move_kinematic(entity e, const glm::vec3& targetPos, float dt)
 {
+    if (!m_reg || !m_phys || !m_phys->get_jolt_system())
+        return;
+
     const auto* rb = m_reg->get_component<rigidbody_component>(e);
-    if (!rb)
+    if (!rb || rb->body_id.IsInvalid())
     {
         return;
     }
