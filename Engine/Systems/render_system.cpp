@@ -213,14 +213,37 @@ void render_system::render(
             glUniform3fv(glGetUniformLocation(gpuShaderID, "baseColor"), 1, &item.base_color[0]);
             glUniform2fv(glGetUniformLocation(gpuShaderID, "u_TextureScale"), 1, &item.texture_scale[0]);
 
-            glUniform1i(glGetUniformLocation(gpuShaderID, "useTexture"), item.diffuse_handle.is_valid());
-            glUniform1i(glGetUniformLocation(gpuShaderID, "useNormalMap"), item.normal_handle.is_valid());
+            // Modern PBR Parametreleri
+            glUniform1f(glGetUniformLocation(gpuShaderID, "u_Metallic"), item.metallic);
+            glUniform1f(glGetUniformLocation(gpuShaderID, "u_Roughness"), item.roughness);
+            glUniform1f(glGetUniformLocation(gpuShaderID, "u_AO"), item.ao);
+            glUniform3fv(glGetUniformLocation(gpuShaderID, "u_EmissiveColor"), 1, &item.emissive_color[0]);
+            glUniform1f(glGetUniformLocation(gpuShaderID, "u_EmissiveIntensity"), item.emissive_intensity);
 
+            // Doku Slot ve Bayrak Ayarları
+            glUniform1i(glGetUniformLocation(gpuShaderID, "useTexture"), item.diffuse_handle.is_valid());
+            glUniform1i(glGetUniformLocation(gpuShaderID, "diffuseTex"), RenderConstants::DIFFUSE_TEXTURE_SLOT);
+
+            glUniform1i(glGetUniformLocation(gpuShaderID, "useNormalMap"), item.normal_handle.is_valid());
+            glUniform1i(glGetUniformLocation(gpuShaderID, "normalTex"), RenderConstants::NORMAL_TEXTURE_SLOT);
             if (item.normal_handle.is_valid())
             {
                 glUniform1f(glGetUniformLocation(gpuShaderID, "normalStrength"), item.normal_strength);
             }
 
+            glUniform1i(glGetUniformLocation(gpuShaderID, "u_UseMetallicMap"), item.metallic_handle.is_valid());
+            glUniform1i(glGetUniformLocation(gpuShaderID, "metallicTex"), RenderConstants::METALLIC_TEXTURE_SLOT);
+
+            glUniform1i(glGetUniformLocation(gpuShaderID, "u_UseRoughnessMap"), item.roughness_handle.is_valid());
+            glUniform1i(glGetUniformLocation(gpuShaderID, "roughnessTex"), RenderConstants::ROUGHNESS_TEXTURE_SLOT);
+
+            glUniform1i(glGetUniformLocation(gpuShaderID, "u_UseAOMap"), item.ao_handle.is_valid());
+            glUniform1i(glGetUniformLocation(gpuShaderID, "aoTex"), RenderConstants::AO_TEXTURE_SLOT);
+
+            glUniform1i(glGetUniformLocation(gpuShaderID, "u_UseEmissiveMap"), item.emissive_handle.is_valid());
+            glUniform1i(glGetUniformLocation(gpuShaderID, "emissiveTex"), RenderConstants::EMISSIVE_TEXTURE_SLOT);
+
+            // Geriye dönük uyumluluk
             glUniform1f(glGetUniformLocation(gpuShaderID, "specularStrength"), item.specular_strength);
             glUniform1f(glGetUniformLocation(gpuShaderID, "shininess"), item.shininess);
 
@@ -311,10 +334,20 @@ void render_system::extract(
                 item.mode = mat->mode;
                 item.alpha_threshold = mat->alpha_threshold;
                 item.base_color = mat->base_color;
+                item.metallic = mat->metallic;
+                item.roughness = mat->roughness;
+                item.ao = mat->ao;
+                item.emissive_color = mat->emissive_color;
+                item.emissive_intensity = mat->emissive_intensity;
+
                 item.normal_strength = mat->normal_strength;
                 item.texture_scale = mat->texture_scale;
                 item.diffuse_handle = mat->diffuse_texture_handle;
                 item.normal_handle = mat->normal_texture_handle;
+                item.metallic_handle = mat->metallic_texture_handle;
+                item.roughness_handle = mat->roughness_texture_handle;
+                item.ao_handle = mat->ao_texture_handle;
+                item.emissive_handle = mat->emissive_texture_handle;
                 item.specular_handle = mat->specular_texture_handle;
                 item.specular_strength = mat->specular_strength;
                 item.shininess = mat->shininess;
@@ -326,6 +359,11 @@ void render_system::extract(
                 item.mode = aria::render_mode::opaque;
                 item.alpha_threshold = 0.1f;
                 item.base_color = glm::vec3(1.0f);
+                item.metallic = 0.0f;
+                item.roughness = 0.5f;
+                item.ao = 1.0f;
+                item.emissive_color = glm::vec3(0.0f);
+                item.emissive_intensity = 0.0f;
                 item.texture_scale = glm::vec2(1.0f);
                 item.specular_strength = 0.5f;
                 item.shininess = 32.0f;
@@ -338,6 +376,11 @@ void render_system::extract(
             item.mode = aria::render_mode::opaque;
             item.alpha_threshold = 0.1f;
             item.base_color = glm::vec3(1.0f);
+            item.metallic = 0.0f;
+            item.roughness = 0.5f;
+            item.ao = 1.0f;
+            item.emissive_color = glm::vec3(0.0f);
+            item.emissive_intensity = 0.0f;
             item.texture_scale = glm::vec2(1.0f);
             item.specular_strength = 0.5f;
             item.shininess = 32.0f;
@@ -430,10 +473,20 @@ void render_system::extract(
                     item.mode = mat->mode;
                     item.alpha_threshold = mat->alpha_threshold;
                     item.base_color = mat->base_color;
+                    item.metallic = mat->metallic;
+                    item.roughness = mat->roughness;
+                    item.ao = mat->ao;
+                    item.emissive_color = mat->emissive_color;
+                    item.emissive_intensity = mat->emissive_intensity;
+
                     item.normal_strength = mat->normal_strength;
                     item.texture_scale = mat->texture_scale;
                     item.diffuse_handle = mat->diffuse_texture_handle;
                     item.normal_handle = mat->normal_texture_handle;
+                    item.metallic_handle = mat->metallic_texture_handle;
+                    item.roughness_handle = mat->roughness_texture_handle;
+                    item.ao_handle = mat->ao_texture_handle;
+                    item.emissive_handle = mat->emissive_texture_handle;
                     item.specular_handle = mat->specular_texture_handle;
                     item.specular_strength = mat->specular_strength;
                     item.shininess = mat->shininess;
@@ -444,6 +497,11 @@ void render_system::extract(
                     item.mode = aria::render_mode::opaque;
                     item.alpha_threshold = 0.1f;
                     item.base_color = glm::vec3(1.0f, 0.0f, 1.0f);
+                    item.metallic = 0.0f;
+                    item.roughness = 0.5f;
+                    item.ao = 1.0f;
+                    item.emissive_color = glm::vec3(0.0f);
+                    item.emissive_intensity = 0.0f;
                     item.texture_scale = glm::vec2(1.0f);
                     item.specular_strength = 0.5f;
                     item.shininess = 32.0f;
@@ -455,6 +513,11 @@ void render_system::extract(
                 item.mode = aria::render_mode::opaque;
                 item.alpha_threshold = 0.1f;
                 item.base_color = glm::vec3(1.0f);
+                item.metallic = 0.0f;
+                item.roughness = 0.5f;
+                item.ao = 1.0f;
+                item.emissive_color = glm::vec3(0.0f);
+                item.emissive_intensity = 0.0f;
                 item.texture_scale = glm::vec2(1.0f);
                 item.specular_strength = 0.5f;
                 item.shininess = 32.0f;

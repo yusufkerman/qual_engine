@@ -109,6 +109,10 @@ unsigned int MeshRenderer::Draw(const render_item& item, aria::system* ariaSyste
 
     bindTextureIfValid(item.diffuse_handle, RenderConstants::DIFFUSE_TEXTURE_SLOT);
     bindTextureIfValid(item.normal_handle, RenderConstants::NORMAL_TEXTURE_SLOT);
+    bindTextureIfValid(item.metallic_handle, RenderConstants::METALLIC_TEXTURE_SLOT);
+    bindTextureIfValid(item.roughness_handle, RenderConstants::ROUGHNESS_TEXTURE_SLOT);
+    bindTextureIfValid(item.ao_handle, RenderConstants::AO_TEXTURE_SLOT);
+    bindTextureIfValid(item.emissive_handle, RenderConstants::EMISSIVE_TEXTURE_SLOT);
     bindTextureIfValid(item.specular_handle, RenderConstants::SPECULAR_TEXTURE_SLOT);
 
     // 5. ÇİZİM ÇAĞRISI (Draw Call)
@@ -117,21 +121,22 @@ unsigned int MeshRenderer::Draw(const render_item& item, aria::system* ariaSyste
     // ========================================================================
     // 6. GÜVENLİK TEMİZLİĞİ (SAFE UNBIND)
     // ========================================================================
-    if (item.diffuse_handle.is_valid()) {
-        glActiveTexture(GL_TEXTURE0 + RenderConstants::DIFFUSE_TEXTURE_SLOT);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        m_currentTextures[RenderConstants::DIFFUSE_TEXTURE_SLOT] = 0;
-    }
-    if (item.normal_handle.is_valid()) {
-        glActiveTexture(GL_TEXTURE0 + RenderConstants::NORMAL_TEXTURE_SLOT);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        m_currentTextures[RenderConstants::NORMAL_TEXTURE_SLOT] = 0;
-    }
-    if (item.specular_handle.is_valid()) {
-        glActiveTexture(GL_TEXTURE0 + RenderConstants::SPECULAR_TEXTURE_SLOT);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        m_currentTextures[RenderConstants::SPECULAR_TEXTURE_SLOT] = 0;
-    }
+    auto unbindTextureIfValid = [&](const auto& handle, unsigned int slot)
+    {
+        if (handle.is_valid()) {
+            glActiveTexture(GL_TEXTURE0 + slot);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            m_currentTextures[slot] = 0;
+        }
+    };
+
+    unbindTextureIfValid(item.diffuse_handle, RenderConstants::DIFFUSE_TEXTURE_SLOT);
+    unbindTextureIfValid(item.normal_handle, RenderConstants::NORMAL_TEXTURE_SLOT);
+    unbindTextureIfValid(item.metallic_handle, RenderConstants::METALLIC_TEXTURE_SLOT);
+    unbindTextureIfValid(item.roughness_handle, RenderConstants::ROUGHNESS_TEXTURE_SLOT);
+    unbindTextureIfValid(item.ao_handle, RenderConstants::AO_TEXTURE_SLOT);
+    unbindTextureIfValid(item.emissive_handle, RenderConstants::EMISSIVE_TEXTURE_SLOT);
+    unbindTextureIfValid(item.specular_handle, RenderConstants::SPECULAR_TEXTURE_SLOT);
 
     if (item.is_skinned)
     {

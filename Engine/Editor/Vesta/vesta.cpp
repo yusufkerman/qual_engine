@@ -30,6 +30,8 @@
 #include "../Project/project.h"
 #include "../Project/project_module.h"
 #include "../Project/project_exporter.h"
+#include "Widgets/loading_bar_widget.h"
+#include "../../Async/async_task_manager.h"
 #include "../../Externals/nfd/nfd.h"
 #include <imgui.h>
 
@@ -126,16 +128,39 @@ namespace vesta {
             editorCtx,
             [&engineCtx](const std::string& path)
             {
-                if (engineCtx.sera)
+                if (engineCtx.sera && !path.empty())
                 {
-                    engineCtx.sera->save_scene(path, engineCtx.session.editor_scene());
+                    const std::string fileName = std::filesystem::path(path).filename().string();
+                    core::async_task_manager::instance().run_task(
+                        "Saving Scene (" + fileName + ")",
+                        [&engineCtx, path](core::task_reporter& reporter) -> bool {
+                            reporter.set_indeterminate("Writing scene entities & components to disk...");
+                            engineCtx.sera->save_scene(path, engineCtx.session.editor_scene());
+                            return true;
+                        }
+                    );
                 }
             },
             [&engineCtx](const std::string& path)
             {
-                if (engineCtx.sera)
+                if (engineCtx.sera && !path.empty())
                 {
-                    engineCtx.sera->load_scene(path, engineCtx.session.editor_scene());
+                    const std::string fileName = std::filesystem::path(path).filename().string();
+                    core::async_task_manager::instance().run_task(
+                        "Loading Scene (" + fileName + ")",
+                        [&engineCtx, path](core::task_reporter& reporter) -> bool {
+                            reporter.set_indeterminate("Reading scene data from disk...");
+                            return true;
+                        },
+                        [&engineCtx, path](bool success, const std::string& message) {
+                            try {
+                                engineCtx.sera->load_scene(path, engineCtx.session.editor_scene());
+                            }
+                            catch (const std::exception& e) {
+                                std::cerr << "[Vesta] Sahne yukleme hatasi: " << e.what() << "\n";
+                            }
+                        }
+                    );
                 }
             }
         );
@@ -320,33 +345,51 @@ namespace vesta {
                 {
                     if (outPath != nullptr)
                     {
-                        try
-                        {
-                            project::project_manager::instance().open_project(outPath, engineCtx);
-                        }
-                        catch (const std::exception& ex)
-                        {
-                            std::cerr << "[Vesta] Proje acilirken hata: " << ex.what() << "\n";
-                        }
-                        catch (...)
-                        {
-                            std::cerr << "[Vesta] Proje acilirken bilinmeyen hata olustu.\n";
-                        }
+                        const std::string projPath = outPath;
+                        const std::string projName = std::filesystem::path(projPath).filename().string();
+                        core::async_task_manager::instance().run_task(
+                            "Opening Project (" + projName + ")",
+                            [](core::task_reporter& reporter) -> bool {
+                                reporter.set_indeterminate("Parsing project file & starter scene...");
+                                return true;
+                            },
+                            [&engineCtx, projPath](bool success, const std::string& msg) {
+                                try
+                                {
+                                    project::project_manager::instance().open_project(projPath, engineCtx);
+                                }
+                                catch (const std::exception& ex)
+                                {
+                                    std::cerr << "[Vesta] Proje acilirken hata: " << ex.what() << "\n";
+                                }
+                                catch (...)
+                                {
+                                    std::cerr << "[Vesta] Proje acilirken bilinmeyen hata olustu.\n";
+                                }
+                            }
+                        );
                         NFD_FreePathU8(outPath);
                     }
                 }
             }
 
             const bool hasActiveProj = project::project_manager::instance().has_active_project();
-            if (ImGui::MenuItem("Save Project", "Ctrl+Shift+S", false, hasActiveProj))
+            if (ImGui::MenuItem("Save Project", "Ctrl+Shift+S", false, hasActiveProj && !core::async_task_manager::instance().is_busy()))
             {
-                project::project_manager::instance().save_project(engineCtx);
-                if (engineCtx.sera && !project::project_manager::instance().get_descriptor().start_scene.empty())
-                {
-                    const std::string scenePath = project::project_manager::instance().get_project_root() + "/" +
-                        project::project_manager::instance().get_descriptor().start_scene;
-                    engineCtx.sera->save_scene(scenePath, engineCtx.session.editor_scene());
-                }
+                core::async_task_manager::instance().run_task(
+                    "Saving Project",
+                    [&engineCtx](core::task_reporter& reporter) -> bool {
+                        reporter.set_indeterminate("Saving project descriptor & current scene...");
+                        project::project_manager::instance().save_project(engineCtx);
+                        if (engineCtx.sera && !project::project_manager::instance().get_descriptor().start_scene.empty())
+                        {
+                            const std::string scenePath = project::project_manager::instance().get_project_root() + "/" +
+                                project::project_manager::instance().get_descriptor().start_scene;
+                            engineCtx.sera->save_scene(scenePath, engineCtx.session.editor_scene());
+                        }
+                        return true;
+                    }
+                );
             }
 
             ImGui::Separator();
@@ -358,7 +401,7 @@ namespace vesta {
                 project::project_manager::setup_starter_scene(engineCtx);
             }
 
-            if (ImGui::MenuItem("Save Scene", "Ctrl+S", false, !isPlaying))
+            if (ImGui::MenuItem("Save Scene", "Ctrl+S", false, !isPlaying && !core::async_task_manager::instance().is_busy()))
             {
                 nfdu8char_t* outPath = nullptr;
                 nfdu8filteritem_t filterItem[1] = { { "Engine Scene", "json" } };
@@ -369,14 +412,23 @@ namespace vesta {
                     {
                         if (engineCtx.sera)
                         {
-                            engineCtx.sera->save_scene(std::string(outPath), engineCtx.session.editor_scene());
+                            const std::string filePath = outPath;
+                            const std::string fileName = std::filesystem::path(filePath).filename().string();
+                            core::async_task_manager::instance().run_task(
+                                "Saving Scene (" + fileName + ")",
+                                [&engineCtx, filePath](core::task_reporter& reporter) -> bool {
+                                    reporter.set_indeterminate("Writing scene entities & components to disk...");
+                                    engineCtx.sera->save_scene(filePath, engineCtx.session.editor_scene());
+                                    return true;
+                                }
+                            );
                         }
                         NFD_FreePathU8(outPath);
                     }
                 }
             }
 
-            if (ImGui::MenuItem("Load Scene...", nullptr, false, !isPlaying))
+            if (ImGui::MenuItem("Load Scene...", nullptr, false, !isPlaying && !core::async_task_manager::instance().is_busy()))
             {
                 nfdu8char_t* outPath = nullptr;
                 nfdu8filteritem_t filterItem[1] = { { "Engine Scene", "json" } };
@@ -387,18 +439,29 @@ namespace vesta {
                     {
                         if (engineCtx.sera)
                         {
-                            try
-                            {
-                                engineCtx.sera->load_scene(std::string(outPath), engineCtx.session.editor_scene());
-                            }
-                            catch (const std::exception& e)
-                            {
-                                std::cerr << "[Vesta] Sahne yukleme hatasi: " << e.what() << "\n";
-                            }
-                            catch (...)
-                            {
-                                std::cerr << "[Vesta] Sahne yuklenirken bilinmeyen bir hata olustu.\n";
-                            }
+                            const std::string filePath = outPath;
+                            const std::string fileName = std::filesystem::path(filePath).filename().string();
+                            core::async_task_manager::instance().run_task(
+                                "Loading Scene (" + fileName + ")",
+                                [&engineCtx, filePath](core::task_reporter& reporter) -> bool {
+                                    reporter.set_indeterminate("Reading scene data from disk...");
+                                    return true;
+                                },
+                                [&engineCtx, filePath](bool success, const std::string& message) {
+                                    try
+                                    {
+                                        engineCtx.sera->load_scene(filePath, engineCtx.session.editor_scene());
+                                    }
+                                    catch (const std::exception& e)
+                                    {
+                                        std::cerr << "[Vesta] Sahne yukleme hatasi: " << e.what() << "\n";
+                                    }
+                                    catch (...)
+                                    {
+                                        std::cerr << "[Vesta] Sahne yuklenirken bilinmeyen bir hata olustu.\n";
+                                    }
+                                }
+                            );
                         }
                         NFD_FreePathU8(outPath);
                     }
@@ -421,59 +484,82 @@ namespace vesta {
         // ========================================================================
         // 2. PROJECT MENÜSÜ (BETİK DERLEME VE STANDALONE EXPORT)
         // ========================================================================
-        if (ImGui::BeginMenu("Project"))
-        {
-            const bool hasActiveProj = project::project_manager::instance().has_active_project();
+        const bool hasActiveProj = project::project_manager::instance().has_active_project();
+        const bool isBusy = core::async_task_manager::instance().is_busy();
+        auto triggerBuildScripts = [&engineCtx, hasActiveProj]() {
+            if (!hasActiveProj || core::async_task_manager::instance().is_busy()) return;
+            const std::string root = project::project_manager::instance().get_project_root();
+            project::project_module::instance().unload_module();
 
-            if (ImGui::MenuItem("Build Project Scripts", "F7", false, hasActiveProj))
-            {
-                std::string log;
-                const std::string& root = project::project_manager::instance().get_project_root();
-                project::project_module::instance().unload_module();
-                bool ok = project::project_module::compile_project_scripts(root, log);
-                if (ok)
-                {
-                    std::filesystem::path dllPath = std::filesystem::path(root) / "Binaries" / "GameModule.dll";
-                    bool loaded = project::project_module::instance().load_module(dllPath.string());
+            core::async_task_manager::instance().run_task(
+                "Compiling Project Scripts (F7)",
+                [root](core::task_reporter& reporter) -> bool {
+                    reporter.set_indeterminate("Scanning scripts & compiling GameModule.dll...");
+                    std::string log;
+                    bool ok = project::project_module::compile_project_scripts(root, log);
+                    if (!ok) {
+                        throw std::runtime_error(log.empty() ? "Script compilation failed." : log);
+                    }
+                    return true;
+                },
+                [root](bool success, const std::string& message) {
                     s_showScriptStatusModal = true;
-                    s_scriptStatusSuccess = loaded;
-                    if (loaded)
+                    if (success)
                     {
-                        const auto& scripts = project::project_module::instance().get_loaded_scripts();
-                        s_scriptStatusMsg = "Project scripts compiled and loaded successfully!\n\nRegistered (" + 
-                                            std::to_string(scripts.size()) + ") script class(es):\n";
-                        for (const auto& s : scripts)
+                        std::filesystem::path dllPath = std::filesystem::path(root) / "Binaries" / "GameModule.dll";
+                        bool loaded = project::project_module::instance().load_module(dllPath.string());
+                        s_scriptStatusSuccess = loaded;
+                        if (loaded)
                         {
-                            s_scriptStatusMsg += "  * " + s + "\n";
+                            const auto& scripts = project::project_module::instance().get_loaded_scripts();
+                            s_scriptStatusMsg = "Project scripts compiled and loaded successfully!\n\nRegistered (" + 
+                                                std::to_string(scripts.size()) + ") script class(es):\n";
+                            for (const auto& s : scripts)
+                            {
+                                s_scriptStatusMsg += "  * " + s + "\n";
+                            }
+                        }
+                        else
+                        {
+                            s_scriptStatusMsg = "Build succeeded but failed to load GameModule.dll:\n" + dllPath.string();
                         }
                     }
                     else
                     {
-                        s_scriptStatusMsg = "Build succeeded but failed to load GameModule.dll:\n" + dllPath.string() + "\n\nBuild Log:\n" + log;
+                        s_scriptStatusSuccess = false;
+                        s_scriptStatusMsg = "Failed to compile project scripts:\n\n" + message;
                     }
                 }
-                else
-                {
-                    s_showScriptStatusModal = true;
-                    s_scriptStatusSuccess = false;
-                    s_scriptStatusMsg = "Failed to compile project scripts:\n\n" + log;
-                }
+            );
+        };
+
+        if (ImGui::BeginMenu("Project"))
+        {
+            if (ImGui::MenuItem("Build Project Scripts", "F7", false, hasActiveProj && !isBusy))
+            {
+                triggerBuildScripts();
             }
 
-            if (ImGui::MenuItem("Reload Game Module", "Ctrl+R", false, hasActiveProj))
+            if (ImGui::MenuItem("Reload Game Module", "Ctrl+R", false, hasActiveProj && !isBusy))
             {
                 project::project_module::instance().reload_module();
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Export Standalone Game...", "Ctrl+E", false, hasActiveProj))
+            if (ImGui::MenuItem("Export Standalone Game...", "Ctrl+E", false, hasActiveProj && !isBusy))
             {
                 s_showExportModal = true;
                 s_exportStatusMsg = "";
             }
 
             ImGui::EndMenu();
+        }
+
+        // F7 klavye kısayolu desteği
+        if (ImGui::IsKeyPressed(ImGuiKey_F7) && !ImGui::GetIO().WantTextInput && hasActiveProj && !isBusy)
+        {
+            triggerBuildScripts();
         }
 
         // ========================================================================
@@ -528,6 +614,29 @@ namespace vesta {
             }
 
             ImGui::EndMenu();
+        }
+
+        // ========================================================================
+        // 4. KÜRESEL SAĞ ÜST MODERN ASENKRON DURUM GÖSTERGESİ (CORNER LOADING BAR)
+        // ========================================================================
+        if (core::async_task_manager::instance().is_busy())
+        {
+            constexpr float kCornerBarWidth = 260.0f;
+            constexpr float kCornerBarHeight = 18.0f;
+            const float menuBarWidth = ImGui::GetWindowWidth();
+            const float currentX = ImGui::GetCursorPosX();
+            const float targetX = menuBarWidth - kCornerBarWidth - 10.0f;
+
+            if (targetX > currentX + 5.0f)
+            {
+                ImGui::SameLine(targetX);
+            }
+            else
+            {
+                ImGui::SameLine(0.0f, 10.0f);
+            }
+
+            render_loading_bar_widget(kCornerBarWidth, kCornerBarHeight);
         }
 
         // ========================================================================
@@ -638,7 +747,8 @@ namespace vesta {
 
             ImGui::Separator();
 
-            if (ImGui::Button("Package & Export", ImVec2(160, 0)))
+            const bool isBusyExport = core::async_task_manager::instance().is_busy();
+            if (ImGui::Button("Package & Export", ImVec2(160, 0)) && !isBusyExport)
             {
                 project::export_options opt;
                 opt.output_directory = s_exportFolderBuf;
@@ -649,16 +759,28 @@ namespace vesta {
                 opt.screen_width = 1280;
                 opt.screen_height = 720;
 
-                auto res = project::project_exporter::export_project(opt);
-                s_exportSuccess = res.success;
-                if (res.success)
-                {
-                    s_exportStatusMsg = "Success: Exported to " + res.target_executable;
-                }
-                else
-                {
-                    s_exportStatusMsg = res.error_message;
-                }
+                s_exportStatusMsg = "Packaging project and exporting standalone game in background...";
+                s_exportSuccess = true;
+
+                core::async_task_manager::instance().run_task(
+                    "Exporting Standalone Game",
+                    [opt](core::task_reporter& reporter) -> bool {
+                        reporter.set_indeterminate("Compiling standalone runtime & bundling assets...");
+                        auto res = project::project_exporter::export_project(opt);
+                        if (!res.success) {
+                            throw std::runtime_error(res.error_message.empty() ? "Export failed." : res.error_message);
+                        }
+                        return true;
+                    },
+                    [](bool success, const std::string& message) {
+                        s_exportSuccess = success;
+                        if (success) {
+                            s_exportStatusMsg = "Project exported successfully!";
+                        } else {
+                            s_exportStatusMsg = "Export failed:\n" + message;
+                        }
+                    }
+                );
             }
             ImGui::SameLine();
             if (ImGui::Button("Close", ImVec2(100, 0)))

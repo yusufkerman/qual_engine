@@ -306,15 +306,25 @@ namespace aria {
         float alpha_threshold{ 0.1f };              ///< Cutout modu için alfa kesme eşiği.
 
         glm::vec3 base_color{ 1.0f };               ///< Temel renk çarpanı (Albedo).
-        float specular_strength{ 0.5f };            ///< Parlaklık/yansıma şiddeti.
-        float shininess{ 32.0f };                   ///< Parlaklık pürüzlülük/odak değeri.
+        float metallic{ 0.0f };                     ///< Metaliklik çarpanı (PBR).
+        float roughness{ 0.5f };                    ///< Yüzey pürüzlülüğü (PBR).
+        float ao{ 1.0f };                           ///< Ortam örtme çarpanı (Ambient Occlusion).
+        glm::vec3 emissive_color{ 0.0f };           ///< Kendiliğinden ışıma rengi.
+        float emissive_intensity{ 0.0f };           ///< Işıma şiddeti çarpanı.
+
+        float specular_strength{ 0.5f };            ///< Parlaklık/yansıma şiddeti (Legacy).
+        float shininess{ 32.0f };                   ///< Parlaklık pürüzlülük/odak değeri (Legacy).
         float normal_strength{ 1.0f };              ///< Normal haritası etki şiddeti.
         glm::vec2 texture_scale{ 1.0f };            ///< UV ölçeklendirme çarpanı (Tiling).
 
         aria::asset_guid shader_guid;               ///< Kullanılacak shader programının benzersiz kimliği.
         aria::asset_guid diffuse_texture_guid;      ///< Difüz (Albedo) dokusunun benzersiz kimliği.
         aria::asset_guid normal_texture_guid;       ///< Normal dokusunun benzersiz kimliği.
-        aria::asset_guid specular_texture_guid;     ///< Speküler dokusunun benzersiz kimliği.
+        aria::asset_guid metallic_texture_guid;     ///< Metalik dokusunun benzersiz kimliği (PBR).
+        aria::asset_guid roughness_texture_guid;    ///< Pürüzlülük dokusunun benzersiz kimliği (PBR).
+        aria::asset_guid ao_texture_guid;           ///< Ambient Occlusion dokusunun benzersiz kimliği (PBR).
+        aria::asset_guid emissive_texture_guid;     ///< Işıma (Emissive) dokusunun benzersiz kimliği (PBR).
+        aria::asset_guid specular_texture_guid;     ///< Speküler dokusunun benzersiz kimliği (Legacy).
 
         /**
          * @brief Materyal verileri oldukça küçüktür (vektör içermez), bu nedenle boşaltma gerektirmez.

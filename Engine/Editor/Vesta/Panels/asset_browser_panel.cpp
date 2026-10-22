@@ -246,8 +246,11 @@ namespace vesta {
             else if (ext == ".obj" || ext == ".fbx" || ext == ".gltf" || ext == ".dae") {
                 payload.type = vesta::asset_payload_type::model;
             }
+            else if (ext == ".glsl" || ext == ".vert" || ext == ".frag" || ext == ".comp") {
+                payload.type = vesta::asset_payload_type::shader;
+            }
             else {
-                payload.type = vesta::asset_payload_type::model; // Fallback
+                payload.type = vesta::asset_payload_type::unspecified; // Fallback
             }
 
             // Dosya yolunu bellekte kopyalanabilir (POD) bir şekilde pakete ekle

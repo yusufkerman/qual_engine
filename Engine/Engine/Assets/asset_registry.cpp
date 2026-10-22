@@ -222,6 +222,12 @@ namespace aria {
         slot.asset.mode = loaded->mode;
         slot.asset.alpha_threshold = loaded->alpha_threshold;
         slot.asset.base_color = loaded->base_color;
+        slot.asset.metallic = loaded->metallic;
+        slot.asset.roughness = loaded->roughness;
+        slot.asset.ao = loaded->ao;
+        slot.asset.emissive_color = loaded->emissive_color;
+        slot.asset.emissive_intensity = loaded->emissive_intensity;
+
         slot.asset.specular_strength = loaded->specular_strength;
         slot.asset.shininess = loaded->shininess;
         slot.asset.normal_strength = loaded->normal_strength;
@@ -233,6 +239,21 @@ namespace aria {
 
         slot.asset.normal_texture_handle = (!loaded->normal_texture_guid.is_nil())
             ? this->load_texture(loaded->normal_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.metallic_texture_handle = (!loaded->metallic_texture_guid.is_nil())
+            ? this->load_texture(loaded->metallic_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.roughness_texture_handle = (!loaded->roughness_texture_guid.is_nil())
+            ? this->load_texture(loaded->roughness_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.ao_texture_handle = (!loaded->ao_texture_guid.is_nil())
+            ? this->load_texture(loaded->ao_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.emissive_texture_handle = (!loaded->emissive_texture_guid.is_nil())
+            ? this->load_texture(loaded->emissive_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.specular_texture_handle = (!loaded->specular_texture_guid.is_nil())
+            ? this->load_texture(loaded->specular_texture_guid) : handle<texture_asset>{};
 
         slot.asset.shader_handle = (!loaded->shader_guid.is_nil())
             ? this->load_shader(loaded->shader_guid) : handle<shader_asset>{};
@@ -270,6 +291,12 @@ namespace aria {
         slot.asset.mode = loaded->mode;
         slot.asset.alpha_threshold = loaded->alpha_threshold;
         slot.asset.base_color = loaded->base_color;
+        slot.asset.metallic = loaded->metallic;
+        slot.asset.roughness = loaded->roughness;
+        slot.asset.ao = loaded->ao;
+        slot.asset.emissive_color = loaded->emissive_color;
+        slot.asset.emissive_intensity = loaded->emissive_intensity;
+
         slot.asset.specular_strength = loaded->specular_strength;
         slot.asset.shininess = loaded->shininess;
         slot.asset.normal_strength = loaded->normal_strength;
@@ -281,6 +308,18 @@ namespace aria {
 
         slot.asset.normal_texture_handle = (!loaded->normal_texture_guid.is_nil())
             ? this->load_texture(loaded->normal_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.metallic_texture_handle = (!loaded->metallic_texture_guid.is_nil())
+            ? this->load_texture(loaded->metallic_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.roughness_texture_handle = (!loaded->roughness_texture_guid.is_nil())
+            ? this->load_texture(loaded->roughness_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.ao_texture_handle = (!loaded->ao_texture_guid.is_nil())
+            ? this->load_texture(loaded->ao_texture_guid) : handle<texture_asset>{};
+
+        slot.asset.emissive_texture_handle = (!loaded->emissive_texture_guid.is_nil())
+            ? this->load_texture(loaded->emissive_texture_guid) : handle<texture_asset>{};
 
         slot.asset.specular_texture_handle = (!loaded->specular_texture_guid.is_nil())
             ? this->load_texture(loaded->specular_texture_guid) : handle<texture_asset>{};

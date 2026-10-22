@@ -29,17 +29,26 @@ namespace vesta {
         // Varsayılan shader için motor dahili GUID'i kullanılır
         aria::asset_guid default_shader_guid = engine_resources::builtin_guid::default_shader;
 
-        // Standart materyal JSON şablonu dosyaya yazılır
+        // Standart materyal JSON şablonu dosyaya yazılır (Modern PBR + Geriye Uyumluluk)
         file << "{\n"
             << "  \"type\": \"material\",\n"
             << "  \"name\": \"" << name << "\",\n"
             << "  \"base_color\": [1.0, 1.0, 1.0, 1.0],\n"
+            << "  \"metallic\": 0.0,\n"
+            << "  \"roughness\": 0.5,\n"
+            << "  \"ao\": 1.0,\n"
+            << "  \"emissive_color\": [0.0, 0.0, 0.0],\n"
+            << "  \"emissive_intensity\": 0.0,\n"
             << "  \"specular_strength\": 0.5,\n"
             << "  \"shininess\": 32,\n"
             << "  \"normal_strength\": 1.0,\n"
             << "  \"shader_guid\": \"" << uuids::to_string(default_shader_guid) << "\",\n"
             << "  \"diffuse_texture_guid\": \"00000000-0000-0000-0000-000000000000\",\n"
             << "  \"normal_texture_guid\": \"00000000-0000-0000-0000-000000000000\",\n"
+            << "  \"metallic_texture_guid\": \"00000000-0000-0000-0000-000000000000\",\n"
+            << "  \"roughness_texture_guid\": \"00000000-0000-0000-0000-000000000000\",\n"
+            << "  \"ao_texture_guid\": \"00000000-0000-0000-0000-000000000000\",\n"
+            << "  \"emissive_texture_guid\": \"00000000-0000-0000-0000-000000000000\",\n"
             << "  \"specular_texture_guid\": \"00000000-0000-0000-0000-000000000000\"\n"
             << "}";
         file.close();

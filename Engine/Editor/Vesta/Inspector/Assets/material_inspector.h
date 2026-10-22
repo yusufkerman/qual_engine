@@ -2,7 +2,8 @@
 
 /**
  * @file material_asset_ui.h
- * @brief Materyal varlıkları (.json, .amat) için Inspector paneli arayüz kaydını ve çizim mantığını barındırır.
+ * @brief Materyal varlıkları (.json, .amat) için modern PBR (Metallic-Roughness) Inspector paneli
+ * arayüz kaydını, sürükle-bırak slotlarını ve çizim mantığını barındırır.
  * @note Dış servis bağımlılıkları (Aria ve MaterialService) kayıt anında closure içerisine yakalanır.
  */
 
@@ -19,6 +20,7 @@
 #include <filesystem>
 #include <iostream>
 #include <cstring>
+#include <cmath>
 
 namespace vesta {
 
@@ -158,8 +160,11 @@ namespace vesta {
             // UI çizim durumu (Panel her çizildiğinde korunur)
             static std::string last_loaded_path = "";
             static float base_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-            static float specular_strength = 0.5f;
-            static float shininess = 32.0f;
+            static float metallic = 0.0f;
+            static float roughness = 0.5f;
+            static float ao = 1.0f;
+            static float emissive_color[3] = { 0.0f, 0.0f, 0.0f };
+            static float emissive_intensity = 0.0f;
             static float normal_strength = 1.0f;
             static float texture_scale[2] = { 1.0f, 1.0f };
             static int render_mode = 0;
@@ -168,9 +173,13 @@ namespace vesta {
             static char shader_path[256] = "";
             static char diffuse_texture_path[256] = "";
             static char normal_texture_path[256] = "";
+            static char metallic_texture_path[256] = "";
+            static char roughness_texture_path[256] = "";
+            static char ao_texture_path[256] = "";
+            static char emissive_texture_path[256] = "";
             static char specular_texture_path[256] = "";
 
-            ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "Material Inspector");
+            ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "PBR Material Inspector");
             ImGui::Text("Config File: %s", std::filesystem::path(asset_path).filename().string().c_str());
             ImGui::Separator();
 
@@ -179,8 +188,21 @@ namespace vesta {
                 std::string content = detail::mat_read_file(asset_path);
                 if (!content.empty()) {
                     detail::mat_parse_float_array(content, "base_color", base_color, 4);
-                    specular_strength = detail::mat_parse_float(content, "specular_strength", 0.5f);
-                    shininess = detail::mat_parse_float(content, "shininess", 32.0f);
+                    metallic = detail::mat_parse_float(content, "metallic", 0.0f);
+
+                    if (content.find("\"roughness\"") != std::string::npos) {
+                        roughness = detail::mat_parse_float(content, "roughness", 0.5f);
+                    }
+                    else {
+                        // Geriye dönük uyumluluk: shininess'tan roughness türet
+                        float shininess = detail::mat_parse_float(content, "shininess", 32.0f);
+                        roughness = std::clamp(1.0f - std::sqrt(shininess / 256.0f), 0.05f, 1.0f);
+                    }
+
+                    ao = detail::mat_parse_float(content, "ao", 1.0f);
+                    detail::mat_parse_float_array(content, "emissive_color", emissive_color, 3);
+                    emissive_intensity = detail::mat_parse_float(content, "emissive_intensity", 0.0f);
+
                     normal_strength = detail::mat_parse_float(content, "normal_strength", 1.0f);
 
                     texture_scale[0] = 1.0f; 
@@ -193,11 +215,19 @@ namespace vesta {
                     std::string shader_guid = detail::mat_parse_string(content, "shader_guid", "");
                     std::string diffuse_guid = detail::mat_parse_string(content, "diffuse_texture_guid", "");
                     std::string normal_guid = detail::mat_parse_string(content, "normal_texture_guid", "");
+                    std::string metallic_guid = detail::mat_parse_string(content, "metallic_texture_guid", "");
+                    std::string roughness_guid = detail::mat_parse_string(content, "roughness_texture_guid", "");
+                    std::string ao_guid = detail::mat_parse_string(content, "ao_texture_guid", "");
+                    std::string emissive_guid = detail::mat_parse_string(content, "emissive_texture_guid", "");
                     std::string specular_guid = detail::mat_parse_string(content, "specular_texture_guid", "");
 
                     snprintf(shader_path, sizeof(shader_path), "%s", detail::mat_resolve_guid_path(shader_guid, aria_sys).c_str());
                     snprintf(diffuse_texture_path, sizeof(diffuse_texture_path), "%s", detail::mat_resolve_guid_path(diffuse_guid, aria_sys).c_str());
                     snprintf(normal_texture_path, sizeof(normal_texture_path), "%s", detail::mat_resolve_guid_path(normal_guid, aria_sys).c_str());
+                    snprintf(metallic_texture_path, sizeof(metallic_texture_path), "%s", detail::mat_resolve_guid_path(metallic_guid, aria_sys).c_str());
+                    snprintf(roughness_texture_path, sizeof(roughness_texture_path), "%s", detail::mat_resolve_guid_path(roughness_guid, aria_sys).c_str());
+                    snprintf(ao_texture_path, sizeof(ao_texture_path), "%s", detail::mat_resolve_guid_path(ao_guid, aria_sys).c_str());
+                    snprintf(emissive_texture_path, sizeof(emissive_texture_path), "%s", detail::mat_resolve_guid_path(emissive_guid, aria_sys).c_str());
                     snprintf(specular_texture_path, sizeof(specular_texture_path), "%s", detail::mat_resolve_guid_path(specular_guid, aria_sys).c_str());
 
                     if (std::strlen(shader_path) == 0) {
@@ -208,7 +238,7 @@ namespace vesta {
             }
 
             // ========================================================
-            // RENDER AYARLARI
+            // 1. RENDER VE SAYDAMLIK MODU
             // ========================================================
             bool changed = false;
             ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.2f, 1.0f), "Render Settings");
@@ -221,66 +251,73 @@ namespace vesta {
             }
             ImGui::Spacing();
 
-            changed |= ImGui::ColorEdit4("Base Color", base_color);
-            changed |= ImGui::DragFloat("Specular Strength", &specular_strength, 0.01f, 0.0f, 1.0f);
-            changed |= ImGui::DragFloat("Shininess", &shininess, 0.5f, 1.0f, 256.0f);
+            // ========================================================
+            // 2. MODERN PBR YÜZEY AYARLARI
+            // ========================================================
+            ImGui::TextColored(ImVec4(0.35f, 0.90f, 0.55f, 1.0f), "PBR Metallic / Roughness Properties");
+            ImGui::Separator();
+
+            changed |= ImGui::ColorEdit4("Base Color (Albedo)", base_color);
+            changed |= ImGui::SliderFloat("Metallic", &metallic, 0.0f, 1.0f, "%.3f");
+            changed |= ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f, "%.3f");
+            changed |= ImGui::SliderFloat("Ambient Occlusion (AO)", &ao, 0.0f, 1.0f, "%.3f");
             changed |= ImGui::DragFloat("Normal Strength", &normal_strength, 0.01f, 0.0f, 5.0f);
             changed |= ImGui::DragFloat2("Texture Scale (Tiling)", texture_scale, 0.05f, 0.001f, 100.0f);
 
+            ImGui::Spacing();
+            ImGui::TextColored(ImVec4(1.0f, 0.65f, 0.35f, 1.0f), "Emissive (Self-Illumination)");
+            ImGui::Separator();
+            changed |= ImGui::ColorEdit3("Emissive Color", emissive_color);
+            changed |= ImGui::DragFloat("Emissive Intensity", &emissive_intensity, 0.05f, 0.0f, 50.0f, "%.2f");
+
             // ========================================================
-            // KAYNAK (ASSET/RESOURCE) BAĞLANTILARI
+            // 3. ARIA DOKU VE SHADER BAĞLANTILARI (DRAG & DROP)
             // ========================================================
             ImGui::Spacing();
-            ImGui::TextColored(ImVec4(0.5f, 1.0f, 0.5f, 1.0f), "Aria Resource Bindings");
+            ImGui::TextColored(ImVec4(0.5f, 0.85f, 1.0f, 1.0f), "Aria Texture & Shader Slots");
             ImGui::Separator();
 
-            // Shader Seçimi
-            ImGui::Text("Custom Shader:");
-            std::string shader_label = std::strlen(shader_path) > 0 ? shader_path : "Drag Shader Here (Default Used)";
-            ImGui::Button(shader_label.c_str(), ImVec2(-1, 25));
-            if (ImGui::BeginDragDropTarget()) {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ARIA_ASSET_PAYLOAD")) {
-                    auto* data = static_cast<vesta::asset_drag_payload*>(payload->Data);
-                    snprintf(shader_path, sizeof(shader_path), "%s", data->path);
-                    changed = true;
-                }
-                ImGui::EndDragDropTarget();
-            }
-
-            // Diffuse Doku Seçimi
-            ImGui::Text("Diffuse Texture (.png/.jpg):");
-            std::string diffuse_label = std::strlen(diffuse_texture_path) > 0 ? diffuse_texture_path : "None (Drag Texture)";
-            ImGui::Button(diffuse_label.c_str(), ImVec2(-1, 25));
-            if (ImGui::BeginDragDropTarget()) {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ARIA_ASSET_PAYLOAD")) {
-                    auto* data = static_cast<vesta::asset_drag_payload*>(payload->Data);
-                    if (data->type == vesta::asset_payload_type::texture) {
-                        snprintf(diffuse_texture_path, sizeof(diffuse_texture_path), "%s", data->path);
-                        changed = true;
+            auto renderDropSlot = [&changed](const char* label, char* buffer, size_t bufSize, vesta::asset_payload_type payloadType) {
+                ImGui::Text("%s", label);
+                std::string btnText = (std::strlen(buffer) > 0) ? buffer : "None (Drag Asset Here)";
+                ImGui::Button(btnText.c_str(), ImVec2(-1, 24));
+                if (ImGui::BeginDragDropTarget()) {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ARIA_ASSET_PAYLOAD")) {
+                        auto* data = static_cast<vesta::asset_drag_payload*>(payload->Data);
+                        if (payloadType == vesta::asset_payload_type::unspecified || data->type == payloadType) {
+                            snprintf(buffer, bufSize, "%s", data->path);
+                            changed = true;
+                        }
                     }
+                    ImGui::EndDragDropTarget();
                 }
-                ImGui::EndDragDropTarget();
-            }
+            };
 
-            // Normal Map Doku Seçimi
-            ImGui::Text("Normal Map Texture:");
-            std::string normal_label = std::strlen(normal_texture_path) > 0 ? normal_texture_path : "None (Drag Texture)";
-            ImGui::Button(normal_label.c_str(), ImVec2(-1, 25));
-            if (ImGui::BeginDragDropTarget()) {
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ARIA_ASSET_PAYLOAD")) {
-                    auto* data = static_cast<vesta::asset_drag_payload*>(payload->Data);
-                    if (data->type == vesta::asset_payload_type::texture) {
-                        snprintf(normal_texture_path, sizeof(normal_texture_path), "%s", data->path);
-                        changed = true;
-                    }
-                }
-                ImGui::EndDragDropTarget();
-            }
+            // Custom Shader
+            renderDropSlot("Custom Shader:", shader_path, sizeof(shader_path), vesta::asset_payload_type::shader);
+
+            // Albedo / Diffuse
+            renderDropSlot("Albedo / Diffuse Texture (.png/.jpg):", diffuse_texture_path, sizeof(diffuse_texture_path), vesta::asset_payload_type::texture);
+
+            // Normal Map
+            renderDropSlot("Normal Map Texture:", normal_texture_path, sizeof(normal_texture_path), vesta::asset_payload_type::texture);
+
+            // Metallic Map
+            renderDropSlot("Metallic Map Texture (R channel):", metallic_texture_path, sizeof(metallic_texture_path), vesta::asset_payload_type::texture);
+
+            // Roughness Map
+            renderDropSlot("Roughness Map Texture (R channel):", roughness_texture_path, sizeof(roughness_texture_path), vesta::asset_payload_type::texture);
+
+            // AO Map
+            renderDropSlot("Ambient Occlusion (AO) Texture (R channel):", ao_texture_path, sizeof(ao_texture_path), vesta::asset_payload_type::texture);
+
+            // Emissive Map
+            renderDropSlot("Emissive Texture (RGB):", emissive_texture_path, sizeof(emissive_texture_path), vesta::asset_payload_type::texture);
 
             ImGui::Spacing();
 
             // ========================================================
-            // KAYDETME VE CANLI HOT-RELOAD İŞLEMİ
+            // 4. KAYDETME VE CANLI HOT-RELOAD İŞLEMİ
             // ========================================================
             const bool saveClicked = ImGui::Button("Save Material Configuration", ImVec2(-1, 35));
             if (changed || saveClicked) {
@@ -299,15 +336,27 @@ namespace vesta {
                 std::string shader_guid_str = resolveAndRegisterGuid(shader_path);
                 std::string diffuse_guid_str = resolveAndRegisterGuid(diffuse_texture_path);
                 std::string normal_guid_str = resolveAndRegisterGuid(normal_texture_path);
+                std::string metallic_guid_str = resolveAndRegisterGuid(metallic_texture_path);
+                std::string roughness_guid_str = resolveAndRegisterGuid(roughness_texture_path);
+                std::string ao_guid_str = resolveAndRegisterGuid(ao_texture_path);
+                std::string emissive_guid_str = resolveAndRegisterGuid(emissive_texture_path);
                 std::string specular_guid_str = resolveAndRegisterGuid(specular_texture_path);
+
+                // Shininess fallback hesapla
+                float shininessVal = std::pow(1.0f - roughness, 2.0f) * 256.0f;
 
                 std::ostringstream json;
                 json << "{\n"
                     << "  \"type\": \"material\",\n"
                     << "  \"name\": \"" << std::filesystem::path(asset_path).stem().string() << "\",\n"
                     << "  \"base_color\": [" << base_color[0] << ", " << base_color[1] << ", " << base_color[2] << ", " << base_color[3] << "],\n"
-                    << "  \"specular_strength\": " << specular_strength << ",\n"
-                    << "  \"shininess\": " << shininess << ",\n"
+                    << "  \"metallic\": " << metallic << ",\n"
+                    << "  \"roughness\": " << roughness << ",\n"
+                    << "  \"ao\": " << ao << ",\n"
+                    << "  \"emissive_color\": [" << emissive_color[0] << ", " << emissive_color[1] << ", " << emissive_color[2] << "],\n"
+                    << "  \"emissive_intensity\": " << emissive_intensity << ",\n"
+                    << "  \"specular_strength\": 0.5,\n"
+                    << "  \"shininess\": " << shininessVal << ",\n"
                     << "  \"normal_strength\": " << normal_strength << ",\n"
                     << "  \"texture_scale\": [" << texture_scale[0] << ", " << texture_scale[1] << "],\n"
                     << "  \"render_mode\": " << render_mode << ",\n"
@@ -315,6 +364,10 @@ namespace vesta {
                     << "  \"shader_guid\": \"" << shader_guid_str << "\",\n"
                     << "  \"diffuse_texture_guid\": \"" << diffuse_guid_str << "\",\n"
                     << "  \"normal_texture_guid\": \"" << normal_guid_str << "\",\n"
+                    << "  \"metallic_texture_guid\": \"" << metallic_guid_str << "\",\n"
+                    << "  \"roughness_texture_guid\": \"" << roughness_guid_str << "\",\n"
+                    << "  \"ao_texture_guid\": \"" << ao_guid_str << "\",\n"
+                    << "  \"emissive_texture_guid\": \"" << emissive_guid_str << "\",\n"
                     << "  \"specular_texture_guid\": \"" << specular_guid_str << "\"\n"
                     << "}";
 

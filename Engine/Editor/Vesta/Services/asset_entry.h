@@ -43,9 +43,11 @@ namespace vesta {
      * @brief Editör içinde sürükle-bırak (Drag & Drop) işlemi sırasında taşınan verinin türünü belirler.
      */
     enum class asset_payload_type {
+        unspecified = 0,
         texture,
         model,
-        material
+        material,
+        shader
     };
 
     /**

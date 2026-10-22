@@ -602,7 +602,37 @@ namespace aria {
                 out_raw_data.base_color = glm::vec3(1.0f, 1.0f, 1.0f);
             }
 
-            // Standart Özellikler
+            // Modern PBR Özellikleri (Metallic, Roughness, AO, Emissive)
+            out_raw_data.metallic = material_json.value("metallic", 0.0f);
+            if (material_json.contains("roughness")) {
+                out_raw_data.roughness = material_json.value("roughness", 0.5f);
+            }
+            else {
+                // Geriye dönük uyumluluk: shininess alanından roughness türet
+                float s = material_json.value("shininess", 32.0f);
+                out_raw_data.roughness = glm::clamp(1.0f - std::sqrt(s / 256.0f), 0.05f, 1.0f);
+            }
+            out_raw_data.ao = material_json.value("ao", 1.0f);
+
+            if (material_json.contains("emissive_color")) {
+                auto& ec = material_json["emissive_color"];
+                if (ec.is_array()) {
+                    out_raw_data.emissive_color.x = ec.size() > 0 ? ec[0].get<float>() : 0.0f;
+                    out_raw_data.emissive_color.y = ec.size() > 1 ? ec[1].get<float>() : 0.0f;
+                    out_raw_data.emissive_color.z = ec.size() > 2 ? ec[2].get<float>() : 0.0f;
+                }
+                else if (ec.is_object()) {
+                    out_raw_data.emissive_color.x = ec.value("x", 0.0f);
+                    out_raw_data.emissive_color.y = ec.value("y", 0.0f);
+                    out_raw_data.emissive_color.z = ec.value("z", 0.0f);
+                }
+            }
+            else {
+                out_raw_data.emissive_color = glm::vec3(0.0f);
+            }
+            out_raw_data.emissive_intensity = material_json.value("emissive_intensity", 0.0f);
+
+            // Standart ve Eski Nesil (Legacy) Özellikler
             out_raw_data.specular_strength = material_json.value("specular_strength", 0.5f);
             out_raw_data.shininess = material_json.value("shininess", 32.0f);
             out_raw_data.normal_strength = material_json.value("normal_strength", 1.0f);
@@ -632,10 +662,14 @@ namespace aria {
                 return parsed ? *parsed : aria::asset_guid{};
                 };
 
-            // Referans GUID Atamaları
+            // Referans GUID Atamaları (PBR Doku Haritaları Dahil)
             out_raw_data.shader_guid = parse_guid_helper(material_json, "shader_guid");
             out_raw_data.diffuse_texture_guid = parse_guid_helper(material_json, "diffuse_texture_guid");
             out_raw_data.normal_texture_guid = parse_guid_helper(material_json, "normal_texture_guid");
+            out_raw_data.metallic_texture_guid = parse_guid_helper(material_json, "metallic_texture_guid");
+            out_raw_data.roughness_texture_guid = parse_guid_helper(material_json, "roughness_texture_guid");
+            out_raw_data.ao_texture_guid = parse_guid_helper(material_json, "ao_texture_guid");
+            out_raw_data.emissive_texture_guid = parse_guid_helper(material_json, "emissive_texture_guid");
             out_raw_data.specular_texture_guid = parse_guid_helper(material_json, "specular_texture_guid");
 
             return out_raw_data;

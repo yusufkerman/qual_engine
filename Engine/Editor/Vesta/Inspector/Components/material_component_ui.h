@@ -60,10 +60,23 @@ inline void render_material_ui(entity e, registry& reg, aria::system& ariaSys)
     }
 
     if (current) {
-        ImGui::Text("Material: %s", current->name.c_str());
+        ImGui::TextDisabled("Asset: %s", current->name.c_str());
+        ImGui::Spacing();
+
+        if (ImGui::TreeNodeEx("PBR Parameters", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::ColorEdit3("Base Color", &current->base_color.r);
+            ImGui::SliderFloat("Metallic", &current->metallic, 0.0f, 1.0f, "%.2f");
+            ImGui::SliderFloat("Roughness", &current->roughness, 0.04f, 1.0f, "%.2f");
+            ImGui::SliderFloat("AO", &current->ao, 0.0f, 1.0f, "%.2f");
+            ImGui::ColorEdit3("Emissive Color", &current->emissive_color.r);
+            ImGui::SliderFloat("Emissive Intensity", &current->emissive_intensity, 0.0f, 20.0f, "%.2f");
+            ImGui::DragFloat2("Tiling", &current->texture_scale.x, 0.05f, 0.01f, 100.0f, "%.2f");
+            ImGui::SliderFloat("Normal Strength", &current->normal_strength, 0.0f, 5.0f, "%.2f");
+            ImGui::TreePop();
+        }
     }
     else {
-        ImGui::Text("Material: None");
+        ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "No Material Assigned");
     }
 }
 

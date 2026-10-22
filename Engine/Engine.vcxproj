@@ -180,6 +180,7 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Editor\Vesta\Panels\game_viewport_panel.h" />
     <ClInclude Include="Editor\Vesta\Panels\scene_viewport_panel.h" />
     <ClInclude Include="Editor\Vesta\Panels\top_bar_panel.h" />
+    <ClInclude Include="Editor\Vesta\Widgets\loading_bar_widget.h" />
     <ClInclude Include="Editor\Vesta\Services\asset_browser_system.h" />
     <ClInclude Include="Editor\Vesta\Inspector\Components\camera_component_ui.h" />
     <ClInclude Include="Editor\Vesta\Inspector\Components\collider_component_ui.h" />
@@ -705,8 +706,10 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Scripting\game_module.h" />
     <ClInclude Include="Engine\time_step.h" />
     <ClInclude Include="Gameplay\gameplay_time.h" />
+    <ClInclude Include="Async\async_task_manager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Async\async_task_manager.cpp" />
     <ClCompile Include="ECS\registry.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\game_viewport_panel.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\hierarchy_panel.cpp" />

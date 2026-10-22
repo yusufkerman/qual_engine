@@ -23,6 +23,7 @@
 #include "../Project/project.h"
 #include "../Project/project_module.h"
 #include "../Resources/engine_resources.h"
+#include "../Async/async_task_manager.h"
 #include <imgui.h>
 
 namespace
@@ -266,6 +267,9 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
 
 void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 {
+    // 0. Arka plan asenkron görevlerden gelen ana iş parçacığı geri çağrımlarını çalıştır
+    core::async_task_manager::instance().poll_main_thread_callbacks();
+
     // 1. Dinamik kare süresini (delta time) ve birikmiş simülasyon zamanını hesapla
     ctx.time.tick();
 
@@ -358,6 +362,9 @@ void Engine::shutdown(EngineContext& ctx, EditorContext& editorCtx)
             editorCtx.camera = nullptr;
         }
     }
+
+    // Asenkron görev yöneticisini sonlandır
+    core::async_task_manager::instance().shutdown();
 
     ctx.grid.shutdown();
     ctx.physicsSystem.shutdown();

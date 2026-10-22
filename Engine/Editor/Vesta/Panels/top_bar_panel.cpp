@@ -4,6 +4,7 @@
  */
 
 #include "top_bar_panel.h"
+#include "../Widgets/loading_bar_widget.h"
 #include <imgui.h>
 #include <imgui_internal.h>
 #include "../../Externals/nfd/nfd.h"
@@ -170,6 +171,29 @@ namespace vesta {
         }
 
         ImGui::EndDisabled();
+
+        // ========================================================================
+        // 4. ASENKRON İŞLEM DURUMU VE MODERN YÜKLEME ÇUBUĞU (TOPBAR LOADING BAR)
+        // ========================================================================
+        if (core::async_task_manager::instance().is_busy())
+        {
+            constexpr float kBarWidth = 280.0f;
+            constexpr float kBarHeight = 22.0f;
+            const float windowWidth = ImGui::GetWindowWidth();
+            const float currentCursorX = ImGui::GetCursorPosX();
+            const float targetX = windowWidth - kBarWidth - 15.0f;
+
+            if (targetX > currentCursorX + 10.0f)
+            {
+                ImGui::SameLine(targetX);
+            }
+            else
+            {
+                ImGui::SameLine(0.0f, 15.0f);
+            }
+
+            render_loading_bar_widget(kBarWidth, kBarHeight);
+        }
 
         ImGui::End();
     }

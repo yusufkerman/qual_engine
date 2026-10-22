@@ -119,15 +119,25 @@ namespace aria {
         float alpha_threshold{ 0.1f };           ///< Cutout modu için alfa kesme eşik değeri.
 
         glm::vec3 base_color{ 1.0f };            ///< Temel renk çarpanı (Albedo).
-        float specular_strength{ 0.5f };         ///< Yansıma şiddeti.
-        float shininess{ 32.0f };                ///< Yüzey pürüzsüzlüğü/odak noktası.
+        float metallic{ 0.0f };                  ///< Metaliklik çarpanı (PBR).
+        float roughness{ 0.5f };                 ///< Yüzey pürüzlülüğü (PBR).
+        float ao{ 1.0f };                        ///< Ortam örtme çarpanı (Ambient Occlusion).
+        glm::vec3 emissive_color{ 0.0f };        ///< Kendiliğinden ışıma rengi.
+        float emissive_intensity{ 0.0f };        ///< Işıma şiddeti çarpanı.
+
+        float specular_strength{ 0.5f };         ///< Yansıma şiddeti (Legacy).
+        float shininess{ 32.0f };                ///< Yüzey pürüzsüzlüğü/odak noktası (Legacy).
         float normal_strength{ 1.0f };           ///< Normal haritası etki şiddeti.
         glm::vec2 texture_scale{ 1.0f };         ///< UV koordinat ölçeklendirmesi (Tiling).
 
         // --- BAĞLI VARLIK TANITICILARI (HANDLES) ---
         handle<texture_asset> diffuse_texture_handle;  ///< Temel renk (Albedo) dokusu tanıtıcısı.
         handle<texture_asset> normal_texture_handle;   ///< Normal haritası dokusu tanıtıcısı.
-        handle<texture_asset> specular_texture_handle; ///< Yansıma (Specular) dokusu tanıtıcısı.
+        handle<texture_asset> metallic_texture_handle; ///< Metaliklik haritası dokusu tanıtıcısı (PBR).
+        handle<texture_asset> roughness_texture_handle;///< Pürüzlülük haritası dokusu tanıtıcısı (PBR).
+        handle<texture_asset> ao_texture_handle;       ///< Ambient Occlusion dokusu tanıtıcısı (PBR).
+        handle<texture_asset> emissive_texture_handle; ///< Işıma (Emissive) dokusu tanıtıcısı (PBR).
+        handle<texture_asset> specular_texture_handle; ///< Yansıma (Specular) dokusu tanıtıcısı (Legacy).
 
         handle<shader_asset>  shader_handle;           ///< Bu materyali çizerken kullanılacak shader programı tanıtıcısı.
     };
