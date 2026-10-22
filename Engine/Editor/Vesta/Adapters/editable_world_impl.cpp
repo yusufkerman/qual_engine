@@ -261,7 +261,8 @@ namespace vesta {
             return std::nullopt;
         }
 
-        const std::string ext = fs::path(path).extension().string();
+        std::string ext = fs::path(path).extension().string();
+        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
         if (ext == ".mat" || ext == ".json" || ext == ".amat") {
             return "material";
@@ -285,6 +286,10 @@ namespace vesta {
 
         if (ext == ".shader") {
             return "shader";
+        }
+
+        if (ext == ".wav" || ext == ".mp3" || ext == ".ogg" || ext == ".flac") {
+            return "audio";
         }
 
         return std::nullopt;

@@ -139,7 +139,7 @@ namespace project {
         }
         else
         {
-            m_descriptor.name = "OpenGL-Learn-1";
+            m_descriptor.name = "QualEngine";
             m_descriptor.version = "1.0.0";
             m_descriptor.asset_directory = "Assets";
             m_descriptor.start_scene = "Assets/Scenes/Main.json";
@@ -184,6 +184,7 @@ namespace project {
             0.1f,       // nearPlane
             500.0f      // farPlane
         );
+        reg.add_component<audio_listener_component>(camEntity);
 
         sc.set_active_camera(camEntity);
         sc.update_light_batch();
@@ -264,7 +265,7 @@ namespace project {
             // 6. Pencere başlığını proje adı ile güncelle
             if (ctx.window)
             {
-                const std::string title = "OpenGL-Learn-1 - [" + projectName + "]";
+                const std::string title = "QualEngine - [" + projectName + "]";
                 glfwSetWindowTitle(ctx.window, title.c_str());
             }
 
@@ -378,7 +379,7 @@ namespace project {
             // 2. Pencere başlığını güncelle
             if (ctx.window)
             {
-                const std::string title = "OpenGL-Learn-1 - [" + m_descriptor.name + "]";
+                const std::string title = "QualEngine - [" + m_descriptor.name + "]";
                 glfwSetWindowTitle(ctx.window, title.c_str());
             }
 
@@ -396,11 +397,17 @@ namespace project {
                 std::cerr << "[ProjectManager] Uyari: Script scaffolding hatasi: " << e.what() << "\n";
             }
 
-            // 5. Projeye ait dinamik GameModule.dll varsa sahneyi yuklemeden ONCE yukle ki betikler script_factory'de hazir olsun
+            // 5. Projeye ait dinamik GameModule.dll varsa ve güncelse yükle; eskiyse otomatik derle
             try
             {
                 const std::filesystem::path gameModulePath = rootPath / "Binaries" / "GameModule.dll";
-                if (std::filesystem::exists(gameModulePath))
+                if (project_module::is_module_outdated(rootPath.string()))
+                {
+                    std::cout << "[ProjectManager] GameModule is missing or outdated compared to engine/scripts. Rebuilding...\n";
+                    std::string buildLog;
+                    project_module::compile_project_scripts(rootPath.string(), buildLog);
+                }
+                else if (std::filesystem::exists(gameModulePath))
                 {
                     project_module::instance().load_module(gameModulePath.string());
                 }
@@ -411,7 +418,7 @@ namespace project {
             }
             catch (const std::exception& e)
             {
-                std::cerr << "[ProjectManager] Uyari: GameModule yukleme hatasi: " << e.what() << "\n";
+                std::cerr << "[ProjectManager] Uyari: GameModule yukleme/derleme hatasi: " << e.what() << "\n";
             }
 
             // 6. Başlangıç sahnesini yükle (Dayanıklı ve geri dönüşlü)

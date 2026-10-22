@@ -142,4 +142,17 @@ namespace aria {
         handle<shader_asset>  shader_handle;           ///< Bu materyali çizerken kullanılacak shader programı tanıtıcısı.
     };
 
+    /**
+     * @struct audio_clip_asset
+     * @brief Ses dosyalarını (.wav, .mp3, .ogg, .flac) temsil eden ARIA varlık yapısı.
+     */
+    struct audio_clip_asset {
+        asset_guid guid;                ///< Ses varlığının benzersiz kimliği.
+        std::string filepath;           ///< Ses dosyasının disk üzerindeki yolu.
+        float duration_seconds{ 0.0f }; ///< Ses süresi (saniye).
+        uint32_t channels{ 0 };         ///< Kanal sayısı.
+        uint32_t sample_rate{ 0 };      ///< Örnekleme hızı.
+        raw_audio_data raw_data;        ///< Ham veri kopyası.
+    };
+
 } // namespace aria

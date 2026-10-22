@@ -74,6 +74,13 @@ namespace aria {
          */
         [[nodiscard]] static std::optional<raw_shader_data> load_shader_to_cpu(const std::string& file_path);
 
+        /**
+         * @brief Ses dosyasını (.wav, .mp3, .ogg, .flac) diskten okur ve meta verilerini ayrıştırır.
+         * @param file_path Ses dosyasının tam veya göreceli yolu.
+         * @return std::optional<raw_audio_data> Yükleme başarılıysa ham ses verisi, aksi halde std::nullopt döner.
+         */
+        [[nodiscard]] static std::optional<raw_audio_data> load_audio_to_cpu(const std::string& file_path);
+
     };
 
 } // namespace aria

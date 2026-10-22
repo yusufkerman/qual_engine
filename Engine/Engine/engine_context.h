@@ -36,6 +36,7 @@
 #include "../Renderer/fog_settings.h"
 #include "../Renderer/render_settings.h"
 #include "time_step.h"
+#include "../Audio/audio_system.h"
 
 struct GLFWwindow;
 
@@ -99,6 +100,7 @@ struct EngineContext
     camera_system cameraSystem;         ///< Kamera yaşam döngüsü ve hesaplama sistemi.
     physics_system physicsSystem;       ///< Fizik motoru köprü sistemi (Jolt, PhysX vb. sarıcı).
     animation_system animationSystem;   ///< İskelet ve animasyon yönetim sistemi.
+    audio::audio_system audioSystem;    ///< Donanım soyutlamalı 2B ve 3B uzaysal ses sistemi (Miniaudio).
 
     ModelLoader modelLoader;            ///< 3D model yükleyici servisi.
     shadow_map_fbo shadowFBO;           ///< Gölge haritalama için çerçeve arabelleği nesnesi (FBO).

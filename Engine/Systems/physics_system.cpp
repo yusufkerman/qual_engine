@@ -78,3 +78,12 @@ void physics_system::shutdown()
     delete JPH::Factory::sInstance;
     JPH::Factory::sInstance = nullptr;
 }
+physics_api& physics_system::api()
+{
+    if (!m_api)
+    {
+        static physics_api s_fallbackApi(nullptr, nullptr);
+        return s_fallbackApi;
+    }
+    return *m_api;
+}

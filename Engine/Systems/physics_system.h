@@ -151,7 +151,7 @@ public:
     /**
      * @brief Fizik komutlarına ve olaylarına erişim sağlayan API nesnesini döner.
      */
-    physics_api& api() { return *m_api; }
+    physics_api& api();
 
     /**
      * @brief Düşük seviye erişim için doğrudan Jolt PhysicsSystem işaretçisini döner.

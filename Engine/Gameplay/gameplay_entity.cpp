@@ -5,6 +5,7 @@
 
 #include "gameplay_entity.h"
 #include "gameplay_context.h"
+#include "gameplay_audio.h"
 #include "../ECS/components.h"
 
 namespace gameplay
@@ -59,6 +60,31 @@ namespace gameplay
     rigidbody_wrapper gameplay_entity::rigidbody()
     {
         return rigidbody_wrapper(m_id, m_reg, context::get_physics_system());
+    }
+
+    audio_source gameplay_entity::get_audio_source()
+    {
+        if (is_valid() && !m_reg->has_component<audio_source_component>(m_id))
+        {
+            m_reg->add_component<audio_source_component>(m_id);
+        }
+        return audio_source(m_id);
+    }
+
+    void gameplay_entity::play_sound(const std::string& clipPath, float volume)
+    {
+        if (!is_valid()) return;
+
+        auto src = get_audio_source();
+        if (!clipPath.empty())
+        {
+            src.set_clip(clipPath);
+        }
+        if (volume != 1.0f)
+        {
+            src.set_volume(volume);
+        }
+        src.play();
     }
 
     void gameplay_entity::destroy()

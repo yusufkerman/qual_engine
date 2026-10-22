@@ -635,6 +635,61 @@ namespace aria {
         }
     }
 
+    // --- Ses Klibi (Audio Clip) ---
+
+    handle<audio_clip_asset> asset_registry::load_audio_clip(const asset_guid& guid, const std::string& file_path) {
+        if (auto it = m_audio_clip_map.find(guid); it != m_audio_clip_map.end()) {
+            return it->second;
+        }
+
+        auto rawOpt = asset_loader::load_audio_to_cpu(file_path);
+        if (!rawOpt) {
+            return {};
+        }
+
+        uint32_t slot_idx = 0;
+        uint32_t gen = 1;
+
+        if (!m_audio_clip_free_slots.empty()) {
+            slot_idx = m_audio_clip_free_slots.back();
+            m_audio_clip_free_slots.pop_back();
+            gen = m_audio_clip_slots[slot_idx].generation;
+        } else {
+            slot_idx = static_cast<uint32_t>(m_audio_clip_slots.size());
+            m_audio_clip_slots.emplace_back();
+        }
+
+        auto& slot = m_audio_clip_slots[slot_idx];
+        slot.generation = gen;
+        slot.is_allocated = true;
+        slot.asset.guid = guid;
+        slot.asset.filepath = rawOpt->filepath;
+        slot.asset.duration_seconds = rawOpt->duration_seconds;
+        slot.asset.channels = rawOpt->channels;
+        slot.asset.sample_rate = rawOpt->sample_rate;
+        slot.asset.raw_data = *rawOpt;
+
+        handle<audio_clip_asset> h{ slot_idx, gen };
+        m_audio_clip_map[guid] = h;
+        return h;
+    }
+
+    audio_clip_asset* asset_registry::get_audio_clip(handle<audio_clip_asset> h) {
+        if (h.index < m_audio_clip_slots.size() && m_audio_clip_slots[h.index].generation == h.generation && m_audio_clip_slots[h.index].is_allocated) {
+            return &m_audio_clip_slots[h.index].asset;
+        }
+        return nullptr;
+    }
+
+    void asset_registry::destroy_audio_clip(handle<audio_clip_asset> h) {
+        if (h.index < m_audio_clip_slots.size() && m_audio_clip_slots[h.index].generation == h.generation && m_audio_clip_slots[h.index].is_allocated) {
+            m_audio_clip_map.erase(m_audio_clip_slots[h.index].asset.guid);
+            m_audio_clip_slots[h.index].is_allocated = false;
+            m_audio_clip_slots[h.index].generation++;
+            m_audio_clip_free_slots.push_back(h.index);
+        }
+    }
+
     // ========================================================================
     // SİSTEM YÖNETİMİ
     // ========================================================================
@@ -647,6 +702,7 @@ namespace aria {
         m_skeleton_slots.clear(); m_skeleton_free_slots.clear(); m_skeleton_map.clear();
         m_animation_slots.clear(); m_animation_free_slots.clear(); m_animation_map.clear();
         m_skinned_model_slots.clear(); m_skinned_model_free_slots.clear(); m_skinned_model_map.clear();
+        m_audio_clip_slots.clear(); m_audio_clip_free_slots.clear(); m_audio_clip_map.clear();
     }
 
 } // namespace aria

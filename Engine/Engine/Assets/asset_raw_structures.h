@@ -352,4 +352,17 @@ namespace aria {
         }
     };
 
+    /**
+     * @struct raw_audio_data
+     * @brief Ses dosyalarından (.wav, .mp3, .ogg, .flac) okunan meta verileri barındırır.
+     */
+    struct raw_audio_data {
+        std::string filepath;
+        float duration_seconds{ 0.0f };
+        uint32_t channels{ 0 };
+        uint32_t sample_rate{ 0 };
+
+        void clear_raw_data() {}
+    };
+
 } // namespace aria

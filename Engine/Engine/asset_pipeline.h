@@ -87,6 +87,7 @@ namespace asset_pipeline
      * @return aria::handle<aria::shader_asset> İçe aktarılan shader'a ait handle.
      */
     aria::handle<aria::shader_asset>   import_shader(EngineContext& ctx, const std::string& path);
+    aria::handle<aria::audio_clip_asset> import_audio(aria::system* aria_system, const std::string& path);
 
     // --- Dahili Primitif Üretim İşlevleri ---
 

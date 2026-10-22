@@ -352,6 +352,38 @@ namespace sera {
                 }
             }
 
+            // 20. Audio Source Component
+            if (reg.has_component<audio_source_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<audio_source_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    serialize_visitor visitor{ comp_json };
+                    sera_reflect_component(*comp, visitor);
+
+                    if (!comp->clip_guid.is_nil())
+                    {
+                        comp_json["clip_guid"] = uuids::to_string(comp->clip_guid);
+                    }
+
+                    comps_out["audio_source_component"] = comp_json;
+                }
+            }
+
+            // 21. Audio Listener Component
+            if (reg.has_component<audio_listener_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<audio_listener_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    serialize_visitor visitor{ comp_json };
+                    sera_reflect_component(*comp, visitor);
+                    comps_out["audio_listener_component"] = comp_json;
+                }
+            }
+
             // 20. Hierarchy Component (Ebeveyn - Çocuk İlişkisi)
             if (reg.has_component<hierarchy_component>(e))
             {
@@ -801,6 +833,41 @@ namespace sera {
                     sera_reflect_component(comp, visitor);
                     reg.add_component<ui_button_component>(current_e, comp);
                 }
+
+                // 20. Audio Source Component
+                if (comps_json.contains("audio_source_component"))
+                {
+                    audio_source_component comp{};
+                    deserialize_visitor visitor{ comps_json["audio_source_component"] };
+                    sera_reflect_component(comp, visitor);
+
+                    if (comps_json["audio_source_component"].contains("clip_guid"))
+                    {
+                        const std::string guid_str = comps_json["audio_source_component"].value("clip_guid", "");
+                        const auto parsed = uuids::uuid::from_string(guid_str);
+                        if (parsed && !parsed->is_nil())
+                        {
+                            comp.clip_guid = *parsed;
+                        }
+                    }
+
+                    // Reset runtime states
+                    comp.runtime_sound_id = audio::invalid_sound_id;
+                    comp.is_playing = false;
+                    comp.is_paused = false;
+                    comp.has_played_awake = false;
+
+                    reg.add_component<audio_source_component>(current_e, comp);
+                }
+
+                // 21. Audio Listener Component
+                if (comps_json.contains("audio_listener_component"))
+                {
+                    audio_listener_component comp{};
+                    deserialize_visitor visitor{ comps_json["audio_listener_component"] };
+                    sera_reflect_component(comp, visitor);
+                    reg.add_component<audio_listener_component>(current_e, comp);
+                }
             }
         }
 
@@ -1018,6 +1085,7 @@ namespace sera {
                 0.1f,       // nearPlane
                 500.0f      // farPlane
             );
+            reg.add_component<audio_listener_component>(defaultCam);
             out_scene.set_active_camera(defaultCam);
         }
 

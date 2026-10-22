@@ -21,6 +21,8 @@
 #include "Inspector/Components/ui_components_ui.h"
 #include "Inspector/Assets/material_inspector.h"
 #include "Inspector/Assets/texture_inspector.h"
+#include "Inspector/Assets/audio_clip_inspector.h"
+#include "Inspector/Components/audio_component_ui.h"
 
 // --- Çekirdek Sistemler ve Fizik ---
 #include "CoreState/vesta_module.h" 
@@ -31,6 +33,9 @@
 #include "../Project/project_module.h"
 #include "../Project/project_exporter.h"
 #include "Widgets/loading_bar_widget.h"
+#include "../Project/engine_settings.h"
+#include "../../Audio/audio_system.h"
+#include <GLFW/glfw3.h>
 #include "../../Async/async_task_manager.h"
 #include "../../Externals/nfd/nfd.h"
 #include <imgui.h>
@@ -64,6 +69,7 @@ namespace vesta {
         register_ui_text_ui_system();
         register_ui_image_ui_system(engineCtx.aria_system);
         register_ui_button_ui_system();
+        register_audio_components_ui_system(*engineCtx.aria_system, engineCtx.audioSystem);
 
         // 2. Çekirdek Servislerin Hazırlanması
         registry& reg = engineCtx.session.game_scene().get_registry();
@@ -76,6 +82,7 @@ namespace vesta {
         // 3. Varlık (Asset) Arayüz Kayıtları
         register_material_asset_ui_system(engineCtx.aria_system, m_material_service.get());
         register_texture_asset_ui_system(engineCtx.aria_system);
+        register_audio_clip_asset_ui_system(engineCtx.aria_system, &engineCtx.audioSystem);
 
         // 4. Editör Panelleri ve ViewModel'lerin Başlatılması
         init_top_bar(engineCtx, editorCtx);
@@ -157,7 +164,7 @@ namespace vesta {
                                 engineCtx.sera->load_scene(path, engineCtx.session.editor_scene());
                             }
                             catch (const std::exception& e) {
-                                std::cerr << "[Vesta] Sahne yukleme hatasi: " << e.what() << "\n";
+                                std::cerr << "[Vesta] Error loading scene: " << e.what() << "\n";
                             }
                         }
                     );
@@ -313,6 +320,7 @@ namespace vesta {
         static bool s_showScriptStatusModal = false;
         static bool s_scriptStatusSuccess = false;
         static std::string s_scriptStatusMsg = "";
+        static bool s_showEngineSettingsModal = false;
 
         if (s_exportFolderBuf[0] == '\0')
         {
@@ -360,11 +368,11 @@ namespace vesta {
                                 }
                                 catch (const std::exception& ex)
                                 {
-                                    std::cerr << "[Vesta] Proje acilirken hata: " << ex.what() << "\n";
+                                    std::cerr << "[Vesta] Error opening project: " << ex.what() << "\n";
                                 }
                                 catch (...)
                                 {
-                                    std::cerr << "[Vesta] Proje acilirken bilinmeyen hata olustu.\n";
+                                    std::cerr << "[Vesta] Unknown error occurred while opening project.\n";
                                 }
                             }
                         );
@@ -454,11 +462,11 @@ namespace vesta {
                                     }
                                     catch (const std::exception& e)
                                     {
-                                        std::cerr << "[Vesta] Sahne yukleme hatasi: " << e.what() << "\n";
+                                        std::cerr << "[Vesta] Error loading scene: " << e.what() << "\n";
                                     }
                                     catch (...)
                                     {
-                                        std::cerr << "[Vesta] Sahne yuklenirken bilinmeyen bir hata olustu.\n";
+                                        std::cerr << "[Vesta] Unknown error occurred while loading scene.\n";
                                     }
                                 }
                             );
@@ -482,11 +490,43 @@ namespace vesta {
         }
 
         // ========================================================================
-        // 2. PROJECT MENÜSÜ (BETİK DERLEME VE STANDALONE EXPORT)
+        // 2. PROJECT MENU (SCRIPT BUILD & STANDALONE EXPORT)
         // ========================================================================
         const bool hasActiveProj = project::project_manager::instance().has_active_project();
         const bool isBusy = core::async_task_manager::instance().is_busy();
-        auto triggerBuildScripts = [&engineCtx, hasActiveProj]() {
+
+        static std::filesystem::file_time_type s_lastScriptBuildTime = std::filesystem::file_time_type::min();
+
+        auto get_max_script_timestamp = [](const std::string& projectRoot) -> std::filesystem::file_time_type {
+            namespace fs = std::filesystem;
+            fs::file_time_type maxTime = fs::file_time_type::min();
+            try {
+                const fs::path root(projectRoot);
+                const std::vector<fs::path> searchDirs = {
+                    root / "Assets" / "Scripts",
+                    root / "Scripts",
+                    root / "Assets"
+                };
+                for (const auto& dir : searchDirs) {
+                    if (!fs::exists(dir)) continue;
+                    for (const auto& entry : fs::recursive_directory_iterator(dir, fs::directory_options::skip_permission_denied)) {
+                        if (!entry.is_regular_file()) continue;
+                        std::string ext = entry.path().extension().string();
+                        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+                        if (ext == ".cpp" || ext == ".h" || ext == ".hpp") {
+                            if (entry.path().filename() == "GameModule.cpp") continue;
+                            auto lwt = entry.last_write_time();
+                            if (lwt > maxTime) {
+                                maxTime = lwt;
+                            }
+                        }
+                    }
+                }
+            } catch (...) {}
+            return maxTime;
+        };
+
+        auto triggerBuildScripts = [&engineCtx, hasActiveProj, get_max_script_timestamp](bool showModal = true) {
             if (!hasActiveProj || core::async_task_manager::instance().is_busy()) return;
             const std::string root = project::project_manager::instance().get_project_root();
             project::project_module::instance().unload_module();
@@ -502,8 +542,11 @@ namespace vesta {
                     }
                     return true;
                 },
-                [root](bool success, const std::string& message) {
-                    s_showScriptStatusModal = true;
+                [root, showModal, get_max_script_timestamp](bool success, const std::string& message) {
+                    s_lastScriptBuildTime = get_max_script_timestamp(root);
+                    if (showModal || !success) {
+                        s_showScriptStatusModal = true;
+                    }
                     if (success)
                     {
                         std::filesystem::path dllPath = std::filesystem::path(root) / "Binaries" / "GameModule.dll";
@@ -537,7 +580,7 @@ namespace vesta {
         {
             if (ImGui::MenuItem("Build Project Scripts", "F7", false, hasActiveProj && !isBusy))
             {
-                triggerBuildScripts();
+                triggerBuildScripts(true);
             }
 
             if (ImGui::MenuItem("Reload Game Module", "Ctrl+R", false, hasActiveProj && !isBusy))
@@ -556,11 +599,37 @@ namespace vesta {
             ImGui::EndMenu();
         }
 
-        // F7 klavye kısayolu desteği
+        // F7 shortcut
         if (ImGui::IsKeyPressed(ImGuiKey_F7) && !ImGui::GetIO().WantTextInput && hasActiveProj && !isBusy)
         {
-            triggerBuildScripts();
+            triggerBuildScripts(true);
         }
+
+        static bool s_wasWindowFocused = true;
+        if (engineCtx.window)
+        {
+            const bool isFocused = (glfwGetWindowAttrib(engineCtx.window, GLFW_FOCUSED) != 0);
+            if (isFocused && !s_wasWindowFocused)
+            {
+                if (project::engine_settings::instance().get_auto_reload_on_focus() &&
+                    hasActiveProj && !isBusy && editorCtx.mode == EngineMode::EDITOR)
+                {
+                    const std::string root = project::project_manager::instance().get_project_root();
+                    const auto currentMax = get_max_script_timestamp(root);
+                    if (s_lastScriptBuildTime == std::filesystem::file_time_type::min())
+                    {
+                        s_lastScriptBuildTime = currentMax;
+                    }
+                    else if (currentMax > s_lastScriptBuildTime)
+                    {
+                        std::cout << "[HotReload] Script files modified. Rebuilding project scripts...\n";
+                        triggerBuildScripts(false);
+                    }
+                }
+            }
+            s_wasWindowFocused = isFocused;
+        }
+
 
         // ========================================================================
         // 3. WINDOW MENÜSÜ (GENERAL VE RENDERING PENCERELERİ)
@@ -613,6 +682,17 @@ namespace vesta {
                 engineCtx.uiManager.resetLayout();
             }
 
+            ImGui::EndMenu();
+        }
+        // ========================================================================
+        // 4. OPTIONS MENUSU (ENGINE PREFERENCES & SETTINGS)
+        // ========================================================================
+        if (ImGui::BeginMenu("Options"))
+        {
+            if (ImGui::MenuItem("Engine Settings..."))
+            {
+                s_showEngineSettingsModal = true;
+            }
             ImGui::EndMenu();
         }
 
@@ -824,6 +904,104 @@ namespace vesta {
             ImGui::SameLine();
             if (ImGui::Button("Close", ImVec2(100, 0)))
             {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+        // ========================================================================
+        // 6. MODAL POPUP: ENGINE SETTINGS / OPTIONS
+        // ========================================================================
+        if (s_showEngineSettingsModal)
+        {
+            ImGui::OpenPopup("Engine Settings");
+            s_showEngineSettingsModal = false;
+        }
+
+        if (ImGui::BeginPopupModal("Engine Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::TextColored(ImVec4(0.45f, 0.78f, 1.0f, 1.0f), "QualEngine Preferences & Settings");
+            ImGui::Separator();
+
+            auto& settings = project::engine_settings::instance();
+            project::code_editor_type currentEditor = settings.get_editor_type();
+
+            ImGui::Text("External Script & Code Editor:");
+            int editorIdx = static_cast<int>(currentEditor);
+            if (ImGui::RadioButton("Visual Studio Code (Auto-Detect)", &editorIdx, 0)) {
+                settings.set_editor_type(project::code_editor_type::vs_code);
+            }
+            if (ImGui::RadioButton("Visual Studio (IDE)", &editorIdx, 1)) {
+                settings.set_editor_type(project::code_editor_type::visual_studio);
+            }
+            if (ImGui::RadioButton("Custom External Editor", &editorIdx, 2)) {
+                settings.set_editor_type(project::code_editor_type::custom);
+            }
+
+            if (settings.get_editor_type() == project::code_editor_type::vs_code)
+            {
+                std::string vsPath = settings.detect_vscode();
+                if (!vsPath.empty()) {
+                    ImGui::TextColored(ImVec4(0.35f, 0.92f, 0.52f, 1.0f), "  [Found] %s", vsPath.c_str());
+                } else {
+                    ImGui::TextColored(ImVec4(0.92f, 0.35f, 0.35f, 1.0f), "  [!] VS Code not detected in standard paths. Fallback to system PATH 'code'.");
+                }
+            }
+            else if (settings.get_editor_type() == project::code_editor_type::custom)
+            {
+                static char customPathBuf[512] = "";
+                static bool bufInit = false;
+                if (!bufInit) {
+                    snprintf(customPathBuf, sizeof(customPathBuf), "%s", settings.get_custom_editor_path().c_str());
+                    bufInit = true;
+                }
+                ImGui::Text("Executable Path:");
+                if (ImGui::InputText("##CustomEditorPath", customPathBuf, sizeof(customPathBuf))) {
+                    settings.set_custom_editor_path(customPathBuf);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Browse...##CustomEditor")) {
+                    nfdchar_t* outPath = nullptr;
+                    nfdfilteritem_t filterItem[1] = { { "Executable", "exe" } };
+                    if (NFD_OpenDialog(&outPath, filterItem, 1, nullptr) == NFD_OKAY) {
+                        if (outPath != nullptr) {
+                            snprintf(customPathBuf, sizeof(customPathBuf), "%s", outPath);
+                            settings.set_custom_editor_path(customPathBuf);
+                            NFD_FreePath(outPath);
+                        }
+                    }
+                }
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Text("Scripting & Hot-Reload:");
+            bool autoReload = settings.get_auto_reload_on_focus();
+            if (ImGui::Checkbox("Auto-recompile / reload on window focus", &autoReload)) {
+                settings.set_auto_reload_on_focus(autoReload);
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Text("Audio System Master Settings:");
+            {
+                float masterVol = engineCtx.audioSystem.get_master_volume();
+                if (ImGui::SliderFloat("Master Volume", &masterVol, 0.0f, 1.0f, "%.2f")) {
+                    engineCtx.audioSystem.set_master_volume(masterVol);
+                }
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            if (ImGui::Button("Save & Close", ImVec2(120, 0)))
+            {
+                settings.save();
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel", ImVec2(100, 0)))
+            {
+                settings.load();
                 ImGui::CloseCurrentPopup();
             }
 

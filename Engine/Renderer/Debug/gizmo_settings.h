@@ -117,6 +117,9 @@ struct gizmo_settings
     gizmo_visibility_mode light_gizmo_mode = gizmo_visibility_mode::selected_only;
     bool interactive_light_handles = true;          ///< Sahne üzerinden ışık menzili (range) ve koni açısı (spot angle) tutamaçlarını sürükleyerek düzenleme.
 
+    gizmo_visibility_mode audio_gizmo_mode = gizmo_visibility_mode::selected_only;
+    bool interactive_audio_handles = true;          ///< Sahne üzerinden ses min/max mesafe tutamaçlarını sürükleyerek düzenleme.
+
     // ========================================================================
     // 6. GAMEPLAY / ÇALIŞMA ZAMANI HATA AYIKLAMA GİZMOLARI VE PERFORMANS PANELİ
     // ========================================================================
@@ -189,6 +192,9 @@ struct gizmo_settings
 
         light_gizmo_mode = gizmo_visibility_mode::selected_only;
         interactive_light_handles = true;
+
+        audio_gizmo_mode = gizmo_visibility_mode::selected_only;
+        interactive_audio_handles = true;
 
         show_gameplay_gizmos_in_scene = true;
         show_gameplay_gizmos_in_game = false;

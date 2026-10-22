@@ -26,7 +26,7 @@ typedef int (*GetScriptCountFn)();
 typedef const char* (*GetScriptNameFn)(int index);
 typedef scriptable_entity* (*InstantiateScriptFn)(const char* name);
 typedef void (*DestroyScriptFn)(scriptable_entity* instance);
-typedef void (*SyncModuleContextFn)(EngineContext* engineCtx, scene* activeScene, gameplay::collision_event_queue* collisionQueue);
+typedef void (*SyncModuleContextFn)(EngineContext* engineCtx, scene* activeScene, gameplay::collision_event_queue* collisionQueue, physics_system* physicsSys, InputState* inputState);
 
 /**
  * @brief Kullanıcı projelerinde GameModule.cpp içinde kullanılacak kayıt makroları.
@@ -80,7 +80,7 @@ typedef void (*SyncModuleContextFn)(EngineContext* engineCtx, scene* activeScene
         if (!instance) return; \
         delete instance; \
     } \
-    GAME_MODULE_EXPORT void SyncModuleContext(EngineContext* engineCtx, scene* activeScene, gameplay::collision_event_queue* collisionQueue) { \
+    GAME_MODULE_EXPORT void SyncModuleContext(EngineContext* engineCtx, scene* activeScene, gameplay::collision_event_queue* collisionQueue, physics_system* physicsSys = nullptr, InputState* inputState = nullptr) { \
         static bool s_joltAllocRegistered = false; \
         if (!s_joltAllocRegistered) { \
             JPH::RegisterDefaultAllocator(); \
@@ -89,6 +89,12 @@ typedef void (*SyncModuleContextFn)(EngineContext* engineCtx, scene* activeScene
         gameplay::context::set_engine_context(engineCtx); \
         gameplay::context::set_active_scene(activeScene); \
         gameplay::context::set_collision_queue(collisionQueue); \
+        if (physicsSys) { \
+            gameplay::context::set_physics_system(physicsSys); \
+        } \
+        if (inputState) { \
+            gameplay::context::set_input_state(inputState); \
+        } \
     }
 
 

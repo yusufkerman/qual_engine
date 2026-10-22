@@ -236,6 +236,12 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ui_button_component,
         interactable, normal_color, hover_color, pressed_color, disabled_color)
 
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(audio_source_component,
+        clip_path, volume, pitch, loop, play_on_awake, is_3d, min_distance, max_distance, roll_off)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(audio_listener_component,
+        is_active)
+
     // ======================================================
     // 5. NATIVE SCRIPT COMPONENT
     // ======================================================
@@ -270,7 +276,9 @@ using EngineComponentList = std::tuple<
     rect_transform_component,
     ui_text_component,
     ui_image_component,
-    ui_button_component
+    ui_button_component,
+    audio_source_component,
+    audio_listener_component
 >;
 
 // ======================================================

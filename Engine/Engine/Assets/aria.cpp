@@ -114,6 +114,12 @@ namespace aria {
         return m_registry.load_shader(guid);
     }
 
+    handle<audio_clip_asset> system::import_audio(const asset_guid& guid, const std::string& file_path)
+    {
+        register_asset_path(guid, file_path);
+        return m_registry.load_audio_clip(guid, file_path);
+    }
+
     handle<model_asset> system::import_virtual_model(const std::string& file_path) 
     {
         uuids::uuid_name_generator gen(aria_namespace_uuid);
@@ -134,7 +140,12 @@ namespace aria {
     
     gpu_shader_id system::get_shader_id(handle<shader_asset> h) 
     { 
-        return m_cache.get_shader_id(h); 
+        return m_cache.get_shader_id(h);
+    }
+
+    const audio_clip_asset* system::get_audio_data(handle<audio_clip_asset> h)
+    {
+        return m_registry.get_audio_clip(h); 
     }
 
     submesh_runtime_info system::get_submesh_info(handle<model_asset> h, size_t sub_mesh_index) 
@@ -214,6 +225,11 @@ namespace aria {
     { 
         m_cache.evict_shader(h); 
         m_registry.destroy_shader(h); 
+    }
+
+    void system::unload_audio(handle<audio_clip_asset> h)
+    {
+        m_registry.destroy_audio_clip(h); 
     }
 
     void system::clear_all_resources() 

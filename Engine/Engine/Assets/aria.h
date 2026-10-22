@@ -99,6 +99,7 @@ namespace aria {
         handle<material_asset> import_material(const asset_guid& guid, const std::string& file_path);
         handle<material_asset> reload_material(const asset_guid& guid, const std::string& file_path);
         handle<shader_asset>   import_shader(const asset_guid& guid, const std::string& file_path);
+        handle<audio_clip_asset> import_audio(const asset_guid& guid, const std::string& file_path);
 
         // =========================================================
         // YÜKSEK SEVİYE API (Sanal Primitifler vb.)
@@ -123,6 +124,7 @@ namespace aria {
         [[nodiscard]] const animation_clip_asset* get_animation_data(handle<animation_clip_asset> h);
         [[nodiscard]] const skinned_model_asset*  get_skinned_model_data(handle<skinned_model_asset> h);
         [[nodiscard]] gpu_shader_id         get_shader_id(handle<shader_asset> h);
+        [[nodiscard]] const audio_clip_asset* get_audio_data(handle<audio_clip_asset> h);
 
         // =========================================================
         // BELLEK BOŞALTMA API
@@ -134,6 +136,7 @@ namespace aria {
         void unload_skeleton(handle<skeleton_asset> h);
         void unload_animation(handle<animation_clip_asset> h);
         void unload_shader(handle<shader_asset> h);
+        void unload_audio(handle<audio_clip_asset> h);
 
         /**
          * @brief GPU'daki ve ana bellekteki tüm kaynakları temizler, sistem sıfırlanır.

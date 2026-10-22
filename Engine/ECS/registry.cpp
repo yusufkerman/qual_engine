@@ -46,6 +46,8 @@ void registry::remove_entity(entity e)
     ui_texts.erase(e);
     ui_images.erase(e);
     ui_buttons.erase(e);
+    audio_sources.erase(e);
+    audio_listeners.erase(e);
 }
 
 const std::unordered_set<entity>& registry::get_all_entities() const
@@ -111,6 +113,12 @@ void registry::copy_components_internal(entity srcEntity, entity dstEntity, regi
 
     if (const auto* c = get_component<ui_image_component>(srcEntity))
         dstRegistry.add_component<ui_image_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<audio_source_component>(srcEntity))
+        dstRegistry.add_component<audio_source_component>(dstEntity, *c);
+
+    if (const auto* c = get_component<audio_listener_component>(srcEntity))
+        dstRegistry.add_component<audio_listener_component>(dstEntity, *c);
 
     if (const auto* c = get_component<ui_button_component>(srcEntity))
         dstRegistry.add_component<ui_button_component>(dstEntity, *c);

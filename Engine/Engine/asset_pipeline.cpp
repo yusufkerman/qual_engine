@@ -188,6 +188,15 @@ namespace asset_pipeline
         return ctx.aria_system->import_shader(guid, resolved);
     }
 
+    aria::handle<aria::audio_clip_asset> import_audio(aria::system* aria_system, const std::string& path)
+    {
+        if (!aria_system) return {};
+
+        std::string resolved = engine_resources::resolve_path(path);
+        aria::asset_guid guid = get_or_create_meta_guid(path);
+        return aria_system->import_audio(guid, resolved);
+    }
+
     /**
      * @brief Motorun dahili küp mesh'ini (primitif) oluşturur.
      * @note Sanal yollar diske bağımlı olmadığı için adres defterine yazılmaz.

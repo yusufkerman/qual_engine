@@ -243,6 +243,48 @@ namespace
             }
         }
     }
+    /**
+     * @brief Ses kaynaklarının (audio_source_component) min/max yayılım kürelerini çizer.
+     */
+    void draw_audio_gizmos(EngineContext& ctx, const registry& reg, int selectedID)
+    {
+        const auto& settings = ctx.gizmoSystem.settings();
+        if (settings.audio_gizmo_mode == gizmo_visibility_mode::off) {
+            return;
+        }
+
+        for (const auto& [e, src] : reg.get_all<audio_source_component>())
+        {
+            if (!should_draw_for_entity(settings.audio_gizmo_mode, e, selectedID)) {
+                continue;
+            }
+
+            if (!src.is_3d) {
+                continue;
+            }
+
+            const auto* transform = reg.get_component<transform_component>(e);
+            if (!transform) {
+                continue;
+            }
+
+            const glm::mat4 worldMat = ecs_transform::get_world_matrix(e, reg);
+            const glm::vec3 worldPos = glm::vec3(worldMat[3]);
+
+            const bool isSelected = (selectedID != -1 && static_cast<int>(e) == selectedID);
+            const float baseAlpha = isSelected ? 0.95f : 0.45f;
+
+            // Min mesafe (zayıflamanın başladığı çekirdek bölge) - Zümrüt Yeşili
+            const glm::vec4 minColor(0.20f, 0.92f, 0.65f, baseAlpha);
+            const float minR = std::max(0.1f, src.min_distance);
+            ctx.gizmoSystem.DrawWireSphere(worldPos, minR, minColor);
+
+            // Max mesafe (sesin söndüğü dış sınır) - Kehribar Sarısı/Turuncu
+            const glm::vec4 maxColor(0.98f, 0.62f, 0.22f, baseAlpha * 0.70f);
+            const float maxR = std::max(minR + 0.1f, src.max_distance);
+            ctx.gizmoSystem.DrawWireSphere(worldPos, maxR, maxColor);
+        }
+    }
 }
 
 void gizmo_pass::render(EngineContext& ctx, EditorContext& editorCtx)
@@ -274,6 +316,7 @@ void gizmo_pass::render(EngineContext& ctx, EditorContext& editorCtx)
     draw_collider_gizmos(ctx, reg, selectedID);
     draw_camera_gizmos(ctx, reg, selectedID);
     draw_light_gizmos(ctx, reg, selectedID);
+    draw_audio_gizmos(ctx, reg, selectedID);
 
     // 2. GPU üzerinde çizdir
     const unsigned int gizmoGLShaderID = ctx.aria_system->get_shader_id(ctx.gizmoShaderHandle);

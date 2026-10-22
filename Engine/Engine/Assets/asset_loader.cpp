@@ -4,6 +4,7 @@
  */
 
 #include "asset_loader.h"
+#include "../Externals/miniaudio.h"
 #include "../Externals/stb/stb_image.h"
 #include "../Externals/nlohmann/json.hpp"
 #include "../../Resources/engine_resources.h"
@@ -712,6 +713,36 @@ namespace aria {
         vFile.close();
         fFile.close();
 
+        return raw;
+    }
+
+    std::optional<raw_audio_data> asset_loader::load_audio_to_cpu(const std::string& file_path) {
+        std::string resolved = engine_resources::resolve_path(file_path);
+        if (!std::filesystem::exists(resolved)) {
+            std::cerr << "[ARIA Loader] Hata: Ses dosyasi bulunamadi: " << resolved << "\n";
+            return std::nullopt;
+        }
+
+        ma_decoder decoder;
+        ma_result result = ma_decoder_init_file(resolved.c_str(), nullptr, &decoder);
+        if (result != MA_SUCCESS) {
+            std::cerr << "[ARIA Loader] Hata: Ses dosyasi okunamadi: " << resolved << " (Kod: " << result << ")\n";
+            return std::nullopt;
+        }
+
+        raw_audio_data raw;
+        raw.filepath = resolved;
+        raw.channels = decoder.outputChannels;
+        raw.sample_rate = decoder.outputSampleRate;
+
+        ma_uint64 totalFrames = 0;
+        if (ma_decoder_get_length_in_pcm_frames(&decoder, &totalFrames) == MA_SUCCESS && decoder.outputSampleRate > 0) {
+            raw.duration_seconds = static_cast<float>(totalFrames) / static_cast<float>(decoder.outputSampleRate);
+        } else {
+            raw.duration_seconds = 0.0f;
+        }
+
+        ma_decoder_uninit(&decoder);
         return raw;
     }
 

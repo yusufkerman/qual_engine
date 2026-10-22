@@ -12,6 +12,26 @@ namespace gameplay
     void context::set_engine_context(EngineContext* ctx)
     {
         s_engine_ctx = ctx;
+        if (ctx)
+        {
+            s_physics_system = &ctx->physicsSystem;
+            s_input_state = &ctx->inputState;
+        }
+        else
+        {
+            s_physics_system = nullptr;
+            s_input_state = nullptr;
+        }
+    }
+
+    void context::set_physics_system(physics_system* p)
+    {
+        s_physics_system = p;
+    }
+
+    void context::set_input_state(InputState* i)
+    {
+        s_input_state = i;
     }
 
     void context::set_active_scene(scene* s)
@@ -54,6 +74,10 @@ namespace gameplay
 
     physics_system* context::get_physics_system()
     {
+        if (s_physics_system)
+        {
+            return s_physics_system;
+        }
         if (s_engine_ctx)
         {
             return &s_engine_ctx->physicsSystem;
@@ -63,6 +87,10 @@ namespace gameplay
 
     InputState* context::get_input_state()
     {
+        if (s_input_state)
+        {
+            return s_input_state;
+        }
         if (s_engine_ctx)
         {
             return &s_engine_ctx->inputState;

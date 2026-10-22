@@ -47,7 +47,8 @@ namespace vesta {
         texture,
         model,
         material,
-        shader
+        shader,
+        audio
     };
 
     /**

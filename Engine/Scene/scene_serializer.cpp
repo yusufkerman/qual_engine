@@ -63,6 +63,8 @@ bool scene_serializer::serialize(const std::string& filepath, const scene& curre
         serialize_component_if_exists<ui_text_component>(e, reg, entityJson, "ui_text_component");
         serialize_component_if_exists<ui_image_component>(e, reg, entityJson, "ui_image_component");
         serialize_component_if_exists<ui_button_component>(e, reg, entityJson, "ui_button_component");
+        serialize_component_if_exists<audio_source_component>(e, reg, entityJson, "audio_source_component");
+        serialize_component_if_exists<audio_listener_component>(e, reg, entityJson, "audio_listener_component");
 
         sceneJson["entities"].push_back(entityJson);
     }
@@ -193,6 +195,8 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
             deserialize_component_if_exists<ui_text_component>(newE, reg, entityJson, "ui_text_component");
             deserialize_component_if_exists<ui_image_component>(newE, reg, entityJson, "ui_image_component");
             deserialize_component_if_exists<ui_button_component>(newE, reg, entityJson, "ui_button_component");
+            deserialize_component_if_exists<audio_source_component>(newE, reg, entityJson, "audio_source_component");
+            deserialize_component_if_exists<audio_listener_component>(newE, reg, entityJson, "audio_listener_component");
         }
     }
 

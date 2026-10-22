@@ -19,7 +19,7 @@ physics_api::physics_api(physics_system* phys, registry* reg)
 
 void physics_api::set_velocity(entity e, const glm::vec3& v)
 {
-    if (!m_reg || !m_phys || !m_phys->get_jolt_system())
+    if (!this || !m_reg || !m_phys || !m_phys->get_jolt_system())
         return;
 
     const auto* rb = m_reg->get_component<rigidbody_component>(e);
@@ -35,7 +35,7 @@ void physics_api::set_velocity(entity e, const glm::vec3& v)
 
 glm::vec3 physics_api::get_velocity(entity e)
 {
-    if (!m_reg || !m_phys || !m_phys->get_jolt_system())
+    if (!this || !m_reg || !m_phys || !m_phys->get_jolt_system())
         return glm::vec3(0.0f);
 
     const auto* rb = m_reg->get_component<rigidbody_component>(e);
@@ -53,7 +53,7 @@ glm::vec3 physics_api::get_velocity(entity e)
 
 void physics_api::move_kinematic(entity e, const glm::vec3& targetPos, float dt)
 {
-    if (!m_reg || !m_phys || !m_phys->get_jolt_system())
+    if (!this || !m_reg || !m_phys || !m_phys->get_jolt_system())
         return;
 
     const auto* rb = m_reg->get_component<rigidbody_component>(e);

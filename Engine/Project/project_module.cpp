@@ -9,6 +9,7 @@
 #include "../Engine/Scripting/script_factory.h"
 #include "../Scene/scene.h"
 #include "../ECS/components.h"
+#include "../Engine/engine.h"
 #include "../Resources/engine_resources.h"
 #include <windows.h>
 #include <iostream>
@@ -184,9 +185,14 @@ namespace project {
     void project_module::sync_context() const {
         if (!m_isLoaded || !m_syncContextFn) return;
         auto fn = reinterpret_cast<SyncModuleContextFn>(m_syncContextFn);
-        fn(gameplay::context::get_engine_context(),
+        auto* eCtx = gameplay::context::get_engine_context();
+        physics_system* pSys = eCtx ? &eCtx->physicsSystem : nullptr;
+        InputState* iState = eCtx ? &eCtx->inputState : nullptr;
+        fn(eCtx,
            gameplay::context::get_active_scene(),
-           gameplay::context::get_collision_queue());
+           gameplay::context::get_collision_queue(),
+           pSys,
+           iState);
     }
 
     void project_module::unload_module() {
@@ -241,9 +247,51 @@ namespace project {
         return load_module(pathCopy);
     }
 
+    bool project_module::is_module_outdated(const std::string& projectRoot) {
+        namespace fs = std::filesystem;
+        if (projectRoot.empty()) return false;
+        try {
+            const fs::path root(projectRoot);
+            const fs::path targetDll = root / "Binaries" / "GameModule.dll";
+            if (!fs::exists(targetDll)) return true;
+
+            const auto dllTime = fs::last_write_time(targetDll);
+
+            // 1. Engine.lib / repo kütüphanesi kontrolü
+            const auto repoRoot = resolve_engine_repo_root();
+            if (!repoRoot.empty()) {
+                const fs::path engineLib = repoRoot / "x64" / "Debug" / "Engine.lib";
+                if (fs::exists(engineLib) && fs::last_write_time(engineLib) > dllTime) {
+                    return true;
+                }
+            }
+
+            // 2. Proje C++ betikleri kontrolü
+            const std::vector<fs::path> dirs = {
+                root / "Assets" / "Scripts",
+                root / "Scripts"
+            };
+            for (const auto& dir : dirs) {
+                if (!fs::exists(dir)) continue;
+                for (const auto& entry : fs::recursive_directory_iterator(dir, fs::directory_options::skip_permission_denied)) {
+                    if (!entry.is_regular_file()) continue;
+                    std::string ext = entry.path().extension().string();
+                    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+                    if (ext == ".cpp" || ext == ".h" || ext == ".hpp") {
+                        if (entry.path().filename() == "GameModule.cpp") continue;
+                        if (entry.last_write_time() > dllTime) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (...) {}
+        return false;
+    }
+
     bool project_module::compile_project_scripts(const std::string& projectRoot, std::string& outLog) {
         if (projectRoot.empty()) {
-            outLog = "Hata: Proje yolu belirtilmedi.";
+            outLog = "Error: Project path is not specified.";
             return false;
         }
 
@@ -266,7 +314,7 @@ namespace project {
         // 1. Proje iskeletini ve betik kayitlarini tara, eksikse olustur
         std::string scaffoldLog;
         if (!ensure_script_scaffolding(projectRoot, scaffoldLog)) {
-            outLog = "Scaffolding hatasi: " + scaffoldLog;
+            outLog = "Scaffolding error: " + scaffoldLog;
             return false;
         }
 
@@ -279,7 +327,7 @@ namespace project {
             std::string cmd = "cmd.exe /c \"" + batScript.string() + "\" 2>&1";
             FILE* pipe = _popen(cmd.c_str(), "r");
             if (!pipe) {
-                outLog = "Hata: Derleme sureci baslatilamadi.";
+                outLog = "Error: Compilation process could not be started.";
                 return false;
             }
 
@@ -295,7 +343,7 @@ namespace project {
             return success;
         }
 
-        outLog = "Hata: build_module.bat bulunamadi: " + batScript.string();
+        outLog = "Error: build_module.bat was not found: " + batScript.string();
         return false;
     }
 
@@ -637,11 +685,11 @@ namespace project {
                 outBat.close();
             }
 
-            outLog = "Proje script iskeleti basariyla hazirlandi (" + std::to_string(discoveredScripts.size()) + " script tespit edildi).";
+            outLog = "Project script scaffolding prepared successfully (" + std::to_string(discoveredScripts.size()) + " script(s) discovered).";
             return true;
         }
         catch (const std::exception& e) {
-            outLog = "ensure_script_scaffolding istisnasi: " + std::string(e.what());
+            outLog = "Exception in ensure_script_scaffolding: " + std::string(e.what());
             return false;
         }
     }

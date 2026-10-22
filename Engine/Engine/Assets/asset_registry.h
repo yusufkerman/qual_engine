@@ -61,6 +61,10 @@ namespace aria {
         std::vector<uint32_t> m_skinned_model_free_slots;
         std::map<asset_guid, handle<skinned_model_asset>> m_skinned_model_map;
 
+        std::vector<registry_slot<audio_clip_asset>> m_audio_clip_slots;
+        std::vector<uint32_t> m_audio_clip_free_slots;
+        std::map<asset_guid, handle<audio_clip_asset>> m_audio_clip_map;
+
         /**
          * @brief Type trait: static_assert için derleme zamanında her zaman false döndüren yardımcı yapı.
          */
@@ -80,6 +84,7 @@ namespace aria {
             else if constexpr (std::is_same_v<T, skeleton_asset>)       return m_skeleton_map;
             else if constexpr (std::is_same_v<T, animation_clip_asset>) return m_animation_map;
             else if constexpr (std::is_same_v<T, skinned_model_asset>)  return m_skinned_model_map;
+            else if constexpr (std::is_same_v<T, audio_clip_asset>)     return m_audio_clip_map;
             else static_assert(always_false_v<T>, "Desteklenmeyen varlik turu (get_asset_map)!");
         }
 
@@ -180,6 +185,14 @@ namespace aria {
 
                 return load_skinned_model(guid, path);
             }
+            else if constexpr (std::is_same_v<T, audio_clip_asset>)
+            {
+                if (!m_database) return {};
+                std::string path = m_database->resolve_path(guid);
+                if (path.empty()) return {};
+
+                return load_audio_clip(guid, path);
+            }
             else
             {
                 static_assert(always_false_v<T>, "Desteklenmeyen varlik turu (load_asset_by_guid)!");
@@ -229,6 +242,11 @@ namespace aria {
         handle<shader_asset> load_shader(const asset_guid& guid);
         [[nodiscard]] shader_asset* get_shader(handle<shader_asset> h);
         void destroy_shader(handle<shader_asset> h);
+
+        // --- Ses Klibi (Audio Clip) ---
+        handle<audio_clip_asset> load_audio_clip(const asset_guid& guid, const std::string& file_path);
+        [[nodiscard]] audio_clip_asset* get_audio_clip(handle<audio_clip_asset> h);
+        void destroy_audio_clip(handle<audio_clip_asset> h);
 
         /**
          * @brief Tüm varlık slotlarını, haritaları ve serbest yuva listelerini temizler.

@@ -58,9 +58,13 @@ namespace vesta {
         std::filesystem::path m_context_target_path;    ///< Üzerinde işlem yapılan geçerli dosya/klasör yolu.
         char m_rename_buffer[128]{};                    ///< Yeniden adlandırma popup'ı için metin tamponu.
         char m_create_buffer[128] = "NewMaterial";      ///< Yeni varlık oluşturma popup'ı için metin tamponu.
+        char m_create_script_buffer[128] = "PlayerController";
+        char m_create_folder_buffer[128] = "NewFolder";
 
         bool m_open_rename_popup = false;               ///< Yeniden adlandırma penceresini tetikleme bayrağı.
         bool m_open_create_popup = false;               ///< Yeni materyal oluşturma penceresini tetikleme bayrağı.
+        bool m_open_create_script_popup = false;        ///< Yeni betik (C++ script) oluşturma bayrağı.
+        bool m_open_create_folder_popup = false;        ///< Yeni klasör oluşturma bayrağı.
     };
 
 } // namespace vesta

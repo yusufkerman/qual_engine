@@ -24,6 +24,13 @@
 #include "../Project/project_module.h"
 #include "../Resources/engine_resources.h"
 #include "../Async/async_task_manager.h"
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#undef APIENTRY
+#include <windows.h>
+#endif
 #include <imgui.h>
 
 namespace
@@ -96,17 +103,47 @@ namespace
 
         if (editorCtx.mode == EngineMode::PLAY)
         {
+            // Play moduna geçmeden önce betik modülünün güncelliğini kontrol et
+            if (project::project_manager::instance().has_active_project())
+            {
+                const std::string projRoot = project::project_manager::instance().get_project_root();
+                if (project::project_module::is_module_outdated(projRoot))
+                {
+                    std::cout << "[Engine] Detected outdated script module before Play mode. Auto-recompiling...\n";
+                    std::string log;
+                    project::project_module::compile_project_scripts(projRoot, log);
+                }
+            }
+
             editorCtx.isPaused = false;
             ctx.gizmoSystem.ClearGameplay();
             ctx.session.play(ctx, ctx.isEditorBuild);
             physics_bridge::create_physics_world(ctx, ctx.session.game_scene());
+
+            // Play moduna geçerken tüm ses kaynaklarını sıfırla ki play_on_awake baştan çalsın
+            ctx.audioSystem.stop_all();
+            for (auto& [e, src] : ctx.session.game_scene().get_registry().get_all<audio_source_component>())
+            {
+                if (src.runtime_sound_id != audio::invalid_sound_id)
+                {
+                    if (ctx.audioSystem.get_backend())
+                    {
+                        ctx.audioSystem.get_backend()->unload_sound(src.runtime_sound_id);
+                    }
+                    src.runtime_sound_id = audio::invalid_sound_id;
+                }
+                src.has_played_awake = false;
+                src.is_playing = false;
+                src.is_paused = false;
+            }
         }
         else
         {
             editorCtx.isPaused = false;
             ctx.gizmoSystem.ClearGameplay();
-            // ÖNEMLİ: Fizik dünyasını, stop() canlı sahneyi (m_liveScene) snapshot ile ezmeden önce temizle
+            // ÖNEMLİ: Fizik ve ses dünyasını, stop() canlı sahneyi (m_liveScene) snapshot ile ezmeden önce temizle
             physics_bridge::destroy_physics_world(ctx, ctx.session.game_scene());
+            ctx.audioSystem.on_stop_mode(ctx.session.game_scene().get_registry());
             ctx.session.stop();
 
             // Çalışma zamanında dinamik üretilmiş ve snapshot geri yüklendiğinde silinmiş varlıkları seçimden çıkar
@@ -131,6 +168,11 @@ namespace
 
 bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
 {
+#ifdef _WIN32
+    // Electron tabanlı editörlerin (VS Code vb.) alt süreçlerde Node.js olarak açılmasını önle
+    SetEnvironmentVariableA("ELECTRON_RUN_AS_NODE", NULL);
+#endif
+
     if (!glfwInit())
         return false;
 
@@ -138,7 +180,7 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    ctx.window = glfwCreateWindow(ctx.screenW, ctx.screenH, "PS1 Engine", nullptr, nullptr);
+    ctx.window = glfwCreateWindow(ctx.screenW, ctx.screenH, "QualEngine Editor", nullptr, nullptr);
     if (!ctx.window)
         return false;
 
@@ -190,6 +232,13 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     if (!ctx.physicsSystem.init(ctx.session.game_scene()))
     {
         std::cout << "[Physics] Hata: init basarisiz.\n";
+        return false;
+    }
+
+    // Ses sistemini (Miniaudio) başlat
+    if (!ctx.audioSystem.init())
+    {
+        std::cout << "[Audio] Uyari: Ses sistemi baslatilamadi.\n";
         return false;
     }
 
@@ -328,6 +377,20 @@ void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
     // Tek canlı dünya (m_liveScene) mimarisi sayesinde ışık önbelleği kare başına yalnızca bir kez güncellenir
     ctx.session.game_scene().update_light_batch();
     ctx.cameraSystem.update(ctx.session.game_scene());
+
+    // Ses sistemini (3B dinleyici ve ses kaynakları) güncelle
+    const bool isAudioPlaying = (editorCtx.mode == EngineMode::PLAY && !editorCtx.isPaused);
+    scene& activeAudioScene = (editorCtx.mode == EngineMode::PLAY) ? ctx.session.game_scene() : ctx.session.editor_scene();
+
+    if (editorCtx.mode != EngineMode::PLAY && editorCtx.camera && ctx.audioSystem.get_backend())
+    {
+        const glm::vec3 camPos = editorCtx.camera->position;
+        const glm::vec3 camFwd = calc_forward(editorCtx.camera->rotation);
+        const glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+        ctx.audioSystem.get_backend()->set_listener_transform(camPos, camFwd, camUp);
+    }
+
+    ctx.audioSystem.update(dt, activeAudioScene.get_registry(), isAudioPlaying);
 }
 
 void Engine::render(EngineContext& ctx, EditorContext& editorCtx)
@@ -368,6 +431,7 @@ void Engine::shutdown(EngineContext& ctx, EditorContext& editorCtx)
 
     ctx.grid.shutdown();
     ctx.physicsSystem.shutdown();
+    ctx.audioSystem.shutdown();
 
     // Sera sistemini temizle
     if (ctx.sera)

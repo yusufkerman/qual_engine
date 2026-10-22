@@ -15,6 +15,7 @@
 #include <Jolt/Physics/Body/BodyID.h>
 #include "../Engine/Assets/aria.h"
 #include "../Sera/sera_component_codec.h"
+#include "../Audio/audio_components.h"
 
 class scriptable_entity;
 
@@ -542,4 +543,20 @@ DESCRIBE_COMPONENT(ui_button_component,
     SERA_FIELD(hover_color),
     SERA_FIELD(pressed_color),
     SERA_FIELD(disabled_color)
+)
+
+DESCRIBE_COMPONENT(audio_source_component,
+    SERA_FIELD(clip_path),
+    SERA_FIELD(volume),
+    SERA_FIELD(pitch),
+    SERA_FIELD(loop),
+    SERA_FIELD(play_on_awake),
+    SERA_FIELD(is_3d),
+    SERA_FIELD(min_distance),
+    SERA_FIELD(max_distance),
+    SERA_FIELD(roll_off)
+)
+
+DESCRIBE_COMPONENT(audio_listener_component,
+    SERA_FIELD(is_active)
 )

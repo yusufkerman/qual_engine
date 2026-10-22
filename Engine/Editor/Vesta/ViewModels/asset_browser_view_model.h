@@ -67,6 +67,8 @@ namespace vesta {
         // --- DOSYA VE VARLIK İŞLEMLERİ ---
 
         void request_create_material(const std::filesystem::path& target_dir, const std::string& name);
+        void request_create_script(const std::filesystem::path& target_dir, const std::string& script_name);
+        void request_create_folder(const std::filesystem::path& target_dir, const std::string& folder_name);
         void request_rename(const std::filesystem::path& target, const std::string& new_name);
         void request_duplicate(const std::filesystem::path& target);
         void request_delete(const std::filesystem::path& target);

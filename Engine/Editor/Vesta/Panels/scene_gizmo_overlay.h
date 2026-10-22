@@ -48,7 +48,7 @@ namespace vesta
         /**
          * @brief Kullanıcı o anda bir gizmo eksenini veya ışık tutamacını sürüklüyor mu?
          */
-        [[nodiscard]] bool is_interacting() const noexcept { return m_ActiveHandle != HandleID::None || m_ActiveLightHandle >= 0; }
+        [[nodiscard]] bool is_interacting() const noexcept { return m_ActiveHandle != HandleID::None || m_ActiveLightHandle >= 0 || m_ActiveAudioHandle >= 0; }
 
         /**
          * @brief Bir varlığın sahne/hiyerarşi ikon tipini bileşenlerine veya özel atamasına göre çözümler.
@@ -132,6 +132,14 @@ namespace vesta
             const glm::vec2& viewportPos,
             const glm::vec2& viewportSize);
 
+        void render_interactive_audio_handles(
+            EngineContext& engineCtx,
+            const glm::mat4& view,
+            const glm::mat4& proj,
+            const glm::vec3& camPos,
+            const glm::vec2& viewportPos,
+            const glm::vec2& viewportSize);
+
         void render_transform_gizmo(
             EngineContext& engineCtx,
             const glm::mat4& view,
@@ -172,6 +180,12 @@ namespace vesta
         float m_LightDragStartRange = 10.0f;
         float m_LightDragStartOuterCone = 25.0f;
         float m_LightDragStartInnerCone = 15.0f;
+
+        // Interactive Audio Handle etkileşim durumu
+        int m_HoveredAudioHandle = -1;
+        int m_ActiveAudioHandle = -1;
+        float m_AudioDragStartMinDist = 1.0f;
+        float m_AudioDragStartMaxDist = 50.0f;
 
         // Performans / Stats Overlay halka tamponu (Frame Time History)
         static constexpr int kFrameHistoryCount = 90;

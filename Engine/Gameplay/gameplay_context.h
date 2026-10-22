@@ -42,6 +42,16 @@ namespace gameplay
         static void set_collision_queue(collision_event_queue* q);
 
         /**
+         * @brief Fizik sistemine doğrudan işaretçi atar (Modül ABI izolasyonu için).
+         */
+        static void set_physics_system(physics_system* p);
+
+        /**
+         * @brief Girdi durumu yapısına doğrudan işaretçi atar (Modül ABI izolasyonu için).
+         */
+        static void set_input_state(InputState* i);
+
+        /**
          * @brief Sistemin ilklendirilip ilklendirilmediğini döner.
          */
         [[nodiscard]] static bool is_initialized();
@@ -85,6 +95,8 @@ namespace gameplay
         static inline EngineContext* s_engine_ctx = nullptr;
         static inline scene* s_active_scene = nullptr;
         static inline collision_event_queue* s_collision_queue = nullptr;
+        static inline physics_system* s_physics_system = nullptr;
+        static inline InputState* s_input_state = nullptr;
     };
 }
 

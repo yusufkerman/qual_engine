@@ -66,6 +66,11 @@ namespace project {
         static bool compile_project_scripts(const std::string& projectRoot, std::string& outLog);
 
         /**
+         * @brief GameModule.dll'in diskteki derleme tarihinin kaynak dosyalardan veya Engine.lib'den eski olup olmadığını denetler.
+         */
+        [[nodiscard]] static bool is_module_outdated(const std::string& projectRoot);
+
+        /**
          * @brief Projenin Scripts dizinini, GameModule.vcxproj dosyasını ve script sınıflarını
          * otomatik tarayarak GameModule.cpp kayıt dosyasını hazırlar / günceller.
          * @param projectRoot Proje ana dizini.

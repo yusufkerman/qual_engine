@@ -9,6 +9,11 @@
 #include <iostream>
 #include <filesystem>
 #include <algorithm>
+#include <fstream>
+#include <windows.h>
+#include <shellapi.h>
+#include "../../Project/engine_settings.h"
+#include "../../Project/project.h"
 
 namespace {
     const char* get_node_icon(vesta::asset_type type) {
@@ -76,15 +81,32 @@ namespace vesta {
         const std::string rootLabel = std::string("[DIR] ") + (root.name.empty() ? "Assets" : root.name);
         bool root_open = ImGui::TreeNodeEx(rootLabel.c_str(), root_flags);
         if (ImGui::IsItemClicked()) {
-            m_vm.select(rootPathStr);
+
         }
 
         if (ImGui::BeginPopupContextItem("RootContextMenu")) {
-            m_vm.select(rootPathStr);
+
+            m_context_target_path = root.full_path;
+
             if (ImGui::MenuItem("[+] Create Material Here...")) {
-                m_context_target_path = root.full_path;
                 m_open_create_popup = true;
                 snprintf(m_create_buffer, sizeof(m_create_buffer), "NewMaterial");
+            }
+            if (ImGui::MenuItem("[+] Create C++ Script Here...")) {
+                m_open_create_script_popup = true;
+                snprintf(m_create_script_buffer, sizeof(m_create_script_buffer), "PlayerController");
+            }
+            if (ImGui::MenuItem("[+] Create Folder Here...")) {
+                m_open_create_folder_popup = true;
+                snprintf(m_create_folder_buffer, sizeof(m_create_folder_buffer), "NewFolder");
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Open in Code Editor")) {
+                std::string project_root = project::project_manager::instance().get_project_root();
+                project::engine_settings::instance().open_in_editor(root.full_path.string(), project_root);
+            }
+            if (ImGui::MenuItem("Show in Explorer")) {
+                ShellExecuteA(NULL, "open", "explorer.exe", root.full_path.string().c_str(), NULL, SW_SHOW);
             }
             ImGui::EndPopup();
         }
@@ -150,6 +172,61 @@ namespace vesta {
             ImGui::EndPopup();
         }
 
+        // ========================================================================
+        // MODAL POPUP: YENİ C++ SCRİPT OLUŞTURMA
+        // ========================================================================
+        if (m_open_create_script_popup) {
+            ImGui::OpenPopup("Create C++ Script");
+            m_open_create_script_popup = false;
+        }
+
+        if (ImGui::BeginPopupModal("Create C++ Script", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Enter script / class name:");
+            bool script_enter = ImGui::InputText("##create_script_name", m_create_script_buffer, sizeof(m_create_script_buffer), ImGuiInputTextFlags_EnterReturnsTrue);
+            ImGui::TextDisabled("Will generate %s.h and %s.cpp inheriting gameplay::script", m_create_script_buffer, m_create_script_buffer);
+            ImGui::Spacing();
+
+            if (ImGui::Button("Create & Open", ImVec2(120, 0)) || script_enter) {
+                m_vm.request_create_script(m_context_target_path, m_create_script_buffer);
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        // ========================================================================
+        // MODAL POPUP: YENİ KLASÖR OLUŞTURMA
+        // ========================================================================
+        if (m_open_create_folder_popup) {
+            ImGui::OpenPopup("Create Folder");
+            m_open_create_folder_popup = false;
+        }
+
+        if (ImGui::BeginPopupModal("Create Folder", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Enter folder name:");
+            bool folder_enter = ImGui::InputText("##create_folder_name", m_create_folder_buffer, sizeof(m_create_folder_buffer), ImGuiInputTextFlags_EnterReturnsTrue);
+            ImGui::Spacing();
+
+            if (ImGui::Button("Create", ImVec2(120, 0)) || folder_enter) {
+                m_vm.request_create_folder(m_context_target_path, m_create_folder_buffer);
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
         ImGui::End();
     }
 
@@ -179,6 +256,17 @@ namespace vesta {
         if (ImGui::IsItemHovered()) {
             if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
                 m_vm.select_and_notify(path_str);
+
+                std::string ext = entry.full_path.extension().string();
+                std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+                if (ext == ".cpp" || ext == ".h" || ext == ".hpp" || ext == ".cs")
+                {
+                    std::string project_root;
+                    if (project::project_manager::instance().has_active_project()) {
+                        project_root = project::project_manager::instance().get_project_root();
+                    }
+                    project::engine_settings::instance().open_in_editor(entry.full_path.string(), project_root);
+                }
             }
 
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
@@ -198,6 +286,27 @@ namespace vesta {
                     m_open_create_popup = true;
                     snprintf(m_create_buffer, sizeof(m_create_buffer), "NewMaterial");
                 }
+                if (ImGui::MenuItem("[+] Create C++ Script Here...")) {
+                    m_context_target_path = entry.full_path;
+                    m_open_create_script_popup = true;
+                    snprintf(m_create_script_buffer, sizeof(m_create_script_buffer), "PlayerController");
+                }
+                if (ImGui::MenuItem("[+] Create Folder Here...")) {
+                    m_context_target_path = entry.full_path;
+                    m_open_create_folder_popup = true;
+                    snprintf(m_create_folder_buffer, sizeof(m_create_folder_buffer), "NewFolder");
+                }
+                ImGui::Separator();
+                if (ImGui::MenuItem("Open in Code Editor")) {
+                    std::string project_root;
+                    if (project::project_manager::instance().has_active_project()) {
+                        project_root = project::project_manager::instance().get_project_root();
+                    }
+                    project::engine_settings::instance().open_in_editor(entry.full_path.string(), project_root);
+                }
+                if (ImGui::MenuItem("Show in Explorer")) {
+                    ShellExecuteA(NULL, "open", "explorer.exe", entry.full_path.string().c_str(), NULL, SW_SHOW);
+                }
                 ImGui::Separator();
             }
             else {
@@ -205,6 +314,27 @@ namespace vesta {
                     m_context_target_path = entry.full_path.parent_path();
                     m_open_create_popup = true;
                     snprintf(m_create_buffer, sizeof(m_create_buffer), "NewMaterial");
+                }
+                if (ImGui::MenuItem("[+] Create C++ Script in Folder...")) {
+                    m_context_target_path = entry.full_path.parent_path();
+                    m_open_create_script_popup = true;
+                    snprintf(m_create_script_buffer, sizeof(m_create_script_buffer), "PlayerController");
+                }
+                if (ImGui::MenuItem("[+] Create Folder in Folder...")) {
+                    m_context_target_path = entry.full_path.parent_path();
+                    m_open_create_folder_popup = true;
+                    snprintf(m_create_folder_buffer, sizeof(m_create_folder_buffer), "NewFolder");
+                }
+                ImGui::Separator();
+                if (ImGui::MenuItem("Open in Code Editor")) {
+                    std::string project_root;
+                    if (project::project_manager::instance().has_active_project()) {
+                        project_root = project::project_manager::instance().get_project_root();
+                    }
+                    project::engine_settings::instance().open_in_editor(entry.full_path.string(), project_root);
+                }
+                if (ImGui::MenuItem("Show in Explorer")) {
+                    ShellExecuteA(NULL, "open", "explorer.exe", entry.full_path.string().c_str(), NULL, SW_SHOW);
                 }
                 ImGui::Separator();
             }
@@ -248,6 +378,9 @@ namespace vesta {
             }
             else if (ext == ".glsl" || ext == ".vert" || ext == ".frag" || ext == ".comp") {
                 payload.type = vesta::asset_payload_type::shader;
+            }
+            else if (ext == ".wav" || ext == ".mp3" || ext == ".ogg" || ext == ".flac") {
+                payload.type = vesta::asset_payload_type::audio;
             }
             else {
                 payload.type = vesta::asset_payload_type::unspecified; // Fallback

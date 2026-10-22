@@ -14,6 +14,7 @@
 
 namespace gameplay
 {
+    class audio_source;
     /**
      * @class gameplay_entity
      * @brief Ham ECS varlık kimliğini (entity) sararak bileşen erişimi, isim yönetimi ve yaşam döngüsü işlevleri sunar.
@@ -78,6 +79,16 @@ namespace gameplay
          * @brief Varlığın fizik gövdesi (Rigidbody) sarmalayıcısına erişir.
          */
         [[nodiscard]] rigidbody_wrapper rigidbody();
+
+        /**
+         * @brief Varlığın ses kaynağı (AudioSource) sarmalayıcısına erişir.
+         */
+        [[nodiscard]] audio_source get_audio_source();
+
+        /**
+         * @brief Varlık üzerindeki sesi çalar veya belirtilen klibi oynatır.
+         */
+        void play_sound(const std::string& clipPath = "", float volume = 1.0f);
 
         /**
          * @brief Varlığın belirtilen bileşene sahip olup olmadığını kontrol eder.

@@ -707,8 +707,18 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Engine\time_step.h" />
     <ClInclude Include="Gameplay\gameplay_time.h" />
     <ClInclude Include="Async\async_task_manager.h" />
+    <ClInclude Include="Audio\audio_backend.h" />
+    <ClInclude Include="Audio\miniaudio_backend.h" />
+    <ClInclude Include="Audio\audio_components.h" />
+    <ClInclude Include="Audio\audio_system.h" />
+    <ClInclude Include="Gameplay\gameplay_audio.h" />
+    <ClInclude Include="Project\engine_settings.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Audio\miniaudio_backend.cpp" />
+    <ClCompile Include="Audio\audio_system.cpp" />
+    <ClCompile Include="Gameplay\gameplay_audio.cpp" />
+    <ClCompile Include="Project\engine_settings.cpp" />
     <ClCompile Include="Async\async_task_manager.cpp" />
     <ClCompile Include="ECS\registry.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\game_viewport_panel.cpp" />
