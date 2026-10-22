@@ -103,7 +103,7 @@ QualEngine/
    cd QualEngine
    ```
 2. Open the solution file:
-   - Double click `OpenGL-Learn-1.slnx` or open it with Visual Studio.
+   - Double click `QualEngine.slnx` or open it with Visual Studio.
 3. Select **Debug** or **Release** configuration and **x64** platform.
 4. Build the solution (`Ctrl + Shift + B`).
 5. Run the editor (`Application` project) to begin creating projects.

@@ -1,8 +1,8 @@
-# Doxyfile for OpenGL-Learn-1 / Game Engine
+# Doxyfile for QualEngine
 # Modern Dark Themed Documentation
 
 # Project settings
-PROJECT_NAME           = "OpenGL-Learn-1 Engine"
+PROJECT_NAME           = "QualEngine"
 PROJECT_NUMBER         = "1.0.0"
 PROJECT_BRIEF          = "Modern 3D Game Engine with Aria Asset System & Vesta Editor Architecture"
 OUTPUT_DIRECTORY       = "./output"

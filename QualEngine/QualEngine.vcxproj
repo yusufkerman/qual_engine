@@ -14,7 +14,7 @@
     <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{1c0c49aa-78da-4405-8151-6d7273bc91d4}</ProjectGuid>
-    <RootNamespace>OpenGLLearn1</RootNamespace>
+    <RootNamespace>QualEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

@@ -119,7 +119,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine;C:\Libraries\glfw\include;C:\Libraries\glad\include;C:\Libraries\glm;C:\dev\assimp-6.0.5\include;C:\dev\assimp-6.0.5\assimp_build\include;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals\nfd;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals\imgui;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Engine;C:\Libraries\glfw\include;C:\Libraries\glad\include;C:\Libraries\glm;C:\dev\assimp-6.0.5\include;C:\dev\assimp-6.0.5\assimp_build\include;..\Engine\Externals;..\Engine\Externals\nfd;..\Engine\Externals\imgui;..\Engine\Externals\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -128,7 +128,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Engine.lib;glfw3.lib;opengl32.lib;assimp-vc145-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Libraries\glfw\lib-vc2022;C:\dev\assimp-6.0.5\assimp_build\lib\Release;C:\Users\yusuf\source\repos\OpenGL-Learn-1\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Libraries\glfw\lib-vc2022;C:\dev\assimp-6.0.5\assimp_build\lib\Release;..\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>

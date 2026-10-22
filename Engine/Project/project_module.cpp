@@ -56,6 +56,9 @@ namespace project {
                 }
             } catch (...) {}
 
+            if (std::filesystem::exists("c:/Users/yusuf/source/repos/QualEngine")) {
+                return "c:/Users/yusuf/source/repos/QualEngine";
+            }
             return "c:/Users/yusuf/source/repos/OpenGL-Learn-1";
         }
     } // anonymous namespace

@@ -62,7 +62,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;GAMEMODULE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Assets;$(ProjectDir)..\Assets\Scripts;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine;C:\Users\yusuf\source\repos\OpenGL-Learn-1;C:\Libraries\glfw\include;C:\Libraries\glad\include;C:\Libraries\glm;C:\dev\assimp-6.0.5\include;C:\dev\assimp-6.0.5\assimp_build\include;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals\imgui;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals\nfd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Assets;$(ProjectDir)..\Assets\Scripts;$(ProjectDir)..\..\Engine;$(ProjectDir)..\..;C:\Libraries\glfw\include;C:\Libraries\glad\include;C:\Libraries\glm;C:\dev\assimp-6.0.5\include;C:\dev\assimp-6.0.5\assimp_build\include;$(ProjectDir)..\..\Engine\Externals;$(ProjectDir)..\..\Engine\Externals\imgui;$(ProjectDir)..\..\Engine\Externals\nfd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -72,7 +72,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)GameModule_$([System.DateTime]::Now.ToString("HHmmssfff")).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>Engine.lib;glfw3.lib;opengl32.lib;assimp-vc145-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\yusuf\source\repos\OpenGL-Learn-1\x64\Debug;C:\Libraries\glfw\lib-vc2022;C:\dev\assimp-6.0.5\assimp_build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\x64\Debug;C:\Libraries\glfw\lib-vc2022;C:\dev\assimp-6.0.5\assimp_build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -84,7 +84,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;GAMEMODULE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Assets;$(ProjectDir)..\Assets\Scripts;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine;C:\Users\yusuf\source\repos\OpenGL-Learn-1;C:\Libraries\glfw\include;C:\Libraries\glad\include;C:\Libraries\glm;C:\dev\assimp-6.0.5\include;C:\dev\assimp-6.0.5\assimp_build\include;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals\imgui;C:\Users\yusuf\source\repos\OpenGL-Learn-1\Engine\Externals\nfd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Assets;$(ProjectDir)..\Assets\Scripts;$(ProjectDir)..\..\Engine;$(ProjectDir)..\..;C:\Libraries\glfw\include;C:\Libraries\glad\include;C:\Libraries\glm;C:\dev\assimp-6.0.5\include;C:\dev\assimp-6.0.5\assimp_build\include;$(ProjectDir)..\..\Engine\Externals;$(ProjectDir)..\..\Engine\Externals\imgui;$(ProjectDir)..\..\Engine\Externals\nfd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -95,7 +95,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)GameModule_$([System.DateTime]::Now.ToString("HHmmssfff")).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>Engine.lib;glfw3.lib;opengl32.lib;assimp-vc145-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\yusuf\source\repos\OpenGL-Learn-1\x64\Release;C:\Libraries\glfw\lib-vc2022;C:\dev\assimp-6.0.5\assimp_build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\x64\Release;C:\Libraries\glfw\lib-vc2022;C:\dev\assimp-6.0.5\assimp_build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
