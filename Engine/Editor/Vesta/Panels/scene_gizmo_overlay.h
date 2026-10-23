@@ -3,13 +3,19 @@
 /**
  * @file scene_gizmo_overlay.h
  * @brief Sahne görünümü (Scene Viewport) üzerindeki etkileşimli Transform (Translate/Rotate/Scale) araçlarını,
- *        Unity tarzı etkileşimli ışık menzil/koni tutamaçlarını, görünmez nesne billboard ikonlarını ve
- *        üst Gizmo ayar araç çubuğunu yöneten modüler sınıf.
+ *        Unity tarzı etkileşimli ışık menzil/koni tutamaçlarını, ses alanı tutamaçlarını,
+ *        görünmez nesne billboard ikonlarını ve üst Gizmo ayar araç çubuğunu yöneten orkestratör sınıf.
  */
 
 #include <glm/glm.hpp>
 #include "../../../ECS/entity.h"
 #include "../../../Renderer/Debug/gizmo_settings.h"
+#include "../Gizmo/gizmo_translation_tool.h"
+#include "../Gizmo/gizmo_rotation_tool.h"
+#include "../Gizmo/gizmo_scale_tool.h"
+#include "../Gizmo/gizmo_rect_tool.h"
+#include "../Gizmo/gizmo_light_tool.h"
+#include "../Gizmo/gizmo_audio_tool.h"
 
 struct EngineContext;
 struct EditorContext;
@@ -19,7 +25,8 @@ namespace vesta
 {
     /**
      * @class scene_gizmo_overlay
-     * @brief ImDrawList ve 3B ışın-düzlem/ışın-doğru kesişim matematiği kullanarak sahne içi manipülasyon araçlarını çizer ve işler.
+     * @brief İlgili transform, ışık ve ses manipülasyon araçlarını koordine eden,
+     *        araç çubuğu ve istatistik panellerini yöneten ana orkestrasyon sınıfı.
      */
     class scene_gizmo_overlay
     {
@@ -46,9 +53,17 @@ namespace vesta
             bool isViewportHovered);
 
         /**
-         * @brief Kullanıcı o anda bir gizmo eksenini veya ışık tutamacını sürüklüyor mu?
+         * @brief Kullanıcı o anda bir gizmo eksenini, ışık tutamacını veya ses alanını sürüklüyor mu?
          */
-        [[nodiscard]] bool is_interacting() const noexcept { return m_ActiveHandle != HandleID::None || m_ActiveLightHandle >= 0 || m_ActiveAudioHandle >= 0; }
+        [[nodiscard]] bool is_interacting() const noexcept
+        {
+            return m_TranslationTool.is_interacting() ||
+                   m_RotationTool.is_interacting() ||
+                   m_ScaleTool.is_interacting() ||
+                   m_RectTool.is_interacting() ||
+                   m_LightTool.is_interacting() ||
+                   m_AudioTool.is_interacting();
+        }
 
         /**
          * @brief Bir varlığın sahne/hiyerarşi ikon tipini bileşenlerine veya özel atamasına göre çözümler.
@@ -66,27 +81,6 @@ namespace vesta
         static const char* get_icon_type_name(entity_icon_type type);
 
     private:
-        enum class HandleID : int
-        {
-            None = 0,
-            AxisX = 1,
-            AxisY = 2,
-            AxisZ = 3,
-            PlaneXY = 4,
-            PlaneXZ = 5,
-            PlaneYZ = 6,
-            Center = 7,
-            RectBody = 8,
-            RectTopLeft = 9,
-            RectTopRight = 10,
-            RectBottomLeft = 11,
-            RectBottomRight = 12,
-            RectLeft = 13,
-            RectRight = 14,
-            RectTop = 15,
-            RectBottom = 16
-        };
-
         void process_shortcuts(
             EngineContext& engineCtx,
             EditorContext& editorCtx,
@@ -94,11 +88,6 @@ namespace vesta
             bool isViewportHovered);
 
         void render_ui_overlay(
-            EngineContext& engineCtx,
-            const glm::vec2& viewportPos,
-            const glm::vec2& viewportSize);
-
-        void render_rect_tool(
             EngineContext& engineCtx,
             const glm::vec2& viewportPos,
             const glm::vec2& viewportSize);
@@ -124,22 +113,6 @@ namespace vesta
             const glm::vec2& viewportSize,
             bool allowClick);
 
-        void render_interactive_light_handles(
-            EngineContext& engineCtx,
-            const glm::mat4& view,
-            const glm::mat4& proj,
-            const glm::vec3& camPos,
-            const glm::vec2& viewportPos,
-            const glm::vec2& viewportSize);
-
-        void render_interactive_audio_handles(
-            EngineContext& engineCtx,
-            const glm::mat4& view,
-            const glm::mat4& proj,
-            const glm::vec3& camPos,
-            const glm::vec2& viewportPos,
-            const glm::vec2& viewportSize);
-
         void render_transform_gizmo(
             EngineContext& engineCtx,
             const glm::mat4& view,
@@ -150,42 +123,13 @@ namespace vesta
             const glm::vec2& viewportSize);
 
     private:
-        // Transform Gizmo etkileşim durumu
-        HandleID m_HoveredHandle = HandleID::None;
-        HandleID m_ActiveHandle = HandleID::None;
-        entity m_DragEntity = 0;
-
-        std::vector<entity> m_DragEntities;
-        std::vector<glm::vec3> m_DragStartLocalPositions;
-        std::vector<glm::vec3> m_DragStartWorldPositions;
-        std::vector<glm::vec3> m_DragStartRotations;
-        std::vector<glm::vec3> m_DragStartScales;
-
-        glm::vec3 m_DragStartPosition{ 0.0f };
-        glm::vec3 m_DragStartRotation{ 0.0f };
-        glm::vec3 m_DragStartScale{ 1.0f };
-        glm::vec3 m_DragStartWorldPos{ 0.0f };
-
-        glm::vec3 m_DragAxis0{ 1.0f, 0.0f, 0.0f };
-        glm::vec3 m_DragAxis1{ 0.0f, 1.0f, 0.0f };
-        glm::vec3 m_DragPlaneNormal{ 0.0f, 0.0f, 1.0f };
-        glm::vec3 m_DragStartHitPoint{ 0.0f };
-        float m_DragStartAxisParam = 0.0f;
-        glm::vec2 m_DragStartMousePos{ 0.0f };
-        float m_CurrentRotateDeltaDeg = 0.0f;
-
-        // Interactive Light Handle etkileşim durumu
-        int m_HoveredLightHandle = -1;
-        int m_ActiveLightHandle = -1;
-        float m_LightDragStartRange = 10.0f;
-        float m_LightDragStartOuterCone = 25.0f;
-        float m_LightDragStartInnerCone = 15.0f;
-
-        // Interactive Audio Handle etkileşim durumu
-        int m_HoveredAudioHandle = -1;
-        int m_ActiveAudioHandle = -1;
-        float m_AudioDragStartMinDist = 1.0f;
-        float m_AudioDragStartMaxDist = 50.0f;
+        // Modüler Gizmo Araçları
+        gizmo_translation_tool m_TranslationTool;
+        gizmo_rotation_tool    m_RotationTool;
+        gizmo_scale_tool       m_ScaleTool;
+        gizmo_rect_tool        m_RectTool;
+        gizmo_light_tool       m_LightTool;
+        gizmo_audio_tool       m_AudioTool;
 
         // Performans / Stats Overlay halka tamponu (Frame Time History)
         static constexpr int kFrameHistoryCount = 90;
@@ -194,5 +138,4 @@ namespace vesta
         float m_SmoothedFps = 60.0f;
         float m_SmoothedFrameMs = 16.67f;
     };
-}
-
+} // namespace vesta

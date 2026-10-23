@@ -698,6 +698,14 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClInclude Include="Renderer\render_settings.h" />
     <ClInclude Include="Renderer\Passes\gizmo_pass.h" />
     <ClInclude Include="Editor\Vesta\Panels\scene_gizmo_overlay.h" />
+    <ClInclude Include="Editor\Vesta\Gizmo\gizmo_math_utils.h" />
+    <ClInclude Include="Editor\Vesta\Gizmo\IGizmoTool.h" />
+    <ClInclude Include="Editor\Vesta\Gizmo\gizmo_translation_tool.h" />
+    <ClInclude Include="Editor\Vesta\Gizmo\gizmo_rotation_tool.h" />
+    <ClInclude Include="Editor\Vesta\Gizmo\gizmo_scale_tool.h" />
+    <ClInclude Include="Editor\Vesta\Gizmo\gizmo_rect_tool.h" />
+    <ClInclude Include="Editor\Vesta\Gizmo\gizmo_light_tool.h" />
+    <ClInclude Include="Editor\Vesta\Gizmo\gizmo_audio_tool.h" />
     <ClInclude Include="Editor\Vesta\Panels\lighting_panel.h" />
     <ClInclude Include="Editor\Vesta\Panels\rendering_panel.h" />
     <ClInclude Include="Project\project.h" />
@@ -725,6 +733,12 @@ GLAD_GL_H_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     <ClCompile Include="Editor\Vesta\Panels\hierarchy_panel.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\scene_viewport_panel.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\scene_gizmo_overlay.cpp" />
+    <ClCompile Include="Editor\Vesta\Gizmo\gizmo_translation_tool.cpp" />
+    <ClCompile Include="Editor\Vesta\Gizmo\gizmo_rotation_tool.cpp" />
+    <ClCompile Include="Editor\Vesta\Gizmo\gizmo_scale_tool.cpp" />
+    <ClCompile Include="Editor\Vesta\Gizmo\gizmo_rect_tool.cpp" />
+    <ClCompile Include="Editor\Vesta\Gizmo\gizmo_light_tool.cpp" />
+    <ClCompile Include="Editor\Vesta\Gizmo\gizmo_audio_tool.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\lighting_panel.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\rendering_panel.cpp" />
     <ClCompile Include="Editor\Vesta\Panels\top_bar_panel.cpp" />
