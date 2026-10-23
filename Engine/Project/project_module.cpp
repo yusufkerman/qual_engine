@@ -11,6 +11,9 @@
 #include "../ECS/components.h"
 #include "../Engine/engine.h"
 #include "../Resources/engine_resources.h"
+#if __has_include("qual_build_config.h")
+#include "qual_build_config.h"
+#endif
 #include <windows.h>
 #include <iostream>
 #include <fstream>
@@ -21,13 +24,28 @@
 namespace project {
 
     namespace {
+        bool is_valid_engine_repo_root(const std::filesystem::path& p) {
+            std::error_code ec;
+            return std::filesystem::exists(p / "Engine" / "CMakeLists.txt", ec) ||
+                   std::filesystem::exists(p / "CMakeLists.txt", ec) ||
+                   std::filesystem::exists(p / "Engine" / "Engine.vcxproj", ec);
+        }
+
         std::filesystem::path resolve_engine_repo_root() {
+#ifdef QUAL_SOURCE_DIR
+            try {
+                std::filesystem::path configuredRoot(QUAL_SOURCE_DIR);
+                if (is_valid_engine_repo_root(configuredRoot)) {
+                    return std::filesystem::canonical(configuredRoot);
+                }
+            } catch (...) {}
+#endif
             try {
                 const auto& res = engine_resources::get_resources_path();
                 if (!res.empty()) {
                     auto engineDir = res.parent_path();
                     auto repoRoot = engineDir.parent_path();
-                    if (std::filesystem::exists(repoRoot / "Engine" / "Engine.vcxproj")) {
+                    if (is_valid_engine_repo_root(repoRoot)) {
                         return std::filesystem::canonical(repoRoot);
                     }
                 }
@@ -39,11 +57,11 @@ namespace project {
                 if (len > 0) {
                     auto exeDir = std::filesystem::path(buffer).parent_path();
                     auto cand1 = exeDir.parent_path();
-                    if (std::filesystem::exists(cand1 / "Engine" / "Engine.vcxproj")) {
+                    if (is_valid_engine_repo_root(cand1)) {
                         return std::filesystem::canonical(cand1);
                     }
                     auto cand2 = cand1.parent_path();
-                    if (std::filesystem::exists(cand2 / "Engine" / "Engine.vcxproj")) {
+                    if (is_valid_engine_repo_root(cand2)) {
                         return std::filesystem::canonical(cand2);
                     }
                 }
@@ -51,7 +69,7 @@ namespace project {
 
             try {
                 auto cwd = std::filesystem::current_path();
-                if (std::filesystem::exists(cwd / "Engine" / "Engine.vcxproj")) {
+                if (is_valid_engine_repo_root(cwd)) {
                     return std::filesystem::canonical(cwd);
                 }
             } catch (...) {}
@@ -558,11 +576,30 @@ namespace project {
             vcx << "    <TargetName>GameModule</TargetName>\n";
             vcx << "  </PropertyGroup>\n";
 
+#ifdef QUAL_GLFW_INCLUDE_DIR
+            const std::string extIncludes =
+                std::string(QUAL_GLFW_INCLUDE_DIR) + ";" +
+                std::string(QUAL_GLAD_INCLUDE_DIR) + ";" +
+                std::string(QUAL_GLM_INCLUDE_DIR) + ";" +
+                std::string(QUAL_ASSIMP_INCLUDE_DIR) + ";" +
+                std::string(QUAL_ASSIMP_CONFIG_INCLUDE_DIR) + ";";
+            const std::string extLibDirs =
+                std::string(QUAL_GLFW_LIB_DIR) + ";" +
+                std::string(QUAL_ASSIMP_LIB_DIR);
+            const std::string gladSourcePath = QUAL_GLAD_SOURCE;
+#else
+            const std::string extIncludes =
+                "C:\\Libraries\\glfw\\include;C:\\Libraries\\glad\\include;C:\\Libraries\\glm;"
+                "C:\\dev\\assimp-6.0.5\\include;C:\\dev\\assimp-6.0.5\\assimp_build\\include;";
+            const std::string extLibDirs =
+                "C:\\Libraries\\glfw\\lib-vc2022;C:\\dev\\assimp-6.0.5\\assimp_build\\lib\\Release";
+            const std::string gladSourcePath = "C:\\Libraries\\glad\\src\\glad.c";
+#endif
+
             const std::string commonIncludes = 
                 "$(ProjectDir)..\\Assets;$(ProjectDir)..\\Assets\\Scripts;" +
                 engineDir.string() + ";" + repoRoot.string() + ";" +
-                "C:\\Libraries\\glfw\\include;C:\\Libraries\\glad\\include;C:\\Libraries\\glm;" +
-                "C:\\dev\\assimp-6.0.5\\include;C:\\dev\\assimp-6.0.5\\assimp_build\\include;" +
+                extIncludes +
                 (engineDir / "Externals").string() + ";" +
                 (engineDir / "Externals" / "imgui").string() + ";" +
                 (engineDir / "Externals" / "nfd").string() + ";%(AdditionalIncludeDirectories)";
@@ -584,7 +621,7 @@ namespace project {
             vcx << "      <GenerateDebugInformation>true</GenerateDebugInformation>\n";
             vcx << "      <ProgramDatabaseFile>$(OutDir)GameModule_$([System.DateTime]::Now.ToString(\"HHmmssfff\")).pdb</ProgramDatabaseFile>\n";
             vcx << "      <AdditionalDependencies>Engine.lib;glfw3.lib;opengl32.lib;assimp-vc145-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>\n";
-            vcx << "      <AdditionalLibraryDirectories>" << debugLibDir.string() << ";C:\\Libraries\\glfw\\lib-vc2022;C:\\dev\\assimp-6.0.5\\assimp_build\\lib\\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>\n";
+            vcx << "      <AdditionalLibraryDirectories>" << debugLibDir.string() << ";" << extLibDirs << ";%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>\n";
             vcx << "    </Link>\n";
             vcx << "  </ItemDefinitionGroup>\n";
 
@@ -608,12 +645,12 @@ namespace project {
             vcx << "      <GenerateDebugInformation>true</GenerateDebugInformation>\n";
             vcx << "      <ProgramDatabaseFile>$(OutDir)GameModule_$([System.DateTime]::Now.ToString(\"HHmmssfff\")).pdb</ProgramDatabaseFile>\n";
             vcx << "      <AdditionalDependencies>Engine.lib;glfw3.lib;opengl32.lib;assimp-vc145-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>\n";
-            vcx << "      <AdditionalLibraryDirectories>" << releaseLibDir.string() << ";C:\\Libraries\\glfw\\lib-vc2022;C:\\dev\\assimp-6.0.5\\assimp_build\\lib\\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>\n";
+            vcx << "      <AdditionalLibraryDirectories>" << releaseLibDir.string() << ";" << extLibDirs << ";%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>\n";
             vcx << "    </Link>\n";
             vcx << "  </ItemDefinitionGroup>\n";
 
             vcx << "  <ItemGroup>\n";
-            vcx << "    <ClCompile Include=\"C:\\Libraries\\glad\\src\\glad.c\" />\n";
+            vcx << "    <ClCompile Include=\"" << gladSourcePath << "\" />\n";
             for (const auto& f : clCompileFiles) {
                 vcx << "    <ClCompile Include=\"" << f << "\" />\n";
             }

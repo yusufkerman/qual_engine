@@ -1,35 +1,52 @@
-# =========================
-# Build klasörleri
-# =========================
+# =============================================================================
+#  QualEngine - Git Ignore Configuration
+# =============================================================================
+
+# ------------------------- Build & Output Directories ------------------------
 build/
+build-*/
 cmake-build-*/
 out/
 bin/
 obj/
 x64/
 x86/
+Builds/
+**/Builds/
+**/Binaries/
+**/Scripts/obj/
+docs/doxygen/output/
+docs/doxygen/bin/
 
-# =========================
-# IDE dosyaları
-# =========================
+# ------------------------- CMake Generated Files -----------------------------
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+CMakeUserPresets.json
+CTestTestfile.cmake
+Makefile
+*.ninja
+.ninja_deps
+.ninja_log
+
+# ------------------------- Auto-Generated Hot-Reload Scaffolding -------------
+**/Scripts/GameModule.vcxproj
+**/Scripts/GameModule.vcxproj.filters
+**/Scripts/GameModule.vcxproj.user
+**/Scripts/build_module.bat
+
+# ------------------------- IDE & Editor Temporary Files ----------------------
 .vs/
 .vscode/
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
+*.VC.db
+*.VC.opendb
 
-# =========================
-# CMake
-# =========================
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-Makefile
-
-# =========================
-# Derlenmiş dosyalar
-# =========================
+# ------------------------- Compiled Binaries & Symbols -----------------------
 *.o
 *.obj
 *.a
@@ -39,31 +56,27 @@ Makefile
 *.dylib
 *.exe
 *.pdb
+*.idb
+*.ilk
+*.exp
+*.ipdb
+*.iobj
+*.tlog
 
-# =========================
-# Shader / runtime output (istersen)
-# =========================
+# ------------------------- Runtime, Logs & Cache -----------------------------
+*.log
+msbuild_out.txt
+asset_manifest.json
+**/asset_manifest.json
+engine_settings.json
+**/engine_settings.json
+imgui.ini
+**/imgui.ini
 *.spv
 *.bin
-
-# =========================
-# Assimp / model cache (opsiyonel)
-# =========================
 *.assimp_cache
 
-# =========================
-# ImGui / imgui.ini
-# =========================
-imgui.ini
-
-# =========================
-# OS dosyaları
-# =========================
+# ------------------------- OS Metadata ---------------------------------------
 .DS_Store
 Thumbs.db
-
-# =========================
-# Vendor / external libs (SADECE build ediliyorsa ignore et)
-# =========================
-# externals/  (eğer source olarak tutuyorsan BUNU AÇMA)
-# libs/
+Desktop.ini

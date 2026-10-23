@@ -1,0 +1,73 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 25,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "vs2026",
+            "displayName": "Visual Studio 2026 (x64)",
+            "description": "Multi-config Visual Studio 18 2026 generator. Debug ve Release ayni build dizinini paylasir.",
+            "generator": "Visual Studio 18 2026",
+            "architecture": {
+                "value": "x64",
+                "strategy": "set"
+            },
+            "binaryDir": "${sourceDir}/build",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2022",
+            "displayName": "Visual Studio 2022 (x64)",
+            "description": "Visual Studio 17 2022 kullanan makineler icin alternatif.",
+            "inherits": "vs2026",
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build-vs2022"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "debug",
+            "displayName": "Debug",
+            "configurePreset": "vs2026",
+            "configuration": "Debug",
+            "nativeToolOptions": [ "/m", "/nodeReuse:false", "/v:minimal" ]
+        },
+        {
+            "name": "release",
+            "displayName": "Release",
+            "configurePreset": "vs2026",
+            "configuration": "Release",
+            "nativeToolOptions": [ "/m", "/nodeReuse:false", "/v:minimal" ]
+        },
+        {
+            "name": "editor-debug",
+            "displayName": "Editor only (Debug)",
+            "description": "Sadece Application (ve bagimliligi Engine) derlenir; GameRuntime atlanir.",
+            "configurePreset": "vs2026",
+            "configuration": "Debug",
+            "targets": [ "Application" ],
+            "nativeToolOptions": [ "/m", "/nodeReuse:false", "/v:minimal" ]
+        },
+        {
+            "name": "vs2022-debug",
+            "displayName": "Debug (VS 2022)",
+            "configurePreset": "vs2022",
+            "configuration": "Debug",
+            "nativeToolOptions": [ "/m", "/nodeReuse:false", "/v:minimal" ]
+        },
+        {
+            "name": "vs2022-release",
+            "displayName": "Release (VS 2022)",
+            "configurePreset": "vs2022",
+            "configuration": "Release",
+            "nativeToolOptions": [ "/m", "/nodeReuse:false", "/v:minimal" ]
+        }
+    ]
+}

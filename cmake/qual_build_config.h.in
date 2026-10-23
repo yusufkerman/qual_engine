@@ -1,0 +1,32 @@
+/**
+ * @file qual_build_config.h
+ * @brief CMake tarafindan uretilen build yapilandirma bilgileri.
+ *
+ * BU DOSYA OTOMATIK URETILIR - elle duzenlemeyin.
+ * Kaynak: cmake/qual_build_config.h.in
+ *
+ * Hot-reload script sistemi (GameModule.dll) ve exporter, harici
+ * bagimliliklarin yollarini buradan okur; boylece CMake'te yapilan
+ * yol degisiklikleri calisma zamanina otomatik yansir.
+ */
+#pragma once
+
+#define QUAL_ENGINE_VERSION          "@PROJECT_VERSION@"
+
+#define QUAL_SOURCE_DIR              "@PROJECT_SOURCE_DIR@"
+#define QUAL_OUTPUT_ROOT             "@QUAL_OUTPUT_ROOT@"
+
+#define QUAL_GLFW_INCLUDE_DIR        "@QUAL_GLFW_INCLUDE_DIR@"
+#define QUAL_GLFW_LIB_DIR            "@QUAL_GLFW_LIB_DIR@"
+
+#define QUAL_GLAD_INCLUDE_DIR        "@QUAL_GLAD_INCLUDE_DIR@"
+#define QUAL_GLAD_SOURCE             "@QUAL_GLAD_SOURCE@"
+
+#define QUAL_GLM_INCLUDE_DIR         "@QUAL_GLM_INCLUDE_DIR@"
+
+#define QUAL_ASSIMP_INCLUDE_DIR      "@QUAL_ASSIMP_INCLUDE_DIR@"
+#define QUAL_ASSIMP_CONFIG_INCLUDE_DIR "@QUAL_ASSIMP_CONFIG_INCLUDE_DIR@"
+#define QUAL_ASSIMP_LIB_DIR          "@QUAL_ASSIMP_LIB_DIR@"
+#define QUAL_ASSIMP_LIB_NAME         "@QUAL_ASSIMP_LIB_NAME@"
+#define QUAL_ASSIMP_DLL              "@QUAL_ASSIMP_DLL@"
+

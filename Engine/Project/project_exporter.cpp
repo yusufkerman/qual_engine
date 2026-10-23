@@ -9,6 +9,9 @@
 #include "../Runtime/game_runtime.h"
 #include "../Resources/engine_resources.h"
 #include "../Externals/nlohmann/json.hpp"
+#if __has_include("qual_build_config.h")
+#include "qual_build_config.h"
+#endif
 #include <windows.h>
 #include <filesystem>
 #include <fstream>
@@ -33,6 +36,10 @@ namespace project {
 
             const std::filesystem::path candidates[] = {
                 exeDir / "GameRuntime.exe",
+#ifdef QUAL_OUTPUT_ROOT
+                std::filesystem::path(QUAL_OUTPUT_ROOT) / "Release" / "GameRuntime.exe",
+                std::filesystem::path(QUAL_OUTPUT_ROOT) / "Debug" / "GameRuntime.exe",
+#endif
                 exeDir / ".." / "x64" / "Release" / "GameRuntime.exe",
                 exeDir / ".." / "x64" / "Debug" / "GameRuntime.exe",
                 cwd / "x64" / "Release" / "GameRuntime.exe",
@@ -55,6 +62,9 @@ namespace project {
 
             const std::filesystem::path candidates[] = {
                 exeDir / "assimp-vc145-mt.dll",
+#ifdef QUAL_ASSIMP_DLL
+                std::filesystem::path(QUAL_ASSIMP_DLL),
+#endif
                 cwd / "x64" / "Release" / "assimp-vc145-mt.dll",
                 cwd / "x64" / "Debug" / "assimp-vc145-mt.dll",
                 "C:\\dev\\assimp-6.0.5\\assimp_build\\bin\\Release\\assimp-vc145-mt.dll",
