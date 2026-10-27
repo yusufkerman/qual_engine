@@ -14,6 +14,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include "../Core/Logger/logger.h"
 #include <algorithm>
 
 #include "../Renderer/MeshRenderer.h"
@@ -42,8 +43,8 @@ void render_system::init()
 
     const size_t uboSize = 16 + (sizeof(light_data) * MAX_LIGHT_COUNT);
 
-    std::cout << "[RenderSystem] UBO Bellek Tahsisi (Boyut: " << uboSize
-        << " byte, Isik Paketi Boyutu: " << sizeof(light_data) << " byte)\n";
+    QLOG_INFO(renderer, "[RenderSystem] UBO Bellek Tahsisi (Boyut: {} byte, Isik Paketi Boyutu: {} byte)", uboSize, sizeof(light_data));
+
 
     // Global ışık UBO'sunun oluşturulması ve 0 numaralı bağlama noktasına (Binding Point) atanması
     glGenBuffers(1, &m_LightUBO);
@@ -53,7 +54,7 @@ void render_system::init()
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_LightUBO);
 
-    std::cout << "[RenderSystem] Isik UBO'su basariyla ilklendirildi.\n";
+    QLOG_INFO(renderer, "[RenderSystem] Isik UBO'su basariyla ilklendirildi.");
 }
 
 render_system::~render_system()

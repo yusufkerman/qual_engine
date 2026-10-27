@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include "Core/Logger/logger.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -23,7 +24,7 @@ namespace {
 
         if (!file.is_open())
         {
-            std::cerr << "[Shader] DOSYA BULUNAMADI: " << path << '\n';
+            QLOG_ERROR(renderer, "[Shader] Dosya bulunamadi: {}", path);
             return "";
         }
 
@@ -52,7 +53,7 @@ shader::shader(const char* vertexPath, const char* fragmentPath)
     if (!success)
     {
         glGetShaderInfoLog(vs, 512, NULL, infoLog);
-        std::cerr << "[Shader] VERTEX SHADER DERLEME HATASI:\n" << infoLog << '\n';
+        QLOG_ERROR(renderer, "[Shader] Vertex shader derleme hatasi: {}", infoLog);
     }
 
     unsigned int fs = glCreateShader(GL_FRAGMENT_SHADER);
@@ -63,7 +64,7 @@ shader::shader(const char* vertexPath, const char* fragmentPath)
     if (!success)
     {
         glGetShaderInfoLog(fs, 512, NULL, infoLog);
-        std::cerr << "[Shader] FRAGMENT SHADER DERLEME HATASI:\n" << infoLog << '\n';
+        QLOG_ERROR(renderer, "[Shader] Fragment shader derleme hatasi: {}", infoLog);
     }
 
     ID = glCreateProgram();
@@ -75,7 +76,7 @@ shader::shader(const char* vertexPath, const char* fragmentPath)
     if (!success)
     {
         glGetProgramInfoLog(ID, 512, NULL, infoLog);
-        std::cerr << "[Shader] SHADER BAGLAMA (LINK) HATASI:\n" << infoLog << '\n';
+        QLOG_ERROR(renderer, "[Shader] Shader baglama (link) hatasi: {}", infoLog);
     }
 
     glDeleteShader(vs);

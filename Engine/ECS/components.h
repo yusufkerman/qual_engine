@@ -397,6 +397,25 @@ struct native_script_component
     std::function<scriptable_entity*()> bind_instantiate = nullptr;
     std::function<void(native_script_component*)> bind_destroy = nullptr;
 
+    /// @brief Betik aktif ve çalıştırılabilir durumda mı?
+    bool is_enabled = true;
+
+    /// @brief Betik çalışma zamanında bir donanımsal çökme yaşayıp karantinaya alındı mı?
+    bool is_quarantined = false;
+
+    /// @brief Karantinaya neden olan son hata ve tanı açıklaması.
+    std::string last_error;
+
+    /**
+     * @brief Karantinayı temizler ve betiği tekrar aktif hale getirir.
+     */
+    void reset_quarantine() noexcept
+    {
+        is_quarantined = false;
+        is_enabled = true;
+        last_error.clear();
+    }
+
     /**
      * @brief İlgili betik sınıfını varlığa çalışma zamanında bağlar.
      * @tparam T scriptable_entity'den türetilmiş kullanıcı betiği sınıfı.
@@ -406,6 +425,9 @@ struct native_script_component
     void bind(const std::string& name)
     {
         script_name = name;
+        is_enabled = true;
+        is_quarantined = false;
+        last_error.clear();
         bind_instantiate = []() { return static_cast<scriptable_entity*>(new T()); };
         bind_destroy = [](native_script_component* nsc) {
             delete static_cast<T*>(nsc->instance);

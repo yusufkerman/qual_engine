@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <glm/common.hpp>
 #include <iostream>
+#include "../../Core/Logger/logger.h"
 
 namespace aria {
 
@@ -185,7 +186,7 @@ namespace aria {
         glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(vs, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] Vertex Shader Derleme Hatasi:\n" << infoLog << "\n";
+            QLOG_ERROR(renderer, "[ARIA OpenGL] Vertex Shader Derleme Hatasi: {}", infoLog);
             glDeleteShader(vs);
             return 0;
         }
@@ -197,7 +198,7 @@ namespace aria {
         glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(fs, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] Fragment Shader Derleme Hatasi:\n" << infoLog << "\n";
+            QLOG_ERROR(renderer, "[ARIA OpenGL] Fragment Shader Derleme Hatasi: {}", infoLog);
             glDeleteShader(vs);
             glDeleteShader(fs);
             return 0;
@@ -212,7 +213,7 @@ namespace aria {
         glGetProgramiv(programID, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(programID, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] Program Baglama Hatasi:\n" << infoLog << "\n";
+            QLOG_ERROR(renderer, "[ARIA OpenGL] Program Baglama Hatasi: {}", infoLog);
             glDeleteShader(vs);
             glDeleteShader(fs);
             glDeleteProgram(programID);
@@ -225,7 +226,7 @@ namespace aria {
             glUniformBlockBinding(programID, blockIndex, 0);
         }
         else {
-            std::cout << "[ARIA OpenGL] Uyari: LightBuffer uniform blogu shader (" << programID << ") icinde bulunamadi!\n";
+            QLOG_WARN(renderer, "[ARIA OpenGL] Uyari: LightBuffer uniform blogu shader ({}) icinde bulunamadi!", programID);
         }
 
         // İskelet / Deri Yüzme Kemik Matris Bloğu Entegrasyonu
@@ -254,7 +255,7 @@ namespace aria {
         glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(vs, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] Yedek (Fallback) Vertex Shader Hatasi:\n" << infoLog << "\n";
+            QLOG_ERROR(renderer, "[ARIA OpenGL] Yedek (Fallback) Vertex Shader Hatasi: {}", infoLog);
         }
 
         unsigned int fs = glCreateShader(GL_FRAGMENT_SHADER);
@@ -263,7 +264,7 @@ namespace aria {
         glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(fs, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] Yedek (Fallback) Fragment Shader Hatasi:\n" << infoLog << "\n";
+            QLOG_ERROR(renderer, "[ARIA OpenGL] Yedek (Fallback) Fragment Shader Hatasi: {}", infoLog);
         }
 
         GLuint programID = glCreateProgram();
@@ -274,7 +275,7 @@ namespace aria {
         glGetProgramiv(programID, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(programID, 512, NULL, infoLog);
-            std::cout << "[ARIA OpenGL] Yedek (Fallback) Program Baglama Hatasi:\n" << infoLog << "\n";
+            QLOG_ERROR(renderer, "[ARIA OpenGL] Yedek (Fallback) Program Baglama Hatasi: {}", infoLog);
         }
 
         glDeleteShader(vs);

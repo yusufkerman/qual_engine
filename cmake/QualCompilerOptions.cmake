@@ -27,6 +27,7 @@ if(MSVC)
         /permissive-
         /utf-8
         /wd4996
+        /Zc:preprocessor
         $<$<CONFIG:Release>:/Gy /Oi>
     )
 
@@ -63,6 +64,7 @@ if(MSVC)
         /utf-8
         /permissive-
         /wd4996
+        /Zc:preprocessor
         $<$<CONFIG:Release>:/Gy /Oi>
     )
     if(CMAKE_GENERATOR MATCHES "Visual Studio")

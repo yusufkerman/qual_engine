@@ -15,8 +15,7 @@ Builds/
 **/Builds/
 **/Binaries/
 **/Scripts/obj/
-docs/doxygen/output/
-docs/doxygen/bin/
+docs/
 
 # ------------------------- CMake Generated Files -----------------------------
 CMakeCache.txt

@@ -1,0 +1,15 @@
+================================================================================
+                   QUALENGINE POST-MORTEM COKME RAPORU                         
+================================================================================
+Zaman Damgasi     : 20261027_151151
+Cokme Nedeni      : Birim Testi - Kontrollu Minidump Uretimi
+Process ID (PID)  : 21844
+Thread ID (TID)   : 22732
+Minidump Dosyasi  : scratch/test_crashes/QualEngine_Crash_20261027_151151.dmp (Basariyla Yazildi)
+================================================================================
+Hata Ayiklama Rehberi:
+  1. Visual Studio veya WinDbg ile 'scratch/test_crashes/QualEngine_Crash_20261027_151151.dmp' dosyasini acin.
+  2. 'Debug with Native Only' secenegini secin.
+  3. Cokme anindaki kaynak kod satiri, yigin izi (callstack) ve yerel degiskenler
+     otomatik olarak incelenebilir.
+================================================================================

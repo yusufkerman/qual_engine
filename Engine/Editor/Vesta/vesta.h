@@ -22,6 +22,7 @@
 #include "Panels/top_bar_panel.h"
 #include "Panels/lighting_panel.h"
 #include "Panels/rendering_panel.h"
+#include "Panels/console_panel.h"
 #include "../../ECS/registry.h"
 #include "CoreState/editor_viewport_state.h"
 
@@ -108,6 +109,7 @@ namespace vesta {
         void init_asset_browser(aria::system& ariaSys);
         void init_lighting(EngineContext& engineCtx);
         void init_rendering_settings(EngineContext& engineCtx);
+        void init_console();
 
     private:
         editor_viewport_state m_viewport_state;
@@ -138,6 +140,7 @@ namespace vesta {
 
         std::unique_ptr<lighting_panel> m_lighting_panel;
         std::unique_ptr<rendering_panel> m_rendering_panel;
+        std::unique_ptr<console_panel> m_console_panel;
 
         std::unique_ptr<command_stack> m_command_stack;
         std::unique_ptr<editable_world_impl> m_editable_world;

@@ -93,6 +93,7 @@ namespace vesta {
         init_asset_browser(*ariaSys);
         init_lighting(engineCtx);
         init_rendering_settings(engineCtx);
+        init_console();
 
         // Top bar Window menüsü için panel listesi referansını ata
         if (m_top_bar_panel)
@@ -276,6 +277,12 @@ namespace vesta {
     {
         m_rendering_panel = std::make_unique<rendering_panel>(engineCtx);
         register_panel(m_rendering_panel.get());
+    }
+
+    void vesta_system::init_console()
+    {
+        m_console_panel = std::make_unique<console_panel>(*m_selection_manager);
+        register_panel(m_console_panel.get());
     }
 
     void vesta_system::set_asset_root(const std::string& newPath)
@@ -653,6 +660,7 @@ namespace vesta {
                 drawPanelItem("Hierarchy");
                 drawPanelItem("Inspector");
                 drawPanelItem("Asset Browser");
+                drawPanelItem("Console");
 
                 ImGui::EndMenu();
             }
@@ -1027,6 +1035,7 @@ namespace vesta {
         m_top_bar_vm.reset();
         m_lighting_panel.reset();
         m_rendering_panel.reset();
+        m_console_panel.reset();
         m_command_stack.reset();
         m_editable_world.reset();
         m_selection_manager.reset();

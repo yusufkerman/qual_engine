@@ -99,6 +99,7 @@ target_link_libraries(Engine
         OpenGL::GL
     PRIVATE
         qual::build_options
+        dbghelp
 )
 
 # GLAD header'lari Engine'i kullanan herkese acik olmali; glad.c ise her

@@ -24,6 +24,9 @@
 #include "../Project/project_module.h"
 #include "../Resources/engine_resources.h"
 #include "../Async/async_task_manager.h"
+#include "../Core/Logger/logger.h"
+#include "../Renderer/Debug/opengl_debug.h"
+#include "../Core/CrashHandler/crash_handler.h"
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -173,11 +176,18 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     SetEnvironmentVariableA("ELECTRON_RUN_AS_NODE", NULL);
 #endif
 
+    // 0. Post-mortem Cokme Kancalari ve Minidump Uretim Sistemini Baslat (Faz 5)
+    qual::core::crash_handler::init();
+
     if (!glfwInit())
         return false;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+#ifndef NDEBUG
+    // Debug derlemesinde surucu seviyesi hata ayiklama kancasi (glDebugMessageCallback) icin debug context talep et
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     ctx.window = glfwCreateWindow(ctx.screenW, ctx.screenH, "QualEngine Editor", nullptr, nullptr);
@@ -189,6 +199,9 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     // OpenGL fonksiyonlarını (GLAD) yükle
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return false;
+
+    // OpenGL 4.5+ Surucu Seviyesi Hata Ayiklama Kancasini (glDebugMessageCallback) kur
+    qual::renderer::setup_opengl_debug_output();
 
     // Aria Varlık (Asset) Sistemini başlat (Not: GLAD'den hemen sonra olmalıdır)
     if (!ctx.aria_system) {

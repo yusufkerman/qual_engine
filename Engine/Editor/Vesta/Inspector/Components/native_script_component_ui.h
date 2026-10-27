@@ -2,7 +2,7 @@
 
 /**
  * @file native_script_component_ui.h
- * @brief Yerel C++ betik bileşeni (native_script_component) için dinamik arayüz ve yaşam döngüsü yönetim sistemi.
+ * @brief Yerel C++ betik bileşeni (native_script_component) için dinamik arayüz, karantina yönetimi ve yaşam döngüsü yönetim sistemi.
  */
 
 #include "../../Services/component_ui_registry.h"
@@ -14,7 +14,7 @@
 #include <string>
 
  /**
-  * @brief Seçili varlığın C++ betik sınıfı atamasını ImGui açılır listesi ile yönetir.
+  * @brief Seçili varlığın C++ betik sınıfı atamasını ve karantina durumunu ImGui paneli ile yönetir.
   * @param e Betik bağlanacak varlık.
   * @param reg İlgili ECS kayıt defteri referansı.
   */
@@ -22,7 +22,41 @@ inline void render_native_script_ui(entity e, registry& reg) {
     auto* nsc = reg.get_component<native_script_component>(e);
     if (!nsc) return;
 
-    // Fabrikadaki tüm kayıtlı script isimlerini sorgula
+    // 1. Karantina Uyarısı (Donanımsal çökme engellendiyse geliştiriciye görsel bildirim)
+    if (nsc->is_quarantined) {
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f));
+        ImGui::TextWrapped("[!] BETIK KARANTINAYA ALINDI (COKME ENGELLENDI)");
+        ImGui::PopStyleColor();
+
+        if (!nsc->last_error.empty()) {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.75f, 0.2f, 1.0f));
+            ImGui::TextWrapped("%s", nsc->last_error.c_str());
+            ImGui::PopStyleColor();
+        }
+
+        if (ImGui::Button("Karantinayi Sifirla ve Yeniden Baslat")) {
+            std::string script_to_reload = nsc->script_name;
+            nsc->reset_quarantine();
+            if (nsc->instance && nsc->bind_destroy) {
+                nsc->bind_destroy(nsc);
+            }
+            if (!script_to_reload.empty() && script_to_reload != "None") {
+                script_factory::instantiate_script(script_to_reload, e, reg);
+            }
+        }
+        ImGui::Separator();
+        ImGui::Spacing();
+    }
+
+    // 2. Betik Aktif / Pasif Onay Kutusu
+    ImGui::Checkbox("Betik Aktif (Enabled)", &nsc->is_enabled);
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip("Betiğin on_update ve on_fixed_update döngülerinde çalışmasını açıp kapatır.");
+    }
+
+    ImGui::Spacing();
+
+    // 3. Fabrikadaki tüm kayıtlı script isimlerini sorgula
     std::vector<std::string> available_scripts = script_factory::get_all_script_names();
     std::string current_selection = nsc->script_name.empty() ? "None" : nsc->script_name;
 
@@ -31,6 +65,7 @@ inline void render_native_script_ui(entity e, registry& reg) {
         // Betik bağlantısını koparma seçeneği
         if (ImGui::Selectable("None", current_selection == "None")) {
             nsc->script_name = "None";
+            nsc->reset_quarantine();
             if (nsc->instance && nsc->bind_destroy) {
                 nsc->bind_destroy(nsc);
             }
@@ -45,6 +80,7 @@ inline void render_native_script_ui(entity e, registry& reg) {
                 if (nsc->instance && nsc->bind_destroy) {
                     nsc->bind_destroy(nsc);
                 }
+                nsc->reset_quarantine();
 
                 // Seçilen C++ sınıfını entity'ye bağla ve başlat
                 script_factory::instantiate_script(script_name, e, reg);
@@ -65,6 +101,8 @@ inline void add_native_script_component(entity e, registry& reg) {
     if (!reg.has_component<native_script_component>(e)) {
         auto& nsc = reg.add_component<native_script_component>(e);
         nsc.script_name = "None";
+        nsc.is_enabled = true;
+        nsc.is_quarantined = false;
     }
 }
 

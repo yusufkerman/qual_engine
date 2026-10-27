@@ -1,6 +1,6 @@
 /**
  * @file scene.cpp
- * @brief Sahne yaşam döngüsü, varlık yönetimi, script çağrıları ve ışık çıkarma uygulaması.
+ * @brief Sahne yasam dongusu, varlik yonetimi, script cagrilarinin guvenli calistirilmasi ve isik cikarma uygulamasi.
  */
 
 #include "scene.h"
@@ -8,6 +8,7 @@
 #include "../Scene/scriptable_entity.h"
 #include "../Project/project_module.h"
 #include "../Engine/Scripting/script_factory.h"
+#include "../Scripting/script_invoker.h"
 #include <iostream>
 #include <vector>
 
@@ -33,7 +34,7 @@ void scene::on_runtime_start(EngineContext& ctx)
     project::project_module::instance().sync_context();
     registry& currentReg = get_registry();
 
-    // 1. Modül sonradan yüklendiği veya sahne modülden önce açıldığı için bağlanmamış betikleri fabrikadan bağla
+    // 1. Modul sonradan yuklendigi veya sahne modÃ¼lden once acildigi icin baglanmamis betikleri fabrikadan bagla
     std::vector<std::pair<entity, std::string>> scriptsToBind;
     for (const auto& [e, scriptComp] : currentReg.get_all<native_script_component>())
     {
@@ -47,9 +48,13 @@ void scene::on_runtime_start(EngineContext& ctx)
         script_factory::instantiate_script(name, e, currentReg);
     }
 
-    // 2. Betik örneklerini oluştur ve on_create olaylarını tetikle
+    // 2. Betik orneklerini olustur ve on_create olaylarini guvenli calistir
     for (auto& [e, scriptComp] : currentReg.get_all<native_script_component>())
     {
+        if (!scriptComp.is_enabled || scriptComp.is_quarantined) {
+            continue;
+        }
+
         if (!scriptComp.bind_instantiate) {
             std::cerr << "[Scene] Uyari: '" << scriptComp.script_name << "' icin bind_instantiate bulunamadi! (Entity ID: " << e << ")\n";
             continue;
@@ -63,7 +68,28 @@ void scene::on_runtime_start(EngineContext& ctx)
         scriptComp.instance->set_entity(e);
         scriptComp.instance->set_registry(&currentReg);
         scriptComp.instance->setContext(&ctx);
-        scriptComp.instance->on_create();
+
+        // SEH Kalkanı ile korumalı on_create çağrısı
+        bool ok = qual::scripting::script_invoker::invoke(
+            scriptComp.script_name,
+            static_cast<uint32_t>(e),
+            "on_create",
+            [&]() { scriptComp.instance->on_create(); },
+            &scriptComp.last_error
+        );
+
+        if (!ok) {
+            scriptComp.is_quarantined = true;
+            scriptComp.is_enabled = false;
+            if (scriptComp.bind_destroy) {
+                scriptComp.bind_destroy(&scriptComp);
+            }
+            scriptComp.instance = nullptr;
+            std::cerr << "[Scene] Betik on_create istisnasi nedeniyle karantinaya alindi: " 
+                      << scriptComp.script_name << " (Entity ID: " << e << ")\n";
+            continue;
+        }
+
         std::cout << "[Scene] Native script baslatildi: " << scriptComp.script_name << " (Entity ID: " << e << ")\n";
     }
 }
@@ -74,11 +100,29 @@ void scene::on_update_runtime(float deltaTime)
     registry& currentReg = get_registry();
     for (auto& [e, scriptComp] : currentReg.get_all<native_script_component>())
     {
-        if (!scriptComp.instance) {
+        if (!scriptComp.instance || !scriptComp.is_enabled || scriptComp.is_quarantined) {
             continue;
         }
 
-        scriptComp.instance->on_update(deltaTime);
+        bool ok = qual::scripting::script_invoker::invoke(
+            scriptComp.script_name,
+            static_cast<uint32_t>(e),
+            "on_update",
+            [&]() { scriptComp.instance->on_update(deltaTime); },
+            &scriptComp.last_error
+        );
+
+        if (!ok) {
+            scriptComp.is_quarantined = true;
+            scriptComp.is_enabled = false;
+            // Bozulmuş nesne üzerinde on_destroy çağrılmadan bellek temizliği yapılır
+            if (scriptComp.bind_destroy) {
+                scriptComp.bind_destroy(&scriptComp);
+            }
+            scriptComp.instance = nullptr;
+            std::cerr << "[Scene] Betik on_update istisnasi nedeniyle karantinaya alindi: " 
+                      << scriptComp.script_name << " (Entity ID: " << e << ")\n";
+        }
     }
 }
 
@@ -88,11 +132,28 @@ void scene::on_fixed_update_runtime(float fixedDeltaTime)
     registry& currentReg = get_registry();
     for (auto& [e, scriptComp] : currentReg.get_all<native_script_component>())
     {
-        if (!scriptComp.instance) {
+        if (!scriptComp.instance || !scriptComp.is_enabled || scriptComp.is_quarantined) {
             continue;
         }
 
-        scriptComp.instance->on_fixed_update(fixedDeltaTime);
+        bool ok = qual::scripting::script_invoker::invoke(
+            scriptComp.script_name,
+            static_cast<uint32_t>(e),
+            "on_fixed_update",
+            [&]() { scriptComp.instance->on_fixed_update(fixedDeltaTime); },
+            &scriptComp.last_error
+        );
+
+        if (!ok) {
+            scriptComp.is_quarantined = true;
+            scriptComp.is_enabled = false;
+            if (scriptComp.bind_destroy) {
+                scriptComp.bind_destroy(&scriptComp);
+            }
+            scriptComp.instance = nullptr;
+            std::cerr << "[Scene] Betik on_fixed_update istisnasi nedeniyle karantinaya alindi: " 
+                      << scriptComp.script_name << " (Entity ID: " << e << ")\n";
+        }
     }
 }
 
@@ -103,14 +164,23 @@ void scene::clean_up_scripts()
     {
         if (scriptComp.instance)
         {
-            // 1. Oyun mantığı yok etme olayını tetikle
-            scriptComp.instance->on_destroy();
+            // Eğer betik zaten karantinaya alınmışsa on_destroy çağrılmaz (ikinci istisna önlenir)
+            if (!scriptComp.is_quarantined) {
+                qual::scripting::script_invoker::invoke(
+                    scriptComp.script_name,
+                    static_cast<uint32_t>(e),
+                    "on_destroy",
+                    [&]() { scriptComp.instance->on_destroy(); },
+                    &scriptComp.last_error
+                );
+            }
 
-            // 2. Bellek serbest bırakma fonksiyonunu bileşen üzerinden çalıştır
+            // Bellek serbest bırakma fonksiyonunu bileşen üzerinden çalıştır
             if (scriptComp.bind_destroy)
             {
                 scriptComp.bind_destroy(&scriptComp);
             }
+            scriptComp.instance = nullptr;
         }
     }
 }
