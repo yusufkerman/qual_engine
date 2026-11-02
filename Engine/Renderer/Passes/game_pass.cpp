@@ -8,6 +8,7 @@
 #include "../../Engine/fly_camera.h"
 #include "../../ECS/transform_utils.h"
 #include "skybox_pass.h"
+#include "volumetric_pass.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
 #include <cmath>
@@ -110,6 +111,9 @@ void game_pass::render(EngineContext& ctx)
                 false
             );
 
+            // Hacimsel Işıklandırma (Volumetric Lighting / God Rays)
+            volumetric_pass::render(ctx, ctx.gameTarget, gameView, gameProj, camPos, false);
+
             // İsteğe bağlı çalışma zamanı (Gameplay API) gizmolarını oyun ekranında çiz
             if (ctx.aria_system && ctx.gizmoSystem.settings().enabled && ctx.gizmoSystem.settings().show_gameplay_gizmos_in_game)
             {
@@ -130,6 +134,7 @@ void game_pass::render(EngineContext& ctx)
         const glm::mat4 fallbackProj = glm::perspective(glm::radians(60.0f), aspectRatio, 0.1f, 500.0f);
         skybox_pass::render(ctx, fallbackView, fallbackProj);
         ctx.renderSystem.render(reg, gameScene.get_light_batch(), ctx, fallbackView, fallbackProj, false);
+        volumetric_pass::render(ctx, ctx.gameTarget, fallbackView, fallbackProj, glm::vec3(0.0f, 5.0f, 10.0f), false);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

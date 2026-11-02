@@ -184,7 +184,31 @@ public:
         const glm::vec3& cameraPosition
     );
 
+    /**
+     * @brief Sahnedeki aktif yönlü ışığın (Directional Light) varlığını döner.
+     */
+    [[nodiscard]] bool has_directional_light() const noexcept { return m_HasDirectionalLight; }
+
+    /**
+     * @brief Sahnedeki aktif yönlü ışığın verilerini döner.
+     */
+    [[nodiscard]] const light_data& get_directional_light() const noexcept { return m_DirectionalLight; }
+
+    /**
+     * @brief Yönlü ışığın gölge projeksiyon matrisini döner (Tekli harita için).
+     */
+    [[nodiscard]] const glm::mat4& get_light_space_matrix() const noexcept { return m_DirectionalLightSpaceMatrix; }
+
+    /**
+     * @brief Kaskatlı gölge dilimlerini (CSM Cascades) döner.
+     */
+    [[nodiscard]] const std::vector<csm_cascade_data>& get_csm_cascades() const noexcept { return m_CSMCascades; }
+
 private:
+    bool m_HasDirectionalLight = false;                 ///< Son çizim karesinde aktif yönlü ışık bulundu mu?
+    light_data m_DirectionalLight{};                    ///< Aktif yönlü ışık verisi.
+    glm::mat4 m_DirectionalLightSpaceMatrix{ 1.0f };    ///< Yönlü ışık gölge uzayı matrisi.
+    std::vector<csm_cascade_data> m_CSMCascades;        ///< Kaskatlı gölge haritası dilimleri.
     unsigned int m_LightUBO;                            ///< Tüm ışık verilerini shader'lara taşıyan Uniform Buffer Object kimliği.
     std::vector<render_item> m_RenderItemsCache;        ///< Çıkarım aşamasında toplanan render paketlerinin geçici önbelleği.
     render_queue m_RenderQueueCache;                    ///< Shader ID'lerine göre gruplanmış çizim kuyruğu.

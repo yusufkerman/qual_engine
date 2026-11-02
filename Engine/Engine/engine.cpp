@@ -15,6 +15,7 @@
 #include "../Renderer/Passes/ui_pass.h"
 #include "../Renderer/Passes/grid_pass.h"
 #include "../Renderer/Passes/gizmo_pass.h"
+#include "../Renderer/Passes/volumetric_pass.h"
 #include "../Engine/asset_pipeline.h"
 #include "../Sera/sera.h"
 #include "../Editor/editor_context.h"
@@ -264,6 +265,8 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     ctx.skinnedShadowShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/shadow_skinned");
     ctx.gridShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Debug/grid");
     ctx.skyboxShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Skybox/skybox");
+    ctx.volumetricShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Volumetric/volumetric");
+    ctx.volumetricCompositeShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Volumetric/volumetric_composite");
 
     // Shader sampler'ları için sabit doku yuvalarını bağla (Çakışan sampler tiplerini ve GL_INVALID_OPERATION'ı önler)
     auto init_shader_samplers = [](unsigned int shaderID) {
@@ -529,6 +532,7 @@ void Engine::shutdown(EngineContext& ctx, EditorContext& editorCtx)
     // Asenkron görev yöneticisini sonlandır
     core::async_task_manager::instance().shutdown();
 
+    volumetric_pass::shutdown();
     ctx.grid.shutdown();
     ctx.physicsSystem.shutdown();
     ctx.audioSystem.shutdown();

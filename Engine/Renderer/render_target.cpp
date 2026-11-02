@@ -1,6 +1,6 @@
 /**
  * @file render_target.cpp
- * @brief Framebuffer, renk dokusu ve derinlik tamponu oluşturma, yeniden boyutlandırma ve temizleme uygulaması.
+ * @brief Framebuffer, renk dokusu ve derinlik dokusu oluşturma, yeniden boyutlandırma ve temizleme uygulaması.
  */
 
 #include "render_target.h"
@@ -32,8 +32,8 @@ void RenderTarget::create(int w, int h)
         glGenTextures(1, &tex);
     }
 
-    if (rbo == 0) {
-        glGenRenderbuffers(1, &rbo);
+    if (depth_tex == 0) {
+        glGenTextures(1, &depth_tex);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -57,10 +57,25 @@ void RenderTarget::create(int w, int h)
     );
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
 
-    // Derinlik ve şablon (Depth/Stencil) tamponunu yapılandır
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    // Derinlik ve şablon (Depth/Stencil) 2B dokusunu yapılandır (Shader'dan sampler2D ile doğrudan okunabilir)
+    glBindTexture(GL_TEXTURE_2D, depth_tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_DEPTH24_STENCIL8,
+        width,
+        height,
+        0,
+        GL_DEPTH_STENCIL,
+        GL_UNSIGNED_INT_24_8,
+        nullptr
+    );
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depth_tex, 0);
 
     const GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -83,7 +98,7 @@ void RenderTarget::resize(int w, int h)
     width = w;
     height = h;
 
-    // Doku belleğini yeni boyutla yeniden tahsis et
+    // Renk doku belleğini yeni boyutla yeniden tahsis et
     glBindTexture(GL_TEXTURE_2D, tex);
     glTexImage2D(
         GL_TEXTURE_2D,
@@ -97,13 +112,32 @@ void RenderTarget::resize(int w, int h)
         nullptr
     );
 
-    // Renderbuffer belleğini yeni boyutla yeniden tahsis et
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    // Derinlik doku belleğini yeni boyutla yeniden tahsis et
+    if (depth_tex != 0)
+    {
+        glBindTexture(GL_TEXTURE_2D, depth_tex);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_DEPTH24_STENCIL8,
+            width,
+            height,
+            0,
+            GL_DEPTH_STENCIL,
+            GL_UNSIGNED_INT_24_8,
+            nullptr
+        );
+    }
 }
 
 void RenderTarget::destroy()
 {
+    if (depth_tex != 0)
+    {
+        glDeleteTextures(1, &depth_tex);
+        depth_tex = 0;
+    }
+
     if (rbo != 0)
     {
         glDeleteRenderbuffers(1, &rbo);

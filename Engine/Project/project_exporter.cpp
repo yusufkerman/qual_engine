@@ -272,6 +272,8 @@ namespace project {
                 manifestJson["dab2ae4c-56df-4dcb-a781-82fabfacee3d"] = (outDir / "EngineResources" / "Shaders" / "shadow").string();
                 manifestJson["e5c2194b-4b19-4824-a749-33b684cb32fa"] = (outDir / "EngineResources" / "Shaders" / "shadow_skinned").string();
                 manifestJson["b872a912-4c28-4f81-a67b-12a83ef549c2"] = (outDir / "EngineResources" / "Shaders" / "PS1" / "ps1_shader").string();
+                manifestJson["c5f9d91c-bb85-4af0-9ff9-4240a85df7fe"] = (outDir / "EngineResources" / "Shaders" / "Volumetric" / "volumetric").string();
+                manifestJson["d4e29cab-f4ef-4b1b-81f2-b54f7560cd16"] = (outDir / "EngineResources" / "Shaders" / "Volumetric" / "volumetric_composite").string();
                 manifestJson["f18b3e21-9541-4770-bc2d-5b3a8829f001"] = "engine://builtin/sphere";
                 manifestJson["8be082d0-aec8-5a89-adeb-3603feae9e3e"] = "engine://builtin/sphere";
 

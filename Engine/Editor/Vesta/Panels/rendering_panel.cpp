@@ -215,6 +215,77 @@ namespace vesta {
         ImGui::Spacing();
 
         // ====================================================================
+        // 3.5. HACİMSEL IŞIKLANDIRMA (VOLUMETRIC LIGHTING / GOD RAYS)
+        // ====================================================================
+        if (ImGui::CollapsingHeader("Volumetric Lighting (Işık Süzmeleri / God Rays)", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            if (ImGui::Checkbox("Enable Volumetric Lighting", &settings.enable_volumetric_lighting))
+            {
+                m_engine_ctx.renderSettings.enable_volumetric_lighting = settings.enable_volumetric_lighting;
+                project::project_manager::instance().save_project(m_engine_ctx);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Yönlü ışıktan ve gölgelerden gerçek zamanlı hacimsel ışık süzmeleri (God Rays / Crepuscular Rays) üretir.");
+            }
+
+            if (settings.enable_volumetric_lighting)
+            {
+                if (ImGui::SliderFloat("Intensity", &settings.volumetric_intensity, 0.0f, 5.0f, "%.2f"))
+                {
+                    m_engine_ctx.renderSettings.volumetric_intensity = settings.volumetric_intensity;
+                    project::project_manager::instance().save_project(m_engine_ctx);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Hacimsel ışığın parlaklık ve görünürlük çarpanı.");
+                }
+
+                if (ImGui::SliderInt("Sample Steps", &settings.volumetric_steps, 8, 64))
+                {
+                    m_engine_ctx.renderSettings.volumetric_steps = settings.volumetric_steps;
+                    project::project_manager::instance().save_project(m_engine_ctx);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Işın yürütme (Raymarching) örneklem adım sayısı (Daha yüksek = daha pürüzsüz).");
+                }
+
+                if (ImGui::SliderFloat("Scattering (g)", &settings.volumetric_scattering, 0.0f, 0.95f, "%.2f"))
+                {
+                    m_engine_ctx.renderSettings.volumetric_scattering = settings.volumetric_scattering;
+                    project::project_manager::instance().save_project(m_engine_ctx);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Henyey-Greenstein asimetri saçılma faktörü g (Işığa doğru bakıldığında parlama gücü).");
+                }
+
+                if (ImGui::SliderFloat("Density", &settings.volumetric_density, 0.001f, 0.200f, "%.4f"))
+                {
+                    m_engine_ctx.renderSettings.volumetric_density = settings.volumetric_density;
+                    project::project_manager::instance().save_project(m_engine_ctx);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Atmosferdeki sis ve partikül ortam yoğunluğu.");
+                }
+
+                if (ImGui::SliderFloat("Max Distance", &settings.volumetric_max_distance, 10.0f, 300.0f, "%.1f m"))
+                {
+                    m_engine_ctx.renderSettings.volumetric_max_distance = settings.volumetric_max_distance;
+                    project::project_manager::instance().save_project(m_engine_ctx);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Işın yürütmenin hesaplanacağı azami görüş mesafesi.");
+                }
+            }
+        }
+
+        ImGui::Spacing();
+
+        // ====================================================================
         // 4. GÖKYÜZÜ KUTUSU VE ARKA PLAN (SKYBOX & ENVIRONMENT)
         // ====================================================================
         if (ImGui::CollapsingHeader("Skybox & Environment", ImGuiTreeNodeFlags_DefaultOpen))

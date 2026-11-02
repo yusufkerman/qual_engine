@@ -119,4 +119,6 @@ struct EngineContext
     aria::handle<aria::shader_asset> gizmoShaderHandle; ///< Gizmo çizimi için shader referansı.
     aria::handle<aria::shader_asset> shadowShaderHandle;///< Gölge hesaplamaları için shader referansı.
     aria::handle<aria::shader_asset> skinnedShadowShaderHandle; ///< İskeletli modellerin gölge hesaplamaları için shader referansı.
+    aria::handle<aria::shader_asset> volumetricShaderHandle;    ///< Hacimsel ışıklandırma (Volumetric Raymarching) shader referansı.
+    aria::handle<aria::shader_asset> volumetricCompositeShaderHandle; ///< Hacimsel ışık birleştirme (Composite Additive) shader referansı.
 };

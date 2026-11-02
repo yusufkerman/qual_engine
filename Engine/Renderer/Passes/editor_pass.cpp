@@ -8,6 +8,7 @@
 #include "../../Editor/editor_context.h"
 #include "../../Editor/editor_camera.h"
 #include "skybox_pass.h"
+#include "volumetric_pass.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
 
@@ -56,4 +57,7 @@ void editor_pass::render(EngineContext& ctx, EditorContext& editorCtx)
         editorProj,
         true
     );
-}
+
+    // 5. Hacimsel Işıklandırma (Volumetric Lighting / God Rays)
+    volumetric_pass::render(ctx, ctx.editorTarget, editorView, editorProj, editorCtx.camera->position, true);
+}

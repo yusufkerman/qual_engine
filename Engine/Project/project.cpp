@@ -50,6 +50,12 @@ namespace project {
             j["ps1_color_depth"] = r.ps1_color_depth;
             j["ps1_dithering"] = r.ps1_dithering;
             j["ps1_dither_strength"] = r.ps1_dither_strength;
+            j["enable_volumetric_lighting"] = r.enable_volumetric_lighting;
+            j["volumetric_intensity"] = r.volumetric_intensity;
+            j["volumetric_steps"] = r.volumetric_steps;
+            j["volumetric_scattering"] = r.volumetric_scattering;
+            j["volumetric_density"] = r.volumetric_density;
+            j["volumetric_max_distance"] = r.volumetric_max_distance;
             return j;
         }
 
@@ -92,6 +98,12 @@ namespace project {
             try { if (j.contains("ps1_color_depth")) r.ps1_color_depth = j.value("ps1_color_depth", r.ps1_color_depth); } catch (...) {}
             try { if (j.contains("ps1_dithering")) r.ps1_dithering = j.value("ps1_dithering", r.ps1_dithering); } catch (...) {}
             try { if (j.contains("ps1_dither_strength")) r.ps1_dither_strength = j.value("ps1_dither_strength", r.ps1_dither_strength); } catch (...) {}
+            try { if (j.contains("enable_volumetric_lighting")) r.enable_volumetric_lighting = j.value("enable_volumetric_lighting", r.enable_volumetric_lighting); } catch (...) {}
+            try { if (j.contains("volumetric_intensity")) r.volumetric_intensity = j.value("volumetric_intensity", r.volumetric_intensity); } catch (...) {}
+            try { if (j.contains("volumetric_steps")) r.volumetric_steps = j.value("volumetric_steps", r.volumetric_steps); } catch (...) {}
+            try { if (j.contains("volumetric_scattering")) r.volumetric_scattering = j.value("volumetric_scattering", r.volumetric_scattering); } catch (...) {}
+            try { if (j.contains("volumetric_density")) r.volumetric_density = j.value("volumetric_density", r.volumetric_density); } catch (...) {}
+            try { if (j.contains("volumetric_max_distance")) r.volumetric_max_distance = j.value("volumetric_max_distance", r.volumetric_max_distance); } catch (...) {}
         }
 
         nlohmann::json fog_settings_to_json(const fog_settings& f)

@@ -2,7 +2,7 @@
 
 /**
  * @file render_settings.h
- * @brief Motorun tüm grafik boru hattı (Culling, Shadows, Skybox, VSync, Rasterizer, PS1) ayarlarını merkezi olarak yöneten yapı.
+ * @brief Motorun tüm grafik boru hattı (Culling, Shadows, Skybox, VSync, Rasterizer, PS1, Volumetric Lighting) ayarlarını merkezi olarak yöneten yapı.
  */
 
 #include <glm/glm.hpp>
@@ -63,4 +63,14 @@ struct render_settings
     float ps1_color_depth = 32.0f;              ///< Renk derinliği kuantizasyonu (32 = 15-bit RGB555 PS1 standartı, 16 = 12-bit).
     bool ps1_dithering = true;                  ///< 4x4 Bayer matrisi sıralı dithering (Ordered Dithering).
     float ps1_dither_strength = 1.0f;           ///< Dithering matrisi etki gücü çarpanı.
+
+    // ==========================================
+    // 6. HACİMSEL IŞIKLANDIRMA (VOLUMETRIC LIGHTING / GOD RAYS)
+    // ==========================================
+    bool enable_volumetric_lighting = true;      ///< Hacimsel ışık süzmeleri (Volumetric God Rays) aktif mi?
+    float volumetric_intensity = 1.0f;           ///< Hacimsel ışık parlaklık / yoğunluk katsayısı.
+    int volumetric_steps = 24;                   ///< Işın yürütme (Raymarching) örneklem adım sayısı (8 - 64).
+    float volumetric_scattering = 0.6f;          ///< Henyey-Greenstein asimetri saçılma faktörü g (0.0 ile 0.95 arası; pozitif = ileriye saçılma).
+    float volumetric_density = 0.04f;            ///< Sis / partikül ortam yoğunluğu (Extinction/Absorption).
+    float volumetric_max_distance = 60.0f;       ///< Işın yürütme azami hesaplama mesafesi (Metre).
 };

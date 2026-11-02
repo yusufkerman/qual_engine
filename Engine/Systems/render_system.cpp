@@ -209,44 +209,44 @@ void render_system::render(
 
     passStats.shader_batches = static_cast<uint32_t>(m_RenderQueueCache.batches.size());
 
-    // 3. Gölge Haritası için Işık Matrisinin Hesaplanması (Directional Light araması)
-    glm::mat4 lightSpaceMatrix(1.0f);
-    bool hasDirectionalLight = false;
-    light_data directionalLight{};
+    // 3. Gölge Haritası ve Hacimsel Işıklandırma için Işık Matrisinin Hesaplanması (Directional Light araması)
+    m_HasDirectionalLight = false;
+    m_DirectionalLight = {};
+    m_DirectionalLightSpaceMatrix = glm::mat4(1.0f);
+    m_CSMCascades.clear();
 
-    if (ctx.renderSettings.enable_shadows)
+    if (ctx.renderSettings.enable_shadows || ctx.renderSettings.enable_volumetric_lighting)
     {
         for (int i = 0; i < lightCount; ++i)
         {
             if (lights[i].type == 0) // Directional
             {
-                directionalLight = lights[i];
-                lightSpaceMatrix = calculate_light_space_matrix(ctx, lights[i], cameraPosition);
-                hasDirectionalLight = true;
+                m_DirectionalLight = lights[i];
+                m_DirectionalLightSpaceMatrix = calculate_light_space_matrix(ctx, lights[i], cameraPosition);
+                m_HasDirectionalLight = true;
                 break;
             }
         }
     }
 
-    std::vector<csm_cascade_data> csmCascades;
-    if (hasDirectionalLight && ctx.renderSettings.enable_csm)
+    if (m_HasDirectionalLight && ctx.renderSettings.enable_csm)
     {
-        csmCascades = calculate_csm_cascades(ctx, directionalLight, view, projection, cameraPosition);
+        m_CSMCascades = calculate_csm_cascades(ctx, m_DirectionalLight, view, projection, cameraPosition);
     }
 
-    passStats.shadow_pass_active = hasDirectionalLight;
+    passStats.shadow_pass_active = m_HasDirectionalLight && ctx.renderSettings.enable_shadows;
 
     // ========================================================================
     // GÖLGE GEÇİŞİ (SHADOW PASS)
     // ========================================================================
-    if (hasDirectionalLight)
+    if (m_HasDirectionalLight && ctx.renderSettings.enable_shadows)
     {
         const unsigned int shadowGLShaderID = ctx.aria_system->get_shader_id(ctx.shadowShaderHandle);
         const unsigned int skinnedShadowGLShaderID = ctx.aria_system->get_shader_id(ctx.skinnedShadowShaderHandle);
 
-        if (ctx.renderSettings.enable_csm && !csmCascades.empty())
+        if (ctx.renderSettings.enable_csm && !m_CSMCascades.empty())
         {
-            for (size_t c = 0; c < csmCascades.size(); ++c)
+            for (size_t c = 0; c < m_CSMCascades.size(); ++c)
             {
                 ctx.shadowFBO.bind_cascade(static_cast<unsigned int>(c));
 
@@ -267,7 +267,7 @@ void render_system::render(
                             currentShadowCache = &get_shadow_uniforms(currentShaderID);
                             if (currentShadowCache->u_lightSpaceMatrix >= 0)
                             {
-                                glUniformMatrix4fv(currentShadowCache->u_lightSpaceMatrix, 1, GL_FALSE, &csmCascades[c].light_space_matrix[0][0]);
+                                glUniformMatrix4fv(currentShadowCache->u_lightSpaceMatrix, 1, GL_FALSE, &m_CSMCascades[c].light_space_matrix[0][0]);
                             }
                         }
 
@@ -306,7 +306,7 @@ void render_system::render(
                         currentShadowCache = &get_shadow_uniforms(currentShaderID);
                         if (currentShadowCache->u_lightSpaceMatrix >= 0)
                         {
-                            glUniformMatrix4fv(currentShadowCache->u_lightSpaceMatrix, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+                            glUniformMatrix4fv(currentShadowCache->u_lightSpaceMatrix, 1, GL_FALSE, &m_DirectionalLightSpaceMatrix[0][0]);
                         }
                     }
 
@@ -349,7 +349,7 @@ void render_system::render(
         if (u.u_view >= 0) glUniformMatrix4fv(u.u_view, 1, GL_FALSE, &view[0][0]);
         if (u.u_projection >= 0) glUniformMatrix4fv(u.u_projection, 1, GL_FALSE, &projection[0][0]);
         if (u.u_viewPos >= 0) glUniform3fv(u.u_viewPos, 1, &cameraPosition[0]);
-        if (u.u_lightSpaceMatrix >= 0) glUniformMatrix4fv(u.u_lightSpaceMatrix, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+        if (u.u_lightSpaceMatrix >= 0) glUniformMatrix4fv(u.u_lightSpaceMatrix, 1, GL_FALSE, &m_DirectionalLightSpaceMatrix[0][0]);
 
         // Sis (Fog) Parametreleri:
         const bool fogEnabled = ctx.fog.enabled && (isSceneViewport ? ctx.fog.show_in_scene : true);
@@ -387,19 +387,19 @@ void render_system::render(
         if (u.u_PS1Dithering >= 0) glUniform1i(u.u_PS1Dithering, ditherVal ? 1 : 0);
         if (u.u_PS1DitherStrength >= 0) glUniform1f(u.u_PS1DitherStrength, ditherStr);
 
-        const bool csmActive = ctx.renderSettings.enable_shadows && ctx.renderSettings.enable_csm && !csmCascades.empty();
+        const bool csmActive = ctx.renderSettings.enable_shadows && ctx.renderSettings.enable_csm && !m_CSMCascades.empty();
         if (u.u_EnableCSM >= 0) glUniform1i(u.u_EnableCSM, csmActive ? 1 : 0);
         if (csmActive)
         {
-            if (u.u_CascadeCount >= 0) glUniform1i(u.u_CascadeCount, static_cast<int>(csmCascades.size()));
+            if (u.u_CascadeCount >= 0) glUniform1i(u.u_CascadeCount, static_cast<int>(m_CSMCascades.size()));
             if (u.u_CascadePlaneDistances >= 0)
             {
-                float dists[3] = { csmCascades[0].split_distance, csmCascades[1].split_distance, csmCascades[2].split_distance };
+                float dists[3] = { m_CSMCascades[0].split_distance, m_CSMCascades[1].split_distance, m_CSMCascades[2].split_distance };
                 glUniform1fv(u.u_CascadePlaneDistances, 3, dists);
             }
             if (u.u_CascadeLightSpaceMatrices >= 0)
             {
-                glm::mat4 matrices[3] = { csmCascades[0].light_space_matrix, csmCascades[1].light_space_matrix, csmCascades[2].light_space_matrix };
+                glm::mat4 matrices[3] = { m_CSMCascades[0].light_space_matrix, m_CSMCascades[1].light_space_matrix, m_CSMCascades[2].light_space_matrix };
                 glUniformMatrix4fv(u.u_CascadeLightSpaceMatrices, 3, GL_FALSE, &matrices[0][0][0]);
             }
         }

@@ -97,7 +97,10 @@ namespace engine_resources {
             lower == "shaders/debug/grid" ||
             lower == "shaders/skybox/skybox" ||
             lower == "shaders/shadow" ||
-            lower == "shaders/shadow_skinned" || lower == "shaders/ps1/ps1_shader") {
+            lower == "shaders/shadow_skinned" ||
+            lower == "shaders/ps1/ps1_shader" ||
+            lower == "shaders/volumetric/volumetric" ||
+            lower == "shaders/volumetric/volumetric_composite") {
             return true;
         }
 
@@ -114,6 +117,8 @@ namespace engine_resources {
                 guid == builtin_guid::shadow_shader ||
                 guid == builtin_guid::shadow_skinned_shader ||
                 guid == builtin_guid::ps1_shader ||
+                guid == builtin_guid::volumetric_shader ||
+                guid == builtin_guid::volumetric_composite_shader ||
                 guid == builtin_guid::cube_mesh ||
                 guid == builtin_guid::sphere_mesh ||
                 (sphere_v5 && guid == *sphere_v5));
@@ -139,6 +144,8 @@ namespace engine_resources {
         if (lower == "shaders/shadow" || lower == "shadow") return builtin_guid::shadow_shader;
         if (lower == "shaders/shadow_skinned" || lower == "shadow_skinned") return builtin_guid::shadow_skinned_shader;
         if (lower == "shaders/ps1/ps1_shader" || lower == "ps1/ps1_shader" || lower == "ps1_shader") return builtin_guid::ps1_shader;
+        if (lower == "shaders/volumetric/volumetric" || lower == "volumetric/volumetric" || lower == "volumetric") return builtin_guid::volumetric_shader;
+        if (lower == "shaders/volumetric/volumetric_composite" || lower == "volumetric/volumetric_composite" || lower == "volumetric_composite") return builtin_guid::volumetric_composite_shader;
         if (lower == "builtin/cube" || lower == "meshes/cube" || lower == "cube") return builtin_guid::cube_mesh;
         if (lower == "builtin/sphere" || lower == "meshes/sphere" || lower == "sphere") return builtin_guid::sphere_mesh;
 
@@ -154,6 +161,8 @@ namespace engine_resources {
         if (guid == builtin_guid::shadow_shader) return "@engine/Shaders/shadow";
         if (guid == builtin_guid::shadow_skinned_shader) return "@engine/Shaders/shadow_skinned";
         if (guid == builtin_guid::ps1_shader) return "@engine/Shaders/PS1/ps1_shader";
+        if (guid == builtin_guid::volumetric_shader) return "@engine/Shaders/Volumetric/volumetric";
+        if (guid == builtin_guid::volumetric_composite_shader) return "@engine/Shaders/Volumetric/volumetric_composite";
         static const auto sphere_v5 = uuids::uuid::from_string("8be082d0-aec8-5a89-adeb-3603feae9e3e");
         if (guid == builtin_guid::cube_mesh) return "engine://builtin/cube";
         if (guid == builtin_guid::sphere_mesh || (sphere_v5 && guid == *sphere_v5)) return "engine://builtin/sphere";
@@ -226,6 +235,8 @@ namespace engine_resources {
             { builtin_guid::shadow_shader,         "@engine/Shaders/shadow",               "Shaders/shadow",               "Shaders/shadow" },
             { builtin_guid::shadow_skinned_shader, "@engine/Shaders/shadow_skinned",       "Shaders/shadow_skinned",       "Shaders/shadow_skinned" },
             { builtin_guid::ps1_shader,            "@engine/Shaders/PS1/ps1_shader",        "Shaders/PS1/ps1_shader",        "Shaders/PS1/ps1_shader" },
+            { builtin_guid::volumetric_shader,           "@engine/Shaders/Volumetric/volumetric",           "Shaders/Volumetric/volumetric",           "Shaders/Volumetric/volumetric" },
+            { builtin_guid::volumetric_composite_shader, "@engine/Shaders/Volumetric/volumetric_composite", "Shaders/Volumetric/volumetric_composite", "Shaders/Volumetric/volumetric_composite" },
             { builtin_guid::cube_mesh,             "engine://builtin/cube",                "engine://builtin/cube",        "engine://builtin/cube" },
             { builtin_guid::sphere_mesh,           "engine://builtin/sphere",              "engine://builtin/sphere",      "engine://builtin/sphere" }
         };
