@@ -100,6 +100,77 @@ namespace vesta::gizmo_math
     }
 
     /**
+     * @brief Işın (Ray) ile Eksen Hizalı Kutu (AABB) kesişimini (Kay-Kajiya Slab Yöntemi) hesaplar.
+     */
+    inline bool intersect_ray_aabb(
+        const glm::vec3& rayOrigin,
+        const glm::vec3& rayDir,
+        const glm::vec3& boxMin,
+        const glm::vec3& boxMax,
+        float& outTMin)
+    {
+        float tmin = 0.0f;
+        float tmax = std::numeric_limits<float>::max();
+
+        for (int i = 0; i < 3; ++i)
+        {
+            if (std::abs(rayDir[i]) < 1e-7f)
+            {
+                if (rayOrigin[i] < boxMin[i] || rayOrigin[i] > boxMax[i])
+                    return false;
+            }
+            else
+            {
+                const float ood = 1.0f / rayDir[i];
+                float t1 = (boxMin[i] - rayOrigin[i]) * ood;
+                float t2 = (boxMax[i] - rayOrigin[i]) * ood;
+                if (t1 > t2) std::swap(t1, t2);
+
+                tmin = std::max(tmin, t1);
+                tmax = std::min(tmax, t2);
+
+                if (tmin > tmax)
+                    return false;
+            }
+        }
+
+        outTMin = tmin;
+        return true;
+    }
+
+    /**
+     * @brief Işın (Ray) ile Küre (Sphere) kesişimini genel analitik yöntemle hesaplar.
+     */
+    inline bool intersect_ray_sphere(
+        const glm::vec3& rayOrigin,
+        const glm::vec3& rayDir,
+        const glm::vec3& sphereCenter,
+        float radius,
+        float& outT)
+    {
+        const glm::vec3 m = rayOrigin - sphereCenter;
+        const float a = glm::dot(rayDir, rayDir);
+        if (a < 1e-12f) return false;
+
+        const float b = glm::dot(m, rayDir);
+        const float c = glm::dot(m, m) - radius * radius;
+
+        if (c > 0.0f && b > 0.0f) return false;
+
+        const float discr = b * b - a * c;
+        if (discr < 0.0f) return false;
+
+        float t = (-b - std::sqrt(discr)) / a;
+        if (t < 0.0f) {
+            t = (-b + std::sqrt(discr)) / a;
+        }
+        if (t < 0.0f) return false;
+
+        outT = t;
+        return true;
+    }
+
+    /**
      * @brief Bir 2B noktanın doğru parçasına olan en kısa piksel mesafesini hesaplar.
      */
     inline float dist_point_to_segment_2d(const ImVec2& p, const ImVec2& a, const ImVec2& b)

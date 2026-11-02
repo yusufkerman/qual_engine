@@ -4,9 +4,13 @@
  */
 
 #include "material_service.h"
+#include "../../../Core/path_utils.h"
 #include "../../../Engine/asset_pipeline.h" 
 #include "../../../Externals/uuid/uuid.h"   
 #include "../../../Resources/engine_resources.h"
+#include "../../../Gameplay/gameplay_context.h"
+#include "../../../Engine/engine_context.h"
+#include "../../../Project/project.h"
 #include <fstream>
 #include <iostream>
 
@@ -14,6 +18,16 @@ namespace vesta {
 
     material_service::material_service(IEditableWorld& world, command_stack& cmd_stack)
         : m_world(world), m_command_stack(cmd_stack) {
+    }
+
+        static bool is_ps1_retro_mode_active() {
+        if (auto* eCtx = gameplay::context::get_engine_context()) {
+            return eCtx->renderSettings.enable_ps1_mode;
+        }
+        if (project::project_manager::instance().has_active_project()) {
+            return project::project_manager::instance().get_descriptor().rendering.enable_ps1_mode;
+        }
+        return false;
     }
 
     aria::asset_guid material_service::create_new_material(const std::filesystem::path& directory_path, const std::string& name) {
@@ -26,8 +40,14 @@ namespace vesta {
             return {};
         }
 
-        // Varsayılan shader için motor dahili GUID'i kullanılır
-        aria::asset_guid default_shader_guid = engine_resources::builtin_guid::default_shader;
+        // Varsayılan shader için motor dahili GUID'i kullanılır (Retro mod aktifse PS1 shader)
+        const bool ps1_active = is_ps1_retro_mode_active();
+        aria::asset_guid default_shader_guid = ps1_active
+            ? engine_resources::builtin_guid::ps1_shader
+            : engine_resources::builtin_guid::default_shader;
+        std::string default_shader_path = ps1_active
+            ? "@engine/Shaders/PS1/ps1_shader"
+            : "@engine/Shaders/default_shader";
 
         // Standart materyal JSON şablonu dosyaya yazılır (Modern PBR + Geriye Uyumluluk)
         file << "{\n"
@@ -43,6 +63,7 @@ namespace vesta {
             << "  \"shininess\": 32,\n"
             << "  \"normal_strength\": 1.0,\n"
             << "  \"shader_guid\": \"" << uuids::to_string(default_shader_guid) << "\",\n"
+            << "  \"shader_path\": \"" << default_shader_path << "\",\n"
             << "  \"diffuse_texture_guid\": \"00000000-0000-0000-0000-000000000000\",\n"
             << "  \"normal_texture_guid\": \"00000000-0000-0000-0000-000000000000\",\n"
             << "  \"metallic_texture_guid\": \"00000000-0000-0000-0000-000000000000\",\n"
@@ -54,7 +75,7 @@ namespace vesta {
         file.close();
 
         // Dünya adaptörü (IEditableWorld) üzerinden bu yeni dosyaya ait GUID sorgulanır ve döndürülür
-        aria::asset_guid new_guid = m_world.get_guid_from_path(full_path.string());
+        aria::asset_guid new_guid = m_world.get_guid_from_path(qual::path_to_utf8(full_path));
 
         std::cout << "[Vesta MaterialService] Yeni materyal olusturuldu: " << full_path.string() << "\n";
 
@@ -101,7 +122,7 @@ namespace vesta {
             return false;
         }
 
-        std::ofstream file(path_str);
+        std::ofstream file(qual::path_from_utf8(path_str));
         if (!file.is_open()) {
             std::cerr << "[Vesta MaterialService] Hata: Materyal dosyasi kayit icin acilamadi (" << path_str << ")\n";
             return false;

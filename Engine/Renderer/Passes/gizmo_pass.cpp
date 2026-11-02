@@ -76,15 +76,29 @@ namespace
                 physicsActive = true;
             }
 
+            const glm::mat4 worldMat = ecs_transform::get_world_matrix(e, reg);
+            const glm::vec3 worldPos = glm::vec3(worldMat[3]);
+
+            glm::vec3 worldScale;
+            worldScale.x = glm::length(glm::vec3(worldMat[0]));
+            worldScale.y = glm::length(glm::vec3(worldMat[1]));
+            worldScale.z = glm::length(glm::vec3(worldMat[2]));
+            const glm::vec3 effScale = glm::max(worldScale, glm::vec3(0.001f));
+
             if (!physicsActive)
             {
-                const glm::mat4 worldMat = ecs_transform::get_world_matrix(e, reg);
-                const glm::vec3 worldPos = glm::vec3(worldMat[3]);
+                glm::mat3 rotMat;
+                rotMat[0] = glm::vec3(worldMat[0]) / effScale.x;
+                rotMat[1] = glm::vec3(worldMat[1]) / effScale.y;
+                rotMat[2] = glm::vec3(worldMat[2]) / effScale.z;
 
-                modelMatrix = glm::translate(glm::mat4(1.0f), worldPos);
-                modelMatrix = glm::rotate(modelMatrix, transform->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-                modelMatrix = glm::rotate(modelMatrix, transform->rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-                modelMatrix = glm::rotate(modelMatrix, transform->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+                modelMatrix = glm::translate(glm::mat4(1.0f), worldPos) * glm::mat4(rotMat);
+            }
+
+            if (collider.offset != glm::vec3(0.0f))
+            {
+                const glm::vec3 scaledOffset = collider.offset * effScale;
+                modelMatrix = glm::translate(modelMatrix, scaledOffset);
             }
 
             const bool isSelected = (selectedID != -1 && static_cast<int>(e) == selectedID);
@@ -95,12 +109,15 @@ namespace
             switch (collider.type)
             {
             case collider_type::box:
-                ctx.gizmoSystem.DrawWireCube(modelMatrix, collider.extents, gizmoColor);
+                ctx.gizmoSystem.DrawWireCube(modelMatrix, collider.extents * effScale, gizmoColor);
                 break;
 
             case collider_type::sphere:
-                ctx.gizmoSystem.DrawWireSphere(modelMatrix, collider.extents.x, gizmoColor);
+            {
+                const float maxScale = std::max({ effScale.x, effScale.y, effScale.z });
+                ctx.gizmoSystem.DrawWireSphere(modelMatrix, collider.extents.x * maxScale, gizmoColor);
                 break;
+            }
 
             default:
                 break;

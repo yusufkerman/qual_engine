@@ -6,6 +6,8 @@
 #include "gizmo_rotation_tool.h"
 #include "../../../Engine/engine_context.h"
 #include "../../../Renderer/Debug/gizmo_settings.h"
+#include "../CoreState/Commands/modify_transform_command.h"
+#include "../CoreState/command_stack.h"
 
 namespace vesta
 {
@@ -25,6 +27,34 @@ namespace vesta
 
         if (!ctx.isMouseDown)
         {
+            if (m_Active != Handle::None && ctx.cmdStack && !m_DragState.empty())
+            {
+                std::vector<entity_transform_record> records;
+                for (size_t i = 0; i < m_DragState.dragEntities.size(); ++i)
+                {
+                    entity ent = m_DragState.dragEntities[i];
+                    if (auto* t = reg.get_component<transform_component>(ent))
+                    {
+                        if (t->rotation != m_DragState.startRotations[i])
+                        {
+                            records.push_back({
+                                ent,
+                                m_DragState.startLocalPositions[i],
+                                m_DragState.startRotations[i],
+                                m_DragState.startScales[i],
+                                t->position,
+                                t->rotation,
+                                t->scale
+                            });
+                        }
+                    }
+                }
+                if (!records.empty())
+                {
+                    ctx.cmdStack->execute_command(std::make_unique<modify_transform_command>(std::move(records)));
+                }
+            }
+
             m_Active = Handle::None;
             m_DragState.clear();
         }

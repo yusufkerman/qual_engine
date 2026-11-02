@@ -12,6 +12,19 @@
 class physics_system;
 
 /**
+ * @struct physics_raycast_result
+ * @brief Raycast sorgusu sonucunda elde edilen çarpışma verisi.
+ */
+struct physics_raycast_result
+{
+    bool hit{ false };
+    entity hit_entity{ 0 };
+    glm::vec3 point{ 0.0f };
+    glm::vec3 normal{ 0.0f };
+    float distance{ 0.0f };
+};
+
+/**
  * @class physics_api
  * @brief Çalışma zamanında (runtime) fizik gövdelerine kuvvet uygulama, konum sorgulama ve yapısal değişiklik yapma işlevleri sağlar.
  */
@@ -35,6 +48,26 @@ public:
      * @return Hız vektörü. Varlıkta fizik bileşeni yoksa (0,0,0) döner.
      */
     glm::vec3 get_velocity(entity e);
+
+    /**
+     * @brief Varlığın fizik gövdesine ani bir itme (impulse) uygular ve uyuyan gövdeyi uyandırır.
+     */
+    void add_impulse(entity e, const glm::vec3& impulse);
+
+    /**
+     * @brief Varlığın fizik gövdesine belirli bir dünya noktasında itme (impulse) uygulayarak doğrusal ve açısal momentum üretir.
+     */
+    void add_impulse_at_point(entity e, const glm::vec3& impulse, const glm::vec3& point);
+
+    /**
+     * @brief Fizik dünyasında bir ışın (raycast) fırlatarak ilk çarpan katı gövdeyi tespit eder.
+     * @param origin Işının başlangıç konumu.
+     * @param direction Işının doğrultusu.
+     * @param max_distance Maksimum erişim mesafesi.
+     * @param ignore_entity Çarpışma testinde yok sayılacak varlık (Örn. ateş eden oyuncu).
+     * @return Çarpışma sonucu (physics_raycast_result).
+     */
+    physics_raycast_result raycast(const glm::vec3& origin, const glm::vec3& direction, float max_distance = 1000.0f, entity ignore_entity = 0);
 
     /**
      * @brief Kinematik bir gövdeyi belirtilen hedef konuma adım (delta time) süresince pürüzsüz taşır.

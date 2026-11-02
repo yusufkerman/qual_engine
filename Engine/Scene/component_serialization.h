@@ -206,8 +206,11 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(rigidbody_component,
         motion, mass, friction, restitution)
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(collider_component,
-        type, extents)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(collider_component,
+        type, extents, offset)
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(character_controller_component,
+        radius, height, walk_speed, jump_speed, max_slope_angle, step_height, gravity)
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(skinned_mesh_component,
         model_handle, sub_mesh_index, cast_shadows)
@@ -247,12 +250,16 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     // ======================================================
     inline void to_json(json& j, const native_script_component& nsc)
 {
-    j = json{ {"script_name", nsc.script_name} };
+    j = json{
+        {"script_name", nsc.script_name},
+        {"saved_state", nsc.saved_state}
+    };
 }
 
 inline void from_json(const json& j, native_script_component& nsc)
 {
     nsc.script_name = j.value("script_name", "None");
+    nsc.saved_state = j.value("saved_state", "");
 }
 
 // ======================================================

@@ -16,6 +16,8 @@
 #include "../Gizmo/gizmo_rect_tool.h"
 #include "../Gizmo/gizmo_light_tool.h"
 #include "../Gizmo/gizmo_audio_tool.h"
+#include "../Gizmo/gizmo_collider_tool.h"
+#include "../CoreState/Commands/modify_transform_command.h"
 
 struct EngineContext;
 struct EditorContext;
@@ -23,6 +25,8 @@ class registry;
 
 namespace vesta
 {
+    class command_stack;
+
     /**
      * @class scene_gizmo_overlay
      * @brief İlgili transform, ışık ve ses manipülasyon araçlarını koordine eden,
@@ -62,8 +66,10 @@ namespace vesta
                    m_ScaleTool.is_interacting() ||
                    m_RectTool.is_interacting() ||
                    m_LightTool.is_interacting() ||
-                   m_AudioTool.is_interacting();
+                   m_AudioTool.is_interacting() || m_ColliderTool.is_interacting() || m_v_snap_dragging;
         }
+
+        void set_command_stack(command_stack* cs) noexcept { m_command_stack = cs; }
 
         /**
          * @brief Bir varlığın sahne/hiyerarşi ikon tipini bileşenlerine veya özel atamasına göre çözümler.
@@ -104,7 +110,7 @@ namespace vesta
             const glm::vec2& viewportPos,
             const glm::vec2& viewportSize);
 
-        void render_billboard_icons(
+        bool render_billboard_icons(
             EngineContext& engineCtx,
             const glm::mat4& view,
             const glm::mat4& proj,
@@ -112,6 +118,15 @@ namespace vesta
             const glm::vec2& viewportPos,
             const glm::vec2& viewportSize,
             bool allowClick);
+
+        bool process_scene_picking(
+            EngineContext& engineCtx,
+            const glm::mat4& viewProj,
+            const glm::mat4& invViewProj,
+            const glm::vec3& camPos,
+            const glm::vec2& viewportPos,
+            const glm::vec2& viewportSize,
+            const glm::mat4& proj);
 
         void render_transform_gizmo(
             EngineContext& engineCtx,
@@ -130,6 +145,27 @@ namespace vesta
         gizmo_rect_tool        m_RectTool;
         gizmo_light_tool       m_LightTool;
         gizmo_audio_tool       m_AudioTool;
+        gizmo_collider_tool      m_ColliderTool;
+
+        command_stack* m_command_stack = nullptr;
+
+        bool process_vertex_snapping(
+            EngineContext& engineCtx,
+            EditorContext& editorCtx,
+            const glm::mat4& viewProj,
+            const glm::mat4& invViewProj,
+            const glm::vec3& camPos,
+            const glm::vec2& viewportPos,
+            const glm::vec2& viewportSize);
+
+        // Unity-style "V" Key Vertex Snapping State
+        bool m_v_snap_dragging = false;
+        entity m_v_snap_entity = 0;
+        glm::vec3 m_v_source_world{ 0.0f };
+        glm::vec3 m_v_source_offset{ 0.0f };
+        glm::vec3 m_v_target_world{ 0.0f };
+        bool m_v_has_target = false;
+        std::vector<entity_transform_record> m_v_drag_records;
 
         // Performans / Stats Overlay halka tamponu (Frame Time History)
         static constexpr int kFrameHistoryCount = 90;

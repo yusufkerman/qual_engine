@@ -4,13 +4,16 @@
  */
 
 #include "sera_session.h"
+#include "../Core/VFS/vfs.h"
 #include "sera_component_codec.h"
+#include "../Core/path_utils.h"
 #include "../Engine/engine_context.h"
 #include "../ECS/components.h"       
 #include "../Engine/Assets/aria.h"
 #include <fstream>
 #include <iostream>
 #include "../Engine/Scripting/script_factory.h"
+#include "../Engine/asset_pipeline.h"
 
 namespace sera {
 
@@ -24,6 +27,15 @@ namespace sera {
         validation_report report;
         const registry& reg = current_scene.get_registry();
         const auto& all_entities = reg.get_all_entities();
+
+        // Ön-geçiş: tüm varlıkların UUID kaydının mevcut olduğundan emin ol (parent_uuid / active_camera_uuid için)
+        for (const entity e : all_entities)
+        {
+            if (m_entity_registry.get_uuid(e).empty())
+            {
+                m_entity_registry.register_link(e, sera_entity_registry::generate_uuid());
+            }
+        }
 
         json scene_json;
         scene_json["scene_name"] = "Sera_Engine_Scene";
@@ -64,6 +76,13 @@ namespace sera {
 
             entity_json["components"] = json::object();
             json& comps_out = entity_json["components"];
+
+            // Custom Scene/Hierarchy Icon (Gizmo)
+            const auto assigned_icon = m_ctx.gizmoSystem.settings().get_entity_icon(e);
+            if (assigned_icon != entity_icon_type::auto_detect)
+            {
+                comps_out["custom_icon"] = static_cast<int>(assigned_icon);
+            }
 
             // 1. Name Component
             if (reg.has_component<name_component>(e))
@@ -189,6 +208,19 @@ namespace sera {
                     serialize_visitor visitor{ comp_json };
                     sera_reflect_component(*comp, visitor);
                     comps_out["collider_component"] = comp_json;
+                }
+            }
+
+            // 9.1. Character Controller Component
+            if (reg.has_component<character_controller_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<character_controller_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    serialize_visitor visitor{ comp_json };
+                    sera_reflect_component(*comp, visitor);
+                    comps_out["character_controller_component"] = comp_json;
                 }
             }
 
@@ -403,7 +435,7 @@ namespace sera {
             scene_json["entities"].push_back(entity_json);
         }
 
-        std::ofstream file(filepath);
+        std::ofstream file(qual::path_from_utf8(filepath));
         if (!file.is_open())
         {
             report.add_critical("Sahne dosyasi diskte olusturulamadi: " + filepath);
@@ -421,28 +453,44 @@ namespace sera {
     {
         validation_report report;
 
-        std::ifstream file(filepath);
-        if (!file.is_open())
-        {
-            report.add_critical("Sahne dosyasi diskten okunamadi: " + filepath);
-            return report;
-        }
-
         json scene_json;
-        try
+        if (qual::vfs::instance().has_file(filepath))
         {
-            file >> scene_json;
+            try
+            {
+                scene_json = json::parse(qual::vfs::instance().read_text(filepath));
+            }
+            catch (const json::parse_error& e)
+            {
+                report.add_critical("VFS JSON format hatasi: " + std::string(e.what()));
+                return report;
+            }
         }
-        catch (const json::parse_error& e)
+        else
         {
+            std::ifstream file(qual::path_from_utf8(filepath));
+            if (!file.is_open())
+            {
+                report.add_critical("Sahne dosyasi diskten okunamadi: " + filepath);
+                return report;
+            }
+
+            try
+            {
+                file >> scene_json;
+            }
+            catch (const json::parse_error& e)
+            {
+                file.close();
+                report.add_critical("JSON format hatasi: " + std::string(e.what()));
+                return report;
+            }
             file.close();
-            report.add_critical("JSON format hatasi: " + std::string(e.what()));
-            return report;
         }
-        file.close();
 
         out_scene.new_scene();
         m_entity_registry.clear();
+        m_ctx.gizmoSystem.settings().custom_entity_icons.clear();
         registry& reg = out_scene.get_registry();
 
         // 0. Çevre, Sis ve Renk Ayarlarını (Environment) geri yükle
@@ -534,6 +582,17 @@ namespace sera {
                     ? entity_json["components"]
                     : entity_json;
 
+                // Custom Scene/Hierarchy Icon (Gizmo)
+                if (comps_json.contains("custom_icon"))
+                {
+                    try
+                    {
+                        const int icon_val = comps_json["custom_icon"].get<int>();
+                        m_ctx.gizmoSystem.settings().set_entity_icon(current_e, static_cast<entity_icon_type>(icon_val));
+                    }
+                    catch (...) {}
+                }
+
                 // Transform Component
                 if (comps_json.contains("transform_component") && comps_json["transform_component"].is_object())
                 {
@@ -579,6 +638,19 @@ namespace sera {
 
                     comp.sub_mesh_index = comps_json["mesh_component"].value("sub_mesh_index", size_t{ 0 });
                     comp.source = static_cast<mesh_source_type>(comps_json["mesh_component"].value("source", 0));
+
+                    // Primitif kaynak kontrolü ve handle güvencesi
+                    if (!comp.model_handle.is_valid() && m_ctx.aria_system)
+                    {
+                        if (comp.source == mesh_source_type::primitive_cube)
+                        {
+                            comp.model_handle = asset_pipeline::create_cube_mesh(m_ctx.aria_system);
+                        }
+                        else if (comp.source == mesh_source_type::primitive_sphere)
+                        {
+                            comp.model_handle = asset_pipeline::create_sphere_mesh(m_ctx.aria_system);
+                        }
+                    }
 
                     reg.add_component<mesh_component>(current_e, comp);
                 }
@@ -642,6 +714,15 @@ namespace sera {
                     deserialize_visitor visitor{ comps_json["collider_component"] };
                     sera_reflect_component(comp, visitor);
                     reg.add_component<collider_component>(current_e, comp);
+                }
+
+                // Character Controller Component
+                if (comps_json.contains("character_controller_component"))
+                {
+                    character_controller_component comp{};
+                    deserialize_visitor visitor{ comps_json["character_controller_component"] };
+                    sera_reflect_component(comp, visitor);
+                    reg.add_component<character_controller_component>(current_e, comp);
                 }
 
                 // Native Script Component

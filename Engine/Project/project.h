@@ -9,10 +9,17 @@
 #include <filesystem>
 #include "../Renderer/render_settings.h"
 #include "../Renderer/fog_settings.h"
+#include "../Externals/nlohmann/json.hpp"
 
 struct EngineContext;
 
 namespace project {
+
+    nlohmann::json render_settings_to_json(const render_settings& r);
+    void render_settings_from_json(const nlohmann::json& j, render_settings& r);
+
+    nlohmann::json fog_settings_to_json(const fog_settings& f);
+    void fog_settings_from_json(const nlohmann::json& j, fog_settings& f);
 
     /**
      * @struct project_descriptor

@@ -188,6 +188,11 @@ namespace aria {
         return m_registry.get_animation(h);
     }
 
+    const model_asset* system::get_model_data(handle<model_asset> h)
+    {
+        return m_registry.get_model(h);
+    }
+
     const skinned_model_asset* system::get_skinned_model_data(handle<skinned_model_asset> h)
     {
         return m_registry.get_skinned_model(h);

@@ -15,6 +15,8 @@
 
 namespace vesta {
 
+    class command_stack;
+
     /**
      * @struct hierarchy_node_data
      * @brief Arayüz (UI) panelinin hiçbir mantık yürütmeden doğrudan çizebilmesi için tasarlanmış veri taşıyıcı (DTO) yapı.
@@ -39,10 +41,11 @@ namespace vesta {
         IEditableWorld& m_world;
         registry& m_registry;
         editor_selection_manager& m_selection_manager;
+        command_stack* m_command_stack = nullptr;
 
         entity m_renaming_entity{ 0 };
         std::string m_rename_buffer;
-        entity m_clipboard_entity{ 0 };
+        std::vector<entity> m_clipboard_entities;
 
         /**
          * @brief Bir entity'nin doğrudan çocuklarını (kardeş zinciri üzerinden) toplar.
@@ -54,6 +57,8 @@ namespace vesta {
     public:
         hierarchy_view_model(IEditableWorld& world, registry& reg, editor_selection_manager& selection);
         ~hierarchy_view_model() = default;
+
+        void set_command_stack(command_stack* cs) noexcept { m_command_stack = cs; }
 
         // ==========================================
         // VERİ HAZIRLIĞI (SADECE OKUMA / READ ONLY)
@@ -76,6 +81,7 @@ namespace vesta {
         void request_create_entity(const std::string& default_name = "New Entity");
         void request_destroy_entity(entity e);
         void request_set_parent(entity child, entity parent);
+        void request_set_parent_batch(const std::vector<entity>& children, entity parent);
         void request_rename_entity(entity e, const std::string& new_name);
 
         void request_select(entity e, bool accumulate);
@@ -85,11 +91,21 @@ namespace vesta {
         void request_duplicate(entity e);
 
         // ==========================================
+        // GERİ ALMA / YİNELEME (UNDO / REDO)
+        // ==========================================
+
+        bool can_undo() const;
+        bool can_redo() const;
+        void request_undo();
+        void request_redo();
+
+        // ==========================================
         // SEÇİM DURUMU YÖNETİMİ (SELECTION)
         // ==========================================
 
         bool has_selection() const;
         entity get_selected_entity() const;
+        const std::unordered_set<entity>& get_selected_entities() const;
         bool is_selected(entity e) const;
 
         // ==========================================

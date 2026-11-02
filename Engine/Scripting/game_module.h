@@ -10,6 +10,7 @@
 #include <vector>
 #include <functional>
 #include "../Gameplay/gameplay_context.h"
+#include "../Core/Logger/logger.h"
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/Memory.h>
 
@@ -21,12 +22,19 @@ class scriptable_entity;
     #define GAME_MODULE_EXPORT extern "C"
 #endif
 
+#ifdef _DEBUG
+    #define GAME_MODULE_CONFIG_NAME "Debug"
+#else
+    #define GAME_MODULE_CONFIG_NAME "Release"
+#endif
+
 // Modül C-linkage fonksiyon imzaları
 typedef int (*GetScriptCountFn)();
 typedef const char* (*GetScriptNameFn)(int index);
 typedef scriptable_entity* (*InstantiateScriptFn)(const char* name);
 typedef void (*DestroyScriptFn)(scriptable_entity* instance);
-typedef void (*SyncModuleContextFn)(EngineContext* engineCtx, scene* activeScene, gameplay::collision_event_queue* collisionQueue, physics_system* physicsSys, InputState* inputState);
+typedef const char* (*GetModuleBuildConfigurationFn)();
+typedef void (*SyncModuleContextFn)(EngineContext* engineCtx, scene* activeScene, gameplay::collision_event_queue* collisionQueue, physics_system* physicsSys, InputState* inputState, void* engineLogger);
 
 /**
  * @brief Kullanıcı projelerinde GameModule.cpp içinde kullanılacak kayıt makroları.
@@ -80,11 +88,17 @@ typedef void (*SyncModuleContextFn)(EngineContext* engineCtx, scene* activeScene
         if (!instance) return; \
         delete instance; \
     } \
-    GAME_MODULE_EXPORT void SyncModuleContext(EngineContext* engineCtx, scene* activeScene, gameplay::collision_event_queue* collisionQueue, physics_system* physicsSys = nullptr, InputState* inputState = nullptr) { \
+    GAME_MODULE_EXPORT const char* GetModuleBuildConfiguration() { \
+        return GAME_MODULE_CONFIG_NAME; \
+    } \
+    GAME_MODULE_EXPORT void SyncModuleContext(EngineContext* engineCtx, scene* activeScene, gameplay::collision_event_queue* collisionQueue, physics_system* physicsSys = nullptr, InputState* inputState = nullptr, void* engineLogger = nullptr) { \
         static bool s_joltAllocRegistered = false; \
         if (!s_joltAllocRegistered) { \
             JPH::RegisterDefaultAllocator(); \
             s_joltAllocRegistered = true; \
+        } \
+        if (engineLogger) { \
+            qual::log::engine_logger::set_shared_instance(reinterpret_cast<qual::log::engine_logger*>(engineLogger)); \
         } \
         gameplay::context::set_engine_context(engineCtx); \
         gameplay::context::set_active_scene(activeScene); \

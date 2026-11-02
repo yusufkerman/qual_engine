@@ -1,0 +1,49 @@
+{
+    "asset_directory": "Assets",
+    "lighting": {
+        "color": [
+            0.3499999940395355,
+            0.3799999952316284,
+            0.4000000059604645
+        ],
+        "density": 0.03200000151991844,
+        "enabled": true,
+        "show_in_scene": true
+    },
+    "name": "QualEngine",
+    "rendering": {
+        "backface_culling": false,
+        "clear_color_game": [
+            0.009999999776482582,
+            0.009999999776482582,
+            0.019999999552965164
+        ],
+        "clear_color_scene": [
+            0.009999999776482582,
+            0.009999999776482582,
+            0.019999999552965164
+        ],
+        "cull_bias": 0.009999999776482582,
+        "enable_frustum_culling": true,
+        "enable_ps1_mode": true,
+        "enable_shadows": true,
+        "enable_skybox": true,
+        "ps1_affine_texture_mapping": true,
+        "ps1_color_depth": 32.0,
+        "ps1_dither_strength": 1.0,
+        "ps1_dithering": true,
+        "ps1_vertex_snapping": 200.0,
+        "shadow_camera_height": 100.0,
+        "shadow_distance": 150.0,
+        "shadow_far_plane": 500.0,
+        "shadow_map_resolution": 2048,
+        "shadow_near_plane": 0.10000000149011612,
+        "shadow_ortho_size": 150.0,
+        "show_shadow_map_debug": false,
+        "skybox_path": "@engine/Textures/sky/skybox1.png",
+        "vsync": true,
+        "wireframe": false
+    },
+    "start_scene": "Assets/Scenes/Main.json",
+    "version": "1.0.0"
+}

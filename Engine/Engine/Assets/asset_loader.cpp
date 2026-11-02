@@ -4,10 +4,19 @@
  */
 
 #include "asset_loader.h"
+#include "../../Core/path_utils.h"
 #include "../Externals/miniaudio.h"
 #include "../Externals/stb/stb_image.h"
 #include "../Externals/nlohmann/json.hpp"
 #include "../../Resources/engine_resources.h"
+#include "../../Core/VFS/vfs.h"
+#include "aria.h"
+#include "../asset_pipeline.h"
+#include "../../Gameplay/gameplay_context.h"
+#include "../engine_context.h"
+#include "../../Project/project.h"
+#include <filesystem>
+#include <cmath>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -83,6 +92,8 @@ namespace aria {
         if (out_mesh.vertices.empty()) {
             out_mesh.local_center = glm::vec3(0.0f);
             out_mesh.local_radius = 0.0f;
+            out_mesh.aabb_min = glm::vec3(0.0f);
+            out_mesh.aabb_max = glm::vec3(0.0f);
             return;
         }
 
@@ -95,6 +106,8 @@ namespace aria {
         }
 
         out_mesh.local_center = (min_b + max_b) * 0.5f;
+        out_mesh.aabb_min = min_b;
+        out_mesh.aabb_max = max_b;
 
         float max_dist_sq = 0.0f;
         for (const auto& v : out_mesh.vertices) {
@@ -137,14 +150,29 @@ namespace aria {
      * @param scene Düğümlerin bağlı olduğu ana Assimp sahnesi.
      * @param out_model Çıkartılan mesh verilerinin ekleneceği model nesnesi.
      */
-    static void process_assimp_node(aiNode* node, const aiScene* scene, raw_model_data& out_model) {
+    static void process_assimp_node(aiNode* node, const aiScene* scene, raw_model_data& out_model, const glm::mat4& parent_transform = glm::mat4(1.0f)) {
+        const glm::mat4 node_local = assimp_to_glm_mat4(node->mTransformation);
+        const glm::mat4 current_transform = parent_transform * node_local;
+
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-            out_model.sub_meshes.push_back(process_assimp_mesh(mesh));
+            raw_mesh_data r_mesh = process_assimp_mesh(mesh);
+            
+            // Sub-mesh adı: Eğer mesh'in adı geçerliyse onu kullan, yoksa node adını kullan
+            if (mesh->mName.length > 0) {
+                r_mesh.name = mesh->mName.C_Str();
+            } else if (node->mName.length > 0) {
+                r_mesh.name = node->mName.C_Str();
+            } else {
+                r_mesh.name = "SubMesh_" + std::to_string(out_model.sub_meshes.size());
+            }
+
+            r_mesh.local_transform = current_transform;
+            out_model.sub_meshes.push_back(std::move(r_mesh));
         }
 
         for (unsigned int i = 0; i < node->mNumChildren; i++) {
-            process_assimp_node(node->mChildren[i], scene, out_model);
+            process_assimp_node(node->mChildren[i], scene, out_model, current_transform);
         }
     }
 
@@ -157,6 +185,8 @@ namespace aria {
         if (out_mesh.vertices.empty()) {
             out_mesh.local_center = glm::vec3(0.0f);
             out_mesh.local_radius = 0.0f;
+            out_mesh.aabb_min = glm::vec3(0.0f);
+            out_mesh.aabb_max = glm::vec3(0.0f);
             return;
         }
 
@@ -169,6 +199,8 @@ namespace aria {
         }
 
         out_mesh.local_center = (min_b + max_b) * 0.5f;
+        out_mesh.aabb_min = min_b;
+        out_mesh.aabb_max = max_b;
 
         float max_dist_sq = 0.0f;
         for (const auto& v : out_mesh.vertices) {
@@ -394,12 +426,38 @@ namespace aria {
             return std::nullopt;
         }
 
+        const std::string resolved_path = engine_resources::resolve_path(file_path);
+
         int width = 0, height = 0, channels = 0;
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load(file_path.c_str(), &width, &height, &channels, 0);
+        unsigned char* data = nullptr;
+        std::vector<uint8_t> vfs_tex_bytes;
+
+        if (qual::vfs::instance().has_file(file_path)) {
+            vfs_tex_bytes = qual::vfs::instance().read_bytes(file_path);
+            if (!vfs_tex_bytes.empty()) {
+                data = stbi_load_from_memory(vfs_tex_bytes.data(), static_cast<int>(vfs_tex_bytes.size()), &width, &height, &channels, 0);
+            }
+        }
+        if (!data) {
+            std::ifstream disk_file(qual::path_from_utf8(resolved_path), std::ios::binary | std::ios::ate);
+            if (disk_file.is_open()) {
+                const std::streamsize file_size = disk_file.tellg();
+                if (file_size > 0) {
+                    disk_file.seekg(0, std::ios::beg);
+                    std::vector<uint8_t> file_bytes(static_cast<size_t>(file_size));
+                    if (disk_file.read(reinterpret_cast<char*>(file_bytes.data()), file_size)) {
+                        data = stbi_load_from_memory(file_bytes.data(), static_cast<int>(file_bytes.size()), &width, &height, &channels, 0);
+                    }
+                }
+            }
+        }
+        if (!data) {
+            data = stbi_load(resolved_path.c_str(), &width, &height, &channels, 0);
+        }
 
         if (!data) {
-            std::cout << "[ARIA Loader] Hata: Doku dosyasi yuklenemedi: " << file_path << "\n";
+            std::cout << "[ARIA Loader] Hata: Doku dosyasi yuklenemedi: " << resolved_path << "\n";
             return std::nullopt;
         }
 
@@ -424,13 +482,21 @@ namespace aria {
         }
 
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(
-            file_path,
-            aiProcess_Triangulate |
-            aiProcess_GenNormals |
-            aiProcess_JoinIdenticalVertices |
-            aiProcess_CalcTangentSpace
-        );
+        constexpr unsigned int model_pFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace;
+        const aiScene* scene = nullptr;
+        std::vector<uint8_t> vfs_model_bytes;
+
+        if (qual::vfs::instance().has_file(file_path)) {
+            vfs_model_bytes = qual::vfs::instance().read_bytes(file_path);
+            if (!vfs_model_bytes.empty()) {
+                std::string ext = std::filesystem::path(file_path).extension().string();
+                if (!ext.empty() && ext.front() == '.') ext.erase(0, 1);
+                scene = importer.ReadFileFromMemory(vfs_model_bytes.data(), vfs_model_bytes.size(), model_pFlags, ext.c_str());
+            }
+        }
+        if (!scene) {
+            scene = importer.ReadFile(file_path, model_pFlags);
+        }
 
         if (!scene || !scene->mRootNode) {
             std::cout << "[ARIA Loader] Hata: Assimp yukleme basarisiz oldu: " << file_path << "\n";
@@ -538,33 +604,91 @@ namespace aria {
         return out_animations;
     }
 
+    static std::string sanitize_json_backslashes(const std::string& input) {
+        std::string out;
+        out.reserve(input.size() + 16);
+        for (size_t i = 0; i < input.size(); ++i) {
+            if (input[i] == '\\') {
+                if (i + 1 < input.size()) {
+                    char next = input[i + 1];
+                    if (next == '"' || next == '\\' || next == '/' || next == 'b' || next == 'f' || next == 'n' || next == 'r' || next == 't' || next == 'u') {
+                        out.push_back('\\');
+                        out.push_back(next);
+                        ++i;
+                        continue;
+                    }
+                }
+                out.push_back('/');
+            } else {
+                out.push_back(input[i]);
+            }
+        }
+        return out;
+    }
+
     std::optional<raw_material_data> asset_loader::load_material_to_cpu(const std::string& file_path) {
         if (file_path.empty()) {
             std::cout << "[ARIA Loader] Hata: Materyal dosya yolu bos.\n";
             return std::nullopt;
         }
 
-        std::ifstream file(file_path);
-        if (!file.is_open()) {
-            std::cout << "[ARIA Loader] Hata: Materyal dosyasi acilamadi: " << file_path << "\n";
-            return std::nullopt;
+        std::string resolved = engine_resources::resolve_path(file_path);
+        auto fs_path = qual::path_from_utf8(resolved);
+        if (!std::filesystem::exists(fs_path) && project::project_manager::instance().has_active_project()) {
+            const auto proj_root = qual::path_from_utf8(project::project_manager::instance().get_project_root());
+            if (std::filesystem::exists(proj_root / fs_path)) {
+                fs_path = proj_root / fs_path;
+                resolved = qual::path_to_utf8(fs_path);
+            } else if (std::filesystem::exists(proj_root / "Assets" / fs_path)) {
+                fs_path = proj_root / "Assets" / fs_path;
+                resolved = qual::path_to_utf8(fs_path);
+            }
         }
 
         json material_json;
-        try {
-            file >> material_json;
+        bool loaded_from_vfs = false;
+        if (qual::vfs::instance().has_file(resolved)) {
+            try {
+                const std::string text = qual::vfs::instance().read_text(resolved);
+                if (!text.empty()) {
+                    try {
+                        material_json = json::parse(text);
+                    } catch (...) {
+                        material_json = json::parse(sanitize_json_backslashes(text));
+                    }
+                    loaded_from_vfs = true;
+                }
+            } catch (...) {}
         }
-        catch (const json::parse_error& e) {
-            std::cout << "[ARIA Loader] Hata: JSON ayristirma basarisiz: " << e.what() << "\n";
+
+        if (!loaded_from_vfs) {
+            std::ifstream file(fs_path);
+            if (!file.is_open()) {
+                std::cout << "[ARIA Loader] Hata: Materyal dosyasi acilamadi: " << resolved << "\n";
+                return std::nullopt;
+            }
+            std::string raw_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             file.close();
-            return std::nullopt;
+
+            try {
+                material_json = json::parse(raw_content);
+            }
+            catch (const json::parse_error& e) {
+                try {
+                    material_json = json::parse(sanitize_json_backslashes(raw_content));
+                }
+                catch (const json::parse_error& e2) {
+                    std::cout << "[ARIA Loader] Hata: JSON ayristirma basarisiz: " << e2.what() << "\n";
+                    return std::nullopt;
+                }
+            }
         }
-        file.close();
 
         try {
             raw_material_data out_raw_data;
             out_raw_data.debug_path = file_path;
-            out_raw_data.name = material_json.value("name", "Unnamed_Material");
+            const std::string file_stem = qual::path_to_utf8(qual::path_from_utf8(file_path).stem());
+            out_raw_data.name = !file_stem.empty() ? file_stem : material_json.value("name", "Unnamed_Material");
 
             // Render Modu Değerlendirmesi
             if (material_json.contains("render_mode")) {
@@ -686,8 +810,17 @@ namespace aria {
         std::string vert_path = resolved + ".vert";
         std::string frag_path = resolved + ".frag";
 
-        std::ifstream vFile(vert_path);
-        std::ifstream fFile(frag_path);
+        raw_shader_data raw;
+        raw.debug_path = resolved;
+
+        if (qual::vfs::instance().has_file(vert_path) && qual::vfs::instance().has_file(frag_path)) {
+            raw.vertex_source = qual::vfs::instance().read_text(vert_path);
+            raw.fragment_source = qual::vfs::instance().read_text(frag_path);
+            return raw;
+        }
+
+        std::ifstream vFile(qual::path_from_utf8(vert_path));
+        std::ifstream fFile(qual::path_from_utf8(frag_path));
 
         if (!vFile.is_open()) {
             std::cout << "[ARIA Loader] Hata: Vertex shader dosyasi bulunamadi: " << vert_path << std::endl;
@@ -699,9 +832,6 @@ namespace aria {
         if (!vFile.is_open() || !fFile.is_open()) {
             return std::nullopt;
         }
-
-        raw_shader_data raw;
-        raw.debug_path = resolved;
 
         std::stringstream vStr, fStr;
         vStr << vFile.rdbuf();
@@ -718,13 +848,29 @@ namespace aria {
 
     std::optional<raw_audio_data> asset_loader::load_audio_to_cpu(const std::string& file_path) {
         std::string resolved = engine_resources::resolve_path(file_path);
-        if (!std::filesystem::exists(resolved)) {
+        auto fs_path = qual::path_from_utf8(resolved);
+        if (!std::filesystem::exists(fs_path)) {
             std::cerr << "[ARIA Loader] Hata: Ses dosyasi bulunamadi: " << resolved << "\n";
             return std::nullopt;
         }
 
         ma_decoder decoder;
-        ma_result result = ma_decoder_init_file(resolved.c_str(), nullptr, &decoder);
+        ma_result result = MA_ERROR;
+        std::vector<uint8_t> vfs_audio_bytes;
+
+        if (qual::vfs::instance().has_file(file_path)) {
+            vfs_audio_bytes = qual::vfs::instance().read_bytes(resolved);
+            if (!vfs_audio_bytes.empty()) {
+                result = ma_decoder_init_memory(vfs_audio_bytes.data(), vfs_audio_bytes.size(), nullptr, &decoder);
+            }
+        }
+        if (result != MA_SUCCESS) {
+#if defined(_WIN32)
+            result = ma_decoder_init_file_w(fs_path.wstring().c_str(), nullptr, &decoder);
+#else
+            result = ma_decoder_init_file(resolved.c_str(), nullptr, &decoder);
+#endif
+        }
         if (result != MA_SUCCESS) {
             std::cerr << "[ARIA Loader] Hata: Ses dosyasi okunamadi: " << resolved << " (Kod: " << result << ")\n";
             return std::nullopt;
@@ -744,6 +890,284 @@ namespace aria {
 
         ma_decoder_uninit(&decoder);
         return raw;
+    }
+
+
+        static bool is_ps1_retro_mode_active() {
+        if (auto* eCtx = gameplay::context::get_engine_context()) {
+            return eCtx->renderSettings.enable_ps1_mode;
+        }
+        if (project::project_manager::instance().has_active_project()) {
+            return project::project_manager::instance().get_descriptor().rendering.enable_ps1_mode;
+        }
+        return false;
+    }
+
+    std::vector<asset_loader::auto_extracted_material> asset_loader::extract_and_generate_materials_for_model(
+        const std::string& model_file_path,
+        class system* aria_sys
+    ) {
+        std::vector<auto_extracted_material> results;
+        if (model_file_path.empty()) return results;
+
+        std::filesystem::path model_path = qual::path_from_utf8(model_file_path);
+        if (!std::filesystem::exists(model_path)) return results;
+
+        std::string ext = qual::path_to_utf8(model_path.extension());
+        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+        if (ext != ".glb" && ext != ".gltf" && ext != ".fbx" && ext != ".obj" && ext != ".dae") {
+            return results;
+        }
+
+        std::filesystem::path model_dir = model_path.parent_path();
+        std::string model_stem = qual::path_to_utf8(model_path.stem());
+
+        // 1. Hedef Dizinlerin Belirlenmesi:
+        // Modelin bulundugu dizinde derli toplu klasorler (Textures ve Materials)
+        std::filesystem::path tex_dir = model_dir / "Textures";
+        std::filesystem::path mat_dir = (std::filesystem::exists(model_dir / "Materials"))
+            ? (model_dir / "Materials")
+            : model_dir;
+
+        // Eger onceden olusturulmus bir materyal varsa dogrudan onu dondur (var olan ayarlari koru)
+        std::filesystem::path direct_mat = mat_dir / qual::path_from_utf8(model_stem + "_Material.json");
+        std::filesystem::path alt_mat = model_dir / "Materials" / qual::path_from_utf8(model_stem + "_Material.json");
+        std::filesystem::path plain_mat = model_dir / qual::path_from_utf8(model_stem + ".json");
+
+        std::filesystem::path existing_mat_path;
+        if (std::filesystem::exists(direct_mat)) existing_mat_path = direct_mat;
+        else if (std::filesystem::exists(alt_mat)) existing_mat_path = alt_mat;
+        else if (std::filesystem::exists(plain_mat)) existing_mat_path = plain_mat;
+
+        const bool ps1_active = is_ps1_retro_mode_active();
+
+        if (!existing_mat_path.empty()) {
+            std::string path_u8 = qual::path_to_utf8(existing_mat_path);
+            aria::asset_guid guid = asset_pipeline::get_or_create_meta_guid(path_u8);
+            if (aria_sys && !guid.is_nil()) {
+                aria_sys->register_asset_path(guid, path_u8);
+            }
+
+            // Retro/PS1 modu aciksa ve mevcut materyal varsayilan standart shader'da ise PS1 shader'a yukselt
+            if (ps1_active) {
+                try {
+                    std::ifstream in(existing_mat_path);
+                    if (in.is_open()) {
+                        nlohmann::json exJson;
+                        in >> exJson;
+                        in.close();
+                        std::string curSh = exJson.value("shader_path", "");
+                        std::string defShGuid = uuids::to_string(engine_resources::builtin_guid::default_shader);
+                        if (curSh.empty() || curSh == "@engine/Shaders/default_shader" || exJson.value("shader_guid", "") == defShGuid) {
+                            exJson["shader_guid"] = uuids::to_string(engine_resources::builtin_guid::ps1_shader);
+                            exJson["shader_path"] = "@engine/Shaders/PS1/ps1_shader";
+                            std::ofstream out(existing_mat_path);
+                            if (out.is_open()) {
+                                out << exJson.dump(2);
+                            }
+                            if (aria_sys && !guid.is_nil()) {
+                                aria_sys->registry()->reload_material(guid, path_u8);
+                            }
+                        }
+                    }
+                } catch (...) {}
+            }
+
+            results.push_back({ qual::path_to_utf8(existing_mat_path.stem()), path_u8, guid });
+            return results;
+        }
+
+        // Assimp ile modeli ac ve materyal/doku tanimlarini cozumle
+        Assimp::Importer importer;
+        const aiScene* scene = importer.ReadFile(
+            model_file_path,
+            aiProcess_Triangulate | aiProcess_GenNormals
+        );
+        if (!scene) {
+            return results;
+        }
+
+        std::error_code ec;
+        std::filesystem::create_directories(tex_dir, ec);
+
+        // Gomulu veya bagil disk dokusunu tespit edip kaydeden lambda
+        auto resolve_or_extract_texture = [&](aiMaterial* mat, aiTextureType type, const std::string& suffix) -> std::pair<std::string, aria::asset_guid> {
+            aiString texPath;
+            if (mat->GetTexture(type, 0, &texPath) != AI_SUCCESS || texPath.length == 0) {
+                return { "", aria::asset_guid{} };
+            }
+
+            const char* pathStr = texPath.C_Str();
+
+            // A) Gomulu Doku (GLB veya embedded FBX)
+            const aiTexture* embedded = scene->GetEmbeddedTexture(pathStr);
+            if (!embedded && pathStr[0] == '*') {
+                int idx = std::atoi(pathStr + 1);
+                if (idx >= 0 && idx < static_cast<int>(scene->mNumTextures)) {
+                    embedded = scene->mTextures[idx];
+                }
+            }
+
+            if (embedded) {
+                std::string formatHint = (embedded->achFormatHint[0] != '\0') ? embedded->achFormatHint : "png";
+                std::transform(formatHint.begin(), formatHint.end(), formatHint.begin(), ::tolower);
+                if (!formatHint.empty() && formatHint.front() == '.') formatHint.erase(0, 1);
+                if (formatHint.empty()) formatHint = "png";
+
+                std::string outFilename = model_stem + suffix + "." + formatHint;
+                std::filesystem::path outPath = tex_dir / qual::path_from_utf8(outFilename);
+
+                if (!std::filesystem::exists(outPath)) {
+                    if (embedded->mHeight == 0 && embedded->mWidth > 0) {
+                        // Sikistirilmis dosya verisi (PNG, JPG)
+                        std::ofstream out(outPath, std::ios::binary);
+                        if (out.is_open()) {
+                            out.write(reinterpret_cast<const char*>(embedded->pcData), embedded->mWidth);
+                            out.close();
+                        }
+                    }
+                }
+
+                if (std::filesystem::exists(outPath)) {
+                    std::string pathU8 = qual::path_to_utf8(outPath);
+                    aria::asset_guid g = asset_pipeline::get_or_create_meta_guid(pathU8);
+                    if (aria_sys && !g.is_nil()) {
+                        aria_sys->register_asset_path(g, pathU8);
+                    }
+                    return { pathU8, g };
+                }
+            }
+
+            // B) Harici Doku Referansi
+            std::filesystem::path rawTexP = qual::path_from_utf8(pathStr);
+            std::string rawFilename = qual::path_to_utf8(rawTexP.filename());
+
+            std::filesystem::path candidates[] = {
+                tex_dir / qual::path_from_utf8(rawFilename),
+                model_dir / qual::path_from_utf8(rawFilename),
+                model_dir / rawTexP,
+                model_dir.parent_path() / "Textures" / qual::path_from_utf8(rawFilename)
+            };
+
+            for (const auto& cand : candidates) {
+                if (std::filesystem::exists(cand)) {
+                    std::string pathU8 = qual::path_to_utf8(cand);
+                    aria::asset_guid g = asset_pipeline::get_or_create_meta_guid(pathU8);
+                    if (aria_sys && !g.is_nil()) {
+                        aria_sys->register_asset_path(g, pathU8);
+                    }
+                    return { pathU8, g };
+                }
+            }
+
+            return { "", aria::asset_guid{} };
+        };
+
+        unsigned int matCount = scene->mNumMaterials;
+        if (matCount == 0) matCount = 1;
+
+        for (unsigned int m = 0; m < matCount; ++m) {
+            aiMaterial* mat = (scene->mNumMaterials > m) ? scene->mMaterials[m] : nullptr;
+
+            std::string matStem = model_stem + "_Material";
+            if (mat) {
+                aiString rawMatName;
+                if (mat->Get(AI_MATKEY_NAME, rawMatName) == AI_SUCCESS && rawMatName.length > 0) {
+                    std::string candidateName = rawMatName.C_Str();
+                    if (candidateName != "DefaultMaterial" && candidateName != "default" && candidateName != "Material") {
+                        matStem = model_stem + "_" + candidateName;
+                    }
+                }
+            }
+            if (matCount > 1) {
+                matStem += "_" + std::to_string(m);
+            }
+
+            // Dokulari ara/cikart
+            auto [diffPath, diffGuid] = mat ? resolve_or_extract_texture(mat, aiTextureType_DIFFUSE, "_Albedo") : std::make_pair(std::string{}, aria::asset_guid{});
+            if (diffPath.empty() && mat) {
+                std::tie(diffPath, diffGuid) = resolve_or_extract_texture(mat, aiTextureType_BASE_COLOR, "_Albedo");
+            }
+
+            auto [normPath, normGuid] = mat ? resolve_or_extract_texture(mat, aiTextureType_NORMALS, "_Normal") : std::make_pair(std::string{}, aria::asset_guid{});
+            if (normPath.empty() && mat) {
+                std::tie(normPath, normGuid) = resolve_or_extract_texture(mat, aiTextureType_HEIGHT, "_Normal");
+            }
+
+            auto [metalPath, metalGuid] = mat ? resolve_or_extract_texture(mat, aiTextureType_METALNESS, "_Metallic") : std::make_pair(std::string{}, aria::asset_guid{});
+            if (metalPath.empty() && mat) {
+                std::tie(metalPath, metalGuid) = resolve_or_extract_texture(mat, aiTextureType_DIFFUSE_ROUGHNESS, "_Roughness");
+            }
+            if (metalPath.empty() && mat) {
+                std::tie(metalPath, metalGuid) = resolve_or_extract_texture(mat, aiTextureType_UNKNOWN, "_PBR");
+            }
+
+            auto [emissPath, emissGuid] = mat ? resolve_or_extract_texture(mat, aiTextureType_EMISSIVE, "_Emissive") : std::make_pair(std::string{}, aria::asset_guid{});
+
+            // Renk ve PBR katsayilari
+            aiColor4D baseColor(1.0f, 1.0f, 1.0f, 1.0f);
+            if (mat) {
+                if (mat->Get(AI_MATKEY_BASE_COLOR, baseColor) != AI_SUCCESS) {
+                    mat->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor);
+                }
+            }
+
+            float metallic = 0.0f;
+            float roughness = 0.5f;
+            if (mat) {
+                mat->Get(AI_MATKEY_METALLIC_FACTOR, metallic);
+                mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
+            }
+
+            std::filesystem::path finalMatPath = mat_dir / qual::path_from_utf8(matStem + ".json");
+            std::string finalMatPathU8 = qual::path_to_utf8(finalMatPath);
+
+            nlohmann::json mat_json;
+            mat_json["type"] = "material";
+            mat_json["name"] = matStem;
+            mat_json["base_color"] = { baseColor.r, baseColor.g, baseColor.b, baseColor.a };
+            mat_json["metallic"] = metallic;
+            mat_json["roughness"] = roughness;
+            mat_json["ao"] = 1.0f;
+            mat_json["emissive_color"] = { 0.0f, 0.0f, 0.0f };
+            mat_json["emissive_intensity"] = 0.0f;
+            mat_json["specular_strength"] = 0.5f;
+            mat_json["shininess"] = std::pow(1.0f - roughness, 2.0f) * 256.0f;
+            mat_json["normal_strength"] = 1.0f;
+            mat_json["texture_scale"] = { 1.0f, 1.0f };
+            mat_json["render_mode"] = 0;
+            mat_json["alpha_threshold"] = 0.1f;
+            if (ps1_active) {
+                mat_json["shader_guid"] = uuids::to_string(engine_resources::builtin_guid::ps1_shader);
+                mat_json["shader_path"] = "@engine/Shaders/PS1/ps1_shader";
+            } else {
+                mat_json["shader_guid"] = uuids::to_string(engine_resources::builtin_guid::default_shader);
+                mat_json["shader_path"] = "@engine/Shaders/default_shader";
+            }
+            mat_json["diffuse_texture_guid"] = diffGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(diffGuid);
+            mat_json["normal_texture_guid"] = normGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(normGuid);
+            mat_json["metallic_texture_guid"] = metalGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(metalGuid);
+            mat_json["roughness_texture_guid"] = metalGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(metalGuid);
+            mat_json["ao_texture_guid"] = "00000000-0000-0000-0000-000000000000";
+            mat_json["emissive_texture_guid"] = emissGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(emissGuid);
+            mat_json["specular_texture_guid"] = "00000000-0000-0000-0000-000000000000";
+
+            std::ofstream out(finalMatPath);
+            if (out.is_open()) {
+                out << mat_json.dump(2);
+                out.close();
+                std::cout << "[ARIA] Model icin otomatik PBR materyal olusturuldu: " << finalMatPathU8 << std::endl;
+            }
+
+            aria::asset_guid matGuid = asset_pipeline::get_or_create_meta_guid(finalMatPathU8);
+            if (aria_sys && !matGuid.is_nil()) {
+                aria_sys->register_asset_path(matGuid, finalMatPathU8);
+            }
+
+            results.push_back({ matStem, finalMatPathU8, matGuid });
+        }
+
+        return results;
     }
 
 } // namespace aria

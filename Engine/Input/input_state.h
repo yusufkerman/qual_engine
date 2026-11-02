@@ -21,6 +21,9 @@ struct InputState
     bool keys[GLFW_KEY_LAST + 1]{};                  ///< Mevcut karedeki tuş basılma durumları.
     bool prevKeys[GLFW_KEY_LAST + 1]{};              ///< Bir önceki karedeki tuş durumları.
 
+    bool mouseButtons[GLFW_MOUSE_BUTTON_LAST + 1]{};      ///< Mevcut karedeki fare tuşu basılma durumları.
+    bool prevMouseButtons[GLFW_MOUSE_BUTTON_LAST + 1]{};  ///< Bir önceki karedeki fare tuşu durumları.
+
     bool actions[static_cast<int>(InputAction::COUNT)]{};     ///< Mevcut karedeki eylem durumları.
     bool prevActions[static_cast<int>(InputAction::COUNT)]{}; ///< Bir önceki karedeki eylem durumları.
 

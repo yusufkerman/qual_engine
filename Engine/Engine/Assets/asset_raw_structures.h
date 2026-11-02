@@ -79,11 +79,15 @@ namespace aria {
      * @brief Alt mesh (sub-mesh) verilerini ve yerel sınır (bounding) hesaplamalarını barındırır.
      */
     struct raw_mesh_data {
+        std::string name;                 ///< Alt ağ (sub-mesh) veya düğüm adı (Örn: "Magazine", "Barrel").
+        glm::mat4 local_transform{ 1.0f };///< Ebeveyn düğüme veya köke göre yerel dönüşüm matrisi.
         std::vector<raw_vertex> vertices; ///< Köşe noktaları dizisi.
         std::vector<uint32_t> indices;    ///< Köşe indeksleri dizisi (Çizim sırası).
 
         glm::vec3 local_center{ 0.0f }; ///< Mesh'in yerel merkez noktası.
         float local_radius{ 0.0f };     ///< Mesh'in yerel sınırlayıcı küre yarıçapı (Frustum culling için).
+        glm::vec3 aabb_min{ 0.0f };     ///< Mesh'in yerel eksen hizali kutu minimum kosesi.
+        glm::vec3 aabb_max{ 0.0f };     ///< Mesh'in yerel eksen hizali kutu maksimum kosesi.
 
         /**
          * @brief GPU aktarımı tamamlandıktan sonra vektörleri ve kapasitelerini sıfırlar.
@@ -146,6 +150,8 @@ namespace aria {
 
         glm::vec3 local_center{ 0.0f };           ///< Mesh'in yerel merkez noktası.
         float local_radius{ 0.0f };               ///< Mesh'in yerel sınırlayıcı küre yarıçapı.
+        glm::vec3 aabb_min{ 0.0f };               ///< Mesh'in yerel eksen hizali kutu minimum kosesi.
+        glm::vec3 aabb_max{ 0.0f };               ///< Mesh'in yerel eksen hizali kutu maksimum kosesi.
 
         /**
          * @brief GPU aktarımı tamamlandıktan sonra vektörleri ve kapasitelerini sıfırlar.

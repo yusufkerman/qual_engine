@@ -1,0 +1,15 @@
+================================================================================
+                   QUALENGINE POST-MORTEM COKME RAPORU                         
+================================================================================
+Zaman Damgasi     : 20261102_164933
+Cokme Nedeni      : CRT abort() veya SIGABRT Sinyali Alindi
+Process ID (PID)  : 15900
+Thread ID (TID)   : 33064
+Minidump Dosyasi  : Crashes/QualEngine_Crash_20261102_164933.dmp (Basariyla Yazildi)
+================================================================================
+Hata Ayiklama Rehberi:
+  1. Visual Studio veya WinDbg ile 'Crashes/QualEngine_Crash_20261102_164933.dmp' dosyasini acin.
+  2. 'Debug with Native Only' secenegini secin.
+  3. Cokme anindaki kaynak kod satiri, yigin izi (callstack) ve yerel degiskenler
+     otomatik olarak incelenebilir.
+================================================================================

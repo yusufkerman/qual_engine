@@ -11,6 +11,7 @@
 #include "../ECS/registry.h"
 #include "transform_wrapper.h"
 #include "rigidbody_wrapper.h"
+#include "character_controller_wrapper.h"
 
 namespace gameplay
 {
@@ -79,6 +80,11 @@ namespace gameplay
          * @brief Varlığın fizik gövdesi (Rigidbody) sarmalayıcısına erişir.
          */
         [[nodiscard]] rigidbody_wrapper rigidbody();
+
+        /**
+         * @brief Varligin kinematik karakter kontrolcusu (CharacterController) sarmalayicisina erisir.
+         */
+        [[nodiscard]] character_controller_wrapper character_controller();
 
         /**
          * @brief Varlığın ses kaynağı (AudioSource) sarmalayıcısına erişir.

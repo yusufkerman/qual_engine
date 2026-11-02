@@ -17,6 +17,8 @@ struct EngineContext;
 
 namespace vesta
 {
+    class command_stack;
+
     /**
      * @struct gizmo_tool_context
      * @brief Bir gizmo aracının fare etkileşimini ve çizimini icra edebilmesi için gerekli parametre paketi.
@@ -43,6 +45,7 @@ namespace vesta
         const std::vector<entity>& activeEntities;
         entity primaryEntity;
         ImDrawList* drawList;
+        command_stack* cmdStack = nullptr;
     };
 
     /**
@@ -133,4 +136,3 @@ namespace vesta
         virtual void process(const gizmo_tool_context& ctx) = 0;
     };
 } // namespace vesta
-

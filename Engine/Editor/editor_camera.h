@@ -37,6 +37,13 @@ public:
     glm::vec3 saved3DRotation{ 0.0f, 0.0f, 0.0f };
 
     /**
+     * @brief Kamerayı belirtilen dünya noktasına ve mesafesine doğru akıcı şekilde odaklar (Focus).
+     */
+    void focus_on(const glm::vec3& target_point, float target_distance = 5.0f, bool instant = false);
+
+    bool is_focus_active() const noexcept { return m_focusActive; }
+
+    /**
      * @brief 2B Ortografik mod ile 3B Perspektif mod arasında geçiş yapar.
      */
     void set2DMode(bool enabled);
@@ -45,7 +52,7 @@ public:
     /**
      * @brief Fare girdi durumunu ve kaydırma adımlarını sıfırlar.
      */
-    void resetMouseState();
+    void resetMouseState(GLFWwindow* window = nullptr);
 
     /**
      * @brief Kullanıcı girdilerini işleyerek kamera konum ve yönelimini günceller.
@@ -73,4 +80,9 @@ public:
      * @brief Verilen en/boy oranına (aspect ratio) göre projeksiyon (Perspektif / Ortografik) matrisini hesaplar.
      */
     glm::mat4 getProjectionMatrix(float aspect) const;
+
+private:
+    bool m_focusActive = false;
+    glm::vec3 m_focusTarget{ 0.0f };
+    float m_focusDistance = 5.0f;
 };

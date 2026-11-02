@@ -41,8 +41,19 @@ void update_fly_camera(
     const bool rightHeld = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
     const bool shiftHeld = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
 
-    // Shift tuşuna basılıysa hareketi hızlandır
-    const float speed = moveSpeed * (shiftHeld ? 3.0f : 1.0f);
+    // Shift basili tutuldukca kademeli olarak ivmelenir (3x ile baslar, basili tutuldukca 15x'e kadar cikar)
+    if (shiftHeld && state.capturingMouse) {
+        state.shiftHoldTime += 0.016f;
+    } else {
+        state.shiftHoldTime = 0.0f;
+    }
+
+    float shiftMultiplier = 1.0f;
+    if (shiftHeld) {
+        shiftMultiplier = 3.0f + std::min(state.shiftHoldTime * 6.0f, 12.0f);
+    }
+
+    const float speed = moveSpeed * shiftMultiplier;
 
     // Sağ tıka İLK basıldığı an
     if (rightHeld && !state.prevRightHeld && hoverGate)
@@ -53,7 +64,7 @@ void update_fly_camera(
     }
 
     // Sağ tık BIRAKILDIĞI an
-    if (!rightHeld && state.prevRightHeld)
+    if (!rightHeld && (state.prevRightHeld || state.capturingMouse))
     {
         state.capturingMouse = false;
         state.firstMouse = true;

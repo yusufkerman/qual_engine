@@ -12,6 +12,7 @@
 #include <functional> 
 #include "../Externals/uuid/uuid.h"
 #include "../Externals/nlohmann/json.hpp"
+#include "../../Core/path_utils.h"
 
 namespace aria {
 
@@ -74,7 +75,7 @@ namespace aria {
                 for (const auto& [guid, path] : m_guid_to_path) {
                     manifest_json[uuids::to_string(guid)] = path;
                 }
-                std::ofstream file(manifest_path);
+                std::ofstream file(qual::path_from_utf8(manifest_path));
                 if (!file.is_open()) return false;
                 file << manifest_json.dump(4);
                 return true;
@@ -92,7 +93,7 @@ namespace aria {
          */
         bool load_from_disk(const std::string& manifest_path) {
             try {
-                std::ifstream file(manifest_path);
+                std::ifstream file(qual::path_from_utf8(manifest_path));
                 if (!file.is_open()) return false;
 
                 nlohmann::json manifest_json;

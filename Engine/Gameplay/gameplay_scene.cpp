@@ -7,6 +7,8 @@
 #include "gameplay_context.h"
 #include "../Scene/scene.h"
 #include "../ECS/components.h"
+#include "../Systems/physics_system.h"
+#include "../Systems/physics_api.h"
 
 namespace gameplay
 {
@@ -92,5 +94,27 @@ namespace gameplay
             }
         }
         return gameplay_entity();
+    }
+
+    raycast_hit scene_service::raycast(const glm::vec3& origin, const glm::vec3& direction, float max_distance, entity ignore_entity)
+    {
+        raycast_hit hit;
+        auto* phys = context::get_physics_system();
+        auto* reg = context::get_registry();
+        if (!phys || !reg)
+        {
+            return hit;
+        }
+
+        auto res = phys->api().raycast(origin, direction, max_distance, ignore_entity);
+        hit.has_hit = res.hit;
+        hit.point = res.point;
+        hit.normal = res.normal;
+        hit.distance = res.distance;
+        if (res.hit && res.hit_entity != 0)
+        {
+            hit.entity = gameplay_entity(res.hit_entity, reg);
+        }
+        return hit;
     }
 }

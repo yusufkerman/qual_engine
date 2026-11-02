@@ -37,7 +37,51 @@ namespace aria {
             maxB = glm::max(maxB, g_vert.position);
         }
 
+        // Tangent hesaplaması (indisli üçgenler üzerinden)
+        for (size_t i = 0; i + 2 < out.indices.size(); i += 3) {
+            uint32_t i0 = out.indices[i];
+            uint32_t i1 = out.indices[i + 1];
+            uint32_t i2 = out.indices[i + 2];
+
+            if (i0 < out.vertices.size() && i1 < out.vertices.size() && i2 < out.vertices.size()) {
+                const glm::vec3& v0 = out.vertices[i0].position;
+                const glm::vec3& v1 = out.vertices[i1].position;
+                const glm::vec3& v2 = out.vertices[i2].position;
+
+                const glm::vec2& uv0 = out.vertices[i0].tex_coord;
+                const glm::vec2& uv1 = out.vertices[i1].tex_coord;
+                const glm::vec2& uv2 = out.vertices[i2].tex_coord;
+
+                glm::vec3 deltaPos1 = v1 - v0;
+                glm::vec3 deltaPos2 = v2 - v0;
+
+                glm::vec2 deltaUV1 = uv1 - uv0;
+                glm::vec2 deltaUV2 = uv2 - uv0;
+
+                float r = deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x;
+                if (std::abs(r) > 1e-6f) {
+                    glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * (1.0f / r);
+                    out.vertices[i0].tangent += tangent;
+                    out.vertices[i1].tangent += tangent;
+                    out.vertices[i2].tangent += tangent;
+                }
+            }
+        }
+
+        for (auto& v : out.vertices) {
+            if (glm::length(v.tangent) > 1e-5f) {
+                // Gram-Schmidt ortogonalizasyonu
+                v.tangent = glm::normalize(v.tangent - v.normal * glm::dot(v.normal, v.tangent));
+            } else {
+                glm::vec3 c1 = glm::cross(v.normal, glm::vec3(0.0f, 0.0f, 1.0f));
+                glm::vec3 c2 = glm::cross(v.normal, glm::vec3(0.0f, 1.0f, 0.0f));
+                v.tangent = glm::normalize(glm::length(c1) > glm::length(c2) ? c1 : c2);
+            }
+        }
+
         out.local_center = (minB + maxB) * 0.5f;
+        out.aabb_min = minB;
+        out.aabb_max = maxB;
         float maxDistSq = 0.0f;
         for (const auto& v : out.vertices) {
             glm::vec3 diff = v.position - out.local_center;
@@ -61,15 +105,28 @@ namespace aria {
         modelData.debug_path = file_path;
 
         // Sanal Yol (Virtual File System) Kontrolü
-        if (file_path == "engine://builtin/cube") {
+        if (file_path == "engine://builtin/cube" || file_path == "internal://primitive_cube") {
             generated_mesh_data raw_cube = mesh_generator::generate_cube();
             modelData.sub_meshes.push_back(convert_generator_to_raw_mesh(raw_cube));
             return add_procedural_model(guid, modelData);
         }
-        else if (file_path.rfind("engine://builtin/sphere_", 0) == 0) {
+        else if (file_path == "engine://builtin/sphere" || file_path == "internal://primitive_sphere") {
+            // Varsayılan birim küre (yarıçap = 0.5f, çap = 1.0f birim küp ile birebir uyumlu)
+            generated_mesh_data raw_sphere = mesh_generator::generate_sphere(0.5f, 36, 18);
+            modelData.sub_meshes.push_back(convert_generator_to_raw_mesh(raw_sphere));
+            return add_procedural_model(guid, modelData);
+        }
+        else if (file_path.rfind("engine://builtin/sphere_", 0) == 0 || file_path.rfind("internal://primitive_sphere_", 0) == 0) {
             // Yoldan yarıçap değerini güvenli bir şekilde ayrıştır
-            std::string radius_str = file_path.substr(24); // "engine://builtin/sphere_" uzunluğu
-            float radius = std::stof(radius_str);
+            size_t prefix_len = (file_path.rfind("engine://builtin/sphere_", 0) == 0) ? 24 : 26;
+            std::string radius_str = file_path.substr(prefix_len);
+            float radius = 0.5f;
+            try {
+                radius = std::stof(radius_str);
+            }
+            catch (...) {
+                radius = 0.5f;
+            }
 
             generated_mesh_data raw_sphere = mesh_generator::generate_sphere(radius, 36, 18);
             modelData.sub_meshes.push_back(convert_generator_to_raw_mesh(raw_sphere));
@@ -105,9 +162,13 @@ namespace aria {
         // Mesh meta veri paketini (sub_meshes dizisini) kuryeden ayıklayıp dolduruyoruz
         slot.asset.sub_meshes.resize(raw_data.sub_meshes.size());
         for (size_t i = 0; i < raw_data.sub_meshes.size(); ++i) {
+            slot.asset.sub_meshes[i].name = raw_data.sub_meshes[i].name;
+            slot.asset.sub_meshes[i].local_transform = raw_data.sub_meshes[i].local_transform;
             slot.asset.sub_meshes[i].index_count = static_cast<unsigned int>(raw_data.sub_meshes[i].indices.size());
             slot.asset.sub_meshes[i].local_center = raw_data.sub_meshes[i].local_center;
             slot.asset.sub_meshes[i].local_radius = raw_data.sub_meshes[i].local_radius;
+            slot.asset.sub_meshes[i].aabb_min = raw_data.sub_meshes[i].aabb_min;
+            slot.asset.sub_meshes[i].aabb_max = raw_data.sub_meshes[i].aabb_max;
         }
 
         handle<model_asset> h{ slot_idx, gen };
@@ -596,6 +657,8 @@ namespace aria {
             slot.asset.sub_meshes[i].index_count = static_cast<unsigned int>(raw_data.sub_meshes[i].indices.size());
             slot.asset.sub_meshes[i].local_center = raw_data.sub_meshes[i].local_center;
             slot.asset.sub_meshes[i].local_radius = raw_data.sub_meshes[i].local_radius;
+            slot.asset.sub_meshes[i].aabb_min = raw_data.sub_meshes[i].aabb_min;
+            slot.asset.sub_meshes[i].aabb_max = raw_data.sub_meshes[i].aabb_max;
         }
 
         // Eğer iskelet varsa, alt iskelet varlığı olarak da kaydet ve bağla

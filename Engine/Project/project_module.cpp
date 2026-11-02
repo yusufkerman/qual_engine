@@ -8,6 +8,7 @@
 #include "../Scripting/game_module.h"
 #include "../Engine/Scripting/script_factory.h"
 #include "../Scene/scene.h"
+#include "../Scene/scriptable_entity.h"
 #include "../ECS/components.h"
 #include "../Engine/engine.h"
 #include "../Resources/engine_resources.h"
@@ -15,6 +16,7 @@
 #include "qual_build_config.h"
 #endif
 #include <windows.h>
+#include "../Core/path_utils.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -93,13 +95,18 @@ namespace project {
     bool project_module::load_module(const std::string& dllPath) {
         unload_module();
 
-        if (dllPath.empty() || !std::filesystem::exists(dllPath)) {
+        if (dllPath.empty()) {
+            std::cerr << "[ProjectModule] Hata: Modul yolu bos.\n";
+            return false;
+        }
+
+        const std::filesystem::path origPath = qual::path_from_utf8(dllPath);
+        if (!std::filesystem::exists(origPath)) {
             std::cerr << "[ProjectModule] Hata: Modul dosyasi bulunamadi: " << dllPath << "\n";
             return false;
         }
 
         try {
-            const std::filesystem::path origPath(dllPath);
             const std::filesystem::path dir = origPath.parent_path();
             const std::filesystem::path runtimePath = dir / "GameModule_runtime.dll";
 
@@ -110,20 +117,20 @@ namespace project {
                 std::cerr << "[ProjectModule] Uyari: Calisma kopyasi olusturulamadi, dogrudan yuklenecek: " << ec.message() << "\n";
             }
 
-            const std::string loadPath = std::filesystem::exists(runtimePath) ? runtimePath.string() : origPath.string();
+            const std::filesystem::path loadPath = std::filesystem::exists(runtimePath) ? runtimePath : origPath;
 
             // PDB sembol dosyasını da kopyala (Debug sırasındaki semboller için)
-            const std::filesystem::path origPdb = dir / (origPath.stem().string() + ".pdb");
+            const std::filesystem::path origPdb = dir / (origPath.stem().wstring() + L".pdb");
             const std::filesystem::path runtimePdb = dir / "GameModule_runtime.pdb";
             if (std::filesystem::exists(origPdb)) {
                 std::filesystem::copy_file(origPdb, runtimePdb, std::filesystem::copy_options::overwrite_existing, ec);
             }
 
-            // 2. DLL'i belleğe yükle
-            HMODULE hMod = LoadLibraryA(loadPath.c_str());
+            // 2. DLL'i belleğe yükle (Unicode güvenli LoadLibraryW)
+            HMODULE hMod = LoadLibraryW(loadPath.c_str());
             if (!hMod) {
                 DWORD err = GetLastError();
-                std::cerr << "[ProjectModule] Hata: DLL yuklenemedi (Kod: " << err << "): " << loadPath << "\n";
+                std::cerr << "[ProjectModule] Hata: DLL yuklenemedi (Kod: " << err << "): " << qual::path_to_utf8(loadPath) << "\n";
                 return false;
             }
 
@@ -133,6 +140,7 @@ namespace project {
             auto pInstantiate = reinterpret_cast<InstantiateScriptFn>(GetProcAddress(hMod, "InstantiateScript"));
             auto pDestroy = reinterpret_cast<DestroyScriptFn>(GetProcAddress(hMod, "DestroyScript"));
             auto pSyncContext = reinterpret_cast<SyncModuleContextFn>(GetProcAddress(hMod, "SyncModuleContext"));
+            auto pGetBuildConf = reinterpret_cast<GetModuleBuildConfigurationFn>(GetProcAddress(hMod, "GetModuleBuildConfiguration"));
 
             if (!pGetCount || !pGetName || !pInstantiate || !pDestroy) {
                 std::cerr << "[ProjectModule] Hata: Modulde zorunlu C-linkage fonksiyonlar bulunamadi!\n";
@@ -140,11 +148,30 @@ namespace project {
                 return false;
             }
 
+            // ABI & Konfigurasyon Uyum Guvenligi (Debug vs Release cakismasini onle)
+            if (pGetBuildConf) {
+                const char* modConf = pGetBuildConf();
+#ifdef _DEBUG
+                const bool hostIsDebug = true;
+#else
+                const bool hostIsDebug = false;
+#endif
+                const bool dllIsDebug = (modConf && std::string(modConf) == "Debug");
+                if (hostIsDebug != dllIsDebug) {
+                    std::cerr << "[ProjectModule] HATA: ABI / Konfigurasyon Uyumsuzlugu!\n"
+                              << "  Ana Calistirici: " << (hostIsDebug ? "Debug" : "Release") << "\n"
+                              << "  Yuklenen DLL   : " << (modConf ? modConf : "Bilinmiyor") << "\n"
+                              << "  STL/EnTT bellek yapisi uyumsuzlugundan kaynaklanabilecek cokmeleri onlemek icin modul yuklenmedi.\n";
+                    FreeLibrary(hMod);
+                    return false;
+                }
+            }
+
             m_hModule = hMod;
             m_syncContextFn = reinterpret_cast<void*>(pSyncContext);
             m_isLoaded = true;
-            m_originalDllPath = origPath.string();
-            m_runtimeDllPath = loadPath;
+            m_originalDllPath = qual::path_to_utf8(origPath);
+            m_runtimeDllPath = qual::path_to_utf8(loadPath);
             m_loadedScripts.clear();
 
             // DLL içerisindeki statik motor bağlamını ve Jolt bellek ayırıcısını hemen senkronize et
@@ -187,6 +214,15 @@ namespace project {
                 }
                 for (const auto& [e, name] : scriptsToBind) {
                     script_factory::instantiate_script(name, e, reg);
+                    auto* scriptComp = reg.get_component<native_script_component>(e);
+                    if (scriptComp && scriptComp->instance && !scriptComp->saved_state.empty()) {
+                        try {
+                            scriptComp->instance->deserialize_state(scriptComp->saved_state);
+                        } catch (...) {
+                            // Guvenli geri dusus
+                        }
+                        scriptComp->saved_state.clear();
+                    }
                 }
             }
 
@@ -213,17 +249,25 @@ namespace project {
            gameplay::context::get_active_scene(),
            gameplay::context::get_collision_queue(),
            pSys,
-           iState);
+           iState,
+           &qual::log::engine_logger::instance());
     }
 
     void project_module::unload_module() {
         if (!m_isLoaded && !m_hModule) return;
 
-        // Sahnedeki aktif betik örneklerini temizle ve göstericileri sıfırla
+        // Sahnedeki aktif betiklerin durumlarini (state) yedekle ve ornekleri temizle
         scene* activeScene = gameplay::context::get_active_scene();
         if (activeScene) {
-            activeScene->clean_up_scripts();
             registry& reg = activeScene->get_registry();
+            for (auto& [e, scriptComp] : reg.get_all<native_script_component>()) {
+                if (scriptComp.instance && scriptComp.is_enabled && !scriptComp.is_quarantined) {
+                    try {
+                        scriptComp.saved_state = scriptComp.instance->serialize_state();
+                    } catch (...) {}
+                }
+            }
+            activeScene->clean_up_scripts();
             for (auto& [e, scriptComp] : reg.get_all<native_script_component>()) {
                 scriptComp.instance = nullptr;
                 scriptComp.bind_instantiate = nullptr;
@@ -246,8 +290,9 @@ namespace project {
         // Geçici çalışma kopyasını temizle
         if (!m_runtimeDllPath.empty() && m_runtimeDllPath != m_originalDllPath) {
             std::error_code ec;
-            std::filesystem::remove(m_runtimeDllPath, ec);
-            std::filesystem::remove(std::filesystem::path(m_runtimeDllPath).parent_path() / "GameModule_runtime.pdb", ec);
+            const auto rPath = qual::path_from_utf8(m_runtimeDllPath);
+            std::filesystem::remove(rPath, ec);
+            std::filesystem::remove(rPath.parent_path() / "GameModule_runtime.pdb", ec);
         }
 
         std::cout << "[ProjectModule] Modul bellekten bosaltildi ve script kayitlari temizlendi.\n";
@@ -257,9 +302,9 @@ namespace project {
         if (m_originalDllPath.empty()) {
             const auto& root = project_manager::instance().get_project_root();
             if (!root.empty()) {
-                const auto defaultDll = std::filesystem::path(root) / "Binaries" / "GameModule.dll";
+                const auto defaultDll = qual::path_from_utf8(root) / "Binaries" / "GameModule.dll";
                 if (std::filesystem::exists(defaultDll)) {
-                    return load_module(defaultDll.string());
+                    return load_module(qual::path_to_utf8(defaultDll));
                 }
             }
             return false;
@@ -268,11 +313,20 @@ namespace project {
         return load_module(pathCopy);
     }
 
-    bool project_module::is_module_outdated(const std::string& projectRoot) {
+    bool project_module::is_module_outdated(const std::string& projectRoot, const std::string& configuration) {
         namespace fs = std::filesystem;
         if (projectRoot.empty()) return false;
         try {
-            const fs::path root(projectRoot);
+            std::string targetConfig = configuration;
+            if (targetConfig.empty()) {
+#ifdef _DEBUG
+                targetConfig = "Debug";
+#else
+                targetConfig = "Release";
+#endif
+            }
+
+            const fs::path root = qual::path_from_utf8(projectRoot);
             const fs::path targetDll = root / "Binaries" / "GameModule.dll";
             if (!fs::exists(targetDll)) return true;
 
@@ -281,7 +335,7 @@ namespace project {
             // 1. Engine.lib / repo kütüphanesi kontrolü
             const auto repoRoot = resolve_engine_repo_root();
             if (!repoRoot.empty()) {
-                const fs::path engineLib = repoRoot / "x64" / "Debug" / "Engine.lib";
+                const fs::path engineLib = repoRoot / "x64" / targetConfig / "Engine.lib";
                 if (fs::exists(engineLib) && fs::last_write_time(engineLib) > dllTime) {
                     return true;
                 }
@@ -310,18 +364,29 @@ namespace project {
         return false;
     }
 
-    bool project_module::compile_project_scripts(const std::string& projectRoot, std::string& outLog) {
+    bool project_module::compile_project_scripts(const std::string& projectRoot, std::string& outLog, const std::string& configuration) {
         if (projectRoot.empty()) {
             outLog = "Error: Project path is not specified.";
             return false;
         }
 
+        std::string targetConfig = configuration;
+        if (targetConfig.empty()) {
+#ifdef _DEBUG
+            targetConfig = "Debug";
+#else
+            targetConfig = "Release";
+#endif
+        }
+
         // Derlemeden önce yüklü olan DLL'i bellekten boşalt ki linker dosya kilidiyle karşılaşmasın
         instance().unload_module();
 
+        const std::filesystem::path root = qual::path_from_utf8(projectRoot);
+
         // Kilitli olmayan eski PDB dosyalarını temizle
         try {
-            const std::filesystem::path binDir = std::filesystem::path(projectRoot) / "Binaries";
+            const std::filesystem::path binDir = root / "Binaries";
             if (std::filesystem::exists(binDir)) {
                 for (const auto& entry : std::filesystem::directory_iterator(binDir)) {
                     if (entry.is_regular_file() && entry.path().extension() == ".pdb") {
@@ -339,14 +404,14 @@ namespace project {
             return false;
         }
 
-        const std::filesystem::path root(projectRoot);
         const std::filesystem::path batScript = root / "Scripts" / "build_module.bat";
         const std::filesystem::path targetDll = root / "Binaries" / "GameModule.dll";
 
         // 2. Hazirlanan build_module.bat uzerinden hizli derleme (devenv / MSBuild) calistir
         if (std::filesystem::exists(batScript)) {
-            std::string cmd = "cmd.exe /c \"" + batScript.string() + "\" 2>&1";
-            FILE* pipe = _popen(cmd.c_str(), "r");
+            std::wstring wconfig(targetConfig.begin(), targetConfig.end());
+            std::wstring wcmd = L"cmd.exe /c \"" + batScript.wstring() + L"\" " + wconfig + L" 2>&1";
+            FILE* pipe = _wpopen(wcmd.c_str(), L"r");
             if (!pipe) {
                 outLog = "Error: Compilation process could not be started.";
                 return false;
@@ -357,14 +422,31 @@ namespace project {
                 outLog += buffer;
             }
             int code = _pclose(pipe);
-            bool success = (code == 0) && std::filesystem::exists(targetDll);
+            const std::filesystem::path cfgDll = root / "Binaries" / targetConfig / "GameModule.dll";
+            if (std::filesystem::exists(cfgDll)) {
+                std::error_code ec;
+                std::filesystem::copy_file(cfgDll, targetDll, std::filesystem::copy_options::overwrite_existing, ec);
+                const std::filesystem::path cfgPdb = root / "Binaries" / targetConfig / "GameModule.pdb";
+                if (std::filesystem::exists(cfgPdb)) {
+                    std::filesystem::copy_file(cfgPdb, root / "Binaries" / "GameModule.pdb", std::filesystem::copy_options::overwrite_existing, ec);
+                }
+            }
+            bool success = (code == 0) && (std::filesystem::exists(targetDll) || std::filesystem::exists(cfgDll));
             if (success) {
-                instance().load_module(targetDll.string());
+                bool isMatchingConfig = false;
+#ifdef _DEBUG
+                isMatchingConfig = (targetConfig == "Debug");
+#else
+                isMatchingConfig = (targetConfig == "Release");
+#endif
+                if (isMatchingConfig) {
+                    instance().load_module(qual::path_to_utf8(targetDll));
+                }
             }
             return success;
         }
 
-        outLog = "Error: build_module.bat was not found: " + batScript.string();
+        outLog = "Error: build_module.bat was not found: " + qual::path_to_utf8(batScript);
         return false;
     }
 
@@ -375,7 +457,7 @@ namespace project {
         }
 
         try {
-            const std::filesystem::path root(projectRoot);
+            const std::filesystem::path root = qual::path_from_utf8(projectRoot);
             const std::filesystem::path assetsDir = root / "Assets";
             const std::filesystem::path scriptsAssetDir = assetsDir / "Scripts";
             const std::filesystem::path binariesDir = root / "Binaries";
@@ -411,7 +493,7 @@ namespace project {
                     const auto ext = entry.path().extension().string();
                     const std::string filename = entry.path().filename().string();
 
-                    const std::string fullPathStr = entry.path().string();
+                    const std::string fullPathStr = qual::path_to_utf8(entry.path());
                     if (fullPathStr.find("\\obj\\") != std::string::npos || fullPathStr.find("/obj/") != std::string::npos) {
                         continue;
                     }
@@ -421,14 +503,14 @@ namespace project {
                             std::error_code ec;
                             auto rel = std::filesystem::relative(entry.path(), projScriptsDir, ec);
                             if (!ec) {
-                                clCompileFiles.push_back(rel.string());
+                                clCompileFiles.push_back(qual::path_to_utf8(rel));
                             }
                         }
                     } else if (ext == ".h" || ext == ".hpp") {
                         std::error_code ec;
                         auto rel = std::filesystem::relative(entry.path(), projScriptsDir, ec);
                         if (!ec) {
-                            clIncludeFiles.push_back(rel.string());
+                            clIncludeFiles.push_back(qual::path_to_utf8(rel));
                         }
 
                         // Dosya iceriginde script sinifi ara
@@ -512,7 +594,7 @@ namespace project {
             std::error_code ec;
             auto gmRel = std::filesystem::relative(gameModuleCppPath, projScriptsDir, ec);
             if (!ec) {
-                clCompileFiles.push_back(gmRel.string());
+                clCompileFiles.push_back(qual::path_to_utf8(gmRel));
             }
 
             // 3. GameModule.vcxproj olustur / guncelle
@@ -566,12 +648,12 @@ namespace project {
             vcx << "  </ImportGroup>\n";
             vcx << "  <PropertyGroup Label=\"UserMacros\" />\n";
             vcx << "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">\n";
-            vcx << "    <OutDir>$(ProjectDir)..\\Binaries\\</OutDir>\n";
+            vcx << "    <OutDir>$(ProjectDir)..\\Binaries\\Debug\\</OutDir>\n";
             vcx << "    <IntDir>$(ProjectDir)obj\\$(Platform)\\$(Configuration)\\</IntDir>\n";
             vcx << "    <TargetName>GameModule</TargetName>\n";
             vcx << "  </PropertyGroup>\n";
             vcx << "  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">\n";
-            vcx << "    <OutDir>$(ProjectDir)..\\Binaries\\</OutDir>\n";
+            vcx << "    <OutDir>$(ProjectDir)..\\Binaries\\Release\\</OutDir>\n";
             vcx << "    <IntDir>$(ProjectDir)obj\\$(Platform)\\$(Configuration)\\</IntDir>\n";
             vcx << "    <TargetName>GameModule</TargetName>\n";
             vcx << "  </PropertyGroup>\n";
@@ -598,11 +680,11 @@ namespace project {
 
             const std::string commonIncludes = 
                 "$(ProjectDir)..\\Assets;$(ProjectDir)..\\Assets\\Scripts;" +
-                engineDir.string() + ";" + repoRoot.string() + ";" +
+                qual::path_to_utf8(engineDir) + ";" + qual::path_to_utf8(repoRoot) + ";" +
                 extIncludes +
-                (engineDir / "Externals").string() + ";" +
-                (engineDir / "Externals" / "imgui").string() + ";" +
-                (engineDir / "Externals" / "nfd").string() + ";%(AdditionalIncludeDirectories)";
+                qual::path_to_utf8(engineDir / "Externals") + ";" +
+                qual::path_to_utf8(engineDir / "Externals" / "imgui") + ";" +
+                qual::path_to_utf8(engineDir / "Externals" / "nfd") + ";%(AdditionalIncludeDirectories)";
 
             vcx << "  <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">\n";
             vcx << "    <ClCompile>\n";
@@ -621,8 +703,11 @@ namespace project {
             vcx << "      <GenerateDebugInformation>true</GenerateDebugInformation>\n";
             vcx << "      <ProgramDatabaseFile>$(OutDir)GameModule_$([System.DateTime]::Now.ToString(\"HHmmssfff\")).pdb</ProgramDatabaseFile>\n";
             vcx << "      <AdditionalDependencies>Engine.lib;glfw3.lib;opengl32.lib;assimp-vc145-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>\n";
-            vcx << "      <AdditionalLibraryDirectories>" << debugLibDir.string() << ";" << extLibDirs << ";%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>\n";
+            vcx << "      <AdditionalLibraryDirectories>" << qual::path_to_utf8(debugLibDir) << ";" << extLibDirs << ";%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>\n";
             vcx << "    </Link>\n";
+            vcx << "    <PostBuildEvent>\n";
+            vcx << "      <Command>xcopy /Y /D \"$(TargetPath)\" \"$(ProjectDir)..\\Binaries\\\" &gt;nul 2&gt;&amp;1</Command>\n";
+            vcx << "    </PostBuildEvent>\n";
             vcx << "  </ItemDefinitionGroup>\n";
 
             vcx << "  <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">\n";
@@ -645,8 +730,11 @@ namespace project {
             vcx << "      <GenerateDebugInformation>true</GenerateDebugInformation>\n";
             vcx << "      <ProgramDatabaseFile>$(OutDir)GameModule_$([System.DateTime]::Now.ToString(\"HHmmssfff\")).pdb</ProgramDatabaseFile>\n";
             vcx << "      <AdditionalDependencies>Engine.lib;glfw3.lib;opengl32.lib;assimp-vc145-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>\n";
-            vcx << "      <AdditionalLibraryDirectories>" << releaseLibDir.string() << ";" << extLibDirs << ";%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>\n";
+            vcx << "      <AdditionalLibraryDirectories>" << qual::path_to_utf8(releaseLibDir) << ";" << extLibDirs << ";%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>\n";
             vcx << "    </Link>\n";
+            vcx << "    <PostBuildEvent>\n";
+            vcx << "      <Command>xcopy /Y /D \"$(TargetPath)\" \"$(ProjectDir)..\\Binaries\\\" &gt;nul 2&gt;&amp;1</Command>\n";
+            vcx << "    </PostBuildEvent>\n";
             vcx << "  </ItemDefinitionGroup>\n";
 
             vcx << "  <ItemGroup>\n";
@@ -686,7 +774,10 @@ namespace project {
             const std::filesystem::path batPath = projScriptsDir / "build_module.bat";
             std::stringstream bat;
             bat << "@echo off\n";
+            bat << "chcp 65001 >nul\n";
             bat << "setlocal EnableDelayedExpansion\n";
+            bat << "set CONFIG=Debug\n";
+            bat << "if not \"%~1\"==\"\" set CONFIG=%~1\n";
             bat << "set DEVENV_EXE=C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\devenv.com\n";
             bat << "if not exist \"%DEVENV_EXE%\" (\n";
             bat << "    for /f \"usebackq tokens=*\" %%i in (`\"%ProgramFiles(x86)%\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -find Common7\\IDE\\devenv.com`) do (\n";
@@ -694,7 +785,7 @@ namespace project {
             bat << "    )\n";
             bat << ")\n";
             bat << "if exist \"!DEVENV_EXE!\" (\n";
-            bat << "    \"!DEVENV_EXE!\" \"%~dp0GameModule.vcxproj\" /Build \"Debug|x64\"\n";
+            bat << "    \"!DEVENV_EXE!\" \"%~dp0GameModule.vcxproj\" /Build \"!CONFIG!|x64\"\n";
             bat << "    exit /b !ERRORLEVEL!\n";
             bat << ")\n\n";
             bat << "set MSBUILD_EXE=C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\n";
@@ -704,7 +795,7 @@ namespace project {
             bat << "    )\n";
             bat << ")\n";
             bat << "if exist \"!MSBUILD_EXE!\" (\n";
-            bat << "    \"!MSBUILD_EXE!\" \"%~dp0GameModule.vcxproj\" /p:Configuration=Debug /p:Platform=x64 /nodeReuse:false /m /v:m\n";
+            bat << "    \"!MSBUILD_EXE!\" \"%~dp0GameModule.vcxproj\" /p:Configuration=!CONFIG! /p:Platform=x64 /nodeReuse:false /m /v:m\n";
             bat << "    exit /b !ERRORLEVEL!\n";
             bat << ")\n\n";
             bat << "echo [ERROR] Neither devenv.com nor MSBuild.exe could be located!\n";
@@ -735,4 +826,5 @@ namespace project {
     }
 
 } // namespace project
+
 

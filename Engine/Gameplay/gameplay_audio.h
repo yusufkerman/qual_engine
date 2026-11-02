@@ -23,6 +23,8 @@ namespace gameplay {
         [[nodiscard]] bool is_valid() const;
 
         void play();
+        void play_one_shot(float volume = -1.0f);
+        void play_one_shot(const std::string& clipPath, float volume = -1.0f);
         void stop();
         void pause();
         void resume();

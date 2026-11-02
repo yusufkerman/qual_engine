@@ -164,6 +164,23 @@ void ui_manager::beginFrame(std::function<void()> mainMenuBarCallback)
     ImGui::End();
 }
 
+void ui_manager::beginStandaloneFrame()
+{
+    int w = 0;
+    int h = 0;
+    glfwGetFramebufferSize(m_window, &w, &h);
+    if (w <= 0) w = 1;
+    if (h <= 0) h = 1;
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize = ImVec2(static_cast<float>(w), static_cast<float>(h));
+    io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
 void ui_manager::endFrame()
 {
     ImGui::Render();

@@ -38,6 +38,8 @@ namespace aria {
     struct mesh_bounds {
         glm::vec3 local_center{ 0.0f };     ///< Yerel merkez noktası.
         float local_radius{ 0.0f };         ///< Sınırlayıcı küre yarıçapı.
+        glm::vec3 aabb_min{ 0.0f };         ///< Yerel eksen hizali kutu minimum kosesi.
+        glm::vec3 aabb_max{ 0.0f };         ///< Yerel eksen hizali kutu maksimum kosesi.
     };
 
     /**

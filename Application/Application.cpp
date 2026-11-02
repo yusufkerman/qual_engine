@@ -11,10 +11,31 @@
 #include <Project/project_exporter.h>
 #include <iostream>
 #include <cstring>
+#include <Core/path_utils.h>
+#include <vector>
+#ifdef _WIN32
+#include <shellapi.h>
+#endif
 
 int main(int argc, char** argv)
 {
     std::cout << std::unitbuf;
+
+    std::vector<std::string> args;
+#ifdef _WIN32
+    int wargc = 0;
+    LPWSTR* wargv = CommandLineToArgvW(GetCommandLineW(), &wargc);
+    if (wargv) {
+        for (int i = 0; i < wargc; ++i) {
+            args.push_back(qual::path_to_utf8(std::filesystem::path(wargv[i])));
+        }
+        LocalFree(wargv);
+    } else {
+        for (int i = 0; i < argc; ++i) args.push_back(argv[i]);
+    }
+#else
+    for (int i = 0; i < argc; ++i) args.push_back(argv[i]);
+#endif
 
     // Motor ve Editör çalışma zamanı bağlamları (Engine & Editor Contexts)
     EngineContext ctx;
@@ -30,13 +51,13 @@ int main(int argc, char** argv)
     }
 
     // Headless CLI export desteği: Application.exe --export <project.json> <output_folder>
-    if (argc >= 4 && std::string(argv[1]) == "--export")
+    if (args.size() >= 4 && args[1] == "--export")
     {
-        std::cout << "[EditorLauncher] Headless Export Modu: " << argv[2] << " -> " << argv[3] << "\n";
-        project::project_manager::instance().open_project(argv[2], ctx);
+        std::cout << "[EditorLauncher] Headless Export Modu: " << args[2] << " -> " << args[3] << "\n";
+        project::project_manager::instance().open_project(args[2], ctx);
 
         project::export_options opt;
-        opt.output_directory = argv[3];
+        opt.output_directory = args[3];
         opt.compile_scripts = true;
         opt.copy_engine_resources = true;
         opt.copy_dependencies = true;
@@ -56,10 +77,10 @@ int main(int argc, char** argv)
     }
 
     // 2. Komut satırından proje yolu verildiyse o projeyi aç
-    if (argc > 1 && argv[1] != nullptr && std::strlen(argv[1]) > 0)
+    if (args.size() > 1 && !args[1].empty())
     {
-        std::cout << "[EditorLauncher] Komut satirindan proje aciliyor: " << argv[1] << "\n";
-        project::project_manager::instance().open_project(argv[1], ctx);
+        std::cout << "[EditorLauncher] Komut satirindan proje aciliyor: " << args[1] << "\n";
+        project::project_manager::instance().open_project(args[1], ctx);
     }
 
     // 3. Ana Editör Döngüsü

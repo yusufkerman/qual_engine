@@ -32,6 +32,11 @@ public:
     void beginFrame(std::function<void()> mainMenuBarCallback = nullptr);
 
     /**
+     * @brief Standalone oyun modunda DockSpace olmadan yalın bir ImGui çerçevesi başlatır.
+     */
+    void beginStandaloneFrame();
+
+    /**
      * @brief Çizim verilerini derler ve OpenGL üzerinden ekrana yansıtır.
      */
     void endFrame();

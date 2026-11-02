@@ -4,6 +4,7 @@
  */
 
 #include "engine_settings.h"
+#include "../Core/path_utils.h"
 #include "../Externals/nlohmann/json.hpp"
 #include <fstream>
 #include <iostream>
@@ -31,39 +32,51 @@ namespace project {
         return std::filesystem::current_path() / "engine_settings.json";
     }
 
-    std::string engine_settings::detect_vscode()
+        std::string engine_settings::detect_vscode()
     {
         // 1. Standart Windows kullanıcı kurulum yolu (%LOCALAPPDATA%\Programs\Microsoft VS Code\Code.exe)
-        char localAppData[MAX_PATH];
-        if (GetEnvironmentVariableA("LOCALAPPDATA", localAppData, MAX_PATH) > 0) {
-            std::filesystem::path p1 = std::filesystem::path(localAppData) / "Programs" / "Microsoft VS Code" / "Code.exe";
+        wchar_t localAppData[MAX_PATH];
+        if (GetEnvironmentVariableW(L"LOCALAPPDATA", localAppData, MAX_PATH) > 0) {
+            std::filesystem::path p1 = std::filesystem::path(localAppData) / L"Programs" / L"Microsoft VS Code" / L"Code.exe";
             if (std::filesystem::exists(p1)) {
-                m_detected_vscode_path = p1.string();
+                m_detected_vscode_path = qual::path_to_utf8(p1);
                 return m_detected_vscode_path;
             }
         }
 
         // 2. Program Files yolu
-        char progFiles[MAX_PATH];
-        if (GetEnvironmentVariableA("ProgramFiles", progFiles, MAX_PATH) > 0) {
-            std::filesystem::path p2 = std::filesystem::path(progFiles) / "Microsoft VS Code" / "Code.exe";
+        wchar_t progFiles[MAX_PATH];
+        if (GetEnvironmentVariableW(L"ProgramFiles", progFiles, MAX_PATH) > 0) {
+            std::filesystem::path p2 = std::filesystem::path(progFiles) / L"Microsoft VS Code" / L"Code.exe";
             if (std::filesystem::exists(p2)) {
-                m_detected_vscode_path = p2.string();
+                m_detected_vscode_path = qual::path_to_utf8(p2);
                 return m_detected_vscode_path;
             }
         }
 
         // 3. Program Files (x86) yolu
-        char progFilesX86[MAX_PATH];
-        if (GetEnvironmentVariableA("ProgramFiles(x86)", progFilesX86, MAX_PATH) > 0) {
-            std::filesystem::path p3 = std::filesystem::path(progFilesX86) / "Microsoft VS Code" / "Code.exe";
+        wchar_t progFilesX86[MAX_PATH];
+        if (GetEnvironmentVariableW(L"ProgramFiles(x86)", progFilesX86, MAX_PATH) > 0) {
+            std::filesystem::path p3 = std::filesystem::path(progFilesX86) / L"Microsoft VS Code" / L"Code.exe";
             if (std::filesystem::exists(p3)) {
-                m_detected_vscode_path = p3.string();
+                m_detected_vscode_path = qual::path_to_utf8(p3);
                 return m_detected_vscode_path;
             }
         }
 
-        // 4. Sistem PATH'inde 'code.cmd' veya 'code.exe' var mı?
+        // 4. Sistem PATH içinde Code.exe veya code.cmd ara
+        wchar_t foundCodeExe[MAX_PATH] = { 0 };
+        if (SearchPathW(NULL, L"Code.exe", NULL, MAX_PATH, foundCodeExe, NULL) > 0) {
+            m_detected_vscode_path = qual::path_to_utf8(std::filesystem::path(foundCodeExe));
+            return m_detected_vscode_path;
+        }
+
+        wchar_t foundCodeCmd[MAX_PATH] = { 0 };
+        if (SearchPathW(NULL, L"code.cmd", NULL, MAX_PATH, foundCodeCmd, NULL) > 0) {
+            m_detected_vscode_path = qual::path_to_utf8(std::filesystem::path(foundCodeCmd));
+            return m_detected_vscode_path;
+        }
+
         m_detected_vscode_path = "code";
         return m_detected_vscode_path;
     }
@@ -72,6 +85,9 @@ namespace project {
     {
         switch (m_editor_type) {
             case code_editor_type::vs_code:
+                if (m_detected_vscode_path.empty()) {
+                    detect_vscode();
+                }
                 return m_detected_vscode_path.empty() ? "code" : m_detected_vscode_path;
             case code_editor_type::visual_studio:
                 return "devenv";
@@ -86,42 +102,58 @@ namespace project {
         // Electron tabanlı editörlerin (VS Code vb.) Node.js headless modunda çalışmasını engelle
         SetEnvironmentVariableA("ELECTRON_RUN_AS_NODE", NULL);
         std::string editor = get_effective_editor_command();
-        std::string params = "";
 
+        // Dosya ve proje yollarını Windows yerel formatına (ters bölü \) normalize et
+        std::filesystem::path normFilePath;
+        if (!filePath.empty()) {
+            normFilePath = qual::path_from_utf8(filePath).make_preferred();
+        }
+        std::filesystem::path normProjectRoot;
+        if (!projectRoot.empty()) {
+            normProjectRoot = qual::path_from_utf8(projectRoot).make_preferred();
+        }
+
+        std::wstring wParams = L"";
         if (m_editor_type == code_editor_type::vs_code) {
-            // VS Code için proje klasörünü workspace olarak aç ve dosyayı odağa al
-            if (!projectRoot.empty()) {
-                params += "\"" + projectRoot + "\" ";
+            // VS Code için:
+            // 1. -r (reuse-window): Açık olan pencereye bağlan
+            // 2. Proje kök klasörünü workspace olarak aç
+            // 3. Dosyayı -g parametresi ile 1. satırda aç
+            wParams = L"-r ";
+            if (!normProjectRoot.empty()) {
+                wParams += L"\"" + normProjectRoot.wstring() + L"\" ";
             }
-            if (!filePath.empty()) {
-                params += "-g \"" + filePath + "\"";
+            if (!normFilePath.empty()) {
+                wParams += L"-g \"" + normFilePath.wstring() + L":1\"";
             }
         }
         else {
-            if (!filePath.empty()) {
-                params = "\"" + filePath + "\"";
+            if (!normFilePath.empty()) {
+                wParams = L"\"" + normFilePath.wstring() + L"\"";
             }
-            else if (!projectRoot.empty()) {
-                params = "\"" + projectRoot + "\"";
+            else if (!normProjectRoot.empty()) {
+                wParams = L"\"" + normProjectRoot.wstring() + L"\"";
             }
         }
 
-        std::cout << "[EngineSettings] Editorde aciliyor: " << editor << " " << params << "\n";
+        std::wcout << L"[EngineSettings] Editorde aciliyor: " << qual::path_from_utf8(editor).wstring() << L" " << wParams << L"\n";
 
-        // Windows ShellExecute ile editörü arka planda çalıştır
-        HINSTANCE result = ShellExecuteA(
+        std::wstring wEditor = qual::path_from_utf8(editor).wstring();
+        std::wstring wDir = normProjectRoot.empty() ? L"" : normProjectRoot.wstring();
+
+        // Windows ShellExecuteW ile editörü arka planda Unicode güvenli çalıştır
+        HINSTANCE result = ShellExecuteW(
             NULL,
-            "open",
-            editor.c_str(),
-            params.c_str(),
-            projectRoot.empty() ? NULL : projectRoot.c_str(),
+            L"open",
+            wEditor.c_str(),
+            wParams.c_str(),
+            wDir.empty() ? NULL : wDir.c_str(),
             SW_SHOW
         );
 
         if (reinterpret_cast<INT_PTR>(result) <= 32) {
-            // Eğer doğrudan çalıştırma başarısız olduysa, sistem shell'i üzerinden 'start' ile dene
-            std::string cmdFallback = "/c start \"\" \"" + editor + "\" " + params;
-            ShellExecuteA(NULL, "open", "cmd.exe", cmdFallback.c_str(), projectRoot.empty() ? NULL : projectRoot.c_str(), SW_HIDE);
+            std::wstring cmdFallback = L"/c start \"\" \"" + wEditor + L"\" " + wParams;
+            ShellExecuteW(NULL, L"open", L"cmd.exe", cmdFallback.c_str(), wDir.empty() ? NULL : wDir.c_str(), SW_HIDE);
         }
 
         return true;
@@ -144,6 +176,23 @@ namespace project {
             m_editor_type = static_cast<code_editor_type>(j.value("editor_type", 0));
             m_custom_editor_path = j.value("custom_editor_path", "");
             m_auto_reload_on_focus = j.value("auto_reload_on_focus", true);
+            m_last_project_path = j.value("last_project_path", "");
+
+            // Geriye dönük mojibake otomatik onarımı (YazÄ±lÄ±m -> Yazılım)
+            const std::string badSub = "Yaz\xC3\x84\xC2\xB1l\xC3\x84\xC2\xB1m";
+            const std::string badSub2 = "Yaz\xC4\x84\xC2\xB1l\xC4\x84\xC2\xB1m";
+            const std::string badSub3 = "Yaz\u00c4\u00b1l\u00c4\u00b1m";
+            const std::string goodSub = "\x59\x61\x7A\xC4\xB1\x6C\xC4\xB1\x6D";
+            auto replaceAll = [](std::string& str, const std::string& from, const std::string& to) {
+                if (from.empty()) return;
+                size_t start_pos = 0;
+                while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+                    str.replace(start_pos, from.length(), to);
+                    start_pos += to.length();
+                }
+            };
+            replaceAll(m_last_project_path, badSub, goodSub);
+            replaceAll(m_last_project_path, "YazÄ±lÄ±m", goodSub);
         }
         catch (const std::exception& e) {
             std::cerr << "[EngineSettings] Ayar yukleme hatasi: " << e.what() << "\n";
@@ -158,6 +207,7 @@ namespace project {
             j["editor_type"] = static_cast<int>(m_editor_type);
             j["custom_editor_path"] = m_custom_editor_path;
             j["auto_reload_on_focus"] = m_auto_reload_on_focus;
+            j["last_project_path"] = m_last_project_path;
 
             std::ofstream file(settingsPath);
             if (file.is_open()) {

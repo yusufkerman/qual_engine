@@ -52,7 +52,10 @@ void runtime_layer::fixed_update(EngineContext& ctx, EditorContext& editorCtx, f
     // 2. Kamera mantığını işlet
     update_runtime_camera(ctx);
 
-    // 3. Fizik motorunu sabit adımla ilerlet (Glenn Fiedler Accumulator parametresi)
+    // 3. Kinematik karakter kontrolcüsü (CharacterVirtual) hareket ve basamak simülasyonu
+    physics_bridge::update_character_controllers(ctx, ctx.session.game_scene(), fixedDeltaTime);
+
+    // 4. Fizik motorunu sabit adımla ilerlet (Glenn Fiedler Accumulator parametresi)
     ctx.physicsSystem.update(fixedDeltaTime);
 
     // 4. Simülasyon sonuçlarını (konum/rotasyon) tekrar canlı ECS bileşenlerine yaz (Zero-Copy: kopyalama yapılmaz)

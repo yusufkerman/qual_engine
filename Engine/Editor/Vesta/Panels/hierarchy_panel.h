@@ -11,7 +11,12 @@
 #include <memory>
 #include <string>
 
+class EditorCamera;
+struct EditorContext;
+
 namespace vesta {
+
+    class command_stack;
 
     /**
      * @class hierarchy_panel
@@ -27,12 +32,16 @@ namespace vesta {
          * @param reg Varlıkların barındığı ECS kayıt defteri.
          * @param selection Editör genelindeki seçim yöneticisi.
          * @param gizmoSettings İkon rozetleri ve özel ikon atamaları için gizmo ayarları işaretçisi.
+         * @param camera Varlığa çift tıklandığında odaklanma yapacak sahne kamerası.
+         * @param editorCtx Editör bağlamı (kamera işaretçisine dinamik erişim için).
          */
         hierarchy_panel(
             IEditableWorld& world,
             registry& reg,
             editor_selection_manager& selection,
-            gizmo_settings* gizmoSettings = nullptr);
+            gizmo_settings* gizmoSettings = nullptr,
+            EditorCamera* camera = nullptr,
+            EditorContext* editorCtx = nullptr);
         ~hierarchy_panel() override = default;
 
         // ==========================================
@@ -44,12 +53,19 @@ namespace vesta {
         bool is_open() const override;
         void set_open(bool open) override;
 
+        void set_command_stack(command_stack* cs) noexcept { if (m_vm) m_vm->set_command_stack(cs); }
+        void set_camera(EditorCamera* camera) noexcept { m_camera = camera; }
+        void set_editor_context(EditorContext* ctx) noexcept { m_editor_ctx = ctx; }
+        EditorCamera* get_camera() const noexcept;
+
     private:
         std::unique_ptr<hierarchy_view_model> m_vm;
         gizmo_settings* m_gizmo_settings = nullptr;
+        EditorCamera* m_camera = nullptr;
+        EditorContext* m_editor_ctx = nullptr;
 
         std::string m_title = "Hierarchy";
         bool m_is_open = true;
     };
 
-} // namespace vesta
+} // namespace vesta

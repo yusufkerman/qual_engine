@@ -19,7 +19,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 project(QualEngine
-    VERSION 0.1.0
+    VERSION 0.2.0
     DESCRIPTION "Modern C++20 game engine and Vesta editor"
     HOMEPAGE_URL "https://github.com/yusufkerman/qual_engine"
     LANGUAGES C CXX)
@@ -93,6 +93,13 @@ configure_file(
 add_subdirectory(Engine)
 add_subdirectory(Application)
 add_subdirectory(GameRuntime)
+
+# ------------------------------------------------------------- Test Pipeline -
+option(QUAL_BUILD_TESTS "QualEngine otomatize unit ve entegrasyon testlerini derle" ON)
+if(QUAL_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(Tests)
+endif()
 
 set_property(DIRECTORY "${PROJECT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT Application)
 

@@ -5,6 +5,12 @@
 
 #include "skybox_pass.h"
 #include "../../Engine/engine_context.h"
+#include "../../Engine/asset_pipeline.h"
+#include "../../Resources/engine_resources.h"
+#include "../../Importers/cubemap_loader.h"
+#include "../../Project/project.h"
+#include "../../Core/path_utils.h"
+#include <filesystem>
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -57,9 +63,6 @@ namespace {
          1.0f, -1.0f,  1.0f
     };
 
-    /**
-     * @brief Skybox küp geometrisi için tepe noktası tamponlarını oluşturur.
-     */
     void initSkybox()
     {
         glGenVertexArrays(1, &s_skyVAO);
@@ -70,7 +73,7 @@ namespace {
         glBufferData(GL_ARRAY_BUFFER, sizeof(s_skyboxVertices), s_skyboxVertices, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<void*>(0));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -80,13 +83,49 @@ namespace {
 
 void skybox_pass::render(EngineContext& ctx, const glm::mat4& view, const glm::mat4& projection)
 {
-    if (!ctx.renderSettings.enable_skybox || !ctx.aria_system || ctx.skyboxTexture == 0) {
+    if (!ctx.renderSettings.enable_skybox || !ctx.aria_system) {
         return;
     }
 
-    const unsigned int skyboxGLShaderID = ctx.aria_system->get_shader_id(ctx.skyboxShaderHandle);
-    if (skyboxGLShaderID == 0) {
+    // Skybox dokusu henuz yuklenmemisse veya sifirlanmissa otomatik yukle
+    if (ctx.skyboxTexture == 0) {
+        std::string skyboxPath = ctx.renderSettings.skybox_path;
+        if (skyboxPath.empty() || skyboxPath == "Assets/sky/skybox1.png") {
+            skyboxPath = "@engine/Textures/sky/skybox1.png";
+        }
+        std::string resolvedSkybox = engine_resources::resolve_path(skyboxPath);
+        if (std::filesystem::exists(resolvedSkybox)) {
+            ctx.skyboxTexture = cubemap_loader::load_atlas(resolvedSkybox);
+        } else if (std::filesystem::exists(skyboxPath)) {
+            ctx.skyboxTexture = cubemap_loader::load_atlas(skyboxPath);
+        } else if (project::project_manager::instance().has_active_project()) {
+            const std::filesystem::path projRoot = qual::path_from_utf8(project::project_manager::instance().get_project_root());
+            std::filesystem::path candidate = projRoot / qual::path_from_utf8(skyboxPath);
+            if (std::filesystem::exists(candidate)) {
+                ctx.skyboxTexture = cubemap_loader::load_atlas(qual::path_to_utf8(candidate));
+            } else {
+                size_t aPos = skyboxPath.find("Assets/");
+                if (aPos != std::string::npos) {
+                    candidate = projRoot / qual::path_from_utf8(skyboxPath.substr(aPos));
+                    if (std::filesystem::exists(candidate)) {
+                        ctx.skyboxTexture = cubemap_loader::load_atlas(qual::path_to_utf8(candidate));
+                    }
+                }
+            }
+        }
+    }
+
+    if (ctx.skyboxTexture == 0) {
         return;
+    }
+
+    unsigned int skyboxGLShaderID = ctx.aria_system->get_shader_id(ctx.skyboxShaderHandle);
+    if (skyboxGLShaderID == 0) {
+        ctx.skyboxShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Skybox/skybox");
+        skyboxGLShaderID = ctx.aria_system->get_shader_id(ctx.skyboxShaderHandle);
+        if (skyboxGLShaderID == 0) {
+            return;
+        }
     }
 
     if (s_skyVAO == 0) {
@@ -125,6 +164,7 @@ void skybox_pass::render(EngineContext& ctx, const glm::mat4& view, const glm::m
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // OpenGL durumlarını varsayılana geri yükle
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glBindVertexArray(0);
     glUseProgram(0);
     glDepthMask(GL_TRUE);

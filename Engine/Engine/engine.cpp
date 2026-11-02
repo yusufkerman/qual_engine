@@ -96,7 +96,7 @@ namespace
         // Editör kamerası fare durumunu sıfırla
         if (editorCtx.camera)
         {
-            editorCtx.camera->resetMouseState();
+            editorCtx.camera->resetMouseState(ctx.window);
         }
 
         ctx.runtimeCameraState = fly_camera_state{};
@@ -225,6 +225,7 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     ctx.renderSystem.init();
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glDisable(GL_CULL_FACE);
 
     // GLFW kullanıcı veri işaretçisini (User Pointer) ayarla
@@ -264,36 +265,48 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     ctx.gridShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Debug/grid");
     ctx.skyboxShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Skybox/skybox");
 
-    // Ana shader için ilk uniform değerlerini bağla
-    unsigned int mainGLid = ctx.aria_system->get_shader_id(ctx.defaultShaderHandle);
-    if (mainGLid != 0)
-    {
-        glUseProgram(mainGLid);
-        glUniform1i(glGetUniformLocation(mainGLid, "diffuseTex"), 0);
-        glUniform1i(glGetUniformLocation(mainGLid, "normalTex"), 1);
+    // Shader sampler'ları için sabit doku yuvalarını bağla (Çakışan sampler tiplerini ve GL_INVALID_OPERATION'ı önler)
+    auto init_shader_samplers = [](unsigned int shaderID) {
+        if (shaderID == 0) return;
+        glUseProgram(shaderID);
+        GLint loc;
+        loc = glGetUniformLocation(shaderID, "diffuseTex");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::DIFFUSE_TEXTURE_SLOT);
+        loc = glGetUniformLocation(shaderID, "normalTex");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::NORMAL_TEXTURE_SLOT);
+        loc = glGetUniformLocation(shaderID, "shadowMap");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::SHADOW_TEXTURE_SLOT);
+        loc = glGetUniformLocation(shaderID, "metallicTex");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::METALLIC_TEXTURE_SLOT);
+        loc = glGetUniformLocation(shaderID, "roughnessTex");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::ROUGHNESS_TEXTURE_SLOT);
+        loc = glGetUniformLocation(shaderID, "aoTex");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::AO_TEXTURE_SLOT);
+        loc = glGetUniformLocation(shaderID, "emissiveTex");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::EMISSIVE_TEXTURE_SLOT);
+        loc = glGetUniformLocation(shaderID, "specularTex");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::SPECULAR_TEXTURE_SLOT);
+        loc = glGetUniformLocation(shaderID, "u_ShadowMapArray");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::CSM_SHADOW_TEXTURE_SLOT);
         glUseProgram(0);
-    }
+    };
 
-    // İskelet animasyon shader'ı için ilk uniform değerlerini bağla
+    unsigned int mainGLid = ctx.aria_system->get_shader_id(ctx.defaultShaderHandle);
+    init_shader_samplers(mainGLid);
+
     unsigned int skinnedGLid = ctx.aria_system->get_shader_id(ctx.skinnedShaderHandle);
-    if (skinnedGLid != 0)
-    {
-        glUseProgram(skinnedGLid);
-        glUniform1i(glGetUniformLocation(skinnedGLid, "diffuseTex"), 0);
-        glUniform1i(glGetUniformLocation(skinnedGLid, "normalTex"), 1);
-        glUniform1i(glGetUniformLocation(skinnedGLid, "shadowMap"), 2);
-        glUseProgram(0);
-    }
+    init_shader_samplers(skinnedGLid);
+
+    ctx.gameTarget.create(ctx.screenW > 0 ? ctx.screenW : 1280, ctx.screenH > 0 ? ctx.screenH : 720);
 
     if (ctx.isEditorBuild)
     {
-        ctx.editorTarget.create(1, 1);
-        ctx.gameTarget.create(1, 1);
-        ctx.vestaSys.init(ctx.aria_system, ctx, editorCtx);
         if (!editorCtx.camera)
         {
             editorCtx.camera = new EditorCamera();
         }
+        ctx.editorTarget.create(1, 1);
+        ctx.vestaSys.init(ctx.aria_system, ctx, editorCtx);
     }
 
     init_input(ctx);
@@ -301,14 +314,12 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     ctx.prevMode = editorCtx.mode;
 
     // Gökyüzü (Skybox) küp haritasını yükle (Dahili motor kaynağı veya proje yolu)
-    std::string skyboxPath = ctx.renderSettings.skybox_path;
-    if (skyboxPath.empty() || skyboxPath == "Assets/sky/skybox1.png") {
-        skyboxPath = "@engine/Textures/sky/skybox1.png";
-    }
-    std::string resolvedSkybox = engine_resources::resolve_path(skyboxPath);
-    if (std::filesystem::exists(resolvedSkybox)) {
-        ctx.skyboxTexture = cubemap_loader::load_atlas(resolvedSkybox);
-    } else if (std::filesystem::exists(skyboxPath)) {
+    if (ctx.renderSettings.enable_skybox)
+    {
+        std::string skyboxPath = ctx.renderSettings.skybox_path;
+        if (skyboxPath.empty() || skyboxPath == "Assets/sky/skybox1.png") {
+            skyboxPath = "@engine/Textures/sky/skybox1.png";
+        }
         ctx.skyboxTexture = cubemap_loader::load_atlas(skyboxPath);
     }
 
@@ -317,8 +328,17 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
         std::cout << "[NFD] Hata: init basarisiz.\n";
     }
 
-    // Proje sistemini ve varsayılan proje ayarlarını (Render & Lighting) ilklendir
-    project::project_manager::instance().init_default_project(ctx);
+    if (ctx.isEditorBuild)
+    {
+        // Proje sistemini ve varsayılan proje ayarlarını (Render & Lighting) ilklendir
+        project::project_manager::instance().init_default_project(ctx);
+    }
+
+    // Proje açıldıktan sonra kaydedilmiş skybox dokusunun yüklendiğinden emin ol
+    if (ctx.renderSettings.enable_skybox && ctx.skyboxTexture == 0)
+    {
+        project::project_manager::apply_render_settings(ctx);
+    }
 
     std::cout << "[Engine] Basariyla baslatildi. Default handle index="
         << ctx.defaultShaderHandle.index
@@ -409,6 +429,57 @@ void Engine::update(EngineContext& ctx, EditorContext& editorCtx)
 void Engine::render(EngineContext& ctx, EditorContext& editorCtx)
 {
     glfwPollEvents();
+
+    if (!ctx.isEditorBuild)
+    {
+        // Standalone oyun görünümü çözünürlüğünü ve PS1 pikselizasyon boyutunu güncelle
+        const auto& ps1 = ctx.renderSettings;
+        const bool use_ps1_downscale = ps1.enable_ps1_mode && ps1.ps1_downscale;
+        int gw = ctx.screenW;
+        int gh = ctx.screenH;
+
+        if (use_ps1_downscale)
+        {
+            const float aspect = (ctx.screenH > 0)
+                ? (static_cast<float>(ctx.screenW) / static_cast<float>(ctx.screenH))
+                : (16.0f / 9.0f);
+
+            switch (ps1.ps1_resolution_preset)
+            {
+            case 0: // 240p PS1 Otantik (Free Aspect uyumlu - stretching yapmaz)
+                gh = 240;
+                gw = std::max(1, static_cast<int>(std::round(240.0f * aspect)));
+                break;
+            case 1: // 320x240 Sabit (PS1 Klasik 4:3)
+                gw = 320;
+                gh = 240;
+                break;
+            case 2: // 426x240 Sabit (PS1 Geniş Ekran 16:9)
+                gw = 426;
+                gh = 240;
+                break;
+            case 3: // 480p Hi-Res PS1 (Free Aspect uyumlu)
+                gh = 480;
+                gw = std::max(1, static_cast<int>(std::round(480.0f * aspect)));
+                break;
+            case 4: // Dinamik 0.25x Çeyrek Çözünürlük
+                gw = std::max(1, static_cast<int>(ctx.screenW * 0.25f));
+                gh = std::max(1, static_cast<int>(ctx.screenH * 0.25f));
+                break;
+            case 5: // Özel Çözünürlük
+                gw = std::max(32, ps1.ps1_custom_width);
+                gh = std::max(32, ps1.ps1_custom_height);
+                break;
+            default:
+                gh = 240;
+                gw = std::max(1, static_cast<int>(std::round(240.0f * aspect)));
+                break;
+            }
+        }
+
+        ctx.gameTarget.resize(gw, gh);
+    }
+
     game_pass::render(ctx);
 
     if (ctx.isEditorBuild)
@@ -418,6 +489,22 @@ void Engine::render(EngineContext& ctx, EditorContext& editorCtx)
         gizmo_pass::render(ctx, editorCtx);
         editor_layer::render(ctx, editorCtx);
     }
+    else
+    {
+        // Standalone: gameTarget'ı (chunky pixel FBO) ana ekrana (Framebuffer 0) GL_NEAREST ile blit et
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, ctx.gameTarget.fbo);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glViewport(0, 0, ctx.screenW, ctx.screenH);
+        glBlitFramebuffer(
+            0, 0, ctx.gameTarget.width, ctx.gameTarget.height,
+            0, 0, ctx.screenW, ctx.screenH,
+            GL_COLOR_BUFFER_BIT,
+            GL_NEAREST
+        );
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        ui_pass::render(ctx, editorCtx);
+    }
 
     glfwSwapBuffers(ctx.window);
 }
@@ -425,9 +512,9 @@ void Engine::render(EngineContext& ctx, EditorContext& editorCtx)
 void Engine::shutdown(EngineContext& ctx, EditorContext& editorCtx)
 {
     ctx.session.game_scene().clean_up_scripts();
+    ctx.uiManager.shutdown();
     if (ctx.isEditorBuild)
     {
-        ctx.uiManager.shutdown();
         ctx.vestaSys.shutdown();
         ctx.editorTarget.destroy();
         ctx.gameTarget.destroy();

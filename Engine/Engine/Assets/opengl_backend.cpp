@@ -15,16 +15,38 @@ namespace aria {
     void opengl_backend::shutdown() {}
 
     gpu_texture_id opengl_backend::create_texture(const raw_texture_data& raw_data) {
+        GLenum internal_format = GL_RGB8;
         GLenum format = GL_RGB;
-        if (raw_data.channels == 1)      format = GL_RED;
-        else if (raw_data.channels == 3) format = GL_RGB;
-        else if (raw_data.channels == 4) format = GL_RGBA;
+        if (raw_data.channels == 1) {
+            internal_format = GL_R8;
+            format = GL_RED;
+        } else if (raw_data.channels == 2) {
+            internal_format = GL_RG8;
+            format = GL_RG;
+        } else if (raw_data.channels == 3) {
+            internal_format = GL_RGB8;
+            format = GL_RGB;
+        } else if (raw_data.channels == 4) {
+            internal_format = GL_RGBA8;
+            format = GL_RGBA;
+        }
 
-        GLuint tex_id;
+        GLuint tex_id = 0;
         glGenTextures(1, &tex_id);
         glBindTexture(GL_TEXTURE_2D, tex_id);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, format, raw_data.width, raw_data.height, 0, format, GL_UNSIGNED_BYTE, raw_data.pixels.data());
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, internal_format, raw_data.width, raw_data.height, 0, format, GL_UNSIGNED_BYTE, raw_data.pixels.data());
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+        if (raw_data.channels == 1) {
+            GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+            glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+        } else if (raw_data.channels == 2) {
+            GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_GREEN };
+            glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+        }
+
         glGenerateMipmap(GL_TEXTURE_2D);
 
         // Doku Filtreleme Ayarları
@@ -36,7 +58,9 @@ namespace aria {
         // Anizotropik Filtreleme
         float max_aniso = 0.0f;
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &max_aniso);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, glm::min(8.0f, max_aniso));
+        if (max_aniso >= 1.0f) {
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, glm::min(8.0f, max_aniso));
+        }
 
         glBindTexture(GL_TEXTURE_2D, 0);
         return tex_id;
@@ -79,6 +103,8 @@ namespace aria {
 
             submesh.bounds.local_center = raw_mesh.local_center;
             submesh.bounds.local_radius = raw_mesh.local_radius;
+            submesh.bounds.aabb_min = raw_mesh.aabb_min;
+            submesh.bounds.aabb_max = raw_mesh.aabb_max;
 
             glBindVertexArray(0);
             out_submeshes.push_back(submesh);
@@ -132,6 +158,8 @@ namespace aria {
 
             submesh.bounds.local_center = raw_mesh.local_center;
             submesh.bounds.local_radius = raw_mesh.local_radius;
+            submesh.bounds.aabb_min = raw_mesh.aabb_min;
+            submesh.bounds.aabb_max = raw_mesh.aabb_max;
 
             glBindVertexArray(0);
             out_submeshes.push_back(submesh);

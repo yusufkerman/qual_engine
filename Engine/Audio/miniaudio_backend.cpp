@@ -9,6 +9,7 @@
 #include "miniaudio_backend.h"
 #include "../Resources/engine_resources.h"
 #include "../Project/project.h"
+#include "../Core/path_utils.h"
 #include <unordered_map>
 #include <mutex>
 #include <iostream>
@@ -19,22 +20,25 @@ namespace {
     {
         if (filepath.empty()) return "";
         try {
-            if (std::filesystem::exists(filepath)) return filepath;
+            const auto fs_path = qual::path_from_utf8(filepath);
+            if (std::filesystem::exists(fs_path)) return filepath;
 
             std::string res = engine_resources::resolve_path(filepath);
-            if (std::filesystem::exists(res)) return res;
+            if (std::filesystem::exists(qual::path_from_utf8(res))) return res;
 
             if (project::project_manager::instance().has_active_project()) {
                 const auto& root = project::project_manager::instance().get_project_root();
-                auto p1 = std::filesystem::path(root) / filepath;
-                if (std::filesystem::exists(p1)) return p1.string();
+                const auto fs_root = qual::path_from_utf8(root);
 
-                auto p2 = std::filesystem::path(root) / "Assets" / filepath;
-                if (std::filesystem::exists(p2)) return p2.string();
+                auto p1 = fs_root / fs_path;
+                if (std::filesystem::exists(p1)) return qual::path_to_utf8(p1);
+
+                auto p2 = fs_root / "Assets" / fs_path;
+                if (std::filesystem::exists(p2)) return qual::path_to_utf8(p2);
 
                 if (filepath.rfind("Assets/", 0) == 0 || filepath.rfind("Assets\\", 0) == 0) {
-                    auto p3 = std::filesystem::path(root) / filepath.substr(7);
-                    if (std::filesystem::exists(p3)) return p3.string();
+                    auto p3 = fs_root / qual::path_from_utf8(filepath.substr(7));
+                    if (std::filesystem::exists(p3)) return qual::path_to_utf8(p3);
                 }
             }
         } catch (...) {}
@@ -48,6 +52,7 @@ namespace audio {
         std::unique_ptr<ma_sound> sound;
         std::string filepath;
         bool is3D{ true };
+        bool is_one_shot{ false };
     };
 
     struct miniaudio_backend::impl {
@@ -77,6 +82,7 @@ namespace audio {
         }
 
         ma_engine_config config = ma_engine_config_init();
+
         // Standart hoparlör / kulaklık çıkışı, varsayılan örnekleme hızı
         ma_result result = ma_engine_init(&config, &m_impl->engine);
         if (result != MA_SUCCESS) {
@@ -114,7 +120,18 @@ namespace audio {
 
     void miniaudio_backend::update(float /*dt*/)
     {
-        // miniaudio asenkron arka plan mikser iş parçacığında çalışır.
+        // One-shot tamamlanan sesleri arka planda otomatik temizle
+        std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
+        for (auto it = m_impl->active_sounds.begin(); it != m_impl->active_sounds.end(); ) {
+            if (it->second.is_one_shot && it->second.sound && ma_sound_at_end(it->second.sound.get())) {
+                ma_sound_stop(it->second.sound.get());
+                ma_sound_uninit(it->second.sound.get());
+                it = m_impl->active_sounds.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
     }
 
     void miniaudio_backend::set_listener_transform(
@@ -138,7 +155,8 @@ namespace audio {
         }
 
         std::string resolved = resolve_audio_path(filepath);
-        if (!std::filesystem::exists(resolved)) {
+        const auto fs_path = qual::path_from_utf8(resolved);
+        if (!std::filesystem::exists(fs_path)) {
             std::cerr << "[Audio] Error: Sound file not found: " << filepath << " (Resolved: " << resolved << ")\n";
             return invalid_sound_id;
         }
@@ -146,6 +164,17 @@ namespace audio {
         auto soundPtr = std::make_unique<ma_sound>();
         ma_uint32 flags = is3D ? 0 : MA_SOUND_FLAG_NO_SPATIALIZATION;
 
+#if defined(_WIN32)
+        std::wstring wpath = fs_path.wstring();
+        ma_result result = ma_sound_init_from_file_w(
+            &m_impl->engine,
+            wpath.c_str(),
+            flags,
+            nullptr,
+            nullptr,
+            soundPtr.get()
+        );
+#else
         ma_result result = ma_sound_init_from_file(
             &m_impl->engine,
             resolved.c_str(),
@@ -154,6 +183,7 @@ namespace audio {
             nullptr,
             soundPtr.get()
         );
+#endif
 
         if (result != MA_SUCCESS) {
             std::cerr << "[Audio] Error: Failed to load sound: " << resolved << " (Hata Kodu: " << result << ")\n";
@@ -167,6 +197,7 @@ namespace audio {
         instance.sound = std::move(soundPtr);
         instance.filepath = resolved;
         instance.is3D = is3D;
+        instance.is_one_shot = false;
 
         if (is3D) {
             ma_sound_set_attenuation_model(instance.sound.get(), ma_attenuation_model_linear);
@@ -197,9 +228,7 @@ namespace audio {
         std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
         auto it = m_impl->active_sounds.find(id);
         if (it != m_impl->active_sounds.end() && it->second.sound) {
-            if (ma_sound_at_end(it->second.sound.get())) {
-                ma_sound_seek_to_pcm_frame(it->second.sound.get(), 0);
-            }
+            ma_sound_seek_to_pcm_frame(it->second.sound.get(), 0);
             ma_result res = ma_sound_start(it->second.sound.get());
             if (res != MA_SUCCESS) {
                 std::cerr << "[Audio] Warning: ma_sound_start failed with code " << res << " for sound id " << id << "\n";
@@ -228,11 +257,7 @@ namespace audio {
 
     void miniaudio_backend::resume_sound(sound_id id)
     {
-        std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
-        auto it = m_impl->active_sounds.find(id);
-        if (it != m_impl->active_sounds.end() && it->second.sound) {
-            ma_sound_start(it->second.sound.get());
-        }
+        play_sound(id);
     }
 
     bool miniaudio_backend::is_sound_playing(sound_id id) const
@@ -243,30 +268,6 @@ namespace audio {
             return ma_sound_is_playing(it->second.sound.get()) == MA_TRUE;
         }
         return false;
-    }
-
-    float miniaudio_backend::get_sound_cursor(sound_id id) const
-    {
-        std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
-        auto it = m_impl->active_sounds.find(id);
-        if (it != m_impl->active_sounds.end() && it->second.sound) {
-            float cursor = 0.0f;
-            ma_sound_get_cursor_in_seconds(it->second.sound.get(), &cursor);
-            return cursor;
-        }
-        return 0.0f;
-    }
-
-    void miniaudio_backend::set_sound_cursor(sound_id id, float seconds)
-    {
-        std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
-        auto it = m_impl->active_sounds.find(id);
-        if (it != m_impl->active_sounds.end() && it->second.sound) {
-            ma_sound_seek_to_pcm_frame(
-                it->second.sound.get(),
-                static_cast<ma_uint64>(seconds * ma_engine_get_sample_rate(&m_impl->engine))
-            );
-        }
     }
 
     void miniaudio_backend::set_sound_volume(sound_id id, float volume)
@@ -314,31 +315,51 @@ namespace audio {
         }
     }
 
-    void miniaudio_backend::set_sound_attenuation(sound_id id, float minDistance, float maxDistance, float rollOff)
-    {
-        std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
-        auto it = m_impl->active_sounds.find(id);
-        if (it != m_impl->active_sounds.end() && it->second.sound) {
-            float safeMax = maxDistance;
-            if (safeMax <= minDistance) safeMax = minDistance + 0.1f;
-            ma_sound_set_attenuation_model(it->second.sound.get(), ma_attenuation_model_linear);
-            ma_sound_set_min_distance(it->second.sound.get(), minDistance);
-            ma_sound_set_max_distance(it->second.sound.get(), safeMax);
-            ma_sound_set_rolloff(it->second.sound.get(), rollOff);
-        }
-    }
-
     void miniaudio_backend::set_sound_spatialization_enabled(sound_id id, bool enabled)
     {
         std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
         auto it = m_impl->active_sounds.find(id);
         if (it != m_impl->active_sounds.end() && it->second.sound) {
-            if (it->second.is3D != enabled) {
-                ma_sound_set_spatialization_enabled(it->second.sound.get(), enabled ? MA_TRUE : MA_FALSE);
-                if (enabled) {
-                    ma_sound_set_attenuation_model(it->second.sound.get(), ma_attenuation_model_linear);
+            ma_sound_set_spatialization_enabled(it->second.sound.get(), enabled ? MA_TRUE : MA_FALSE);
+        }
+    }
+
+    void miniaudio_backend::set_sound_attenuation(sound_id id, float minDistance, float maxDistance, float rollOff)
+    {
+        std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
+        auto it = m_impl->active_sounds.find(id);
+        if (it != m_impl->active_sounds.end() && it->second.sound) {
+            ma_sound_set_min_distance(it->second.sound.get(), minDistance);
+            ma_sound_set_max_distance(it->second.sound.get(), maxDistance);
+            ma_sound_set_rolloff(it->second.sound.get(), rollOff);
+        }
+    }
+
+    float miniaudio_backend::get_sound_cursor(sound_id id) const
+    {
+        std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
+        auto it = m_impl->active_sounds.find(id);
+        if (it != m_impl->active_sounds.end() && it->second.sound) {
+            ma_uint64 cursorFrames = 0;
+            if (ma_sound_get_cursor_in_pcm_frames(it->second.sound.get(), &cursorFrames) == MA_SUCCESS) {
+                ma_uint32 sampleRate = 0;
+                if (ma_sound_get_data_format(it->second.sound.get(), nullptr, nullptr, &sampleRate, nullptr, 0) == MA_SUCCESS && sampleRate > 0) {
+                    return static_cast<float>(cursorFrames) / static_cast<float>(sampleRate);
                 }
-                it->second.is3D = enabled;
+            }
+        }
+        return 0.0f;
+    }
+
+    void miniaudio_backend::set_sound_cursor(sound_id id, float seconds)
+    {
+        std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
+        auto it = m_impl->active_sounds.find(id);
+        if (it != m_impl->active_sounds.end() && it->second.sound) {
+            ma_uint32 sampleRate = 0;
+            if (ma_sound_get_data_format(it->second.sound.get(), nullptr, nullptr, &sampleRate, nullptr, 0) == MA_SUCCESS && sampleRate > 0) {
+                ma_uint64 frameIndex = static_cast<ma_uint64>(seconds * sampleRate);
+                ma_sound_seek_to_pcm_frame(it->second.sound.get(), frameIndex);
             }
         }
     }
@@ -350,21 +371,25 @@ namespace audio {
         }
 
         std::string resolved = resolve_audio_path(filepath);
-        if (!std::filesystem::exists(resolved)) return;
+        const auto fs_path = qual::path_from_utf8(resolved);
+        if (!std::filesystem::exists(fs_path)) return;
 
-        if (position == nullptr) {
-            // 2D One-shot
-            ma_engine_play_sound(&m_impl->engine, resolved.c_str(), nullptr);
-        }
-        else {
-            // 3D One-shot
-            sound_id sid = load_sound(resolved, true);
-            if (sid != invalid_sound_id) {
-                set_sound_volume(sid, volume);
-                set_sound_position(sid, *position);
-                set_sound_looping(sid, false);
-                play_sound(sid);
+        const bool is3D = (position != nullptr);
+        sound_id sid = load_sound(resolved, is3D);
+        if (sid != invalid_sound_id) {
+            {
+                std::lock_guard<std::mutex> lock(m_impl->sound_mutex);
+                auto it = m_impl->active_sounds.find(sid);
+                if (it != m_impl->active_sounds.end()) {
+                    it->second.is_one_shot = true;
+                }
             }
+            set_sound_volume(sid, volume);
+            if (position) {
+                set_sound_position(sid, *position);
+            }
+            set_sound_looping(sid, false);
+            play_sound(sid);
         }
     }
 
@@ -393,10 +418,16 @@ namespace audio {
 
     bool miniaudio_backend::get_sound_info(const std::string& filepath, audio_clip_info& outInfo)
     {
-        if (!std::filesystem::exists(filepath)) return false;
+        const auto fs_path = qual::path_from_utf8(filepath);
+        if (!std::filesystem::exists(fs_path)) return false;
 
         ma_decoder decoder;
+#if defined(_WIN32)
+        std::wstring wpath = fs_path.wstring();
+        ma_result result = ma_decoder_init_file_w(wpath.c_str(), nullptr, &decoder);
+#else
         ma_result result = ma_decoder_init_file(filepath.c_str(), nullptr, &decoder);
+#endif
         if (result != MA_SUCCESS) {
             return false;
         }
@@ -417,4 +448,3 @@ namespace audio {
     }
 
 } // namespace audio
-

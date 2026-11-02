@@ -52,6 +52,7 @@ namespace vesta {
         void remove_component_by_hash(entity e, size_t component_hash) override;
         bool has_component_by_hash(entity e, size_t component_hash) const override;
         void* get_component_raw(entity e, size_t component_hash) override;
+        registry* get_registry() override { return &m_registry; }
 
         // ==========================================
         // VARLIK (ASSET) OPERASYONLARI

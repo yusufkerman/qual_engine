@@ -79,6 +79,9 @@ namespace vesta {
         editor_selection_manager& selection() { return *m_selection_manager; }
         const editor_selection_manager& selection() const { return *m_selection_manager; }
 
+        command_stack* get_command_stack() noexcept { return m_command_stack.get(); }
+        const command_stack* get_command_stack() const noexcept { return m_command_stack.get(); }
+
         /**
          * @brief Varlık tarayıcısının kök dizinini günceller (Örn: Proje değiştirildiğinde).
          */
@@ -103,9 +106,9 @@ namespace vesta {
 
         void init_top_bar(EngineContext& engineCtx, EditorContext& editorCtx);
         void init_scene_viewport(EngineContext& engineCtx, EditorContext& editorCtx);
-        void init_game_viewport(EngineContext& ctx);
+        void init_game_viewport(EngineContext& ctx, EditorContext& editorCtx);
         void init_inspector(registry& registry, EngineContext& engineCtx);
-        void init_hierarchy(registry& registry, EngineContext& engineCtx);
+        void init_hierarchy(registry& registry, EngineContext& engineCtx, EditorContext& editorCtx);
         void init_asset_browser(aria::system& ariaSys);
         void init_lighting(EngineContext& engineCtx);
         void init_rendering_settings(EngineContext& engineCtx);

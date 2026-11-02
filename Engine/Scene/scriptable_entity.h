@@ -45,6 +45,19 @@ public:
     virtual void on_update(float delta_time) {}
     virtual void on_fixed_update(float fixed_delta_time) {}
 
+    /**
+     * @brief Hot-reload ve sahne serilestirme sirasinda betik ozel durumunun (state) JSON olarak saklanmasini saglar.
+     * @return Serilestirilmis JSON metni (varsayilan: bos nesne).
+     */
+    virtual std::string serialize_state() const { return "{}"; }
+
+    /**
+     * @brief Hot-reload sonrasi veya sahne yuklenirken saklanan durumu geri yukler.
+     * @param state Onceki serilestirilmis JSON metni.
+     */
+    virtual void deserialize_state(const std::string& state) { (void)state; }
+
+
     // Yardımcı fonksiyonlar
 
     /**

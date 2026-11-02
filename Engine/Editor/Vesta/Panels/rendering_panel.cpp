@@ -219,41 +219,108 @@ namespace vesta {
         // ====================================================================
         if (ImGui::CollapsingHeader("Skybox & Environment", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            ImGui::Checkbox("Enable Skybox Cubemap", &settings.enable_skybox);
+            if (ImGui::Checkbox("Enable Skybox Cubemap", &settings.enable_skybox))
+            {
+                m_engine_ctx.renderSettings.enable_skybox = settings.enable_skybox;
+                project::project_manager::instance().save_project(m_engine_ctx);
+            }
             if (ImGui::IsItemHovered())
             {
                 ImGui::SetTooltip("Renders the 360-degree skybox cubemap behind all opaque and transparent scene geometry.");
             }
 
-            ImGui::TextDisabled("Skybox Atlas Path: %s", settings.skybox_path.c_str());
+            ImGui::Spacing();
+            ImGui::Text("Skybox Atlas / Cubemap:");
 
-            if (ImGui::Button("Change Skybox Atlas..."))
+            const bool hasSkybox = !settings.skybox_path.empty();
+            const std::string displayPath = hasSkybox ? settings.skybox_path : "None (Drag Cubemap Texture Here)";
+            const float availW = ImGui::GetContentRegionAvail().x;
+            const float slotW = hasSkybox ? (availW - 36.0f) : availW;
+
+            ImGui::PushStyleColor(ImGuiCol_Button, hasSkybox ? ImVec4(0.15f, 0.35f, 0.20f, 1.0f) : ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+            if (ImGui::Button(displayPath.c_str(), ImVec2(slotW, 26.0f)))
             {
                 nfdu8char_t* outPath = nullptr;
                 nfdu8filteritem_t filterItem[1] = { { "Image Files", "png,jpg,jpeg,tga" } };
-
-                if (NFD_OpenDialogU8(&outPath, filterItem, 1, nullptr) == NFD_OKAY)
+                if (NFD_OpenDialogU8(&outPath, filterItem, 1, nullptr) == NFD_OKAY && outPath != nullptr)
                 {
-                    if (outPath != nullptr)
-                    {
-                        const unsigned int newTex = cubemap_loader::load_atlas(outPath);
-                        if (newTex != 0)
-                        {
-                            if (m_engine_ctx.skyboxTexture != 0)
-                            {
-                                glDeleteTextures(1, &m_engine_ctx.skyboxTexture);
-                            }
-                            m_engine_ctx.skyboxTexture = newTex;
-                            settings.skybox_path = outPath;
-                            std::cout << "[RenderingPanel] Yeni skybox atlas basariyla yuklendi: " << outPath << "\n";
-                        }
-                        NFD_FreePathU8(outPath);
+                    std::string skyPathStr = outPath;
+                    std::replace(skyPathStr.begin(), skyPathStr.end(), '\\', '/');
+                    size_t aPos = skyPathStr.find("Assets/");
+                    if (aPos != std::string::npos) {
+                        skyPathStr = skyPathStr.substr(aPos);
                     }
+                    const unsigned int newTex = cubemap_loader::load_atlas(outPath);
+                    if (newTex != 0)
+                    {
+                        if (m_engine_ctx.skyboxTexture != 0) glDeleteTextures(1, &m_engine_ctx.skyboxTexture);
+                        m_engine_ctx.skyboxTexture = newTex;
+                        settings.skybox_path = skyPathStr;
+                        settings.enable_skybox = true;
+                        m_engine_ctx.renderSettings = settings;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                        std::cout << "[RenderingPanel] Yeni skybox atlas basariyla yuklendi ve kaydedildi: " << skyPathStr << "\n";
+                    }
+                    NFD_FreePathU8(outPath);
                 }
             }
+            ImGui::PopStyleColor();
             if (ImGui::IsItemHovered())
             {
-                ImGui::SetTooltip("Load a new 4x3 horizontal cross cubemap atlas image (PNG, JPG, TGA).");
+                ImGui::SetTooltip("Click to browse or drag & drop a 4x3 horizontal cross cubemap atlas image.");
+            }
+
+            // Sürükle ve Bırak Desteği
+            if (ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload("ARIA_ASSET_PAYLOAD"))
+                {
+                    const auto* payload = static_cast<const vesta::asset_drag_payload*>(p->Data);
+                    if (payload && payload->path[0] != '\0')
+                    {
+                        std::string skyPathStr = payload->path;
+                        std::replace(skyPathStr.begin(), skyPathStr.end(), '\\', '/');
+                        size_t aPos = skyPathStr.find("Assets/");
+                        if (aPos != std::string::npos) {
+                            skyPathStr = skyPathStr.substr(aPos);
+                        }
+                        const unsigned int newTex = cubemap_loader::load_atlas(payload->path);
+                        if (newTex != 0)
+                        {
+                            if (m_engine_ctx.skyboxTexture != 0) glDeleteTextures(1, &m_engine_ctx.skyboxTexture);
+                            m_engine_ctx.skyboxTexture = newTex;
+                            settings.skybox_path = skyPathStr;
+                            settings.enable_skybox = true;
+                            m_engine_ctx.renderSettings = settings;
+                            project::project_manager::instance().save_project(m_engine_ctx);
+                            std::cout << "[RenderingPanel] DragDrop ile yeni skybox yuklendi ve kaydedildi: " << skyPathStr << "\n";
+                        }
+                    }
+                }
+                ImGui::EndDragDropTarget();
+            }
+
+            // X Kaldırma Butonu
+            if (hasSkybox)
+            {
+                ImGui::SameLine();
+                if (ImGui::Button("X##ClearSkybox", ImVec2(30.0f, 26.0f)))
+                {
+                    if (m_engine_ctx.skyboxTexture != 0)
+                    {
+                        glDeleteTextures(1, &m_engine_ctx.skyboxTexture);
+                        m_engine_ctx.skyboxTexture = 0;
+                    }
+                    settings.skybox_path.clear();
+                    settings.enable_skybox = false;
+                    m_engine_ctx.renderSettings = settings;
+                    project::project_manager::instance().save_project(m_engine_ctx);
+                    std::cout << "[RenderingPanel] Skybox atlas kaldirildi ve proje kaydedildi.\n";
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Remove skybox cubemap.");
+                }
             }
 
             ImGui::Spacing();
@@ -291,7 +358,157 @@ namespace vesta {
         ImGui::Spacing();
 
         // ====================================================================
-        // 6. MOTOR GRAFİK YETENEKLERİ ÖZETİ (CAPABILITIES SUMMARY)
+        // 6. PS1 RETRO HORROR PIPELINE
+        // ====================================================================
+        if (ImGui::CollapsingHeader("PS1 Retro Horror Pipeline", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Checkbox("Enable PS1 Retro Mode", &settings.enable_ps1_mode);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Enables PlayStation 1 era graphics emulation (vertex jitter, affine texture swimming, ordered dithering, color quantization).");
+            }
+
+            if (settings.enable_ps1_mode)
+            {
+                ImGui::Indent();
+
+                // Vertex Snapping (Jitter/Wobble)
+                ImGui::SliderFloat("Vertex Snapping Grid", &settings.ps1_vertex_snapping, 60.0f, 640.0f, "%.0f px");
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Simulates lack of floating-point sub-pixel precision on PS1 GTE. Lower values increase vertex wobble/jitter (120-240 is authentic). Set to 0 to disable.");
+                }
+
+                // Quick buttons for snapping resolution
+                if (ImGui::SmallButton("120p (Heavy Jitter)")) { settings.ps1_vertex_snapping = 120.0f; }
+                ImGui::SameLine();
+                if (ImGui::SmallButton("160p (Authentic Low)")) { settings.ps1_vertex_snapping = 160.0f; }
+                ImGui::SameLine();
+                if (ImGui::SmallButton("240p (Standard PS1)")) { settings.ps1_vertex_snapping = 240.0f; }
+                ImGui::SameLine();
+                if (ImGui::SmallButton("320p (Crisp)")) { settings.ps1_vertex_snapping = 320.0f; }
+
+                ImGui::Spacing();
+
+                // Resolution Downscaling (Chunky Pixel / Retro Scaler)
+                ImGui::Spacing();
+                ImGui::TextColored(ImVec4(0.3f, 0.8f, 1.0f, 1.0f), "PS1 Resolution Downscaling (Pixelation)");
+                ImGui::Checkbox("Enable Low-Res Downscale", &settings.ps1_downscale);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Renders the scene at authentic low PS1 hardware resolution and upscales with nearest-neighbor filtering for chunky pixels.");
+                }
+
+                if (settings.ps1_downscale)
+                {
+                    const char* resPresets[] = {
+                        "240p PS1 (Free Aspect Uyumlu / En-Boy Korunur)",
+                        "320x240 Sabit (PS1 4:3 Klasik)",
+                        "426x240 Sabit (PS1 16:9 Genis Ekran)",
+                        "480p Hi-Res PS1 (Free Aspect Uyumlu)",
+                        "Dinamik 0.25x (Viewport Ceyrek Boyut)",
+                        "Ozel Cozunurluk (Custom Width x Height)..."
+                    };
+                    ImGui::Combo("Resolution Preset", &settings.ps1_resolution_preset, resPresets, IM_ARRAYSIZE(resPresets));
+
+                    if (settings.ps1_resolution_preset == 5)
+                    {
+                        ImGui::DragInt("Custom Width", &settings.ps1_custom_width, 2.0f, 64, 1920);
+                        ImGui::DragInt("Custom Height", &settings.ps1_custom_height, 2.0f, 64, 1080);
+                    }
+
+                    ImGui::TextDisabled("Game Target: %d x %d (Upscaled via GL_NEAREST, Editor: 1:1 Full)", 
+                        m_engine_ctx.gameTarget.width, 
+                        m_engine_ctx.gameTarget.height);
+                }
+                ImGui::Spacing();
+
+                // Affine Texture Mapping
+                ImGui::Checkbox("Affine Texture Warping (No W-Divide)", &settings.ps1_affine_texture_mapping);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Simulates PS1 hardware lack of perspective-correct texture interpolation, causing textures to swim and distort on angled polygons.");
+                }
+
+                ImGui::Spacing();
+
+                // Color Depth / Posterization
+                ImGui::SliderFloat("Color Depth (Levels/Channel)", &settings.ps1_color_depth, 4.0f, 64.0f, "%.0f levels");
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Quantizes RGB color precision. 32 levels = 15-bit RGB555 (Original PS1 hardware standard). 16 levels = 12-bit retro.");
+                }
+
+                // Dithering
+                ImGui::Checkbox("Bayer 4x4 Ordered Dithering", &settings.ps1_dithering);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Applies authentic 4x4 Bayer pattern dithering to break color banding in low-bit-depth environments.");
+                }
+
+                if (settings.ps1_dithering)
+                {
+                    ImGui::SliderFloat("Dither Intensity", &settings.ps1_dither_strength, 0.1f, 2.0f, "%.2fx");
+                }
+
+                ImGui::Spacing();
+                ImGui::TextColored(ImVec4(0.95f, 0.75f, 0.35f, 1.0f), "Retro Horror Atmosphere Presets:");
+
+                if (ImGui::Button("Silent Hill Fog Preset"))
+                {
+                    settings.enable_ps1_mode = true;
+                    settings.ps1_vertex_snapping = 200.0f;
+                    settings.ps1_affine_texture_mapping = true;
+                    settings.ps1_color_depth = 32.0f;
+                    settings.ps1_dithering = true;
+                    settings.ps1_dither_strength = 1.0f;
+                    auto& fog = m_engine_ctx.fog;
+                    fog.enabled = true;
+                    fog.show_in_scene = true;
+                    fog.density = 0.032f;
+                    fog.color = glm::vec3(0.35f, 0.38f, 0.40f);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Dense eerie gray fog with standard PS1 15-bit color dithering and vertex wobble.");
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("Resident Evil Dark Preset"))
+                {
+                    settings.enable_ps1_mode = true;
+                    settings.ps1_vertex_snapping = 240.0f;
+                    settings.ps1_affine_texture_mapping = true;
+                    settings.ps1_color_depth = 32.0f;
+                    settings.ps1_dithering = true;
+                    settings.ps1_dither_strength = 1.2f;
+                    auto& fog = m_engine_ctx.fog;
+                    fog.enabled = true;
+                    fog.show_in_scene = true;
+                    fog.density = 0.015f;
+                    fog.color = glm::vec3(0.02f, 0.02f, 0.03f);
+                    settings.clear_color_scene = glm::vec3(0.01f, 0.01f, 0.02f);
+                    settings.clear_color_game = glm::vec3(0.01f, 0.01f, 0.02f);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Near pitch black darkness with high-contrast dithered lighting.");
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("Disable PS1 Mode"))
+                {
+                    settings.enable_ps1_mode = false;
+                }
+
+                ImGui::Unindent();
+            }
+        }
+
+        ImGui::Spacing();
+
+        // ====================================================================
+        // 7. MOTOR GRAFİK YETENEKLERİ ÖZETİ (CAPABILITIES SUMMARY)
         // ====================================================================
         if (ImGui::CollapsingHeader("Active Graphics Pipeline Capabilities"))
         {

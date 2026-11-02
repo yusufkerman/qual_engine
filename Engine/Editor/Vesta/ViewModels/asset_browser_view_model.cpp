@@ -4,6 +4,7 @@
  */
 
 #include "asset_browser_view_model.h"
+#include "../../../Core/path_utils.h"
 #include "../Services/asset_browser_system.h"
 #include "../../Project/project.h"
 #include "../../Project/engine_settings.h"
@@ -64,7 +65,7 @@ namespace vesta {
         // Açık olan projenin gerçek varlık yolu (varsa)
         std::filesystem::path project_assets_dir;
         if (project::project_manager::instance().has_active_project()) {
-            project_assets_dir = project::project_manager::instance().get_asset_path();
+            project_assets_dir = qual::path_from_utf8(project::project_manager::instance().get_asset_path());
         }
         if (project_assets_dir.empty()) {
             project_assets_dir = m_browser_system.root_entry().full_path;
@@ -119,7 +120,7 @@ namespace vesta {
         if (m_browser_system.create_material(dir, unique_name)) {
             refresh();
             std::filesystem::path new_mat_path = dir / (unique_name + ".json");
-            select_and_notify(new_mat_path.string());
+            select_and_notify(qual::path_to_utf8(new_mat_path));
         }
     }
 
@@ -129,7 +130,7 @@ namespace vesta {
         std::filesystem::path dir = target_dir;
         std::filesystem::path project_assets_dir;
         if (project::project_manager::instance().has_active_project()) {
-            project_assets_dir = project::project_manager::instance().get_asset_path();
+            project_assets_dir = qual::path_from_utf8(project::project_manager::instance().get_asset_path());
         }
         if (project_assets_dir.empty()) {
             project_assets_dir = m_browser_system.root_entry().full_path;
@@ -185,58 +186,87 @@ namespace vesta {
         std::filesystem::path source_path = dir / (unique_name + ".cpp");
 
         {
-            std::ofstream hFile(header_path);
+            std::ofstream hFile(header_path, std::ios::out | std::ios::trunc);
             if (hFile.is_open()) {
                 hFile << "#pragma once\n\n";
                 hFile << "/**\n";
                 hFile << " * @file " << unique_name << ".h\n";
-                hFile << " * @brief Gameplay API script for " << unique_name << ".\n";
+                hFile << " * @brief Gameplay script for " << unique_name << ".\n";
                 hFile << " */\n\n";
                 hFile << "#include <Gameplay/gameplay.h>\n";
                 hFile << "#include <Engine/Scripting/script_factory.h>\n";
                 hFile << "#include <glm/glm.hpp>\n\n";
                 hFile << "/**\n";
                 hFile << " * @class " << unique_name << "\n";
-                hFile << " * @brief Script component logic.\n";
+                hFile << " * @brief Unity-style gameplay script component logic.\n";
                 hFile << " */\n";
                 hFile << "class " << unique_name << " : public gameplay::script\n";
                 hFile << "{\n";
                 hFile << "public:\n";
-                hFile << "    void on_create() override;\n";
-                hFile << "    void on_update(float dt) override;\n";
+                hFile << "    // Start is called before the first frame update (Unity: Start)\n";
+                hFile << "    void on_create() override;\n\n";
+                hFile << "    // Update is called once per frame with delta time in seconds (Unity: Update)\n";
+                hFile << "    void on_update(float dt) override;\n\n";
+                hFile << "    // FixedUpdate is called on physics timesteps (Unity: FixedUpdate) - uncomment if needed\n";
+                hFile << "    // void on_fixed_update(float fixed_dt) override;\n\n";
+                hFile << "    // Called when this collider/rigidbody begins touching another (Unity: OnCollisionEnter)\n";
+                hFile << "    // void on_collision_enter(const gameplay::collision_hit& hit) override;\n\n";
+                hFile << "    // Called when a trigger sensor detects another entity (Unity: OnTriggerEnter)\n";
+                hFile << "    // void on_trigger_enter(const gameplay::trigger_hit& hit) override;\n\n";
+                hFile << "    // Called when the script or entity is being destroyed (Unity: OnDestroy)\n";
+                hFile << "    // void on_destroy() override;\n\n";
+                hFile << "private:\n";
+                hFile << "    // Expose / define your script variables here\n";
+                hFile << "    // float move_speed = 5.0f;\n";
                 hFile << "};\n\n";
+                hFile << "// Register script so it can be attached to entities in the Inspector\n";
                 hFile << "REGISTER_SCRIPT(" << unique_name << ");\n";
+                hFile.flush();
+                hFile.close();
             }
         }
 
         {
-            std::ofstream cppFile(source_path);
+            std::ofstream cppFile(source_path, std::ios::out | std::ios::trunc);
             if (cppFile.is_open()) {
                 cppFile << "/**\n";
                 cppFile << " * @file " << unique_name << ".cpp\n";
                 cppFile << " * @brief Implementation for " << unique_name << ".\n";
                 cppFile << " */\n\n";
                 cppFile << "#include \"" << unique_name << ".h\"\n";
-                cppFile << "#include <glm/glm.hpp>\n\n";
+                cppFile << "#include <glm/glm.hpp>\n";
+                cppFile << "#include <iostream>\n\n";
+                cppFile << "// Start is called before the first frame update\n";
                 cppFile << "void " << unique_name << "::on_create()\n";
                 cppFile << "{\n";
-                cppFile << "    // Initialize entity and components\n";
+                cppFile << "    // Use this for initialization (equivalent to Unity Start)\n";
+                cppFile << "    // Example: Read or set initial transform position\n";
+                cppFile << "    // glm::vec3 startPos = transform().get_position();\n";
+                cppFile << "    // gameplay::log::info(\"" << unique_name << " initialized on entity: \" + std::to_string(entity_id()));\n";
                 cppFile << "}\n\n";
+                cppFile << "// Update is called once per frame\n";
                 cppFile << "void " << unique_name << "::on_update(float dt)\n";
                 cppFile << "{\n";
-                cppFile << "    // Per-frame logic here\n";
+                cppFile << "    // Put per-frame logic here (equivalent to Unity Update)\n";
+                cppFile << "    // Example: Input handling (WASD / Arrow Keys)\n";
+                cppFile << "    // if (gameplay::input::is_key_down(GLFW_KEY_W)) {\n";
+                cppFile << "    //     transform().translate(glm::vec3(0.0f, 0.0f, -5.0f * dt));\n";
+                cppFile << "    // }\n";
                 cppFile << "}\n";
+                cppFile.flush();
+                cppFile.close();
             }
         }
 
         refresh();
-        select_and_notify(header_path.string());
+        const std::string header_u8 = qual::path_to_utf8(header_path);
+        select_and_notify(header_u8);
 
         std::string project_root;
         if (project::project_manager::instance().has_active_project()) {
             project_root = project::project_manager::instance().get_project_root();
         }
-        project::engine_settings::instance().open_in_editor(header_path.string(), project_root);
+        project::engine_settings::instance().open_in_editor(header_u8, project_root);
     }
 
     void asset_browser_view_model::request_create_folder(
@@ -245,7 +275,7 @@ namespace vesta {
         std::filesystem::path dir = target_dir;
         std::filesystem::path project_assets_dir;
         if (project::project_manager::instance().has_active_project()) {
-            project_assets_dir = project::project_manager::instance().get_asset_path();
+            project_assets_dir = qual::path_from_utf8(project::project_manager::instance().get_asset_path());
         }
         if (project_assets_dir.empty()) {
             project_assets_dir = m_browser_system.root_entry().full_path;
@@ -270,26 +300,33 @@ namespace vesta {
         std::error_code ec;
         std::string unique_name = clean_name;
         int counter = 1;
-        while (std::filesystem::exists(dir / unique_name, ec)) {
+        while (std::filesystem::exists(dir / qual::path_from_utf8(unique_name), ec)) {
             unique_name = clean_name + "_" + std::to_string(counter++);
         }
 
-        std::filesystem::create_directories(dir / unique_name, ec);
+        std::filesystem::create_directories(dir / qual::path_from_utf8(unique_name), ec);
         refresh();
     }
 
     void asset_browser_view_model::request_rename(
         const std::filesystem::path& target, const std::string& new_name)
     {
+        const bool is_dir = std::filesystem::is_directory(target);
+        const std::string ext_u8 = is_dir ? std::string{} : qual::path_to_utf8(target.extension());
+        const std::string target_u8 = qual::path_to_utf8(target);
+
         if (m_browser_system.rename_asset(target, new_name)) {
-            std::filesystem::path new_path =
-                target.parent_path() / (new_name + target.extension().string());
+            std::string final_name_u8 = new_name;
+            if (!is_dir && !ext_u8.empty() && !final_name_u8.ends_with(ext_u8)) {
+                final_name_u8 += ext_u8;
+            }
+            std::filesystem::path new_path = target.parent_path() / qual::path_from_utf8(final_name_u8);
 
             refresh();
 
             // Eğer yeniden adlandırılan dosya şu an seçiliyse, seçim yolunu da güncelle
-            if (m_selected_path == target.string()) {
-                select(new_path.string());
+            if (m_selected_path == target_u8) {
+                select(qual::path_to_utf8(new_path));
             }
         }
     }
@@ -301,9 +338,9 @@ namespace vesta {
     }
 
     void asset_browser_view_model::request_delete(const std::filesystem::path& target) {
-        // Not: İleride Undo/Redo mekanizması için Command Stack'e entegre edilebilir.
+        const std::string target_u8 = qual::path_to_utf8(target);
         if (m_browser_system.delete_asset(target)) {
-            if (m_selected_path == target.string()) {
+            if (m_selected_path == target_u8) {
                 clear_selection();
             }
         }
@@ -313,14 +350,40 @@ namespace vesta {
         const std::filesystem::path& src, const std::filesystem::path& dst_dir)
     {
         try {
-            std::filesystem::path dst = dst_dir / src.filename();
-            if (src != dst && std::filesystem::exists(src)) {
-                std::filesystem::rename(src, dst);
-                refresh();
+            const auto src_fs = qual::path_from_utf8(qual::path_to_utf8(src));
+            auto dst_dir_fs = qual::path_from_utf8(qual::path_to_utf8(dst_dir));
+            if (std::filesystem::exists(dst_dir_fs) && !std::filesystem::is_directory(dst_dir_fs)) {
+                dst_dir_fs = dst_dir_fs.parent_path();
             }
+
+            if (!std::filesystem::exists(src_fs) || !std::filesystem::exists(dst_dir_fs)) {
+                return;
+            }
+
+            std::string src_can = qual::path_to_utf8(std::filesystem::weakly_canonical(src_fs));
+            std::string dst_can = qual::path_to_utf8(std::filesystem::weakly_canonical(dst_dir_fs));
+            if (dst_can.rfind(src_can, 0) == 0) {
+                std::cout << "[Vesta AssetBrowser] Uyari: Bir klasor kendi icine tasinamaz!\n";
+                return;
+            }
+
+            std::filesystem::path dst_file_fs = dst_dir_fs / src_fs.filename();
+            if (src_fs == dst_file_fs) {
+                return;
+            }
+
+            std::filesystem::rename(src_fs, dst_file_fs);
+
+            std::filesystem::path src_meta = qual::path_from_utf8(qual::path_to_utf8(src_fs) + ".meta");
+            std::filesystem::path dst_meta = qual::path_from_utf8(qual::path_to_utf8(dst_file_fs) + ".meta");
+            if (std::filesystem::exists(src_meta)) {
+                std::filesystem::rename(src_meta, dst_meta);
+            }
+
+            refresh();
+            std::cout << "[Vesta AssetBrowser] Tasindi: " << qual::path_to_utf8(src_fs.filename()) << " -> " << qual::path_to_utf8(dst_dir_fs) << "\n";
         }
         catch (const std::exception& e) {
-            // Sessizce yutulan hata düzeltildi. Dosya kilidi (lock) veya izin sorunlarında uyarır.
             std::cout << "[Vesta AssetBrowser] Hata: Dosya tasinirken bir sorun olustu: " << e.what() << "\n";
         }
     }

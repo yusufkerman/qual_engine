@@ -30,7 +30,19 @@ inline void render_collider_ui(entity e, registry& reg) {
 
     ImGui::Separator();
 
-    // 2. Türe Göre Dinamik Boyut Kontrolleri
+    // 2. Konum Ötelemesi (Center Offset)
+    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "Center Offset");
+    ImGui::DragFloat3("Offset", &col->offset.x, 0.05f, -100.0f, 100.0f, "%.2f");
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip("Collider'in nesne merkezine gore yerel konumu (Local Offset)");
+    }
+
+    ImGui::Separator();
+
+    // 3. Türe Göre Dinamik Boyut Kontrolleri
+    auto* transform = reg.get_component<transform_component>(e);
+    const glm::vec3 effScale = transform ? glm::max(glm::abs(transform->scale), glm::vec3(0.001f)) : glm::vec3(1.0f);
+
     if (col->type == collider_type::box) {
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Box Dimensions (Full Size)");
 
@@ -38,8 +50,13 @@ inline void render_collider_ui(entity e, registry& reg) {
         glm::vec3 displayedSize = col->extents * 2.0f;
 
         if (ImGui::DragFloat3("Size", &displayedSize.x, 0.1f, 0.01f, 100.0f, "%.2f")) {
-            col->extents = displayedSize * 0.5f;
+            col->extents = glm::max(displayedSize * 0.5f, glm::vec3(0.01f));
         }
+
+        // Nesnenin transform ölçeğiyle orantılı dünya boyutu
+        const glm::vec3 scaledWorldSize = (col->extents * 2.0f) * effScale;
+        ImGui::TextDisabled("Effective Scaled Size: (%.2f, %.2f, %.2f)", scaledWorldSize.x, scaledWorldSize.y, scaledWorldSize.z);
+        ImGui::TextColored(ImVec4(0.35f, 0.85f, 0.45f, 1.0f), "Tip: Drag handles in Scene view to resize faces.");
     }
     else if (col->type == collider_type::sphere) {
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "Sphere Dimensions");

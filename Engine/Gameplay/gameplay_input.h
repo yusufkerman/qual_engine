@@ -65,6 +65,28 @@ namespace gameplay
         [[nodiscard]] static bool is_key_just_released(int glfw_key);
 
         // ==========================================
+        // FARE BUTON (MOUSE BUTTON) SORGULARI
+        // ==========================================
+
+        /**
+         * @brief Belirtilen fare butonunun basılı tutulup tutulmadığını sorgular.
+         * @param button GLFW fare butonu (ör. GLFW_MOUSE_BUTTON_LEFT, GLFW_MOUSE_BUTTON_RIGHT).
+         */
+        [[nodiscard]] static bool is_mouse_button_pressed(int button);
+
+        /**
+         * @brief Belirtilen fare butonunun bu karede yeni mi basıldığını sorgular.
+         * @param button GLFW fare butonu.
+         */
+        [[nodiscard]] static bool is_mouse_button_just_pressed(int button);
+
+        /**
+         * @brief Belirtilen fare butonunun bu karede mi bırakıldığını sorgular.
+         * @param button GLFW fare butonu.
+         */
+        [[nodiscard]] static bool is_mouse_button_just_released(int button);
+
+        // ==========================================
         // EKSEN (AXIS) VE HAREKET KOLAYLAŞTIRICILARI
         // ==========================================
 
@@ -112,4 +134,3 @@ namespace gameplay
         static void set_cursor_locked(bool locked);
     };
 }
-

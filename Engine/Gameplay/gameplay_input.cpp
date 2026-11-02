@@ -63,7 +63,21 @@ namespace gameplay
     bool input::is_key_pressed(int glfw_key)
     {
         auto* state = context::get_input_state();
-        if (!state || glfw_key < 0 || glfw_key > GLFW_KEY_LAST)
+        if (!state)
+        {
+            return false;
+        }
+
+        // Fare tuşları ile uyumluluk (0..7 arası fare butonları)
+        if (glfw_key >= 0 && glfw_key <= GLFW_MOUSE_BUTTON_LAST)
+        {
+            if (state->mouseButtons[glfw_key])
+            {
+                return true;
+            }
+        }
+
+        if (glfw_key < 0 || glfw_key > GLFW_KEY_LAST)
         {
             return false;
         }
@@ -74,7 +88,21 @@ namespace gameplay
     bool input::is_key_just_pressed(int glfw_key)
     {
         auto* state = context::get_input_state();
-        if (!state || glfw_key < 0 || glfw_key > GLFW_KEY_LAST)
+        if (!state)
+        {
+            return false;
+        }
+
+        // Fare tuşları ile uyumluluk
+        if (glfw_key >= 0 && glfw_key <= GLFW_MOUSE_BUTTON_LAST)
+        {
+            if (state->mouseButtons[glfw_key] && !state->prevMouseButtons[glfw_key])
+            {
+                return true;
+            }
+        }
+
+        if (glfw_key < 0 || glfw_key > GLFW_KEY_LAST)
         {
             return false;
         }
@@ -85,12 +113,55 @@ namespace gameplay
     bool input::is_key_just_released(int glfw_key)
     {
         auto* state = context::get_input_state();
-        if (!state || glfw_key < 0 || glfw_key > GLFW_KEY_LAST)
+        if (!state)
+        {
+            return false;
+        }
+
+        if (glfw_key >= 0 && glfw_key <= GLFW_MOUSE_BUTTON_LAST)
+        {
+            if (!state->mouseButtons[glfw_key] && state->prevMouseButtons[glfw_key])
+            {
+                return true;
+            }
+        }
+
+        if (glfw_key < 0 || glfw_key > GLFW_KEY_LAST)
         {
             return false;
         }
 
         return !state->keys[glfw_key] && state->prevKeys[glfw_key];
+    }
+
+    bool input::is_mouse_button_pressed(int button)
+    {
+        auto* state = context::get_input_state();
+        if (!state || button < 0 || button > GLFW_MOUSE_BUTTON_LAST)
+        {
+            return false;
+        }
+        return state->mouseButtons[button];
+    }
+
+    bool input::is_mouse_button_just_pressed(int button)
+    {
+        auto* state = context::get_input_state();
+        if (!state || button < 0 || button > GLFW_MOUSE_BUTTON_LAST)
+        {
+            return false;
+        }
+        return state->mouseButtons[button] && !state->prevMouseButtons[button];
+    }
+
+    bool input::is_mouse_button_just_released(int button)
+    {
+        auto* state = context::get_input_state();
+        if (!state || button < 0 || button > GLFW_MOUSE_BUTTON_LAST)
+        {
+            return false;
+        }
+        return !state->mouseButtons[button] && state->prevMouseButtons[button];
     }
 
     float input::get_axis(InputAction positive, InputAction negative)

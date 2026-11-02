@@ -76,6 +76,8 @@ namespace aria {
             info.gpu_id = bridges[i].gpu_data;
             info.local_center = bridges[i].bounds.local_center;
             info.local_radius = bridges[i].bounds.local_radius;
+            info.aabb_min = bridges[i].bounds.aabb_min;
+            info.aabb_max = bridges[i].bounds.aabb_max;
 
             runtime_infos.push_back(info);
 
@@ -84,6 +86,8 @@ namespace aria {
                 asset->sub_meshes[i].vao = bridges[i].gpu_data.vao_or_buffer_id;
                 asset->sub_meshes[i].vbo = bridges[i].gpu_data.vbo;
                 asset->sub_meshes[i].ebo = bridges[i].gpu_data.ebo;
+                asset->sub_meshes[i].aabb_min = bridges[i].bounds.aabb_min;
+                asset->sub_meshes[i].aabb_max = bridges[i].bounds.aabb_max;
             }
         }
 
@@ -122,6 +126,8 @@ namespace aria {
             info.gpu_id = bridges[i].gpu_data;
             info.local_center = bridges[i].bounds.local_center;
             info.local_radius = bridges[i].bounds.local_radius;
+            info.aabb_min = bridges[i].bounds.aabb_min;
+            info.aabb_max = bridges[i].bounds.aabb_max;
 
             runtime_infos.push_back(info);
 
@@ -129,6 +135,8 @@ namespace aria {
                 asset->sub_meshes[i].vao = bridges[i].gpu_data.vao_or_buffer_id;
                 asset->sub_meshes[i].vbo = bridges[i].gpu_data.vbo;
                 asset->sub_meshes[i].ebo = bridges[i].gpu_data.ebo;
+                asset->sub_meshes[i].aabb_min = bridges[i].bounds.aabb_min;
+                asset->sub_meshes[i].aabb_max = bridges[i].bounds.aabb_max;
             }
         }
 

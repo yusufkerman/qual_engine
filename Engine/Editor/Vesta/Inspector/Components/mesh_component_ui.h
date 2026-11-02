@@ -1,3 +1,4 @@
+#include "../../../Engine/Assets/asset_loader.h"
 #pragma once
 
 /**
@@ -10,6 +11,7 @@
 #include "../../ECS/registry.h"
 #include "../../Engine/asset_pipeline.h"
 #include "../../Services/asset_entry.h"
+#include "../../../Core/path_utils.h"
 #include <imgui.h>
 #include <iostream>
 
@@ -62,6 +64,21 @@ inline void render_mesh_ui(entity e, registry& reg, aria::system& ariaSys) {
         std::string modelName = "None (Drag Model Here)";
         if (meshComp->model_handle.is_valid()) {
             modelName = "Loaded Model Asset";
+            if (const auto* modelAsset = ariaSys.get_model_data(meshComp->model_handle)) {
+                const std::string resolved_path = ariaSys.resolve_asset_path(modelAsset->guid);
+                if (!resolved_path.empty()) {
+                    const std::string fname = qual::path_to_utf8(qual::path_from_utf8(resolved_path).filename());
+                    if (!fname.empty()) {
+                        modelName = fname;
+                    }
+                }
+                else if (!modelAsset->raw_data.debug_path.empty()) {
+                    const std::string fname = qual::path_to_utf8(qual::path_from_utf8(modelAsset->raw_data.debug_path).filename());
+                    if (!fname.empty()) {
+                        modelName = fname;
+                    }
+                }
+            }
         }
 
         ImGui::Text("Model Asset:");
@@ -84,6 +101,18 @@ inline void render_mesh_ui(entity e, registry& reg, aria::system& ariaSys) {
                         auto* bounds = reg.get_component<bounds_component>(e);
                         bounds->localCenter = glm::vec3(0.0f);
                         bounds->localRadius = 1.0f;
+
+                        // Otomatik doku ve materyal cikartip baglama
+                        auto autoMats = aria::asset_loader::extract_and_generate_materials_for_model(data->path, &ariaSys);
+                        if (!autoMats.empty()) {
+                            if (!reg.has_component<material_component>(e)) {
+                                reg.add_component<material_component>(e);
+                            }
+                            auto* matComp = reg.get_component<material_component>(e);
+                            if (matComp && !matComp->material_handle.is_valid()) {
+                                matComp->material_handle = ariaSys.import_material(autoMats[0].material_guid, autoMats[0].material_path);
+                            }
+                        }
                     }
                     else {
                         std::cerr << "[Vesta MeshUI] Model yuklenemedi: " << data->path << "\n";

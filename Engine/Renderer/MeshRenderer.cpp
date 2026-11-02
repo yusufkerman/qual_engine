@@ -165,7 +165,7 @@ void MeshRenderer::BindTextureSlot(unsigned int slot, unsigned int textureID)
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    if (slot < 3)
+    if (slot < 16)
     {
         m_currentTextures[slot] = textureID;
     }
@@ -175,7 +175,7 @@ void MeshRenderer::InvalidateState() noexcept
 {
     m_currentVAO = 0;
     m_currentFBO = 0;
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 16; ++i)
     {
         m_currentTextures[i] = 0;
     }

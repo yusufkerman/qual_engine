@@ -13,6 +13,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 lightSpaceMatrix;
+uniform float u_PS1VertexSnapping;
 
 layout (std140) uniform BoneMatricesBlock
 {
@@ -72,6 +73,13 @@ void main()
     vNormal = N;
     vUV = aUV;
 
-    gl_Position = projection * view * worldPos;
+    vec4 clipPos = projection * view * worldPos;
+    if (u_PS1VertexSnapping > 0.0)
+    {
+        vec2 ndc = clipPos.xy / clipPos.w;
+        ndc = floor(ndc * u_PS1VertexSnapping + 0.5) / u_PS1VertexSnapping;
+        clipPos.xy = ndc * clipPos.w;
+    }
+    gl_Position = clipPos;
 }
 

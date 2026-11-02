@@ -13,10 +13,12 @@
 #include <GLFW/glfw3.h>
 #include <fstream>
 #include <iostream>
+#include "../Core/path_utils.h"
+#include "engine_settings.h"
+#include "../Resources/engine_resources.h"
+#include "../Importers/cubemap_loader.h"
 
 namespace project {
-
-    namespace {
 
         nlohmann::json render_settings_to_json(const render_settings& r)
         {
@@ -38,6 +40,16 @@ namespace project {
             j["vsync"] = r.vsync;
             j["wireframe"] = r.wireframe;
             j["backface_culling"] = r.backface_culling;
+            j["enable_ps1_mode"] = r.enable_ps1_mode;
+            j["ps1_downscale"] = r.ps1_downscale;
+            j["ps1_resolution_preset"] = r.ps1_resolution_preset;
+            j["ps1_custom_width"] = r.ps1_custom_width;
+            j["ps1_custom_height"] = r.ps1_custom_height;
+            j["ps1_vertex_snapping"] = r.ps1_vertex_snapping;
+            j["ps1_affine_texture_mapping"] = r.ps1_affine_texture_mapping;
+            j["ps1_color_depth"] = r.ps1_color_depth;
+            j["ps1_dithering"] = r.ps1_dithering;
+            j["ps1_dither_strength"] = r.ps1_dither_strength;
             return j;
         }
 
@@ -70,6 +82,16 @@ namespace project {
             try { if (j.contains("vsync")) r.vsync = j.value("vsync", r.vsync); } catch (...) {}
             try { if (j.contains("wireframe")) r.wireframe = j.value("wireframe", r.wireframe); } catch (...) {}
             try { if (j.contains("backface_culling")) r.backface_culling = j.value("backface_culling", r.backface_culling); } catch (...) {}
+            try { if (j.contains("enable_ps1_mode")) r.enable_ps1_mode = j.value("enable_ps1_mode", r.enable_ps1_mode); } catch (...) {}
+            try { if (j.contains("ps1_downscale")) r.ps1_downscale = j.value("ps1_downscale", r.ps1_downscale); } catch (...) {}
+            try { if (j.contains("ps1_resolution_preset")) r.ps1_resolution_preset = j.value("ps1_resolution_preset", r.ps1_resolution_preset); } catch (...) {}
+            try { if (j.contains("ps1_custom_width")) r.ps1_custom_width = j.value("ps1_custom_width", r.ps1_custom_width); } catch (...) {}
+            try { if (j.contains("ps1_custom_height")) r.ps1_custom_height = j.value("ps1_custom_height", r.ps1_custom_height); } catch (...) {}
+            try { if (j.contains("ps1_vertex_snapping")) r.ps1_vertex_snapping = j.value("ps1_vertex_snapping", r.ps1_vertex_snapping); } catch (...) {}
+            try { if (j.contains("ps1_affine_texture_mapping")) r.ps1_affine_texture_mapping = j.value("ps1_affine_texture_mapping", r.ps1_affine_texture_mapping); } catch (...) {}
+            try { if (j.contains("ps1_color_depth")) r.ps1_color_depth = j.value("ps1_color_depth", r.ps1_color_depth); } catch (...) {}
+            try { if (j.contains("ps1_dithering")) r.ps1_dithering = j.value("ps1_dithering", r.ps1_dithering); } catch (...) {}
+            try { if (j.contains("ps1_dither_strength")) r.ps1_dither_strength = j.value("ps1_dither_strength", r.ps1_dither_strength); } catch (...) {}
         }
 
         nlohmann::json fog_settings_to_json(const fog_settings& f)
@@ -94,8 +116,6 @@ namespace project {
             } catch (...) {}
             try { if (j.contains("density")) f.density = j.value("density", f.density); } catch (...) {}
         }
-
-    } // anonymous namespace
 
     project_manager& project_manager::instance()
     {
@@ -128,14 +148,77 @@ namespace project {
         {
             ctx.shadowFBO.init(ctx.renderSettings.shadow_map_resolution, ctx.renderSettings.shadow_map_resolution);
         }
+
+        // 5. Skybox dokusunu yükle / doğrula
+        if (ctx.renderSettings.enable_skybox)
+        {
+            if (ctx.skyboxTexture != 0)
+            {
+                glDeleteTextures(1, &ctx.skyboxTexture);
+                ctx.skyboxTexture = 0;
+            }
+            std::string skyboxPath = ctx.renderSettings.skybox_path;
+            if (skyboxPath.empty() || skyboxPath == "Assets/sky/skybox1.png") {
+                skyboxPath = "@engine/Textures/sky/skybox1.png";
+            }
+            else if (skyboxPath.rfind("@engine", 0) != 0 && !std::filesystem::exists(qual::path_from_utf8(skyboxPath)))
+            {
+                if (instance().has_active_project())
+                {
+                    const std::filesystem::path rootP = qual::path_from_utf8(instance().get_project_root());
+                    std::filesystem::path candidate = rootP / qual::path_from_utf8(skyboxPath);
+                    if (std::filesystem::exists(candidate))
+                    {
+                        skyboxPath = qual::path_to_utf8(candidate);
+                    }
+                    else
+                    {
+                        size_t aIdx = skyboxPath.find("Assets/");
+                        if (aIdx != std::string::npos)
+                        {
+                            candidate = rootP / qual::path_from_utf8(skyboxPath.substr(aIdx));
+                            if (std::filesystem::exists(candidate))
+                            {
+                                skyboxPath = qual::path_to_utf8(candidate);
+                            }
+                        }
+                    }
+                }
+            }
+            ctx.skyboxTexture = cubemap_loader::load_atlas(skyboxPath);
+            std::cout << "[ProjectManager] Skybox dokusu yuklendi (TexID: " << ctx.skyboxTexture << "): " << skyboxPath << "\n";
+        }
+        else
+        {
+            if (ctx.skyboxTexture != 0)
+            {
+                glDeleteTextures(1, &ctx.skyboxTexture);
+                ctx.skyboxTexture = 0;
+            }
+        }
     }
 
     void project_manager::init_default_project(EngineContext& ctx)
     {
+        engine_settings::instance().load();
+        const std::string& lastProj = engine_settings::instance().get_last_project_path();
+        if (!lastProj.empty())
+        {
+            const std::filesystem::path p = qual::path_from_utf8(lastProj);
+            if (std::filesystem::exists(p))
+            {
+                std::cout << "[ProjectManager] Son aktif proje yeniden aciliyor: " << lastProj << "\n";
+                if (open_project(lastProj, ctx))
+                {
+                    return;
+                }
+            }
+        }
+
         const std::filesystem::path currentProjJson = std::filesystem::current_path() / "project.json";
         if (std::filesystem::exists(currentProjJson))
         {
-            open_project(currentProjJson.string(), ctx);
+            open_project(qual::path_to_utf8(currentProjJson), ctx);
         }
         else
         {
@@ -147,9 +230,9 @@ namespace project {
             m_descriptor.lighting = ctx.fog;
 
             m_hasActiveProject = true;
-            m_projectRootPath = std::filesystem::current_path().string();
-            m_projectFilePath = currentProjJson.string();
-            m_assetPath = (std::filesystem::current_path() / "Assets").string();
+            m_projectRootPath = qual::path_to_utf8(std::filesystem::current_path());
+            m_projectFilePath = qual::path_to_utf8(currentProjJson);
+            m_assetPath = qual::path_to_utf8(std::filesystem::current_path() / "Assets");
 
             if (ctx.isEditorBuild)
             {
@@ -208,7 +291,10 @@ namespace project {
 
         try
         {
-            const std::filesystem::path rootPath = std::filesystem::path(parentFolder) / projectName;
+            // UTF-8 güvenli ve normalleştirilmiş yollar
+            const std::filesystem::path parentPath = qual::path_from_utf8(parentFolder);
+            const std::filesystem::path namePath = qual::path_from_utf8(projectName);
+            const std::filesystem::path rootPath = (parentPath / namePath).lexically_normal();
             const std::filesystem::path assetsPath = rootPath / "Assets";
             const std::filesystem::path scenesPath = assetsPath / "Scenes";
 
@@ -221,7 +307,15 @@ namespace project {
             const std::filesystem::path mainSceneFile = scenesPath / "Main.json";
             if (ctx.sera)
             {
-                ctx.sera->save_scene(mainSceneFile.string(), ctx.session.editor_scene());
+                auto report = ctx.sera->save_scene(qual::path_to_utf8(mainSceneFile), ctx.session.editor_scene());
+                if (!report.success)
+                {
+                    std::cerr << "[ProjectManager] Uyari: Baslangic sahnesi kaydedilemedi: " << qual::path_to_utf8(mainSceneFile) << "\n";
+                }
+                else
+                {
+                    std::cout << "[ProjectManager] Baslangic sahnesi (kamera) basariyla kaydedildi: " << qual::path_to_utf8(mainSceneFile) << "\n";
+                }
             }
 
             // 3. project.json dosyasını hazırla ve kaydet
@@ -244,7 +338,7 @@ namespace project {
             std::ofstream outFile(projJsonPath);
             if (!outFile.is_open())
             {
-                std::cerr << "[ProjectManager] Hata: project.json olusturulamadi: " << projJsonPath << "\n";
+                std::cerr << "[ProjectManager] Hata: project.json olusturulamadi: " << qual::path_to_utf8(projJsonPath) << "\n";
                 return false;
             }
             outFile << j.dump(4);
@@ -252,17 +346,24 @@ namespace project {
 
             // 4. Durum değişkenlerini güncelle
             m_hasActiveProject = true;
-            m_projectRootPath = rootPath.string();
-            m_projectFilePath = projJsonPath.string();
-            m_assetPath = assetsPath.string();
+            m_projectRootPath = qual::path_to_utf8(rootPath);
+            m_projectFilePath = qual::path_to_utf8(projJsonPath);
+            m_assetPath = qual::path_to_utf8(assetsPath);
 
-            // 5. Varlık Tarayıcısını (Asset Browser) yeni projenin Assets dizinine yönlendir
+            // Son açılan projeyi kaydet
+            engine_settings::instance().set_last_project_path(m_projectFilePath);
+            engine_settings::instance().save();
+
+
+
+            // 6. Varlık Tarayıcısını (Asset Browser) yeni projenin Assets dizinine yönlendir
             if (ctx.isEditorBuild)
             {
                 ctx.vestaSys.set_asset_root(m_assetPath);
+                ctx.vestaSys.selection().clear_all();
             }
 
-            // 6. Pencere başlığını proje adı ile güncelle
+            // 7. Pencere başlığını proje adı ile güncelle
             if (ctx.window)
             {
                 const std::string title = "QualEngine - [" + projectName + "]";
@@ -294,31 +395,31 @@ namespace project {
 
         try
         {
-            std::filesystem::path p(projectPathOrJson);
+            std::filesystem::path p = qual::path_from_utf8(projectPathOrJson);
             std::filesystem::path projJsonPath;
             std::filesystem::path rootPath;
 
             if (std::filesystem::is_directory(p))
             {
-                rootPath = p;
+                rootPath = p.lexically_normal();
                 projJsonPath = rootPath / "project.json";
             }
             else
             {
-                projJsonPath = p;
-                rootPath = p.parent_path();
+                projJsonPath = p.lexically_normal();
+                rootPath = projJsonPath.parent_path();
             }
 
             if (!std::filesystem::exists(projJsonPath))
             {
-                std::cerr << "[ProjectManager] Hata: project.json bulunamadi: " << projJsonPath << "\n";
+                std::cerr << "[ProjectManager] Hata: project.json bulunamadi: " << qual::path_to_utf8(projJsonPath) << "\n";
                 return false;
             }
 
             std::ifstream inFile(projJsonPath);
             if (!inFile.is_open())
             {
-                std::cerr << "[ProjectManager] Hata: project.json acilamadi: " << projJsonPath << "\n";
+                std::cerr << "[ProjectManager] Hata: project.json acilamadi: " << qual::path_to_utf8(projJsonPath) << "\n";
                 return false;
             }
 
@@ -365,9 +466,15 @@ namespace project {
             }
 
             m_hasActiveProject = true;
-            m_projectRootPath = rootPath.string();
-            m_projectFilePath = projJsonPath.string();
-            m_assetPath = (rootPath / m_descriptor.asset_directory).string();
+            m_projectRootPath = qual::path_to_utf8(rootPath);
+            m_projectFilePath = qual::path_to_utf8(projJsonPath);
+            m_assetPath = qual::path_to_utf8(rootPath / m_descriptor.asset_directory);
+
+            // Son açılan projeyi kaydet
+            engine_settings::instance().set_last_project_path(m_projectFilePath);
+            engine_settings::instance().save();
+
+
 
             // 1. Varlık Tarayıcısını proje Assets dizinine bağla
             if (ctx.isEditorBuild)
@@ -401,15 +508,15 @@ namespace project {
             try
             {
                 const std::filesystem::path gameModulePath = rootPath / "Binaries" / "GameModule.dll";
-                if (project_module::is_module_outdated(rootPath.string()))
+                if (project_module::is_module_outdated(m_projectRootPath))
                 {
                     std::cout << "[ProjectManager] GameModule is missing or outdated compared to engine/scripts. Rebuilding...\n";
                     std::string buildLog;
-                    project_module::compile_project_scripts(rootPath.string(), buildLog);
+                    project_module::compile_project_scripts(m_projectRootPath, buildLog);
                 }
                 else if (std::filesystem::exists(gameModulePath))
                 {
-                    project_module::instance().load_module(gameModulePath.string());
+                    project_module::instance().load_module(qual::path_to_utf8(gameModulePath));
                 }
                 else
                 {
@@ -428,11 +535,11 @@ namespace project {
             {
                 try
                 {
-                    auto report = ctx.sera->load_scene(startSceneFile.string(), ctx.session.editor_scene());
+                    auto report = ctx.sera->load_scene(qual::path_to_utf8(startSceneFile), ctx.session.editor_scene());
                     sceneLoaded = report.success && !report.has_critical_errors();
                     if (!sceneLoaded)
                     {
-                        std::cerr << "[ProjectManager] Uyari: Baslangic sahnesi kritik hatalarla karsilasti: " << startSceneFile << "\n";
+                        std::cerr << "[ProjectManager] Uyari: Baslangic sahnesi kritik hatalarla karsilasti: " << qual::path_to_utf8(startSceneFile) << "\n";
                     }
                 }
                 catch (const std::exception& e)
@@ -462,11 +569,11 @@ namespace project {
                     {
                         try
                         {
-                            auto report = ctx.sera->load_scene(altPath.string(), ctx.session.editor_scene());
+                            auto report = ctx.sera->load_scene(qual::path_to_utf8(altPath), ctx.session.editor_scene());
                             if (report.success && !report.has_critical_errors())
                             {
                                 sceneLoaded = true;
-                                std::cout << "[ProjectManager] Alternatif sahne basariyla yuklendi: " << altPath << "\n";
+                                std::cout << "[ProjectManager] Alternatif sahne basariyla yuklendi: " << qual::path_to_utf8(altPath) << "\n";
                                 m_descriptor.start_scene = std::filesystem::relative(altPath, rootPath).generic_string();
                                 break;
                             }
@@ -476,11 +583,19 @@ namespace project {
                 }
             }
 
-            // Hiçbir sahne dosyası açılamadıysa güvenli başlangıç sahnesi oluştur
+            // Hiçbir sahne dosyası açılamadıysa güvenli başlangıç sahnesi oluştur ve kaydet
             if (!sceneLoaded)
             {
-                std::cout << "[ProjectManager] Gecerli sahne bulunamadi, varsayilan baslangic sahnesi hazirlaniyor.\n";
+                std::cout << "[ProjectManager] Gecerli sahne bulunamadi, varsayilan baslangic sahnesi (kamera) hazirlaniyor.\n";
                 setup_starter_scene(ctx);
+                if (ctx.sera)
+                {
+                    const std::filesystem::path defaultScenePath = rootPath / m_descriptor.start_scene;
+                    std::error_code ec;
+                    std::filesystem::create_directories(defaultScenePath.parent_path(), ec);
+                    ctx.sera->save_scene(qual::path_to_utf8(defaultScenePath), ctx.session.editor_scene());
+                    std::cout << "[ProjectManager] Baslangic sahnesi (kamera) diskte olusturuldu: " << qual::path_to_utf8(defaultScenePath) << "\n";
+                }
             }
 
             std::cout << "[ProjectManager] Proje basariyla yuklendi: " << m_projectRootPath << " (" << m_descriptor.name << ")\n";
@@ -517,7 +632,8 @@ namespace project {
             j["rendering"] = render_settings_to_json(m_descriptor.rendering);
             j["lighting"] = fog_settings_to_json(m_descriptor.lighting);
 
-            std::ofstream outFile(m_projectFilePath);
+            const std::filesystem::path projJsonPath = qual::path_from_utf8(m_projectFilePath);
+            std::ofstream outFile(projJsonPath);
             if (!outFile.is_open())
             {
                 return false;

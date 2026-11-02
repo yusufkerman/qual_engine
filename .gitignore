@@ -9,6 +9,8 @@ cmake-build-*/
 out/
 bin/
 obj/
+dist/
+scratch/
 x64/
 x86/
 Builds/

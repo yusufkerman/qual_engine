@@ -27,6 +27,7 @@ namespace engine_resources {
         inline const aria::asset_guid skybox_shader         = *uuids::uuid::from_string("ab217918-3c47-43c5-b01e-e4a5feae6a82");
         inline const aria::asset_guid shadow_shader         = *uuids::uuid::from_string("dab2ae4c-56df-4dcb-a781-82fabfacee3d");
         inline const aria::asset_guid shadow_skinned_shader = *uuids::uuid::from_string("e5c2194b-4b19-4824-a749-33b684cb32fa");
+        inline const aria::asset_guid ps1_shader            = *uuids::uuid::from_string("b872a912-4c28-4f81-a67b-12a83ef549c2");
         inline const aria::asset_guid cube_mesh             = *uuids::uuid::from_string("d23a0aff-3fdc-5851-a6c3-e9623da3cd11");
         inline const aria::asset_guid sphere_mesh           = *uuids::uuid::from_string("f18b3e21-9541-4770-bc2d-5b3a8829f001");
     }

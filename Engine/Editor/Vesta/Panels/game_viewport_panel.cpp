@@ -4,6 +4,7 @@
  */
 
 #include "game_viewport_panel.h"
+#include "../../editor_context.h"
 #include "../../../Gameplay/gameplay_input.h"
 #include "../../../Engine/engine_context.h"
 #include "../../../ECS/components.h"
@@ -15,10 +16,12 @@ namespace vesta {
     game_viewport_panel::game_viewport_panel(
         game_viewport_view_model& vm,
         editor_viewport_state& viewportState,
-        EngineContext* engineCtx)
+        EngineContext* engineCtx,
+        EditorContext* editorCtx)
         : m_vm(vm)
         , m_viewport_state(viewportState)
         , m_engine_ctx(engineCtx)
+        , m_editor_ctx(editorCtx)
     {
     }
 
@@ -91,7 +94,28 @@ namespace vesta {
         ImVec2 renderSize = totalAvail;
         ImVec2 renderPos = startScreenPos;
 
-        const float targetAspect = aspectRatios[m_selected_aspect_idx];
+        float targetAspect = aspectRatios[m_selected_aspect_idx];
+
+        // PS1 Retro Pipeline Koruması: Sabit çözünürlük seçildiğinde Free Aspect'te bile en-boy oranını koruyarak sündürmeyi (stretching) engelle
+        if (targetAspect <= 0.0f && m_engine_ctx && m_engine_ctx->renderSettings.enable_ps1_mode && m_engine_ctx->renderSettings.ps1_downscale)
+        {
+            if (m_engine_ctx->renderSettings.ps1_resolution_preset == 1) // 320x240 Sabit 4:3
+            {
+                targetAspect = 4.0f / 3.0f;
+            }
+            else if (m_engine_ctx->renderSettings.ps1_resolution_preset == 2) // 426x240 Sabit 16:9
+            {
+                targetAspect = 16.0f / 9.0f;
+            }
+            else if (m_engine_ctx->renderSettings.ps1_resolution_preset == 5) // Özel Çözünürlük
+            {
+                if (m_engine_ctx->renderSettings.ps1_custom_height > 0)
+                {
+                    targetAspect = static_cast<float>(m_engine_ctx->renderSettings.ps1_custom_width) / static_cast<float>(m_engine_ctx->renderSettings.ps1_custom_height);
+                }
+            }
+        }
+
         if (targetAspect > 0.0f && totalAvail.x > 0.0f && totalAvail.y > 0.0f)
         {
             const float currentAspect = totalAvail.x / totalAvail.y;
@@ -117,6 +141,11 @@ namespace vesta {
             state.position = { renderPos.x, renderPos.y };
         }
 
+        // Doku kimliğini her kare motordan tazele (init sırası / yeniden oluşturma kaynaklı bayat ID'leri önler)
+        if (m_engine_ctx && m_engine_ctx->gameTarget.tex != 0)
+        {
+            m_vm.set_texture_id(m_engine_ctx->gameTarget.tex);
+        }
         unsigned int tex = m_vm.get_texture_id();
 
         if (tex != 0 && renderSize.x > 0.0f && renderSize.y > 0.0f)
@@ -131,7 +160,8 @@ namespace vesta {
                 ImVec2(1, 0)
             );
 
-            if (ImGui::IsItemClicked())
+            const bool isPlaying = (m_editor_ctx && m_editor_ctx->mode == EngineMode::PLAY && !m_editor_ctx->isPaused);
+            if (isPlaying && (ImGui::IsItemClicked(ImGuiMouseButton_Left) || ImGui::IsItemClicked(ImGuiMouseButton_Right)))
             {
                 gameplay::input::set_cursor_locked(true);
             }

@@ -53,6 +53,13 @@ namespace gameplay
         void add_impulse(const glm::vec3& impulse);
 
         /**
+         * @brief Gövdeye belirli bir dünya noktasında itme (impulse) uygulayarak doğrusal ve açısal momentum üretir.
+         * @param impulse Uygulanacak itme vektörü.
+         * @param point Dünya koordinatlarındaki temas noktası.
+         */
+        void add_impulse_at_point(const glm::vec3& impulse, const glm::vec3& point);
+
+        /**
          * @brief Gövdeye sürekli bir kuvvet (force) ekler.
          * @param force Uygulanacak kuvvet vektörü.
          */
@@ -119,4 +126,3 @@ namespace gameplay
         [[nodiscard]] physics_system* resolve_physics_system() const;
     };
 }
-

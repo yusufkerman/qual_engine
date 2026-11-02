@@ -43,6 +43,19 @@ public:
     [[nodiscard]] unsigned int get_depth_texture() const noexcept { return m_DepthTexture; }
 
     /**
+     * @brief Kaskatli golge haritalama icin GL_TEXTURE_2D_ARRAY taniticisini doner.
+     */
+    [[nodiscard]] unsigned int get_depth_texture_array() const noexcept { return m_DepthTextureArray; }
+
+    /**
+     * @brief Belirtilen kaskat katmanini FBO derinlik baglantisina baglar ve temizler.
+     * @param cascade_index Kaskat indeksi (0 .. m_CascadeCount - 1).
+     */
+    void bind_cascade(unsigned int cascade_index);
+
+    [[nodiscard]] unsigned int get_cascade_count() const noexcept { return m_CascadeCount; }
+
+    /**
      * @brief Gölge haritası genişliğini döner.
      */
     [[nodiscard]] unsigned int get_width() const noexcept { return m_Width; }
@@ -58,8 +71,10 @@ public:
     void destroy() noexcept;
 
 private:
-    unsigned int m_FBO = 0;          ///< Gölge Framebuffer nesne tanıtıcısı.
-    unsigned int m_DepthTexture = 0; ///< 32-bit GL_DEPTH_COMPONENT derinlik dokusu tanıtıcısı.
-    unsigned int m_Width = 0;        ///< Gölge haritası genişliği.
-    unsigned int m_Height = 0;       ///< Gölge haritası yüksekliği.
+    unsigned int m_FBO = 0;               ///< Gölge Framebuffer nesne tanıtıcısı.
+    unsigned int m_DepthTexture = 0;      ///< 32-bit GL_DEPTH_COMPONENT derinlik dokusu tanıtıcısı.
+    unsigned int m_DepthTextureArray = 0; ///< GL_TEXTURE_2D_ARRAY derinlik dokusu tanıtıcısı.
+    unsigned int m_CascadeCount = 3;      ///< Kaskat sayısı.
+    unsigned int m_Width = 0;             ///< Gölge haritası genişliği.
+    unsigned int m_Height = 0;            ///< Gölge haritası yüksekliği.
 };

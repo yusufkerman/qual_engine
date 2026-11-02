@@ -11,6 +11,7 @@
 #include <string>
 
 struct EngineContext;
+struct EditorContext;
 
 namespace vesta {
 
@@ -30,7 +31,8 @@ namespace vesta {
         game_viewport_panel(
             game_viewport_view_model& vm,
             editor_viewport_state& viewportState,
-            EngineContext* engineCtx = nullptr);
+            EngineContext* engineCtx = nullptr,
+            EditorContext* editorCtx = nullptr);
 
         // ==========================================
         // IEditorPanel ARAYÜZÜ (INTERFACE)
@@ -45,6 +47,7 @@ namespace vesta {
         game_viewport_view_model& m_vm;
         editor_viewport_state& m_viewport_state;
         EngineContext* m_engine_ctx = nullptr;
+        EditorContext* m_editor_ctx = nullptr;
 
         std::string m_title = "Game";
         bool m_is_open = true;

@@ -52,6 +52,7 @@ namespace vesta {
 
         std::string m_title = "Asset Browser";
         bool m_is_open = true;
+        char m_search_buffer[128]{};
 
         // --- PANEL'E ÖZEL GEÇİCİ UI DURUM (STATE) DEĞİŞKENLERİ ---
 

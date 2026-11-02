@@ -6,6 +6,8 @@
  */
 
 #include <string>
+#include "../Renderer/render_settings.h"
+#include "../Renderer/fog_settings.h"
 
 struct EngineContext;
 
@@ -23,6 +25,8 @@ namespace runtime {
         int screen_height = 720;
         bool fullscreen = false;
         bool vsync = true;
+        render_settings rendering;
+        fog_settings lighting;
     };
 
     /**

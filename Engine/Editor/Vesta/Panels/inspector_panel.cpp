@@ -29,6 +29,12 @@ namespace vesta
 
         m_vm->update();
 
+        if (m_request_focus)
+        {
+            ImGui::SetNextWindowFocus();
+            m_request_focus = false;
+        }
+
         ImGui::Begin(m_title.c_str(), &m_is_open);
 
         switch (m_vm->get_mode())
@@ -365,6 +371,16 @@ namespace vesta
 
                         if (refCol->type == collider_type::box)
                         {
+                            glm::vec3 offset = refCol->offset;
+                            if (ImGui::DragFloat3("Box Offset", &offset.x, 0.05f, -100.0f, 100.0f, "%.2f"))
+                            {
+                                for (entity e : colliderEntities)
+                                {
+                                    if (auto* c = reg.get_component<collider_component>(e))
+                                        c->offset = offset;
+                                }
+                            }
+
                             glm::vec3 displayedSize = refCol->extents * 2.0f;
                             if (ImGui::DragFloat3("Box Size (Full)", &displayedSize.x, 0.1f, 0.01f, 100.0f, "%.2f"))
                             {
@@ -674,4 +690,4 @@ namespace vesta
         ImGui::End();
     }
 
-} // namespace vesta
+} // namespace vesta

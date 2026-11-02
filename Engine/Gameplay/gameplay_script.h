@@ -8,6 +8,7 @@
 #include "../Scene/scriptable_entity.h"
 #include "gameplay_context.h"
 #include "collision_types.h"
+#include "character_controller_wrapper.h"
 #include "gameplay_entity.h"
 #include "gameplay_scene.h"
 #include "gameplay_input.h"
@@ -94,6 +95,18 @@ namespace gameplay
         virtual void on_trigger_exit(const trigger_hit& hit) {}
 
         // ==========================================
+        // SAVAŞ / MERMİ (COMBAT) OLAYLARI
+        // ==========================================
+
+        /**
+         * @brief Bir mermi veya fiziksel darbe bu nesneye (veya hiyerarşik parçasına) çarptığında tetiklenir.
+         * @param hit_point Temas dünya koordinatı.
+         * @param shot_dir Merminin geliş doğrultusu (normalize edilmiş vektör).
+         * @param bullet_impulse Merminin aktardığı itme gücü (momentum).
+         */
+        virtual void on_bullet_hit(const glm::vec3& hit_point, const glm::vec3& shot_dir, float bullet_impulse) { (void)hit_point; (void)shot_dir; (void)bullet_impulse; }
+
+        // ==========================================
         // ERGONOMİK ERİŞİMCİLER (ACCESSORS)
         // ==========================================
 
@@ -116,6 +129,37 @@ namespace gameplay
          * @brief Varlığın fizik gövdesi sarmalayıcısına doğrudan erişim sağlar.
          */
         [[nodiscard]] rigidbody_wrapper rigidbody() { return rigidbody_wrapper(get_entity(), get_registry()); }
+
+        /**
+         * @brief Varligin kinematik karakter kontrolcusu sarmalayicisina dogrudan erisim saglar.
+         */
+        [[nodiscard]] character_controller_wrapper character_controller() { return character_controller_wrapper(get_entity(), get_registry()); }
+
+        /**
+         * @brief Kinematik karakteri belirtilen hiz vektoruyle hareket ettirir.
+         * @param velocity Uygulanacak yatay ve dusey hiz.
+         */
+        void move(const glm::vec3& velocity)
+        {
+            character_controller().move(velocity);
+        }
+
+        /**
+         * @brief Kinematik karakter zemindeyse ziplamasini saglar.
+         * @param custom_jump_speed 0 ise bilesendeki jump_speed kullanilir.
+         */
+        void jump(float custom_jump_speed = 0.0f)
+        {
+            character_controller().jump(custom_jump_speed);
+        }
+
+        /**
+         * @brief Kinematik karakterin zeminde olup olmadigini doner.
+         */
+        [[nodiscard]] bool is_on_ground() const
+        {
+            return const_cast<script*>(this)->character_controller().is_grounded();
+        }
 
         /**
          * @brief Varlıktaki belirtilen bileşene referans döner.

@@ -122,6 +122,7 @@ namespace aria {
         [[nodiscard]] size_t                get_skinned_mesh_index_count(handle<skinned_model_asset> h, size_t sub_mesh_index);
         [[nodiscard]] const skeleton_asset* get_skeleton_data(handle<skeleton_asset> h);
         [[nodiscard]] const animation_clip_asset* get_animation_data(handle<animation_clip_asset> h);
+        [[nodiscard]] const model_asset*          get_model_data(handle<model_asset> h);
         [[nodiscard]] const skinned_model_asset*  get_skinned_model_data(handle<skinned_model_asset> h);
         [[nodiscard]] gpu_shader_id         get_shader_id(handle<shader_asset> h);
         [[nodiscard]] const audio_clip_asset* get_audio_data(handle<audio_clip_asset> h);

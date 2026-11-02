@@ -25,6 +25,8 @@ enum RenderConstants : int
     AO_TEXTURE_SLOT = 5,        ///< Ambient Occlusion haritasının bağlanacağı OpenGL yuvası (PBR).
     EMISSIVE_TEXTURE_SLOT = 6,  ///< Işıma haritasının bağlanacağı OpenGL yuvası (PBR).
     SPECULAR_TEXTURE_SLOT = 7,  ///< Speküler/Parlaklık haritasının bağlanacağı OpenGL yuvası (Legacy).
+    CSM_SHADOW_TEXTURE_SLOT = 8,///< Kaskatlı gölge haritası doku dizisi yuvası (sampler2DArray).
+    SKYBOX_TEXTURE_SLOT = 9,    ///< Gökyüzü küp haritası yansıma yuvası (samplerCube).
 
     // Uniform Buffer Object (UBO) Bağlama Yuvaları
     LIGHT_UBO_BINDING_SLOT = 0, ///< Işık verilerini barındıran UBO bağlama noktası.
@@ -82,6 +84,6 @@ private:
 
     unsigned int m_currentVAO = 0;                  ///< Şu an GPU'da aktif olan VAO kimliği.
     unsigned int m_currentFBO = 0;                  ///< Şu an GPU'da aktif olan FBO kimliği.
-    unsigned int m_currentTextures[8]{ 0 };         ///< Yuvalara bağlı olan aktif doku kimlikleri (PBR yuvaları dahil).
+    unsigned int m_currentTextures[16]{ 0 };         ///< Yuvalara bağlı olan aktif doku kimlikleri (PBR yuvaları dahil).
     unsigned int m_dynamicBoneUBO = 0;              ///< Canlı kemik matrislerini GPU'ya aktaran dinamik UBO kimliği.
 };

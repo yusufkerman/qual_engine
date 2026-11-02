@@ -11,14 +11,23 @@
 
 namespace project {
 
+    enum class export_pipeline_mode {
+        use_project_settings = 0,
+        psx_retro = 1,
+        default_forward = 2
+    };
+
     struct export_options {
         std::string output_directory;
+        export_pipeline_mode pipeline_mode = export_pipeline_mode::psx_retro;
         bool compile_scripts = true;
         bool copy_engine_resources = true;
         bool copy_dependencies = true;
         int screen_width = 1280;
         int screen_height = 720;
         bool fullscreen = false;
+        bool create_data_pak = true;
+        bool delete_loose_assets_after_pack = false;
     };
 
     struct export_result {

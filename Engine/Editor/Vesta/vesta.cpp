@@ -4,6 +4,9 @@
  */
 
 #include "vesta.h"
+#include "../editor_context.h"
+#include "../Core/path_utils.h"
+#include "CoreState/command_stack.h"
 
  // --- Bileşen UI Kayıt Sistemleri ---
 #include "Inspector/Components/camera_component_ui.h"
@@ -13,6 +16,7 @@
 #include "Inspector/Components/mesh_component_ui.h"
 #include "Inspector/Components/native_script_component_ui.h"
 #include "Inspector/Components/rigidbody_component_ui.h"
+#include "Inspector/Components/character_controller_component_ui.h"
 #include "Inspector/Components/transform_component_ui.h"
 #include "Inspector/Components/skinned_mesh_component_ui.h"
 #include "Inspector/Components/animator_component_ui.h"
@@ -56,6 +60,7 @@ namespace vesta {
         register_camera_ui_system();
         register_light_ui_system();
         register_rigidbody_ui_system();
+        register_character_controller_ui_system();
         register_collider_ui_system();
         register_native_script_ui_system();
         register_material_ui_system(*engineCtx.aria_system);
@@ -87,8 +92,8 @@ namespace vesta {
         // 4. Editör Panelleri ve ViewModel'lerin Başlatılması
         init_top_bar(engineCtx, editorCtx);
         init_scene_viewport(engineCtx, editorCtx);
-        init_game_viewport(engineCtx);
-        init_hierarchy(reg, engineCtx);
+        init_game_viewport(engineCtx, editorCtx);
+        init_hierarchy(reg, engineCtx, editorCtx);
         init_inspector(reg, engineCtx);
         init_asset_browser(*ariaSys);
         init_lighting(engineCtx);
@@ -138,12 +143,13 @@ namespace vesta {
             {
                 if (engineCtx.sera && !path.empty())
                 {
-                    const std::string fileName = std::filesystem::path(path).filename().string();
+                    const std::string fileName = qual::path_to_utf8(qual::path_from_utf8(path).filename());
                     core::async_task_manager::instance().run_task(
                         "Saving Scene (" + fileName + ")",
                         [&engineCtx, path](core::task_reporter& reporter) -> bool {
                             reporter.set_indeterminate("Writing scene entities & components to disk...");
                             engineCtx.sera->save_scene(path, engineCtx.session.editor_scene());
+                            project::project_manager::instance().save_project(engineCtx);
                             return true;
                         }
                     );
@@ -153,7 +159,7 @@ namespace vesta {
             {
                 if (engineCtx.sera && !path.empty())
                 {
-                    const std::string fileName = std::filesystem::path(path).filename().string();
+                    const std::string fileName = qual::path_to_utf8(qual::path_from_utf8(path).filename());
                     core::async_task_manager::instance().run_task(
                         "Loading Scene (" + fileName + ")",
                         [&engineCtx, path](core::task_reporter& reporter) -> bool {
@@ -191,10 +197,11 @@ namespace vesta {
             &engineCtx,
             &editorCtx
         );
+        m_scene_viewport_panel->set_command_stack(m_command_stack.get());
         register_panel(m_scene_viewport_panel.get());
     }
 
-    void vesta_system::init_game_viewport(EngineContext& ctx)
+    void vesta_system::init_game_viewport(EngineContext& ctx, EditorContext& editorCtx)
     {
         m_game_viewport_vm = std::make_unique<game_viewport_view_model>(m_viewport_state);
 
@@ -202,19 +209,21 @@ namespace vesta {
             m_game_viewport_vm->set_texture_id(ctx.gameTarget.tex);
         }
 
-        m_game_viewport_panel = std::make_unique<game_viewport_panel>(*m_game_viewport_vm, m_viewport_state, &ctx);
+        m_game_viewport_panel = std::make_unique<game_viewport_panel>(*m_game_viewport_vm, m_viewport_state, &ctx, &editorCtx);
         register_panel(m_game_viewport_panel.get());
     }
 
-    void vesta_system::init_hierarchy(registry& registry, EngineContext& engineCtx)
+    void vesta_system::init_hierarchy(registry& registry, EngineContext& engineCtx, EditorContext& editorCtx)
     {
         m_hierarchy_panel = std::make_unique<hierarchy_panel>(
             *m_editable_world,
             registry,
             *m_selection_manager,
-            &engineCtx.gizmoSystem.settings()
+            &engineCtx.gizmoSystem.settings(),
+            editorCtx.camera,
+            &editorCtx
         );
-
+        m_hierarchy_panel->set_command_stack(m_command_stack.get());
         register_panel(m_hierarchy_panel.get());
     }
 
@@ -253,6 +262,9 @@ namespace vesta {
                 }
                 else {
                     m_selection_manager->select_asset(path);
+                    if (m_inspector_panel) {
+                        m_inspector_panel->focus();
+                    }
                 }
             },
             [this]()
@@ -289,10 +301,11 @@ namespace vesta {
     {
         if (m_asset_browser_system)
         {
-            m_asset_browser_system->set_root_path(newPath);
+            m_asset_browser_system->set_root_path(qual::path_from_utf8(newPath));
         }
         if (m_asset_browser_vm)
         {
+            m_asset_browser_vm->clear_selection();
             m_asset_browser_vm->refresh();
         }
     }
@@ -321,6 +334,7 @@ namespace vesta {
         static bool s_exportEngineResources = true;
         static bool s_exportDependencies = true;
         static bool s_exportFullscreen = false;
+        static int s_exportPipelineIdx = 1; // 0: Use Project, 1: PSX Retro, 2: Standard Forward
         static std::string s_exportStatusMsg = "";
         static bool s_exportSuccess = false;
 
@@ -361,7 +375,7 @@ namespace vesta {
                     if (outPath != nullptr)
                     {
                         const std::string projPath = outPath;
-                        const std::string projName = std::filesystem::path(projPath).filename().string();
+                        const std::string projName = qual::path_to_utf8(qual::path_from_utf8(projPath).filename());
                         core::async_task_manager::instance().run_task(
                             "Opening Project (" + projName + ")",
                             [](core::task_reporter& reporter) -> bool {
@@ -434,6 +448,7 @@ namespace vesta {
                                 [&engineCtx, filePath](core::task_reporter& reporter) -> bool {
                                     reporter.set_indeterminate("Writing scene entities & components to disk...");
                                     engineCtx.sera->save_scene(filePath, engineCtx.session.editor_scene());
+                                    project::project_manager::instance().save_project(engineCtx);
                                     return true;
                                 }
                             );
@@ -508,7 +523,7 @@ namespace vesta {
             namespace fs = std::filesystem;
             fs::file_time_type maxTime = fs::file_time_type::min();
             try {
-                const fs::path root(projectRoot);
+                const fs::path root = qual::path_from_utf8(projectRoot);
                 const std::vector<fs::path> searchDirs = {
                     root / "Assets" / "Scripts",
                     root / "Scripts",
@@ -556,8 +571,8 @@ namespace vesta {
                     }
                     if (success)
                     {
-                        std::filesystem::path dllPath = std::filesystem::path(root) / "Binaries" / "GameModule.dll";
-                        bool loaded = project::project_module::instance().load_module(dllPath.string());
+                        std::filesystem::path dllPath = qual::path_from_utf8(root) / "Binaries" / "GameModule.dll";
+                        bool loaded = project::project_module::instance().load_module(qual::path_to_utf8(dllPath));
                         s_scriptStatusSuccess = loaded;
                         if (loaded)
                         {
@@ -571,7 +586,7 @@ namespace vesta {
                         }
                         else
                         {
-                            s_scriptStatusMsg = "Build succeeded but failed to load GameModule.dll:\n" + dllPath.string();
+                            s_scriptStatusMsg = "Build succeeded but failed to load GameModule.dll:\n" + qual::path_to_utf8(dllPath);
                         }
                     }
                     else
@@ -582,6 +597,23 @@ namespace vesta {
                 }
             );
         };
+
+        if (ImGui::BeginMenu("Edit"))
+        {
+            const bool canUndo = m_command_stack && m_command_stack->can_undo();
+            if (ImGui::MenuItem("Undo", "Ctrl+Z", false, canUndo))
+            {
+                m_command_stack->undo();
+            }
+
+            const bool canRedo = m_command_stack && m_command_stack->can_redo();
+            if (ImGui::MenuItem("Redo", "Ctrl+Y", false, canRedo))
+            {
+                m_command_stack->redo();
+            }
+
+            ImGui::EndMenu();
+        }
 
         if (ImGui::BeginMenu("Project"))
         {
@@ -768,9 +800,16 @@ namespace vesta {
 
             if (ImGui::Button("Create Project", ImVec2(140, 0)))
             {
-                if (strlen(s_projectNameBuf) > 0 && strlen(s_projectParentFolderBuf) > 0)
+                std::string projName = s_projectNameBuf;
+                std::string parentDir = s_projectParentFolderBuf;
+                while (!projName.empty() && (projName.back() == ' ' || projName.back() == '\t' || projName.back() == '\r' || projName.back() == '\n')) projName.pop_back();
+                while (!projName.empty() && (projName.front() == ' ' || projName.front() == '\t')) projName.erase(0, 1);
+                while (!parentDir.empty() && (parentDir.back() == ' ' || parentDir.back() == '\t' || parentDir.back() == '\r' || parentDir.back() == '\n')) parentDir.pop_back();
+                while (!parentDir.empty() && (parentDir.front() == ' ' || parentDir.front() == '\t')) parentDir.erase(0, 1);
+
+                if (!projName.empty() && !parentDir.empty())
                 {
-                    project::project_manager::instance().create_project(s_projectParentFolderBuf, s_projectNameBuf, engineCtx);
+                    project::project_manager::instance().create_project(parentDir, projName, engineCtx);
                     ImGui::CloseCurrentPopup();
                 }
             }
@@ -815,6 +854,10 @@ namespace vesta {
             }
 
             ImGui::Spacing();
+            const char* pipelineNames[] = { "Current Project Settings", "PSX Retro Horror Pipeline", "Standard Forward Pipeline" };
+            ImGui::Combo("Graphics Pipeline", &s_exportPipelineIdx, pipelineNames, 3);
+            ImGui::Spacing();
+
             ImGui::Checkbox("Recompile Scripts (GameModule.dll)", &s_exportCompileScripts);
             ImGui::Checkbox("Bundle Engine Resources (EngineResources/)", &s_exportEngineResources);
             ImGui::Checkbox("Copy Dependencies (assimp-vc145-mt.dll)", &s_exportDependencies);
@@ -838,8 +881,42 @@ namespace vesta {
             const bool isBusyExport = core::async_task_manager::instance().is_busy();
             if (ImGui::Button("Package & Export", ImVec2(160, 0)) && !isBusyExport)
             {
+                // Export oncesi sahnedeki tum materyalleri ve aktif sahneyi diske kaydet
+                auto& pm = project::project_manager::instance();
+                if (pm.has_active_project() && engineCtx.sera && editorCtx.mode == EngineMode::EDITOR)
+                {
+                    if (engineCtx.aria_system)
+                    {
+                        auto& reg = engineCtx.session.editor_scene().get_registry();
+                        for (entity ent : reg.get_all_entities())
+                        {
+                            if (auto* mc = reg.get_component<material_component>(ent))
+                            {
+                                if (mc->material_handle.is_valid())
+                                {
+                                    if (auto* mat = engineCtx.aria_system->registry()->get_material(mc->material_handle))
+                                    {
+                                        sync_material_asset_to_disk(*mat, *engineCtx.aria_system);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    const std::filesystem::path projRoot = qual::path_from_utf8(pm.get_project_root());
+                    const std::string startSceneRel = pm.get_descriptor().start_scene.empty()
+                        ? "Assets/Scenes/Main.json"
+                        : pm.get_descriptor().start_scene;
+                    const std::filesystem::path startSceneAbs = projRoot / qual::path_from_utf8(startSceneRel);
+                    std::error_code ec;
+                    std::filesystem::create_directories(startSceneAbs.parent_path(), ec);
+                    engineCtx.sera->save_scene(qual::path_to_utf8(startSceneAbs), engineCtx.session.editor_scene());
+                    pm.save_project(engineCtx);
+                }
+
                 project::export_options opt;
                 opt.output_directory = s_exportFolderBuf;
+                opt.pipeline_mode = static_cast<project::export_pipeline_mode>(s_exportPipelineIdx);
                 opt.compile_scripts = s_exportCompileScripts;
                 opt.copy_engine_resources = s_exportEngineResources;
                 opt.copy_dependencies = s_exportDependencies;
@@ -1043,6 +1120,29 @@ namespace vesta {
 
     void vesta_system::update()
     {
+        // Global Klavye Kisayollari (Undo / Redo)
+        auto& io = ImGui::GetIO();
+        if (!io.WantTextInput)
+        {
+            const bool ctrl = io.KeyCtrl;
+            const bool shift = io.KeyShift;
+            if (ctrl && !shift && ImGui::IsKeyPressed(ImGuiKey_Z, false))
+            {
+                if (m_command_stack && m_command_stack->can_undo())
+                {
+                    m_command_stack->undo();
+                }
+            }
+            else if ((ctrl && ImGui::IsKeyPressed(ImGuiKey_Y, false)) ||
+                     (ctrl && shift && ImGui::IsKeyPressed(ImGuiKey_Z, false)))
+            {
+                if (m_command_stack && m_command_stack->can_redo())
+                {
+                    m_command_stack->redo();
+                }
+            }
+        }
+
         for (auto* panel : m_panels)
         {
             if (panel && panel->is_open())

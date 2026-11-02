@@ -62,6 +62,11 @@ namespace gameplay
         return rigidbody_wrapper(m_id, m_reg, context::get_physics_system());
     }
 
+    character_controller_wrapper gameplay_entity::character_controller()
+    {
+        return character_controller_wrapper(m_id, m_reg, context::get_physics_system());
+    }
+
     audio_source gameplay_entity::get_audio_source()
     {
         if (is_valid() && !m_reg->has_component<audio_source_component>(m_id))

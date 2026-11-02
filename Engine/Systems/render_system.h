@@ -6,6 +6,7 @@
  */
 
 #include <vector>
+#include <unordered_map>
 #include <cstdint>
 #include <glm/glm.hpp>
 #include "../Renderer/render_queue.h"
@@ -15,6 +16,88 @@ class registry;
 struct EngineContext;
 struct render_item;
 struct light_batch;
+
+/**
+ * @struct shader_uniform_cache
+ * @brief Bir GPU shader programına ait önbelleklenmiş uniform lokasyonları (Sıfır glGetUniformLocation string araması).
+ */
+struct shader_uniform_cache
+{
+    // Global pass üniformaları
+    int u_view = -1;
+    int u_projection = -1;
+    int u_viewPos = -1;
+    int u_lightSpaceMatrix = -1;
+    int u_FogEnabled = -1;
+    int u_FogColor = -1;
+    int u_FogDensity = -1;
+    int u_shadowMap = -1;
+
+    // Cascaded Shadow Maps (CSM)
+    int u_EnableCSM = -1;
+    int u_ShadowMapArray = -1;
+    int u_CascadeCount = -1;
+    int u_CascadePlaneDistances = -1;
+    int u_CascadeLightSpaceMatrices = -1;
+
+    // Nesne bazlı (Per-Object) üniformalar
+    int u_model = -1;
+    int u_baseColor = -1;
+    int u_TextureScale = -1;
+    int u_Metallic = -1;
+    int u_Roughness = -1;
+    int u_AO = -1;
+    int u_EmissiveColor = -1;
+    int u_EmissiveIntensity = -1;
+    int u_useTexture = -1;
+    int u_diffuseTex = -1;
+    int u_useNormalMap = -1;
+    int u_normalTex = -1;
+    int u_normalStrength = -1;
+    int u_UseMetallicMap = -1;
+    int u_metallicTex = -1;
+    int u_UseRoughnessMap = -1;
+    int u_roughnessTex = -1;
+    int u_UseAOMap = -1;
+    int u_aoTex = -1;
+    int u_UseEmissiveMap = -1;
+    int u_emissiveTex = -1;
+    int u_specularStrength = -1;
+    int u_shininess = -1;
+    int u_RenderMode = -1;
+    int u_AlphaThreshold = -1;
+
+    // Gökyüzü Çevre Yansıması (Skybox IBL Reflection)
+    int u_UseSkyboxReflection = -1;
+    int u_SkyboxTex = -1;
+
+    // PS1 Retro Horror Parametreleri
+    int u_PS1VertexSnapping = -1;
+    int u_PS1AffineMapping = -1;
+    int u_PS1ColorDepth = -1;
+    int u_PS1Dithering = -1;
+    int u_PS1DitherStrength = -1;
+};
+
+/**
+ * @struct shadow_uniform_cache
+ * @brief Gölge geçişi shader'larına ait önbelleklenmiş uniform lokasyonları.
+ */
+struct shadow_uniform_cache
+{
+    int u_lightSpaceMatrix = -1;
+    int u_model = -1;
+};
+
+/**
+ * @struct csm_cascade_data
+ * @brief Kaskatli golge haritalama dilimi icin isik uzayi matrisi ve kesme mesafesi.
+ */
+struct csm_cascade_data
+{
+    glm::mat4 light_space_matrix{ 1.0f };
+    float split_distance = 0.0f;
+};
 
 /**
  * @struct render_pass_stats
@@ -85,12 +168,34 @@ public:
      */
     [[nodiscard]] const render_pass_stats& game_stats() const noexcept { return m_GameStats; }
 
+    /**
+     * @brief Shader uniform lokasyon önbelleğini sıfırlar (Shader hot-reload veya yeniden derleme için).
+     */
+    void clear_uniform_cache() noexcept;
+
+    /**
+     * @brief Kaskatli golge haritasi dilimlerini (CSM) hesaplar.
+     */
+    std::vector<csm_cascade_data> calculate_csm_cascades(
+        const struct EngineContext& ctx,
+        const light_data& light,
+        const glm::mat4& view,
+        const glm::mat4& projection,
+        const glm::vec3& cameraPosition
+    );
+
 private:
     unsigned int m_LightUBO;                            ///< Tüm ışık verilerini shader'lara taşıyan Uniform Buffer Object kimliği.
     std::vector<render_item> m_RenderItemsCache;        ///< Çıkarım aşamasında toplanan render paketlerinin geçici önbelleği.
     render_queue m_RenderQueueCache;                    ///< Shader ID'lerine göre gruplanmış çizim kuyruğu.
     render_pass_stats m_SceneStats{};                   ///< Sahne görünümü (Scene Pass) çizim telemetrisi.
     render_pass_stats m_GameStats{};                    ///< Oyun görünümü (Game Pass) çizim telemetrisi.
+
+    std::unordered_map<unsigned int, shader_uniform_cache> m_ShaderUniformCache;
+    std::unordered_map<unsigned int, shadow_uniform_cache> m_ShadowUniformCache;
+
+    const shader_uniform_cache& get_shader_uniforms(unsigned int shaderID);
+    const shadow_uniform_cache& get_shadow_uniforms(unsigned int shaderID);
 
     /**
      * @brief ECS üzerinden görünür varlıkları seçer ve render önbelleğine alır.
@@ -114,4 +219,5 @@ private:
      * @return Işık uzayı (Light Space) dönüşüm matrisi.
      */
     glm::mat4 calculate_light_space_matrix(const struct EngineContext& ctx, const light_data& light, const glm::vec3& viewPos);
+
 };

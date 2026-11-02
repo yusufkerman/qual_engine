@@ -13,6 +13,7 @@
 #include <functional>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/Character/CharacterVirtual.h>
 #include "../Engine/Assets/aria.h"
 #include "../Sera/sera_component_codec.h"
 #include "../Audio/audio_components.h"
@@ -386,12 +387,42 @@ struct collider_component
 
     /// @brief Kutu (Box) ise genişlik/yükseklik/derinlik yarıçapları (Half-extents). Küre (Sphere) ise 'x' değeri yarıçapı temsil eder.
     glm::vec3 extents{ 1.0f };
+
+    /// @brief Çarpıştırıcının nesne merkezine göre yerel konumu (Center Offset).
+    glm::vec3 offset{ 0.0f };
+
+    collider_component() = default;
+    collider_component(collider_type t, const glm::vec3& ext, const glm::vec3& off = glm::vec3(0.0f))
+        : type(t), extents(ext), offset(off) {}
 };
+
+/**
+ * @struct character_controller_component
+ * @brief Kinematik karakter kontrolcusu (FPS/TPS oyuncu veya NPC hareketi, basamak cikma, egim destegi).
+ */
+struct character_controller_component
+{
+    float radius = 0.4f;            ///< Kapsul yaricapi (metre)
+    float height = 1.8f;            ///< Toplam kapsul yuksekligi (metre)
+    float walk_speed = 5.0f;        ///< Standart yurume hizi (m/s)
+    float jump_speed = 5.0f;        ///< Ziplama anlik dikey hizi (m/s)
+    float max_slope_angle = 45.0f;  ///< Tirmanilabilecek maksimum egim acisi (derece)
+    float step_height = 0.35f;      ///< Takilmadan asilabilecek basamak yuksekligi (metre)
+    float gravity = -9.81f;         ///< Uygulanan yercekimi ivmesi (m/s^2)
+
+    glm::vec3 linear_velocity{ 0.0f }; ///< Anlik dogrusal hiz
+    bool is_grounded = false;          ///< Karakter zeminde mi?
+
+    /// @brief Jolt CharacterVirtual calisma zamani nesnesi (Diske serilestirilmez).
+    JPH::Ref<JPH::CharacterVirtual> character = nullptr;
+};
+
 
 struct native_script_component
 {
     scriptable_entity* instance = nullptr;
     std::string script_name;
+    std::string saved_state;
 
     // Çalışma zamanında script nesnesinin bellek döngüsünü (allocation/deallocation) yönetecek köprü fonksiyonlar.
     std::function<scriptable_entity*()> bind_instantiate = nullptr;
@@ -494,11 +525,26 @@ DESCRIBE_COMPONENT(rigidbody_component,
 
 DESCRIBE_COMPONENT(collider_component,
     SERA_FIELD(type),
-    SERA_FIELD(extents)
+    SERA_FIELD(extents),
+    SERA_FIELD(offset)
 )
 
+DESCRIBE_COMPONENT(character_controller_component,
+    SERA_FIELD(radius),
+    SERA_FIELD(height),
+    SERA_FIELD(walk_speed),
+    SERA_FIELD(jump_speed),
+    SERA_FIELD(max_slope_angle),
+    SERA_FIELD(step_height),
+    SERA_FIELD(gravity),
+    SERA_FIELD(linear_velocity),
+    SERA_FIELD(is_grounded)
+)
+
+
 DESCRIBE_COMPONENT(native_script_component,
-    SERA_FIELD(script_name)
+    SERA_FIELD(script_name),
+    SERA_FIELD(saved_state)
 )
 
 DESCRIBE_COMPONENT(skinned_mesh_component,

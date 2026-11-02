@@ -29,7 +29,8 @@ using all_engine_components = std::tuple<
     ui_image_component,
     ui_button_component,
     audio_source_component,
-    audio_listener_component
+    audio_listener_component,
+    character_controller_component
 >;
 
 template<typename Tuple, size_t... Is>
@@ -123,6 +124,7 @@ void registry::rebind_pools()
     m_pool_ui_buttons.set_registry(&m_entt);
     m_pool_audio_sources.set_registry(&m_entt);
     m_pool_audio_listeners.set_registry(&m_entt);
+    m_pool_character_controllers.set_registry(&m_entt);
 }
 
 entity registry::create_entity()
@@ -202,9 +204,11 @@ entity registry::duplicate_entity(entity source)
         add_component<name_component>(newEntity, name_component{ "Entity_Copy" });
     }
 
-    // 4. Kopyalanan varlığın alt hiyerarşi ve fizik bağlantılarını sıfırla
+    // 4. Kopyalanan varlığın tüm hiyerarşi ve fizik bağlantılarını sıfırla
+    // Not: parent sıfırlanmazsa set_entity_parent çağrısında eski ebeveynin first_child işaretçisi ezilir!
     if (auto* hc = get_component<hierarchy_component>(newEntity))
     {
+        hc->parent = 0;
         hc->first_child = 0;
         hc->next_sibling = 0;
         hc->prev_sibling = 0;

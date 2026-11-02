@@ -10,6 +10,7 @@
 #include "../../Services/asset_entry.h"
 #include "../../../Engine/Assets/aria.h"
 #include "../../../Engine/asset_pipeline.h"
+#include "../../../Core/path_utils.h"
 
 #include <glad/glad.h>
 #include <imgui.h>
@@ -32,17 +33,17 @@ namespace vesta {
         info.render_fn = [aria_sys](const std::string& asset_path) {
             namespace fs = std::filesystem;
 
-            if (!fs::exists(asset_path)) {
+            const auto fs_path = qual::path_from_utf8(asset_path);
+            if (!fs::exists(fs_path)) {
                 ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "Error: File does not exist!");
                 ImGui::TextDisabled("%s", asset_path.c_str());
                 return;
             }
 
-            fs::path p(asset_path);
-            std::string filename = p.filename().string();
-            std::string ext = p.extension().string();
+            std::string filename = qual::path_to_utf8(fs_path.filename());
+            std::string ext = fs_path.extension().string();
             uintmax_t fileSize = 0;
-            try { fileSize = fs::file_size(p); } catch (...) {}
+            try { fileSize = fs::file_size(fs_path); } catch (...) {}
 
             ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Texture Importer");
             ImGui::Separator();
@@ -53,6 +54,7 @@ namespace vesta {
 
             // ARIA GUID ve Texture handle'ını çöz
             aria::asset_guid guid = asset_pipeline::get_or_create_meta_guid(asset_path);
+            aria_sys->register_asset_path(guid, asset_path);
             aria::handle<aria::texture_asset> texHandle = aria_sys->import_texture(guid, asset_path);
             aria::gpu_texture_id gpuTexId = aria_sys->get_texture_id(texHandle);
 
@@ -95,7 +97,7 @@ namespace vesta {
                 dl->AddRectFilled(p0, p1, IM_COL32(28, 30, 36, 255), 4.0f);
                 dl->AddRect(p0, p1, IM_COL32(60, 65, 80, 200), 4.0f);
 
-                ImGui::Image((ImTextureID)(intptr_t)gpuTexId, ImVec2(previewW, previewH), ImVec2(0, 0), ImVec2(1, 1));
+                ImGui::Image((ImTextureID)(intptr_t)gpuTexId, ImVec2(previewW, previewH), ImVec2(0, 1), ImVec2(1, 0));
             }
 
             ImGui::Spacing();

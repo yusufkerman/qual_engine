@@ -3,6 +3,8 @@
 /**
  * @file material_component_ui.h
  * @brief Materyal bileşeni (material_component) için editör kullanıcı arayüzü ve sürükle-bırak slot sistemi.
+ * @note Kullanıcının tercihine göre PBR parametreleri bileşen üzerinde değil, Asset Browser üzerinden 
+ * açılan Material Inspector panelinde düzenlenir.
  */
 
 #include "../../Services/component_operation_registry.h"
@@ -11,15 +13,64 @@
 #include "../../ECS/registry.h"
 #include "../../Engine/asset_pipeline.h"
 #include "../../Renderer/material.h"
+#include "../../../Core/path_utils.h"
+#include "../../../Externals/nlohmann/json.hpp"
 #include <imgui.h>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 
- /**
-  * @brief Seçili varlığın materyal slotunu ve sürükle-bırak (Drag & Drop) etkileşimini çizer.
-  * @param e Materyal atanacak varlık.
-  * @param reg İlgili ECS kayıt defteri referansı.
-  * @param ariaSys Varlık çözümleme için Aria çekirdek sistemi referansı.
-  */
+/**
+ * @brief Bellekteki materyal varlığının PBR parametrelerini diskteki .json dosyasına senkronize eder (Dışa aktarım ve kaydetme için).
+ */
+inline void sync_material_asset_to_disk(const aria::material_asset& mat, aria::system& ariaSys)
+{
+    if (mat.guid.is_nil()) return;
+    const std::string path = ariaSys.resolve_asset_path(mat.guid);
+    const auto fs_path = qual::path_from_utf8(path);
+    if (path.empty() || !std::filesystem::exists(fs_path)) return;
+
+    try {
+        nlohmann::json j;
+        {
+            std::ifstream inFile(fs_path);
+            if (inFile.is_open()) {
+                inFile >> j;
+            }
+        }
+        j["type"] = "material";
+        const std::string live_stem = qual::path_to_utf8(fs_path.stem());
+        if (!live_stem.empty()) {
+            j["name"] = live_stem;
+        }
+        else if (!mat.name.empty()) {
+            j["name"] = mat.name;
+        }
+        j["base_color"] = { mat.base_color.r, mat.base_color.g, mat.base_color.b, 1.0f };
+        j["metallic"] = mat.metallic;
+        j["roughness"] = mat.roughness;
+        j["ao"] = mat.ao;
+        j["emissive_color"] = { mat.emissive_color.r, mat.emissive_color.g, mat.emissive_color.b };
+        j["emissive_intensity"] = mat.emissive_intensity;
+        j["normal_strength"] = mat.normal_strength;
+        j["texture_scale"] = { mat.texture_scale.x, mat.texture_scale.y };
+        j["render_mode"] = static_cast<int>(mat.mode);
+        j["alpha_threshold"] = mat.alpha_threshold;
+
+        std::ofstream outFile(fs_path);
+        if (outFile.is_open()) {
+            outFile << j.dump(2);
+        }
+    }
+    catch (...) {}
+}
+
+/**
+ * @brief Seçili varlığın materyal slotunu ve sürükle-bırak (Drag & Drop) etkileşimini çizer.
+ * @param e Materyal atanacak varlık.
+ * @param reg İlgili ECS kayıt defteri referansı.
+ * @param ariaSys Varlık çözümleme için Aria çekirdek sistemi referansı.
+ */
 inline void render_material_ui(entity e, registry& reg, aria::system& ariaSys)
 {
     auto* matComp = reg.get_component<material_component>(e);
@@ -31,6 +82,17 @@ inline void render_material_ui(entity e, registry& reg, aria::system& ariaSys)
         current = ariaSys.registry()->get_material(matComp->material_handle);
     }
 
+    // Materyal yeniden adlandırıldıysa (rename), GUID üzerinden güncel dosya adını senkronize et
+    if (current && !current->guid.is_nil()) {
+        const std::string resolved_path = ariaSys.resolve_asset_path(current->guid);
+        if (!resolved_path.empty()) {
+            const std::string live_stem = qual::path_to_utf8(qual::path_from_utf8(resolved_path).stem());
+            if (!live_stem.empty() && current->name != live_stem) {
+                current->name = live_stem;
+            }
+        }
+    }
+
     std::string label = current ? current->name : "";
 
     vesta::DrawAssetDropSlot(
@@ -40,6 +102,9 @@ inline void render_material_ui(entity e, registry& reg, aria::system& ariaSys)
         [&](const vesta::asset_drag_payload& payload)
         {
             auto handle = asset_pipeline::reload_material(&ariaSys, payload.path);
+            if (!handle.is_valid() && !payload.guid.is_nil()) {
+                handle = ariaSys.get_or_load_asset_by_guid<aria::material_asset>(payload.guid);
+            }
 
             if (handle.is_valid()) {
                 matComp->material_handle = handle;
@@ -54,26 +119,23 @@ inline void render_material_ui(entity e, registry& reg, aria::system& ariaSys)
     // Drop işlemi sonrası handle geçerliliğini ve pointer bütünlüğünü doğrula
     if (matComp->material_handle.is_valid()) {
         current = ariaSys.registry()->get_material(matComp->material_handle);
+        if (current && !current->guid.is_nil()) {
+            const std::string resolved_path = ariaSys.resolve_asset_path(current->guid);
+            if (!resolved_path.empty()) {
+                const std::string live_stem = qual::path_to_utf8(qual::path_from_utf8(resolved_path).stem());
+                if (!live_stem.empty() && current->name != live_stem) {
+                    current->name = live_stem;
+                }
+            }
+        }
     }
     else {
         current = nullptr;
     }
 
     if (current) {
-        ImGui::TextDisabled("Asset: %s", current->name.c_str());
-        ImGui::Spacing();
-
-        if (ImGui::TreeNodeEx("PBR Parameters", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::ColorEdit3("Base Color", &current->base_color.r);
-            ImGui::SliderFloat("Metallic", &current->metallic, 0.0f, 1.0f, "%.2f");
-            ImGui::SliderFloat("Roughness", &current->roughness, 0.04f, 1.0f, "%.2f");
-            ImGui::SliderFloat("AO", &current->ao, 0.0f, 1.0f, "%.2f");
-            ImGui::ColorEdit3("Emissive Color", &current->emissive_color.r);
-            ImGui::SliderFloat("Emissive Intensity", &current->emissive_intensity, 0.0f, 20.0f, "%.2f");
-            ImGui::DragFloat2("Tiling", &current->texture_scale.x, 0.05f, 0.01f, 100.0f, "%.2f");
-            ImGui::SliderFloat("Normal Strength", &current->normal_strength, 0.0f, 5.0f, "%.2f");
-            ImGui::TreePop();
-        }
+        ImGui::TextDisabled("Assigned Material: %s", current->name.c_str());
+        ImGui::TextDisabled("(Double-click material in Asset Browser to edit properties)");
     }
     else {
         ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "No Material Assigned");

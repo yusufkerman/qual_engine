@@ -30,4 +30,5 @@
 #include "gameplay_time.h"
 #include "gameplay_ui.h"
 #include "gameplay_audio.h"
+#include "gameplay_log.h"
 

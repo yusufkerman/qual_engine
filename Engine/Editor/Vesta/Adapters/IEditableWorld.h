@@ -13,6 +13,8 @@
 #include <optional>
 #include <unordered_map>
 
+class registry;
+
 namespace vesta {
 
     /**
@@ -71,6 +73,11 @@ namespace vesta {
          * @brief Bileşenin ham bellek işaretçisini döndürür.
          */
         virtual void* get_component_raw(entity e, size_t component_hash) = 0;
+
+        /**
+         * @brief Sahne varlık defterine doğrudan erişim sağlar (varsa).
+         */
+        virtual registry* get_registry() { return nullptr; }
 
         // ==========================================
         // VARLIK (ASSET) OPERASYONLARI

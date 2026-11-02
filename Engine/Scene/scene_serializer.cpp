@@ -5,6 +5,7 @@
 
 #include "scene_serializer.h"
 #include "scene.h"
+#include "scriptable_entity.h"
 #include "component_serialization.h"
 #include "../Engine/engine.h"
 #include "../ECS/components.h"
@@ -52,8 +53,21 @@ bool scene_serializer::serialize(const std::string& filepath, const scene& curre
         serialize_component_if_exists<light_component>(e, reg, entityJson, "light_component");
         serialize_component_if_exists<bounds_component>(e, reg, entityJson, "bounds_component");
         serialize_component_if_exists<rigidbody_component>(e, reg, entityJson, "rigidbody_component");
+        serialize_component_if_exists<character_controller_component>(e, reg, entityJson, "character_controller_component");
         serialize_component_if_exists<collider_component>(e, reg, entityJson, "collider_component");
         serialize_component_if_exists<native_script_component>(e, reg, entityJson, "native_script_component");
+        if (entityJson.contains("native_script_component"))
+        {
+            if (const auto* nsc = reg.get_component<native_script_component>(e))
+            {
+                if (nsc->instance)
+                {
+                    try {
+                        entityJson["native_script_component"]["saved_state"] = nsc->instance->serialize_state();
+                    } catch (...) {}
+                }
+            }
+        }
         serialize_component_if_exists<skinned_mesh_component>(e, reg, entityJson, "skinned_mesh_component");
         serialize_component_if_exists<skeleton_component>(e, reg, entityJson, "skeleton_component");
         serialize_component_if_exists<animator_component>(e, reg, entityJson, "animator_component");
@@ -143,6 +157,7 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
             deserialize_component_if_exists<light_component>(newE, reg, entityJson, "light_component");
             deserialize_component_if_exists<bounds_component>(newE, reg, entityJson, "bounds_component");
             deserialize_component_if_exists<rigidbody_component>(newE, reg, entityJson, "rigidbody_component");
+            deserialize_component_if_exists<character_controller_component>(newE, reg, entityJson, "character_controller_component");
             deserialize_component_if_exists<collider_component>(newE, reg, entityJson, "collider_component");
 
             if (entityJson.contains("native_script_component"))
@@ -151,6 +166,18 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
                 if (s_name != "None")
                 {
                     script_factory::instantiate_script(s_name, newE, reg);
+                    auto* nsc = reg.get_component<native_script_component>(newE);
+                    const std::string s_state = entityJson["native_script_component"].value("saved_state", "");
+                    if (nsc)
+                    {
+                        nsc->saved_state = s_state;
+                        if (nsc->instance && !s_state.empty())
+                        {
+                            try {
+                                nsc->instance->deserialize_state(s_state);
+                            } catch (...) {}
+                        }
+                    }
                 }
             }
 

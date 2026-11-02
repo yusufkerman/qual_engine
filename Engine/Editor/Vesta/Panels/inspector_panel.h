@@ -36,12 +36,14 @@ namespace vesta
         const std::string& get_title() const override { return m_title; }
         bool is_open() const override { return m_is_open; }
         void set_open(bool open) override { m_is_open = open; }
+        void focus() { m_is_open = true; m_request_focus = true; }
 
     private:
         std::unique_ptr<inspector_view_model> m_vm;
         gizmo_settings* m_gizmo_settings = nullptr;
         std::string m_title = "Inspector";
         bool m_is_open = true;
+        bool m_request_focus = false;
     };
 
-} // namespace vesta
+} // namespace vesta

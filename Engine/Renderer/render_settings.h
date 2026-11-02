@@ -2,7 +2,7 @@
 
 /**
  * @file render_settings.h
- * @brief Motorun tüm grafik boru hattı (Culling, Shadows, Skybox, VSync, Rasterizer) ayarlarını merkezi olarak yöneten yapı.
+ * @brief Motorun tüm grafik boru hattı (Culling, Shadows, Skybox, VSync, Rasterizer, PS1) ayarlarını merkezi olarak yöneten yapı.
  */
 
 #include <glm/glm.hpp>
@@ -31,6 +31,9 @@ struct render_settings
     float shadow_distance = 150.0f;             ///< Kameradan ışık kaynağına olan gölge takip mesafesi.
     float shadow_camera_height = 100.0f;        ///< Gölge projeksiyon merkezinin düşey yüksekliği.
     bool show_shadow_map_debug = false;         ///< Arayüzde gölge derinlik haritasını önizleme olarak göster.
+    bool enable_csm = true;                     ///< Kaskatlı gölge haritalama (CSM) aktif mi?
+    int csm_cascade_count = 3;                  ///< Kaskat sayısı (3).
+    float csm_split_distances[3] = { 15.0f, 50.0f, 150.0f }; ///< Kaskat ayrım mesafeleri (Metre).
 
     // ==========================================
     // 3. GÖKYÜZÜ KUTUSU (SKYBOX)
@@ -46,5 +49,18 @@ struct render_settings
     bool vsync = true;                          ///< Dikey senkronizasyon (VSync).
     bool wireframe = false;                     ///< Tel kafes (Wireframe) çizim modu.
     bool backface_culling = false;              ///< Arka yüz kırpma (GL_CULL_FACE).
-};
 
+    // ==========================================
+    // 5. PS1 RETRO HORROR PIPELINE
+    // ==========================================
+    bool enable_ps1_mode = false;               ///< PS1 retro estetik boru hattı aktif mi?
+    bool ps1_downscale = true;                  ///< PS1 düşük çözünürlüklü pikselleştirme (Downscale / Chunky Pixel) aktif mi?
+    int ps1_resolution_preset = 0;              ///< Çözünürlük hazır seti (0: 320x240 PS1 4:3, 1: 426x240 PS1 16:9, 2: 640x480 Hi-Res, 3: 256x224 Low, 4: Dinamik 0.25x, 5: Ozel)
+    int ps1_custom_width = 320;                 ///< Özel render genişliği
+    int ps1_custom_height = 240;                ///< Özel render yüksekliği
+    float ps1_vertex_snapping = 240.0f;         ///< Tepe noktası ızgara kenetleme çözünürlüğü (Wobble/Jitter: 120, 160, 240, 320, 0 = kapalı).
+    bool ps1_affine_texture_mapping = true;     ///< Doğrusal afin doku haritalama (Perspektif düzeltmesiz doku yüzme etkisi).
+    float ps1_color_depth = 32.0f;              ///< Renk derinliği kuantizasyonu (32 = 15-bit RGB555 PS1 standartı, 16 = 12-bit).
+    bool ps1_dithering = true;                  ///< 4x4 Bayer matrisi sıralı dithering (Ordered Dithering).
+    float ps1_dither_strength = 1.0f;           ///< Dithering matrisi etki gücü çarpanı.
+};

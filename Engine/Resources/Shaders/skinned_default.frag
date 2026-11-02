@@ -50,6 +50,10 @@ uniform sampler2D emissiveTex;
 uniform vec3 viewPos;
 uniform sampler2D shadowMap;
 
+// Gökyüzü Çevre Yansıması (Skybox IBL Reflection)
+uniform bool u_UseSkyboxReflection;
+uniform samplerCube u_SkyboxTex;
+
 // Çizim Modu (0: Opaque, 1: Cutout, 2: Transparent)
 uniform int u_RenderMode;
 uniform float u_AlphaThreshold;
@@ -60,6 +64,19 @@ uniform float u_AlphaThreshold;
 uniform bool u_FogEnabled;
 uniform vec3 u_FogColor;
 uniform float u_FogDensity;
+
+// PS1 Retro Horror Parametreleri
+uniform float u_PS1ColorDepth;
+uniform bool u_PS1Dithering;
+uniform float u_PS1DitherStrength;
+
+const float ps1_bayer4x4[16] = float[16](
+     0.0 / 16.0,  8.0 / 16.0,  2.0 / 16.0, 10.0 / 16.0,
+    12.0 / 16.0,  4.0 / 16.0, 14.0 / 16.0,  6.0 / 16.0,
+     3.0 / 16.0, 11.0 / 16.0,  1.0 / 16.0,  9.0 / 16.0,
+    15.0 / 16.0,  7.0 / 16.0, 13.0 / 16.0,  5.0 / 16.0
+);
+
 
 // ============================================================================
 // IŞIK TAMPONU (UBO std140 - 64 IŞIK)
@@ -94,15 +111,61 @@ const float PI = 3.14159265359;
 // ============================================================================
 // GÖLGE HARİTASI (PCF 3x3)
 // ============================================================================
+// Cascaded Shadow Maps (CSM)
+uniform bool u_EnableCSM;
+uniform sampler2DArray u_ShadowMapArray;
+uniform int u_CascadeCount;
+uniform float u_CascadePlaneDistances[3];
+uniform mat4 u_CascadeLightSpaceMatrices[3];
+
+float CalculateShadowCSM(vec3 worldPos, vec3 N, vec3 L, float viewDepth)
+{
+    int layer = 2;
+    for (int i = 0; i < 3; ++i)
+    {
+        if (viewDepth < u_CascadePlaneDistances[i])
+        {
+            layer = i;
+            break;
+        }
+    }
+
+    vec4 fragPosLightSpace = u_CascadeLightSpaceMatrices[layer] * vec4(worldPos, 1.0);
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    // Gölge sınırları dışındaki pikseller gölgede bırakılmaz
+    if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
+        return 0.0;
+
+    float bias = max(0.002 * (1.0 - dot(N, L)), 0.0005) * (1.0 + float(layer) * 1.5);
+    if (layer == 0) bias *= 0.6;
+
+    vec2 texelSize = 1.0 / vec2(textureSize(u_ShadowMapArray, 0).xy);
+    float shadow = 0.0;
+
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float depth = texture(u_ShadowMapArray, vec3(projCoords.xy + vec2(x, y) * texelSize, float(layer))).r;
+            shadow += (projCoords.z - bias > depth) ? 1.0 : 0.0;
+        }
+    }
+
+    shadow /= 9.0;
+    return shadow;
+}
+
 float CalculateShadow(vec4 fragPosLightSpace, vec3 N, vec3 L)
 {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    if (projCoords.z > 1.0)
+    if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
         return 0.0;
 
-    float bias = max(0.0015 * (1.0 - dot(N, L)), 0.0003);
+    float bias = max(0.002 * (1.0 - dot(N, L)), 0.0005);
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     float shadow = 0.0;
 
@@ -282,14 +345,49 @@ void main()
         float shadow = 0.0;
         if (l.type == 0)
         {
-            shadow = CalculateShadow(vFragPosLightSpace, N, L);
+            if (u_EnableCSM)
+            {
+                float viewDepth = length(vWorldPos - viewPos);
+                shadow = CalculateShadowCSM(vWorldPos, N, L, viewDepth);
+            }
+            else
+            {
+                shadow = CalculateShadow(vFragPosLightSpace, N, L);
+            }
         }
 
         Lo += (1.0 - shadow) * (kD * albedo / PI + specular) * radiance * NdotL;
     }
 
-    // 6. Ortam Işığı (Ambient Lighting) ve Kendiliğinden Işıma (Emissive)
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    // 6. Ortam Işığı (Ambient Lighting) ve Çevresel Yansıma (PBR IBL)
+    vec3 R = reflect(-V, N);
+
+    vec3 envReflection;
+    if (u_UseSkyboxReflection)
+    {
+        // Roughness değerine göre cubemap LOD seviyesinden yansıma örnekleme
+        float lod = roughness * 7.0;
+        envReflection = textureLod(u_SkyboxTex, R, lod).rgb;
+    }
+    else
+    {
+        // Skybox kapalıysa pürüzsüz gökyüzü/zemin gradyanı yansıması (Y ekseni bazlı)
+        vec3 skyGrad = vec3(0.50, 0.65, 0.90);
+        vec3 groundGrad = vec3(0.12, 0.10, 0.08);
+        float horizon = clamp(R.y * 0.5 + 0.5, 0.0, 1.0);
+        envReflection = mix(groundGrad, skyGrad, horizon);
+    }
+
+    // Fresnel-Schlick ortam yansıması (Pürüzlülük sönümlemesi ile)
+    vec3 F_ambient = FresnelSchlick(max(dot(N, V), 0.0), F0);
+    vec3 kS_amb = F_ambient;
+    vec3 kD_amb = (vec3(1.0) - kS_amb) * (1.0 - metallic);
+
+    vec3 diffuseAmbient = vec3(0.04) * albedo;
+    // Metaller için pürüzlülüğe bağlı çevresel speküler yansıma (Asla kapkara kalmaz)
+    vec3 specularAmbient = envReflection * F_ambient * (1.0 - roughness * 0.4);
+
+    vec3 ambient = (kD_amb * diffuseAmbient + specularAmbient) * ao;
 
     vec3 emissive = u_EmissiveColor * u_EmissiveIntensity;
     if (u_UseEmissiveMap)
@@ -311,6 +409,20 @@ void main()
     // 8. HDR Ton Eşleme (Reinhard Tone Mapping) ve Gama Düzeltmesi (Gamma Correction)
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));
+
+    // 9. PS1 Retro Dithering & Color Quantization (Posterization)
+    if (u_PS1ColorDepth > 1.0)
+    {
+        if (u_PS1Dithering)
+        {
+            int bx = int(mod(gl_FragCoord.x, 4.0));
+            int by = int(mod(gl_FragCoord.y, 4.0));
+            float dither = ps1_bayer4x4[by * 4 + bx] - 0.5;
+            color += (dither * u_PS1DitherStrength) / u_PS1ColorDepth;
+        }
+        color = clamp(color, 0.0, 1.0);
+        color = floor(color * u_PS1ColorDepth) / (u_PS1ColorDepth - 1.0);
+    }
 
     float finalAlpha = (u_RenderMode == 2) ? texColor.a : 1.0;
     FragColor = vec4(color, finalAlpha);

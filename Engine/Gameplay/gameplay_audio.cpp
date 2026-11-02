@@ -44,6 +44,55 @@ namespace gameplay {
         ctx->audioSystem.play_source(m_entity, s->get_registry());
     }
 
+    void audio_source::play_one_shot(float volume)
+    {
+        EngineContext* ctx = get_ctx();
+        scene* s = get_scene();
+        if (!ctx || !s || !is_valid()) return;
+
+        auto* src = s->get_registry().get_component<audio_source_component>(m_entity);
+        if (!src) return;
+
+        std::string clip = src->clip_path;
+        if (clip.empty()) return;
+
+        const float vol = (volume >= 0.0f) ? volume : src->volume;
+
+        if (src->is_3d)
+        {
+            glm::mat4 wm = ecs_transform::get_world_matrix(m_entity, s->get_registry());
+            glm::vec3 pos = glm::vec3(wm[3]);
+            ctx->audioSystem.play_one_shot(clip, vol, &pos);
+        }
+        else
+        {
+            ctx->audioSystem.play_one_shot(clip, vol, nullptr);
+        }
+    }
+
+    void audio_source::play_one_shot(const std::string& clipPath, float volume)
+    {
+        EngineContext* ctx = get_ctx();
+        scene* s = get_scene();
+        if (!ctx || !s || !is_valid()) return;
+
+        auto* src = s->get_registry().get_component<audio_source_component>(m_entity);
+        if (!src) return;
+
+        const float vol = (volume >= 0.0f) ? volume : src->volume;
+
+        if (src->is_3d)
+        {
+            glm::mat4 wm = ecs_transform::get_world_matrix(m_entity, s->get_registry());
+            glm::vec3 pos = glm::vec3(wm[3]);
+            ctx->audioSystem.play_one_shot(clipPath, vol, &pos);
+        }
+        else
+        {
+            ctx->audioSystem.play_one_shot(clipPath, vol, nullptr);
+        }
+    }
+
     void audio_source::stop()
     {
         EngineContext* ctx = get_ctx();

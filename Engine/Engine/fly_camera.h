@@ -21,6 +21,7 @@ struct fly_camera_state
     bool prevRightHeld = false;  ///< Bir önceki karede sağ tık tuşunun basılı olup olmadığını tutar.
     double lastX = 0.0;          ///< Farenin x eksenindeki son konumu.
     double lastY = 0.0;          ///< Farenin y eksenindeki son konumu.
+    float shiftHoldTime = 0.0f;  ///< Shift tusuna basili tutulma suresi (dinamik ivmelenme icin).
 };
 
 /**

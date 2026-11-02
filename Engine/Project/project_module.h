@@ -63,12 +63,14 @@ namespace project {
          * @param outLog Derleme konsol çıktısı.
          * @return true Derleme başarılıysa.
          */
-        static bool compile_project_scripts(const std::string& projectRoot, std::string& outLog);
+        static bool compile_project_scripts(const std::string& projectRoot, std::string& outLog, const std::string& configuration = "");
 
         /**
          * @brief GameModule.dll'in diskteki derleme tarihinin kaynak dosyalardan veya Engine.lib'den eski olup olmadığını denetler.
+         * @param projectRoot Proje ana dizini.
+         * @param configuration "Debug" veya "Release" (boşsa çalışan ortama göre otomatik seçilir).
          */
-        [[nodiscard]] static bool is_module_outdated(const std::string& projectRoot);
+        [[nodiscard]] static bool is_module_outdated(const std::string& projectRoot, const std::string& configuration = "");
 
         /**
          * @brief Projenin Scripts dizinini, GameModule.vcxproj dosyasını ve script sınıflarını

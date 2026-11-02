@@ -492,6 +492,7 @@ private:
     entt_component_pool<ui_button_component> m_pool_ui_buttons{ nullptr };
     entt_component_pool<audio_source_component> m_pool_audio_sources{ nullptr };
     entt_component_pool<audio_listener_component> m_pool_audio_listeners{ nullptr };
+    entt_component_pool<character_controller_component> m_pool_character_controllers{ nullptr };
 
     template<typename T>
     entt_component_pool<T>& pool();
@@ -529,6 +530,7 @@ inline entt_component_pool<T>& registry::pool()
     if constexpr (std::is_same_v<T, ui_button_component>) return m_pool_ui_buttons;
     if constexpr (std::is_same_v<T, audio_source_component>) return m_pool_audio_sources;
     if constexpr (std::is_same_v<T, audio_listener_component>) return m_pool_audio_listeners;
+    if constexpr (std::is_same_v<T, character_controller_component>) return m_pool_character_controllers;
 
     static entt_component_pool<T> fallback{ nullptr };
     fallback.set_registry(&m_entt);
@@ -560,6 +562,7 @@ inline const entt_component_pool<T>& registry::pool() const
     if constexpr (std::is_same_v<T, ui_button_component>) return m_pool_ui_buttons;
     if constexpr (std::is_same_v<T, audio_source_component>) return m_pool_audio_sources;
     if constexpr (std::is_same_v<T, audio_listener_component>) return m_pool_audio_listeners;
+    if constexpr (std::is_same_v<T, character_controller_component>) return m_pool_character_controllers;
 
     static entt_component_pool<T> fallback{ nullptr };
     fallback.set_registry(const_cast<entt::registry*>(&m_entt));

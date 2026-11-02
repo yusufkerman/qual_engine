@@ -239,7 +239,54 @@ namespace vesta
     // ANA RENDER ORKESTRASYONU
     // ========================================================================
 
-    void scene_gizmo_overlay::render(
+    
+    static void collect_mesh_vertices_world(entity e, registry& reg, aria::system* aria_sys, std::vector<glm::vec3>& out_verts)
+    {
+        if (!reg.has_component<transform_component>(e)) return;
+        const glm::mat4 world_mat = ecs_transform::get_world_matrix(e, reg);
+
+        bool found = false;
+        if (const auto* mc = reg.get_component<mesh_component>(e)) {
+            if (aria_sys && mc->model_handle.is_valid()) {
+                if (const auto* model = aria_sys->get_model_data(mc->model_handle)) {
+                    if (mc->sub_mesh_index < model->raw_data.sub_meshes.size()) {
+                        const auto& sm = model->raw_data.sub_meshes[mc->sub_mesh_index];
+                        if (!sm.vertices.empty()) {
+                            found = true;
+                            out_verts.reserve(out_verts.size() + sm.vertices.size());
+                            for (const auto& v : sm.vertices) {
+                                out_verts.push_back(glm::vec3(world_mat * glm::vec4(v.position, 1.0f)));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!found) {
+            glm::vec3 c(0.0f);
+            glm::vec3 r(0.5f);
+            if (const auto* mc = reg.get_component<mesh_component>(e)) {
+                if (aria_sys && mc->model_handle.is_valid()) {
+                    auto info = aria_sys->get_submesh_info(mc->model_handle, mc->sub_mesh_index);
+                    if (info.local_radius > 0.001f) {
+                        c = info.local_center;
+                        r = glm::vec3(info.local_radius * 0.707f);
+                    }
+                }
+            }
+            for (int ix = -1; ix <= 1; ix += 2) {
+                for (int iy = -1; iy <= 1; iy += 2) {
+                    for (int iz = -1; iz <= 1; iz += 2) {
+                        glm::vec3 localPt = c + glm::vec3(ix * r.x, iy * r.y, iz * r.z);
+                        out_verts.push_back(glm::vec3(world_mat * glm::vec4(localPt, 1.0f)));
+                    }
+                }
+            }
+        }
+    }
+
+void scene_gizmo_overlay::render(
         EngineContext& engineCtx,
         EditorContext& editorCtx,
         const glm::vec2& viewportPos,
@@ -282,32 +329,63 @@ namespace vesta
                 m_AudioTool.render(engineCtx, view, proj, camPos, viewportPos, viewportSize);
             }
 
+            // 2c. Etkileşimli Çarpıştırıcı Çerçevesi ve Yüz Tutamaçları (Box & Sphere Collider)
+            if (settings.collider_mode != gizmo_visibility_mode::off)
+            {
+                m_ColliderTool.render(engineCtx, view, proj, camPos, viewportPos, viewportSize);
+            }
+
             // 3. UI Katmanı (Canvas Sınırları, Metinler, Görseller ve UI Sınır Çizgileri)
             render_ui_overlay(engineCtx, viewportPos, viewportSize);
 
-            // 4. Etkileşimli 3B Dönüşüm Gizmosu veya 2B UI Rect Tool
-            if (settings.active_tool == gizmo_tool_mode::rect_tool)
+            // 4. Unity Tarzı "V" Tuşu ile Vertex Snapping (Köşe Yapıştırma) veya Standart Gizmo
+            const glm::mat4 viewProj = proj * view;
+            const glm::mat4 invViewProj = glm::inverse(viewProj);
+            const bool vSnapActive = process_vertex_snapping(
+                engineCtx,
+                editorCtx,
+                viewProj,
+                invViewProj,
+                camPos,
+                viewportPos,
+                viewportSize
+            );
+
+            if (!vSnapActive)
             {
-                m_RectTool.render(engineCtx, viewportPos, viewportSize);
-            }
-            else
-            {
-                render_transform_gizmo(
-                    engineCtx,
-                    view,
-                    proj,
-                    camPos,
-                    editorCtx.camera->fov,
-                    viewportPos,
-                    viewportSize
-                );
+                if (settings.active_tool == gizmo_tool_mode::rect_tool)
+                {
+                    m_RectTool.render(engineCtx, viewportPos, viewportSize);
+                }
+                else
+                {
+                    render_transform_gizmo(
+                        engineCtx,
+                        view,
+                        proj,
+                        camPos,
+                        editorCtx.camera->fov,
+                        viewportPos,
+                        viewportSize
+                    );
+                }
             }
 
             // 5. Görünmez Nesneler (Kamera, Işıklar ve Özel İkonlu Varlıklar) için Billboard İkonlar
+            bool iconHandled = false;
             if (settings.show_icons)
             {
                 const bool allowIconClick = isViewportHovered && !is_interacting();
-                render_billboard_icons(engineCtx, view, proj, camPos, viewportPos, viewportSize, allowIconClick);
+                iconHandled = render_billboard_icons(engineCtx, view, proj, camPos, viewportPos, viewportSize, allowIconClick);
+            }
+
+            // 5b. 3B Nesne / Mesh / Bounds Seçimi (Scene Viewport Raycast Picking)
+            if (!iconHandled && isViewportHovered && !is_interacting() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            {
+                if (!ImGui::IsMouseDown(ImGuiMouseButton_Right))
+                {
+                    process_scene_picking(engineCtx, viewProj, invViewProj, camPos, viewportPos, viewportSize, proj);
+                }
             }
         }
 
@@ -744,7 +822,7 @@ namespace vesta
         ImGui::PopStyleColor(2);
     }
 
-    void scene_gizmo_overlay::render_billboard_icons(
+    bool scene_gizmo_overlay::render_billboard_icons(
         EngineContext& engineCtx,
         const glm::mat4& view,
         const glm::mat4& proj,
@@ -762,6 +840,7 @@ namespace vesta
         const int selectedID = engineCtx.vestaSys.selection().get_first_selected_entity();
 
         ImDrawList* dl = ImGui::GetWindowDrawList();
+        bool iconClicked = false;
 
         for (entity e : reg.get_all_entities())
         {
@@ -835,9 +914,11 @@ namespace vesta
                 if (leftClicked)
                 {
                     engineCtx.vestaSys.selection().select_entity(e, ImGui::GetIO().KeyCtrl);
+                    iconClicked = true;
                 }
             }
         }
+        return iconClicked;
     }
 
     void scene_gizmo_overlay::render_transform_gizmo(
@@ -940,7 +1021,8 @@ namespace vesta
             basis,
             activeEntities,
             primaryEntity,
-            dl
+            dl,
+            m_command_stack
         };
 
         if (settings.active_tool == gizmo_tool_mode::translate)
@@ -1189,4 +1271,476 @@ namespace vesta
             }
         }
     }
+
+    bool scene_gizmo_overlay::process_vertex_snapping(
+        EngineContext& engineCtx,
+        EditorContext& editorCtx,
+        const glm::mat4& viewProj,
+        const glm::mat4& invViewProj,
+        const glm::vec3& camPos,
+        const glm::vec2& viewportPos,
+        const glm::vec2& viewportSize)
+    {
+        (void)editorCtx;
+        (void)invViewProj;
+        (void)camPos;
+
+        if (!ImGui::IsKeyDown(ImGuiKey_V)) {
+            if (m_v_snap_dragging) {
+                if (m_command_stack && !m_v_drag_records.empty()) {
+                    auto& reg = engineCtx.session.editor_scene().get_registry();
+                    for (auto& rec : m_v_drag_records) {
+                        if (auto* t = reg.get_component<transform_component>(rec.ent)) {
+                            rec.new_position = t->position;
+                            rec.new_rotation = t->rotation;
+                            rec.new_scale = t->scale;
+                        }
+                    }
+                    m_command_stack->execute_command(std::make_unique<modify_transform_command>(std::move(m_v_drag_records)));
+                }
+                m_v_snap_dragging = false;
+                m_v_drag_records.clear();
+            }
+            m_v_snap_entity = 0;
+            return false;
+        }
+
+        auto& selMgr = engineCtx.vestaSys.selection();
+        if (!selMgr.has_entity_selection()) {
+            return false;
+        }
+
+        entity primary = selMgr.get_first_selected_entity();
+        registry& reg = engineCtx.session.editor_scene().get_registry();
+        auto* primaryTransform = reg.get_component<transform_component>(primary);
+        if (!primaryTransform) {
+            return false;
+        }
+
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        const ImVec2 mousePos = ImGui::GetMousePos();
+        const bool isMouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Left);
+        const bool isMouseClicked = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+
+        const glm::vec3 primaryWorldPos = glm::vec3(ecs_transform::get_world_matrix(primary, reg)[3]);
+
+        // 1. Primary nesnenin tüm köşe (vertex) koordinatlarını topla
+        std::vector<glm::vec3> primaryVerts;
+        collect_mesh_vertices_world(primary, reg, engineCtx.aria_system, primaryVerts);
+        if (primaryVerts.empty()) {
+            return false;
+        }
+
+        // 2. Henüz sürükleme başlamadıysa: fareye en yakın vertex'i snap pivotu yap
+        if (!m_v_snap_dragging) {
+            float bestDist = 60.0f;
+            int bestIdx = -1;
+            for (int i = 0; i < static_cast<int>(primaryVerts.size()); ++i) {
+                ImVec2 screenPos;
+                if (gizmo_math::project_world_to_screen(primaryVerts[i], viewProj, viewportPos, viewportSize, screenPos)) {
+                    float d = std::hypot(mousePos.x - screenPos.x, mousePos.y - screenPos.y);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        bestIdx = i;
+                    }
+                }
+            }
+
+            if (bestIdx >= 0) {
+                m_v_source_world = primaryVerts[bestIdx];
+                m_v_source_offset = m_v_source_world - primaryWorldPos;
+                m_v_snap_entity = primary;
+            } else if (m_v_snap_entity != primary) {
+                m_v_source_world = primaryVerts[0];
+                m_v_source_offset = m_v_source_world - primaryWorldPos;
+                m_v_snap_entity = primary;
+            }
+
+            // Seçilen pivot üzerine parlak cyan kare çiz
+            ImVec2 srcScreen;
+            if (gizmo_math::project_world_to_screen(m_v_source_world, viewProj, viewportPos, viewportSize, srcScreen)) {
+                dl->AddRectFilled(ImVec2(srcScreen.x - 6.0f, srcScreen.y - 6.0f), ImVec2(srcScreen.x + 6.0f, srcScreen.y + 6.0f), IM_COL32(0, 240, 255, 230), 2.0f);
+                dl->AddRect(ImVec2(srcScreen.x - 8.0f, srcScreen.y - 8.0f), ImVec2(srcScreen.x + 8.0f, srcScreen.y + 8.0f), IM_COL32(255, 255, 255, 255), 2.0f, 0, 1.5f);
+                dl->AddText(ImVec2(srcScreen.x + 12.0f, srcScreen.y - 10.0f), IM_COL32(0, 240, 255, 255), "[V] Vertex Pivot");
+            }
+
+            if (isMouseClicked) {
+                m_v_snap_dragging = true;
+                m_v_drag_records.clear();
+                const auto& selectedEntities = selMgr.get_selected_entities();
+                for (entity e : selectedEntities) {
+                    if (auto* t = reg.get_component<transform_component>(e)) {
+                        m_v_drag_records.push_back({ e, t->position, t->rotation, t->scale, t->position, t->rotation, t->scale });
+                    }
+                }
+            }
+        }
+
+        // 3. Sürükleme aktifken: Sahnedeki diğer nesnelerin köşelerini tara ve yapıştır
+        if (m_v_snap_dragging && isMouseDown) {
+            const auto& selectedEntities = selMgr.get_selected_entities();
+            float bestTargetDist = 80.0f;
+            glm::vec3 bestTargetWorld(0.0f);
+            bool foundTarget = false;
+
+            for (entity otherEnt : reg.get_all_entities()) {
+                if (selectedEntities.find(otherEnt) != selectedEntities.end()) continue;
+                if (!reg.has_component<transform_component>(otherEnt)) continue;
+
+                std::vector<glm::vec3> otherVerts;
+                collect_mesh_vertices_world(otherEnt, reg, engineCtx.aria_system, otherVerts);
+                for (const auto& ov : otherVerts) {
+                    ImVec2 scr;
+                    if (gizmo_math::project_world_to_screen(ov, viewProj, viewportPos, viewportSize, scr)) {
+                        float d = std::hypot(mousePos.x - scr.x, mousePos.y - scr.y);
+                        if (d < bestTargetDist) {
+                            bestTargetDist = d;
+                            bestTargetWorld = ov;
+                            foundTarget = true;
+                        }
+                    }
+                }
+            }
+
+            if (foundTarget) {
+                m_v_target_world = bestTargetWorld;
+                m_v_has_target = true;
+
+                const glm::vec3 newPrimaryWorldPos = m_v_target_world - m_v_source_offset;
+                const glm::vec3 delta = newPrimaryWorldPos - primaryWorldPos;
+
+                for (entity e : selectedEntities) {
+                    glm::vec3 curPos = glm::vec3(ecs_transform::get_world_matrix(e, reg)[3]);
+                    gizmo_math::apply_entity_world_position(e, curPos + delta, reg);
+                }
+
+                // Snap göstergesi
+                ImVec2 tgtScreen;
+                if (gizmo_math::project_world_to_screen(m_v_target_world, viewProj, viewportPos, viewportSize, tgtScreen)) {
+                    dl->AddCircleFilled(tgtScreen, 6.0f, IM_COL32(50, 255, 100, 240));
+                    dl->AddCircle(tgtScreen, 10.0f, IM_COL32(255, 255, 255, 255), 0, 2.0f);
+                    dl->AddText(ImVec2(tgtScreen.x + 14.0f, tgtScreen.y - 10.0f), IM_COL32(50, 255, 100, 255), "[V] SNAPPED!");
+                }
+            } else {
+                m_v_has_target = false;
+            }
+
+            // Kaynak noktasını güncelle ve çiz
+            m_v_source_world = primaryWorldPos + m_v_source_offset;
+            ImVec2 srcScreen;
+            if (gizmo_math::project_world_to_screen(m_v_source_world, viewProj, viewportPos, viewportSize, srcScreen)) {
+                dl->AddRectFilled(ImVec2(srcScreen.x - 5.0f, srcScreen.y - 5.0f), ImVec2(srcScreen.x + 5.0f, srcScreen.y + 5.0f), IM_COL32(0, 240, 255, 230), 2.0f);
+            }
+        }
+
+        // 4. Mouse bırakılınca işlemi tamamla
+        if (m_v_snap_dragging && !isMouseDown) {
+            if (m_command_stack && !m_v_drag_records.empty()) {
+                for (auto& rec : m_v_drag_records) {
+                    if (auto* t = reg.get_component<transform_component>(rec.ent)) {
+                        rec.new_position = t->position;
+                        rec.new_rotation = t->rotation;
+                        rec.new_scale = t->scale;
+                    }
+                }
+                m_command_stack->execute_command(std::make_unique<modify_transform_command>(std::move(m_v_drag_records)));
+            }
+            m_v_snap_dragging = false;
+            m_v_drag_records.clear();
+            m_v_has_target = false;
+        }
+
+        return true;
+    }
+
+
+    bool scene_gizmo_overlay::process_scene_picking(
+        EngineContext& engineCtx,
+        const glm::mat4& viewProj,
+        const glm::mat4& invViewProj,
+        const glm::vec3& camPos,
+        const glm::vec2& viewportPos,
+        const glm::vec2& viewportSize,
+        const glm::mat4& proj)
+    {
+        const ImVec2 mousePos = ImGui::GetMousePos();
+
+        // 1. Fare konumu sahne gorunumu (viewport) sinirlari icinde mi?
+        if (mousePos.x < viewportPos.x || mousePos.x > viewportPos.x + viewportSize.x ||
+            mousePos.y < viewportPos.y || mousePos.y > viewportPos.y + viewportSize.y)
+        {
+            return false;
+        }
+
+        // 2. Ust arac cubugu (toolbar) butonlari uzerinde mi?
+        const auto& settings = engineCtx.gizmoSystem.settings();
+        const float pad = 10.0f;
+        const float barWidth = std::min(viewportSize.x - 2.0f * pad, 860.0f);
+        if (mousePos.x >= viewportPos.x + pad && mousePos.x <= viewportPos.x + pad + barWidth &&
+            mousePos.y >= viewportPos.y + pad && mousePos.y <= viewportPos.y + pad + 32.0f)
+        {
+            return false;
+        }
+
+        // 3. Performans ve istatistik paneli uzerinde mi?
+        if (settings.show_stats_overlay)
+        {
+            const float overlayW = std::min(285.0f, std::max(180.0f, viewportSize.x - 20.0f));
+            const float overlayH = std::min(305.0f, std::max(120.0f, viewportSize.y - 60.0f));
+            const float posX = viewportPos.x + std::max(10.0f, viewportSize.x - overlayW - 12.0f);
+            const float posY = viewportPos.y + 48.0f;
+            if (mousePos.x >= posX && mousePos.x <= posX + overlayW &&
+                mousePos.y >= posY && mousePos.y <= posY + overlayH)
+            {
+                return false;
+            }
+        }
+
+        // 4. Fare pikselinden 3B uzaya giden dunya isini (Ray) olustur
+        const float nx = ((mousePos.x - viewportPos.x) / std::max(1.0f, viewportSize.x)) * 2.0f - 1.0f;
+        const float ny = 1.0f - ((mousePos.y - viewportPos.y) / std::max(1.0f, viewportSize.y)) * 2.0f;
+
+        glm::vec4 farPt = invViewProj * glm::vec4(nx, ny, 1.0f, 1.0f);
+        if (std::abs(farPt.w) > 1e-7f)
+        {
+            farPt /= farPt.w;
+        }
+
+        gizmo_math::Ray3D mouseRay;
+        mouseRay.origin = camPos;
+        const glm::vec3 diff = glm::vec3(farPt) - camPos;
+        mouseRay.dir = glm::length(diff) > 1e-6f ? glm::normalize(diff) : glm::vec3(0.0f, 0.0f, -1.0f);
+
+        auto& reg = engineCtx.session.editor_scene().get_registry();
+
+        struct PickCandidate {
+            entity ent = 0;
+            float worldDist = std::numeric_limits<float>::max();
+            float screenDist = std::numeric_limits<float>::max();
+            bool isDirectHit = false;
+        };
+
+        std::vector<PickCandidate> candidates;
+        const float proj11 = (std::abs(proj[1][1]) > 0.01f) ? std::abs(proj[1][1]) : 1.732f;
+        const float pixelTolerance = 14.0f; // 14 piksel dinamik ekransal tolerans (uzaktaki kucuk nesneleri rahatca secmek icin)
+
+        for (entity e : reg.get_all_entities())
+        {
+            if (!reg.has_component<transform_component>(e))
+            {
+                continue;
+            }
+
+            const bool hasMesh = reg.has_component<mesh_component>(e);
+            const bool hasSkinnedMesh = reg.has_component<skinned_mesh_component>(e);
+            const bool hasCollider = reg.has_component<collider_component>(e);
+            const bool hasBounds = reg.has_component<bounds_component>(e);
+
+            if (!hasMesh && !hasSkinnedMesh && !hasCollider && !hasBounds)
+            {
+                continue;
+            }
+
+            const glm::mat4 worldMat = ecs_transform::get_world_matrix(e, reg);
+            const float det = glm::determinant(worldMat);
+            if (std::abs(det) < 1e-6f)
+            {
+                continue;
+            }
+
+            glm::vec3 boxMin(0.0f);
+            glm::vec3 boxMax(0.0f);
+            bool hasValidBox = false;
+
+            // Oncelik 1: Statik Mesh geometrisi
+            if (hasMesh && engineCtx.aria_system)
+            {
+                const auto* mc = reg.get_component<mesh_component>(e);
+                if (mc && mc->model_handle.is_valid())
+                {
+                    auto info = engineCtx.aria_system->get_submesh_info(mc->model_handle, mc->sub_mesh_index);
+                    if (glm::length(info.aabb_max - info.aabb_min) > 1e-4f)
+                    {
+                        boxMin = info.aabb_min;
+                        boxMax = info.aabb_max;
+                        hasValidBox = true;
+                    }
+                    else if (info.local_radius > 0.001f)
+                    {
+                        const glm::vec3 halfExt(info.local_radius * 0.85f);
+                        boxMin = info.local_center - halfExt;
+                        boxMax = info.local_center + halfExt;
+                        hasValidBox = true;
+                    }
+                }
+            }
+
+            // Oncelik 2: Iskeletli (Skinned) Mesh geometrisi
+            if (!hasValidBox && hasSkinnedMesh && engineCtx.aria_system)
+            {
+                const auto* smc = reg.get_component<skinned_mesh_component>(e);
+                if (smc && smc->model_handle.is_valid())
+                {
+                    auto info = engineCtx.aria_system->get_skinned_submesh_info(smc->model_handle, smc->sub_mesh_index);
+                    if (glm::length(info.aabb_max - info.aabb_min) > 1e-4f)
+                    {
+                        boxMin = info.aabb_min;
+                        boxMax = info.aabb_max;
+                        hasValidBox = true;
+                    }
+                    else if (info.local_radius > 0.001f)
+                    {
+                        const glm::vec3 halfExt(info.local_radius * 0.85f);
+                        boxMin = info.local_center - halfExt;
+                        boxMax = info.local_center + halfExt;
+                        hasValidBox = true;
+                    }
+                }
+            }
+
+            // Oncelik 3: Carpistirici (Collider) bileseni (Mesh'i olmayan nesneler icin)
+            if (!hasValidBox && hasCollider)
+            {
+                const auto* col = reg.get_component<collider_component>(e);
+                if (col)
+                {
+                    if (col->type == collider_type::box)
+                    {
+                        boxMin = col->offset - col->extents;
+                        boxMax = col->offset + col->extents;
+                        hasValidBox = true;
+                    }
+                    else if (col->type == collider_type::sphere)
+                    {
+                        const float r = col->extents.x > 0.001f ? col->extents.x : 0.5f;
+                        boxMin = col->offset - glm::vec3(r);
+                        boxMax = col->offset + glm::vec3(r);
+                        hasValidBox = true;
+                    }
+                }
+            }
+
+            // Oncelik 4: Varsayilan Sinir (bounds) bileseni (Yalnizca Mesh veya Collider icermeyen nesneler icin!)
+            if (!hasValidBox && hasBounds)
+            {
+                const auto* bc = reg.get_component<bounds_component>(e);
+                if (bc && bc->localRadius > 0.001f)
+                {
+                    const glm::vec3 halfExt(bc->localRadius * 0.85f);
+                    boxMin = bc->localCenter - halfExt;
+                    boxMax = bc->localCenter + halfExt;
+                    hasValidBox = true;
+                }
+            }
+
+            if (!hasValidBox)
+            {
+                continue;
+            }
+
+            const glm::mat4 invWorld = glm::inverse(worldMat);
+            const glm::vec3 localRayOrigin = glm::vec3(invWorld * glm::vec4(mouseRay.origin, 1.0f));
+            const glm::vec3 localRayDir = glm::vec3(invWorld * glm::vec4(mouseRay.dir, 0.0f));
+
+            // Nesnenin dunya uzayindaki merkezi ve kameraya uzakligi
+            const glm::vec3 localCenter = (boxMin + boxMax) * 0.5f;
+            const glm::vec3 worldCenter = glm::vec3(worldMat * glm::vec4(localCenter, 1.0f));
+            const float distToCam = glm::length(worldCenter - camPos);
+
+            // Dinamik piksel basina dusen dunya boyutu (mesafeyle orantili olcekleme)
+            const float pixelWorldSize = (2.0f * std::max(0.1f, distToCam)) / (proj11 * std::max(1.0f, viewportSize.y));
+            const float worldTolerance = pixelTolerance * pixelWorldSize;
+
+            // Yerel olcegi hesapla
+            glm::vec3 scale(
+                glm::length(glm::vec3(worldMat[0])),
+                glm::length(glm::vec3(worldMat[1])),
+                glm::length(glm::vec3(worldMat[2]))
+            );
+            scale = glm::max(scale, glm::vec3(1e-4f));
+            const glm::vec3 localMargin = glm::vec3(worldTolerance) / scale;
+
+            // 1. Dogrudan Kesisim Testi (Tam geometrik AABB)
+            float tDirect = 0.0f;
+            bool directHit = gizmo_math::intersect_ray_aabb(localRayOrigin, localRayDir, boxMin, boxMax, tDirect);
+
+            // 2. Ekransal Toleransli Genisletilmis Kesisim Testi (Uzak/Kucuk nesneler icin)
+            float tExt = 0.0f;
+            bool extHit = false;
+            if (!directHit)
+            {
+                const glm::vec3 boxMinExt = boxMin - localMargin;
+                const glm::vec3 boxMaxExt = boxMax + localMargin;
+                extHit = gizmo_math::intersect_ray_aabb(localRayOrigin, localRayDir, boxMinExt, boxMaxExt, tExt);
+            }
+
+            if (!directHit && !extHit)
+            {
+                continue;
+            }
+
+            float hitDist = directHit ? tDirect : tExt;
+            if (hitDist <= 0.0f)
+            {
+                hitDist = 0.01f;
+            }
+
+            // Ekrandaki piksel mesafesini hesapla (Mouse ile nesne merkezi arasi 2D mesafe)
+            float screenDist = 99999.0f;
+            glm::vec4 clipPos = viewProj * glm::vec4(worldCenter, 1.0f);
+            if (clipPos.w > 0.001f)
+            {
+                glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
+                glm::vec2 screenCenter = viewportPos + glm::vec2((ndc.x + 1.0f) * 0.5f * viewportSize.x, (1.0f - ndc.y) * 0.5f * viewportSize.y);
+                screenDist = glm::length(glm::vec2(mousePos.x, mousePos.y) - screenCenter);
+            }
+
+            PickCandidate cand;
+            cand.ent = e;
+            cand.worldDist = hitDist;
+            cand.screenDist = screenDist;
+            cand.isDirectHit = directHit;
+            candidates.push_back(cand);
+        }
+
+        if (candidates.empty())
+        {
+            if (!ImGui::GetIO().KeyCtrl)
+            {
+                engineCtx.vestaSys.selection().clear_all();
+            }
+            return false;
+        }
+
+        // Adaylari akilli derinlik ve piksel yakinlik kriterine gore sirala:
+        // - Belirgin derinlik farki (> 0.35m) varsa ondeki nesne daima arkadakini orter ve kazanir.
+        // - Benzer derinlikteki nesneler arasinda dogrudan isabet (direct hit) tolerans isabetine ustun gelir.
+        // - Benzer durumdaki nesneler arasinda mouse imlecine ekranda en yakin olan kazanir.
+        std::sort(candidates.begin(), candidates.end(), [](const PickCandidate& a, const PickCandidate& b) {
+            const float depthDiff = b.worldDist - a.worldDist;
+            if (std::abs(depthDiff) > 0.35f)
+            {
+                return a.worldDist < b.worldDist;
+            }
+            if (a.isDirectHit != b.isDirectHit)
+            {
+                return a.isDirectHit;
+            }
+            if (std::abs(a.screenDist - b.screenDist) > 2.0f)
+            {
+                return a.screenDist < b.screenDist;
+            }
+            return a.worldDist < b.worldDist;
+        });
+
+        entity bestEntity = candidates.front().ent;
+        if (bestEntity != 0)
+        {
+            engineCtx.vestaSys.selection().select_entity(bestEntity, ImGui::GetIO().KeyCtrl);
+            return true;
+        }
+
+        return false;
+    }
+
 } // namespace vesta

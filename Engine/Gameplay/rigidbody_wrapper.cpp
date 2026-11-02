@@ -61,6 +61,13 @@ namespace gameplay
 
     void rigidbody_wrapper::add_impulse(const glm::vec3& impulse)
     {
+        auto* phys = resolve_physics_system();
+        if (phys && m_entity != 0)
+        {
+            phys->api().add_impulse(m_entity, impulse);
+            return;
+        }
+
         auto* rb = raw();
         if (!rb)
         {
@@ -70,6 +77,18 @@ namespace gameplay
         const float m = (rb->mass > 0.0001f) ? rb->mass : 1.0f;
         const glm::vec3 delta_vel = impulse / m;
         set_velocity(get_velocity() + delta_vel);
+    }
+
+    void rigidbody_wrapper::add_impulse_at_point(const glm::vec3& impulse, const glm::vec3& point)
+    {
+        auto* phys = resolve_physics_system();
+        if (phys && m_entity != 0)
+        {
+            phys->api().add_impulse_at_point(m_entity, impulse, point);
+            return;
+        }
+
+        add_impulse(impulse);
     }
 
     void rigidbody_wrapper::add_force(const glm::vec3& force)
@@ -166,4 +185,3 @@ namespace gameplay
         return rb && rb->motion == motion_type::static_body;
     }
 }
-

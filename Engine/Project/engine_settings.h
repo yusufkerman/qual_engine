@@ -34,6 +34,9 @@ namespace project {
         [[nodiscard]] bool get_auto_reload_on_focus() const { return m_auto_reload_on_focus; }
         void set_auto_reload_on_focus(bool enable) { m_auto_reload_on_focus = enable; }
 
+        [[nodiscard]] const std::string& get_last_project_path() const { return m_last_project_path; }
+        void set_last_project_path(const std::string& path) { m_last_project_path = path; }
+
         /**
          * @brief Sistemdeki Visual Studio Code kurulumunu otomatik arar.
          */
@@ -60,6 +63,7 @@ namespace project {
         std::string m_custom_editor_path;
         std::string m_detected_vscode_path;
         bool m_auto_reload_on_focus{ true };
+        std::string m_last_project_path;
 
         std::filesystem::path get_settings_file_path() const;
     };

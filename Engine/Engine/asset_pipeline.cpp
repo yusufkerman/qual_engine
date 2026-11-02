@@ -5,6 +5,7 @@
 
 #include "asset_pipeline.h"
 #include "engine_context.h"
+#include "../Core/path_utils.h"
 #include "../Resources/engine_resources.h"
 #include <iostream>
 #include <fstream>
@@ -30,11 +31,16 @@ namespace asset_pipeline
             return *builtin;
         }
 
-        std::string meta_path = asset_path + ".meta";
+        std::string clean_asset_path = asset_path;
+        while (clean_asset_path.size() > 5 && clean_asset_path.substr(clean_asset_path.size() - 5) == ".meta") {
+            clean_asset_path = clean_asset_path.substr(0, clean_asset_path.size() - 5);
+        }
+        std::string meta_path = clean_asset_path + ".meta";
 
-        if (fs::exists(meta_path)) {
+        const fs::path meta_fs_path = qual::path_from_utf8(meta_path);
+        if (fs::exists(meta_fs_path)) {
             try {
-                std::ifstream file(meta_path);
+                std::ifstream file(meta_fs_path);
                 json meta_json;
                 file >> meta_json;
                 file.close();
@@ -62,7 +68,7 @@ namespace asset_pipeline
             json meta_json;
             meta_json["guid"] = uuids::to_string(yeni_guid);
 
-            std::ofstream file(meta_path);
+            std::ofstream file(meta_fs_path);
             file << meta_json.dump(4);
             file.close();
             std::cout << "[AssetPipeline] Yeni .meta dosyasi olusturuldu: " << meta_path << "\n";

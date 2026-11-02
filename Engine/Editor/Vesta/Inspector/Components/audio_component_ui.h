@@ -15,6 +15,7 @@
 #include "../../../Audio/audio_system.h"
 #include <imgui.h>
 #include <filesystem>
+#include "../../../../Core/path_utils.h"
 #include <iostream>
 
 namespace vesta {
@@ -27,7 +28,7 @@ namespace vesta {
         // Dosya adı etiketi
         std::string displayLabel = "None (Drag Audio Here)";
         if (!src->clip_path.empty()) {
-            displayLabel = std::filesystem::path(src->clip_path).filename().string();
+            displayLabel = qual::path_to_utf8(qual::path_from_utf8(src->clip_path).filename());
         }
 
         // 1. Sürükle - Bırak (Drag & Drop) Slotu

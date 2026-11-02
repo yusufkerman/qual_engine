@@ -7,6 +7,46 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
 #include <algorithm>
+#include <iostream>
+
+void EditorCamera::focus_on(const glm::vec3& target_point, float target_distance, bool instant)
+{
+    m_focusTarget = target_point;
+    m_focusDistance = std::max(0.5f, target_distance);
+
+    if (is2DMode)
+    {
+        glm::vec3 desiredPos = glm::vec3(target_point.x, target_point.y, position.z);
+        if (instant)
+        {
+            position = desiredPos;
+            orthographicSize = m_focusDistance * 2.0f;
+            m_focusActive = false;
+        }
+        else
+        {
+            m_focusActive = true;
+        }
+    }
+    else
+    {
+        const glm::vec3 forward = calc_forward(rotation);
+        glm::vec3 desiredPos = target_point - forward * m_focusDistance;
+        if (instant)
+        {
+            position = desiredPos;
+            m_focusActive = false;
+        }
+        else
+        {
+            m_focusActive = true;
+        }
+    }
+
+    std::cout << "[EditorCamera] Focus active: " << (m_focusActive ? "true" : "instant")
+              << " Target: (" << target_point.x << ", " << target_point.y << ", " << target_point.z
+              << ") Distance: " << m_focusDistance << std::endl;
+}
 
 void EditorCamera::set2DMode(bool enabled)
 {
@@ -39,8 +79,12 @@ void EditorCamera::toggle2DMode()
     set2DMode(!is2DMode);
 }
 
-void EditorCamera::resetMouseState()
+void EditorCamera::resetMouseState(GLFWwindow* window)
 {
+    if (window && flyState.capturingMouse)
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
     flyState = fly_camera_state{};
     scrollStep = 0.0f;
 }
@@ -56,6 +100,44 @@ void EditorCamera::update(
     if (!window)
         return;
 
+    // Kullanıcı klavye/fare ile kamerayı hareket ettirirse akıcı odaklanmayı iptal et
+    if (flyState.capturingMouse || 
+        (window && (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || 
+                    glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || 
+                    glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || 
+                    glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)))
+    {
+        m_focusActive = false;
+    }
+
+    if (m_focusActive)
+    {
+        const float t = std::clamp(12.0f * (1.0f / 60.0f), 0.0f, 1.0f);
+        if (is2DMode)
+        {
+            glm::vec3 desiredPos = glm::vec3(m_focusTarget.x, m_focusTarget.y, position.z);
+            position = glm::mix(position, desiredPos, t);
+            orthographicSize = orthographicSize + (m_focusDistance * 2.0f - orthographicSize) * t;
+            if (glm::distance(glm::vec2(position.x, position.y), glm::vec2(desiredPos.x, desiredPos.y)) < 0.02f)
+            {
+                position.x = desiredPos.x;
+                position.y = desiredPos.y;
+                m_focusActive = false;
+            }
+        }
+        else
+        {
+            const glm::vec3 forward = calc_forward(rotation);
+            glm::vec3 desiredPos = m_focusTarget - forward * m_focusDistance;
+            position = glm::mix(position, desiredPos, t);
+            if (glm::distance(position, desiredPos) < 0.02f)
+            {
+                position = desiredPos;
+                m_focusActive = false;
+            }
+        }
+    }
+
     if (is2DMode)
     {
         const bool rightHeld = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
@@ -70,7 +152,7 @@ void EditorCamera::update(
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
 
-        if (!(rightHeld || middleHeld) && flyState.prevRightHeld)
+        if (!(rightHeld || middleHeld) && (flyState.prevRightHeld || flyState.capturingMouse))
         {
             flyState.capturingMouse = false;
             flyState.firstMouse = true;

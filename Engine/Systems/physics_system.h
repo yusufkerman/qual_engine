@@ -157,6 +157,9 @@ public:
      * @brief Düşük seviye erişim için doğrudan Jolt PhysicsSystem işaretçisini döner.
      */
     JPH::PhysicsSystem* get_jolt_system() { return mPhysicsSystem.get(); }
+    JPH::TempAllocator* get_temp_allocator() { return mTempAllocator.get(); }
+    const JPH::ObjectVsBroadPhaseLayerFilter& get_object_vs_bp_filter() const { return mObjectVsBPFilter; }
+    const JPH::ObjectLayerPairFilter& get_object_layer_pair_filter() const { return mObjectVsObjectFilter; }
 
 private:
     std::unique_ptr<physics_api> m_api; ///< Yerel (native) fizik komut arayüzü.

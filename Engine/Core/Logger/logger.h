@@ -29,9 +29,16 @@ public:
     /**
      * @brief Singleton örneğine erişim sağlar.
      */
+    static inline engine_logger* s_shared_instance = nullptr;
+
     static engine_logger& instance() noexcept {
+        if (s_shared_instance) return *s_shared_instance;
         static engine_logger s_instance;
         return s_instance;
+    }
+
+    static void set_shared_instance(engine_logger* inst) noexcept {
+        s_shared_instance = inst;
     }
 
     /**

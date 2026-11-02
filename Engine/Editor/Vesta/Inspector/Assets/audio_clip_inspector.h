@@ -10,6 +10,7 @@
 #include "../../../Engine/Assets/aria.h"
 #include "../../../Engine/asset_pipeline.h"
 #include "../../../Audio/audio_system.h"
+#include "../../../Core/path_utils.h"
 #include <imgui.h>
 #include <filesystem>
 #include <iostream>
@@ -37,17 +38,17 @@ namespace vesta {
         info.render_fn = [aria_sys, audio_sys](const std::string& asset_path) {
             namespace fs = std::filesystem;
 
-            if (!fs::exists(asset_path)) {
+            const auto fs_path = qual::path_from_utf8(asset_path);
+            if (!fs::exists(fs_path)) {
                 ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "Error: File does not exist!");
                 ImGui::TextDisabled("%s", asset_path.c_str());
                 return;
             }
 
-            fs::path p(asset_path);
-            std::string filename = p.filename().string();
-            std::string ext = p.extension().string();
+            std::string filename = qual::path_to_utf8(fs_path.filename());
+            std::string ext = fs_path.extension().string();
             uintmax_t fileSize = 0;
-            try { fileSize = fs::file_size(p); } catch (...) {}
+            try { fileSize = fs::file_size(fs_path); } catch (...) {}
 
             ImGui::TextColored(ImVec4(0.45f, 0.85f, 1.0f, 1.0f), "Audio Clip Importer");
             ImGui::Separator();

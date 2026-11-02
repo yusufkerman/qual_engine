@@ -37,12 +37,16 @@ namespace aria {
      * @brief Tekil bir 3D ağın (mesh) GPU üzerindeki bellek tanımlayıcılarını ve yerel sınırlarını tutar.
      */
     struct mesh_asset {
+        std::string name;               ///< Alt ağın (sub-mesh) adı.
+        glm::mat4 local_transform{ 1.0f }; ///< Alt ağın yerel dönüşüm matrisi.
         unsigned int vao{ 0 };          ///< Vertex Array Object (OpenGL Kimliği).
         unsigned int vbo{ 0 };          ///< Vertex Buffer Object (OpenGL Kimliği).
         unsigned int ebo{ 0 };          ///< Element Buffer Object (OpenGL Kimliği).
         unsigned int index_count{ 0 };  ///< Çizilecek toplam indeks sayısı.
         glm::vec3 local_center{ 0.0f }; ///< Sınırlayıcı küre için yerel merkez noktası.
         float local_radius{ 0.0f };     ///< Sınırlayıcı küre yarıçapı.
+        glm::vec3 aabb_min{ 0.0f };     ///< Yerel eksen hizali kutu minimum kosesi.
+        glm::vec3 aabb_max{ 0.0f };     ///< Yerel eksen hizali kutu maksimum kosesi.
     };
 
     /**
@@ -84,6 +88,8 @@ namespace aria {
         unsigned int index_count{ 0 };          ///< Çizilecek toplam indeks sayısı.
         glm::vec3 local_center{ 0.0f };         ///< Sınırlayıcı küre için yerel merkez noktası.
         float local_radius{ 0.0f };             ///< Sınırlayıcı küre yarıçapı.
+        glm::vec3 aabb_min{ 0.0f };             ///< Yerel eksen hizali kutu minimum kosesi.
+        glm::vec3 aabb_max{ 0.0f };             ///< Yerel eksen hizali kutu maksimum kosesi.
     };
 
     /**

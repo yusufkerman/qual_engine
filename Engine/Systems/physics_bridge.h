@@ -32,6 +32,14 @@ namespace physics_bridge
     void sync_ecs_to_physics(EngineContext& ctx, scene& current_scene);
 
     /**
+     * @brief Kinematik karakter kontrolcülerinin (CharacterVirtual) yerçekimi, basamak aşma ve hareketlerini simüle eder.
+     * @param ctx Motor bağlamı.
+     * @param current_scene Güncellenecek sahne nesnesi.
+     * @param delta_time Zaman adımı.
+     */
+    void update_character_controllers(EngineContext& ctx, scene& current_scene, float delta_time);
+
+    /**
      * @brief Oynatma (STOP) modundan çıkıldığında Jolt dünyasındaki tüm varlıkları temizler ve bellekten siler.
      * @param ctx Motor bağlamı.
      * @param current_scene Temizlenecek sahne nesnesi.

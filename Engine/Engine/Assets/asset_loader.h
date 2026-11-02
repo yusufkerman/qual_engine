@@ -81,6 +81,20 @@ namespace aria {
          */
         [[nodiscard]] static std::optional<raw_audio_data> load_audio_to_cpu(const std::string& file_path);
 
+        struct auto_extracted_material {
+            std::string material_name;
+            std::string material_path;
+            asset_guid material_guid;
+        };
+
+        /**
+         * @brief GLB, FBX veya OBJ dosyalarindan gomulu/bagli dokulari ve materyal JSON yapilandirmalarini otomatik cikartir ve olusturur.
+         */
+        static std::vector<auto_extracted_material> extract_and_generate_materials_for_model(
+            const std::string& model_file_path,
+            class system* aria_sys = nullptr
+        );
+
     };
 
 } // namespace aria
