@@ -100,7 +100,13 @@ namespace engine_resources {
             lower == "shaders/shadow_skinned" ||
             lower == "shaders/ps1/ps1_shader" ||
             lower == "shaders/volumetric/volumetric" ||
-            lower == "shaders/volumetric/volumetric_composite") {
+            lower == "shaders/volumetric/volumetric_composite" ||
+            lower == "shaders/ssao/ssao" ||
+            lower == "shaders/ssao/ssao_blur" ||
+            lower == "shaders/ssao/ssao_composite" ||
+            lower == "shaders/ssao/gtao" ||
+            lower == "shaders/ssao/ssgi" ||
+            lower == "shaders/postprocess/post_process") {
             return true;
         }
 
@@ -119,6 +125,12 @@ namespace engine_resources {
                 guid == builtin_guid::ps1_shader ||
                 guid == builtin_guid::volumetric_shader ||
                 guid == builtin_guid::volumetric_composite_shader ||
+                guid == builtin_guid::ssao_shader ||
+                guid == builtin_guid::ssao_blur_shader ||
+                guid == builtin_guid::ssao_composite_shader ||
+                guid == builtin_guid::gtao_shader ||
+                guid == builtin_guid::ssgi_shader ||
+                guid == builtin_guid::post_process_shader ||
                 guid == builtin_guid::cube_mesh ||
                 guid == builtin_guid::sphere_mesh ||
                 (sphere_v5 && guid == *sphere_v5));
@@ -146,6 +158,12 @@ namespace engine_resources {
         if (lower == "shaders/ps1/ps1_shader" || lower == "ps1/ps1_shader" || lower == "ps1_shader") return builtin_guid::ps1_shader;
         if (lower == "shaders/volumetric/volumetric" || lower == "volumetric/volumetric" || lower == "volumetric") return builtin_guid::volumetric_shader;
         if (lower == "shaders/volumetric/volumetric_composite" || lower == "volumetric/volumetric_composite" || lower == "volumetric_composite") return builtin_guid::volumetric_composite_shader;
+        if (lower == "shaders/ssao/ssao" || lower == "ssao/ssao" || lower == "ssao") return builtin_guid::ssao_shader;
+        if (lower == "shaders/ssao/ssao_blur" || lower == "ssao/ssao_blur" || lower == "ssao_blur") return builtin_guid::ssao_blur_shader;
+        if (lower == "shaders/ssao/ssao_composite" || lower == "ssao/ssao_composite" || lower == "ssao_composite") return builtin_guid::ssao_composite_shader;
+        if (lower == "shaders/ssao/gtao" || lower == "ssao/gtao" || lower == "gtao") return builtin_guid::gtao_shader;
+        if (lower == "shaders/ssao/ssgi" || lower == "ssao/ssgi" || lower == "ssgi") return builtin_guid::ssgi_shader;
+        if (lower == "shaders/postprocess/post_process" || lower == "postprocess/post_process" || lower == "post_process") return builtin_guid::post_process_shader;
         if (lower == "builtin/cube" || lower == "meshes/cube" || lower == "cube") return builtin_guid::cube_mesh;
         if (lower == "builtin/sphere" || lower == "meshes/sphere" || lower == "sphere") return builtin_guid::sphere_mesh;
 
@@ -163,6 +181,12 @@ namespace engine_resources {
         if (guid == builtin_guid::ps1_shader) return "@engine/Shaders/PS1/ps1_shader";
         if (guid == builtin_guid::volumetric_shader) return "@engine/Shaders/Volumetric/volumetric";
         if (guid == builtin_guid::volumetric_composite_shader) return "@engine/Shaders/Volumetric/volumetric_composite";
+        if (guid == builtin_guid::ssao_shader) return "@engine/Shaders/SSAO/ssao";
+        if (guid == builtin_guid::ssao_blur_shader) return "@engine/Shaders/SSAO/ssao_blur";
+        if (guid == builtin_guid::ssao_composite_shader) return "@engine/Shaders/SSAO/ssao_composite";
+        if (guid == builtin_guid::gtao_shader) return "@engine/Shaders/SSAO/gtao";
+        if (guid == builtin_guid::ssgi_shader) return "@engine/Shaders/SSAO/ssgi";
+        if (guid == builtin_guid::post_process_shader) return "@engine/Shaders/PostProcess/post_process";
         static const auto sphere_v5 = uuids::uuid::from_string("8be082d0-aec8-5a89-adeb-3603feae9e3e");
         if (guid == builtin_guid::cube_mesh) return "engine://builtin/cube";
         if (guid == builtin_guid::sphere_mesh || (sphere_v5 && guid == *sphere_v5)) return "engine://builtin/sphere";
@@ -237,6 +261,12 @@ namespace engine_resources {
             { builtin_guid::ps1_shader,            "@engine/Shaders/PS1/ps1_shader",        "Shaders/PS1/ps1_shader",        "Shaders/PS1/ps1_shader" },
             { builtin_guid::volumetric_shader,           "@engine/Shaders/Volumetric/volumetric",           "Shaders/Volumetric/volumetric",           "Shaders/Volumetric/volumetric" },
             { builtin_guid::volumetric_composite_shader, "@engine/Shaders/Volumetric/volumetric_composite", "Shaders/Volumetric/volumetric_composite", "Shaders/Volumetric/volumetric_composite" },
+            { builtin_guid::ssao_shader,                 "@engine/Shaders/SSAO/ssao",                       "Shaders/SSAO/ssao",                       "Shaders/SSAO/ssao" },
+            { builtin_guid::ssao_blur_shader,            "@engine/Shaders/SSAO/ssao_blur",                  "Shaders/SSAO/ssao_blur",                  "Shaders/SSAO/ssao_blur" },
+            { builtin_guid::ssao_composite_shader,       "@engine/Shaders/SSAO/ssao_composite",             "Shaders/SSAO/ssao_composite",             "Shaders/SSAO/ssao_composite" },
+            { builtin_guid::gtao_shader,                 "@engine/Shaders/SSAO/gtao",                       "Shaders/SSAO/gtao",                       "Shaders/SSAO/gtao" },
+            { builtin_guid::ssgi_shader,                 "@engine/Shaders/SSAO/ssgi",                       "Shaders/SSAO/ssgi",                       "Shaders/SSAO/ssgi" },
+            { builtin_guid::post_process_shader,         "@engine/Shaders/PostProcess/post_process",         "Shaders/PostProcess/post_process",         "Shaders/PostProcess/post_process" },
             { builtin_guid::cube_mesh,             "engine://builtin/cube",                "engine://builtin/cube",        "engine://builtin/cube" },
             { builtin_guid::sphere_mesh,           "engine://builtin/sphere",              "engine://builtin/sphere",      "engine://builtin/sphere" }
         };

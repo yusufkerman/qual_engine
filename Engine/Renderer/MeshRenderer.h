@@ -27,6 +27,8 @@ enum RenderConstants : int
     SPECULAR_TEXTURE_SLOT = 7,  ///< Speküler/Parlaklık haritasının bağlanacağı OpenGL yuvası (Legacy).
     CSM_SHADOW_TEXTURE_SLOT = 8,///< Kaskatlı gölge haritası doku dizisi yuvası (sampler2DArray).
     SKYBOX_TEXTURE_SLOT = 9,    ///< Gökyüzü küp haritası yansıma yuvası (samplerCube).
+    SPOT_SHADOW_TEXTURE_SLOT = 10,  ///< Spot ışık gölge derinlik haritası yuvası (sampler2D).
+    POINT_SHADOW_TEXTURE_SLOT = 11, ///< Noktasal ışık küp gölge haritası yuvası (samplerCube).
 
     // Uniform Buffer Object (UBO) Bağlama Yuvaları
     LIGHT_UBO_BINDING_SLOT = 0, ///< Işık verilerini barındıran UBO bağlama noktası.

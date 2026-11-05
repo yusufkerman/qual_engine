@@ -8,7 +8,9 @@
 #include "../../Engine/fly_camera.h"
 #include "../../ECS/transform_utils.h"
 #include "skybox_pass.h"
+#include "ssao_pass.h"
 #include "volumetric_pass.h"
+#include "post_process_pass.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
 #include <cmath>
@@ -37,7 +39,7 @@ void game_pass::render(EngineContext& ctx)
         ctx.renderSettings.clear_color_game.r,
         ctx.renderSettings.clear_color_game.g,
         ctx.renderSettings.clear_color_game.b,
-        1.0f
+        0.0f
     );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -98,8 +100,12 @@ void game_pass::render(EngineContext& ctx)
                 c->farPlane
             );
 
+            const glm::mat4 jitteredProj = post_process_pass::apply_taa_jitter(
+                ctx, gameProj, currentWidth, currentHeight, false
+            );
+
             // Gökyüzü çizimi
-            skybox_pass::render(ctx, gameView, gameProj);
+            skybox_pass::render(ctx, gameView, jitteredProj);
 
             // Ana sahne çizimi (isSceneViewport = false -> Game Viewport)
             ctx.renderSystem.render(
@@ -107,12 +113,18 @@ void game_pass::render(EngineContext& ctx)
                 gameScene.get_light_batch(),
                 ctx,
                 gameView,
-                gameProj,
+                jitteredProj,
                 false
             );
 
+            // Ekran Uzayı Ortam Örtmesi (SSAO/GTAO) ve Küresel Aydınlatma (SSGI)
+            ssao_pass::render(ctx, ctx.gameTarget, gameView, gameProj, false);
+
             // Hacimsel Işıklandırma (Volumetric Lighting / God Rays)
             volumetric_pass::render(ctx, ctx.gameTarget, gameView, gameProj, camPos, false);
+
+            // HDR Ton Eşleme (Tone Mapping), sRGB Dönüşümü ve Kenar Yumuşatma (FXAA / TAA)
+            post_process_pass::render(ctx, ctx.gameTarget, gameView, gameProj, false);
 
             // İsteğe bağlı çalışma zamanı (Gameplay API) gizmolarını oyun ekranında çiz
             if (ctx.aria_system && ctx.gizmoSystem.settings().enabled && ctx.gizmoSystem.settings().show_gameplay_gizmos_in_game)
@@ -132,9 +144,14 @@ void game_pass::render(EngineContext& ctx)
             glm::vec3(0.0f, 1.0f, 0.0f)
         );
         const glm::mat4 fallbackProj = glm::perspective(glm::radians(60.0f), aspectRatio, 0.1f, 500.0f);
-        skybox_pass::render(ctx, fallbackView, fallbackProj);
-        ctx.renderSystem.render(reg, gameScene.get_light_batch(), ctx, fallbackView, fallbackProj, false);
+        const glm::mat4 jitteredFallbackProj = post_process_pass::apply_taa_jitter(
+            ctx, fallbackProj, currentWidth, currentHeight, false
+        );
+        skybox_pass::render(ctx, fallbackView, jitteredFallbackProj);
+        ctx.renderSystem.render(reg, gameScene.get_light_batch(), ctx, fallbackView, jitteredFallbackProj, false);
+        ssao_pass::render(ctx, ctx.gameTarget, fallbackView, fallbackProj, false);
         volumetric_pass::render(ctx, ctx.gameTarget, fallbackView, fallbackProj, glm::vec3(0.0f, 5.0f, 10.0f), false);
+        post_process_pass::render(ctx, ctx.gameTarget, fallbackView, fallbackProj, false);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

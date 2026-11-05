@@ -61,6 +61,11 @@ namespace
                 continue;
             }
 
+            // Secili nesne editorde vesta gizmo_collider_tool tarafindan cizilir; cakisik cift cizimi onle
+            if (selectedID != -1 && static_cast<int>(e) == selectedID) {
+                continue;
+            }
+
             const auto* transform = reg.get_component<transform_component>(e);
             if (!transform) {
                 continue;

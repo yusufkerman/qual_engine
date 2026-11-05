@@ -91,6 +91,48 @@ bool shadow_map_fbo::init(unsigned int width, unsigned int height)
         return false;
     }
 
+    // 4. Spot Isik Derinlik Tamponu (2D Depth)
+    glGenFramebuffers(1, &m_SpotFBO);
+    glGenTextures(1, &m_SpotDepthTexture);
+    glBindTexture(GL_TEXTURE_2D, m_SpotDepthTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F,
+        static_cast<GLsizei>(m_Width), static_cast<GLsizei>(m_Height), 0,
+        GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, m_SpotFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_SpotDepthTexture, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    // 5. Noktasal Isik Kup Golge Haritasi (Cubemap Depth)
+    m_PointResolution = std::min(1024u, m_Width);
+    glGenFramebuffers(1, &m_PointFBO);
+    glGenTextures(1, &m_PointDepthCubemap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_PointDepthCubemap);
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT32F,
+            static_cast<GLsizei>(m_PointResolution), static_cast<GLsizei>(m_PointResolution), 0,
+            GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, m_PointFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X, m_PointDepthCubemap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return true;
 }
@@ -118,12 +160,52 @@ void shadow_map_fbo::unbind()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void shadow_map_fbo::bind_spot()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_SpotFBO);
+    glViewport(0, 0, static_cast<GLsizei>(m_Width), static_cast<GLsizei>(m_Height));
+    glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void shadow_map_fbo::bind_point_face(unsigned int face_index)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_PointFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_index, m_PointDepthCubemap, 0);
+    glViewport(0, 0, static_cast<GLsizei>(m_PointResolution), static_cast<GLsizei>(m_PointResolution));
+    glClear(GL_DEPTH_BUFFER_BIT);
+}
+
 void shadow_map_fbo::destroy() noexcept
 {
     if (m_DepthTextureArray != 0)
     {
         glDeleteTextures(1, &m_DepthTextureArray);
         m_DepthTextureArray = 0;
+    }
+
+    if (m_SpotDepthTexture != 0)
+    {
+        glDeleteTextures(1, &m_SpotDepthTexture);
+        m_SpotDepthTexture = 0;
+    }
+
+    if (m_SpotFBO != 0)
+    {
+        glDeleteFramebuffers(1, &m_SpotFBO);
+        m_SpotFBO = 0;
+    }
+
+    if (m_PointDepthCubemap != 0)
+    {
+        glDeleteTextures(1, &m_PointDepthCubemap);
+        m_PointDepthCubemap = 0;
+    }
+
+    if (m_PointFBO != 0)
+    {
+        glDeleteFramebuffers(1, &m_PointFBO);
+        m_PointFBO = 0;
     }
 
     if (m_DepthTexture != 0)

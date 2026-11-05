@@ -156,6 +156,34 @@ void skybox_pass::render(EngineContext& ctx, const glm::mat4& view, const glm::m
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
     }
 
+    const GLint linearLoc = glGetUniformLocation(skyboxGLShaderID, "u_LinearHDR");
+    if (linearLoc != -1) {
+        glUniform1i(linearLoc, ctx.renderSettings.enable_ps1_mode ? 0 : 1);
+    }
+
+    const GLint tmLoc = glGetUniformLocation(skyboxGLShaderID, "u_ToneMapMode");
+    if (tmLoc != -1) {
+        glUniform1i(tmLoc, ctx.renderSettings.pbr_tone_mapping);
+    }
+
+    const GLint fogEnLoc = glGetUniformLocation(skyboxGLShaderID, "u_FogEnabled");
+    if (fogEnLoc != -1) {
+        glUniform1i(fogEnLoc, ctx.fog.enabled ? 1 : 0);
+    }
+
+    const GLint fogColLoc = glGetUniformLocation(skyboxGLShaderID, "u_FogColor");
+    if (fogColLoc != -1) {
+        const glm::vec3 effFogColor = (ctx.fog.link_to_ambient_sky && ctx.renderSettings.enable_gi)
+            ? glm::mix(ctx.fog.color, ctx.renderSettings.gi_sky_color, 0.65f)
+            : ctx.fog.color;
+        glUniform3fv(fogColLoc, 1, glm::value_ptr(effFogColor));
+    }
+
+    const GLint fogDenLoc = glGetUniformLocation(skyboxGLShaderID, "u_FogDensity");
+    if (fogDenLoc != -1) {
+        glUniform1f(fogDenLoc, ctx.fog.density);
+    }
+
     // Küp haritası dokusunu bağla ve geometriyi çiz
     glBindVertexArray(s_skyVAO);
     glActiveTexture(GL_TEXTURE0);

@@ -286,6 +286,165 @@ namespace vesta {
         ImGui::Spacing();
 
         // ====================================================================
+        // 3.6. ORTAM GÖLGELEMESİ (AMBIENT OCCLUSION / SSAO & GTAO)
+        // ====================================================================
+        if (ImGui::CollapsingHeader("Ambient Occlusion (SSAO / GTAO)", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            if (ImGui::Checkbox("Enable Ambient Occlusion", &settings.enable_ssao))
+            {
+                m_engine_ctx.renderSettings.enable_ssao = settings.enable_ssao;
+                project::project_manager::instance().save_project(m_engine_ctx);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Köşe, girinti, tünel ve temas yüzeylerinde gerçek zamanlı ekran uzayı ortam gölgelenmesi hesaplar.");
+            }
+
+            if (settings.enable_ssao)
+            {
+                const char* aoMethodNames[] = { "SSAO (Klasik)", "GTAO (Ground Truth / PBR)" };
+                int currentAOMethod = settings.ao_method;
+                if (ImGui::Combo("AO Metodu", &currentAOMethod, aoMethodNames, IM_ARRAYSIZE(aoMethodNames)))
+                {
+                    settings.ao_method = currentAOMethod;
+                    m_engine_ctx.renderSettings.ao_method = currentAOMethod;
+                    project::project_manager::instance().save_project(m_engine_ctx);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("SSAO: Hızlı yarım küre örneklemesi.\nGTAO: Fiziksel tabanlı, tünelleri ve tavanları doğal karartan analitik ufuk integrali (Standart PBR).");
+                }
+
+                if (settings.ao_method == 1) // GTAO
+                {
+                    if (ImGui::SliderFloat("Radius", &settings.ssao_radius, 0.1f, 8.0f, "%.2f m"))
+                    {
+                        m_engine_ctx.renderSettings.ssao_radius = settings.ssao_radius;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                    }
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Mekansal etki yarıçapı. Tünel ve salonların doğal kararması için 2.0m - 5.0m arası önerilir.");
+                    }
+
+                    if (ImGui::SliderFloat("Intensity", &settings.ssao_intensity, 0.1f, 4.0f, "%.2f"))
+                    {
+                        m_engine_ctx.renderSettings.ssao_intensity = settings.ssao_intensity;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                    }
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Gölge koyuluk ve kontrast üssü.");
+                    }
+
+                    if (ImGui::SliderInt("Directions (Dilim)", &settings.gtao_directions, 1, 6))
+                    {
+                        m_engine_ctx.renderSettings.gtao_directions = settings.gtao_directions;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                    }
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Ekran uzayında taranan açısal dilim yönü sayısı (Varsayılan: 3).");
+                    }
+
+                    if (ImGui::SliderInt("Steps per Dir", &settings.gtao_steps, 2, 8))
+                    {
+                        m_engine_ctx.renderSettings.gtao_steps = settings.gtao_steps;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                    }
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Her dilim boyunca atılan ışın yürütme örneklem adımı sayısı (Varsayılan: 4).");
+                    }
+
+                    if (ImGui::SliderFloat("Falloff Range", &settings.gtao_falloff, 0.5f, 3.0f, "%.2f"))
+                    {
+                        m_engine_ctx.renderSettings.gtao_falloff = settings.gtao_falloff;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                    }
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Mesafe sönümleme payı. Uzak nesnelerin yapay gölge oluşturmasını engeller.");
+                    }
+
+                    if (ImGui::SliderFloat("Thickness", &settings.gtao_thickness, 0.1f, 3.0f, "%.2f m"))
+                    {
+                        m_engine_ctx.renderSettings.gtao_thickness = settings.gtao_thickness;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                    }
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("İnce nesnelerin arkasında yapay kararma oluşmasını önleyen kalınlık toleransı.");
+                    }
+                }
+                else // SSAO
+                {
+                    if (ImGui::SliderFloat("Radius", &settings.ssao_radius, 0.05f, 3.0f, "%.2f m"))
+                    {
+                        m_engine_ctx.renderSettings.ssao_radius = settings.ssao_radius;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                    }
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Örnekleme yarıçapı. Değer büyüdükçe daha geniş alanlara gölge yayılır.");
+                    }
+
+                    if (ImGui::SliderFloat("Bias", &settings.ssao_bias, 0.001f, 0.1f, "%.3f"))
+                    {
+                        m_engine_ctx.renderSettings.ssao_bias = settings.ssao_bias;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                    }
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Düz yüzeylerdeki gölge parazitlerini ve sivilcelenmeyi (Acne) önleme eşiği.");
+                    }
+
+                    if (ImGui::SliderFloat("Intensity", &settings.ssao_intensity, 0.1f, 5.0f, "%.2f"))
+                    {
+                        m_engine_ctx.renderSettings.ssao_intensity = settings.ssao_intensity;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                    }
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Gölgenin koyuluk ve etki gücü çarpanı.");
+                    }
+
+                    if (ImGui::SliderInt("Sample Count", &settings.ssao_sample_count, 8, 32))
+                    {
+                        m_engine_ctx.renderSettings.ssao_sample_count = settings.ssao_sample_count;
+                        project::project_manager::instance().save_project(m_engine_ctx);
+                    }
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Yarım küre örneklem sayısı (Daha yüksek = daha pürüzsüz).");
+                    }
+                }
+
+                if (ImGui::Checkbox("Edge-Preserving Bilateral Blur", &settings.ssao_blur))
+                {
+                    m_engine_ctx.renderSettings.ssao_blur = settings.ssao_blur;
+                    project::project_manager::instance().save_project(m_engine_ctx);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Geometri kenarlarını ve silüetleri koruyarak gürültüyü gideren bilateral bulanıklaştırma.");
+                }
+
+                if (ImGui::Checkbox("Visualize AO Mask (Debug)", &settings.show_ssao_debug))
+                {
+                    m_engine_ctx.renderSettings.show_ssao_debug = settings.show_ssao_debug;
+                    project::project_manager::instance().save_project(m_engine_ctx);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Ekranda sahne yerine doğrudan hesaplanan siyah-beyaz AO gölgeleme maskesini gösterir.");
+                }
+            }
+        }
+
+        ImGui::Spacing();
+
+        // ====================================================================
         // 4. GÖKYÜZÜ KUTUSU VE ARKA PLAN (SKYBOX & ENVIRONMENT)
         // ====================================================================
         if (ImGui::CollapsingHeader("Skybox & Environment", ImGuiTreeNodeFlags_DefaultOpen))
@@ -403,33 +562,304 @@ namespace vesta {
         ImGui::Spacing();
 
         // ====================================================================
-        // 5. ÜSTEL SİS (EXPONENTIAL FOG)
+        // 5. ATMOSFERİK SİS (DISTANCE + HEIGHT FOG + SUN IN-SCATTERING)
         // ====================================================================
         if (ImGui::CollapsingHeader("Atmosphere & Exponential Fog", ImGuiTreeNodeFlags_DefaultOpen))
         {
             auto& fog = m_engine_ctx.fog;
+            bool fogChanged = false;
 
-            ImGui::Checkbox("Enable Fog (Game)", &fog.enabled);
+            fogChanged |= ImGui::Checkbox("Enable Fog (Game)", &fog.enabled);
             ImGui::SameLine();
-            ImGui::Checkbox("Show Fog in Scene View", &fog.show_in_scene);
+            fogChanged |= ImGui::Checkbox("Show Fog in Scene View", &fog.show_in_scene);
 
-            ImGui::ColorEdit3("Fog Color", &fog.color.x, ImGuiColorEditFlags_Float);
-            ImGui::SliderFloat("Fog Density", &fog.density, 0.0001f, 0.0400f, "%.4f");
+            const char* fogModes[] = {
+                "Exponential Distance Fog (Mesafe Sisi)",
+                "Exponential Height Fog (Yükseklik + Mesafe Sisi)"
+            };
+            fogChanged |= ImGui::Combo("Fog Mode", &fog.mode, fogModes, IM_ARRAYSIZE(fogModes));
+
+            fogChanged |= ImGui::ColorEdit3("Fog Color", &fog.color.x, ImGuiColorEditFlags_Float);
+            fogChanged |= ImGui::Checkbox("Link Fog Color to Ambient Sky Color", &fog.link_to_ambient_sky);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Sis rengini GI Gökyüzü (Ambient Sky) rengi ile otomatik harmanlar.");
+            }
+
+            fogChanged |= ImGui::SliderFloat("Fog Density", &fog.density, 0.0001f, 0.0500f, "%.4f");
+
+            if (fog.mode == 1)
+            {
+                fogChanged |= ImGui::SliderFloat("Height Falloff", &fog.height_falloff, 0.005f, 0.500f, "%.3f");
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Yükseklik arttıkça sisin seyrekleşme hızı. Düşük değerler sisi üst kemerlere kadar yayar.");
+                }
+                fogChanged |= ImGui::SliderFloat("Fog Base Height (Y)", &fog.base_height, -20.0f, 50.0f, "%.1f m");
+            }
+
+            fogChanged |= ImGui::SliderFloat("Sun Scattering Intensity", &fog.sun_scattering_intensity, 0.0f, 2.0f, "%.2f");
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Güneş (Directional Light) yönüne bakarken sisin güneş rengine kayma (Mie In-Scattering) şiddeti.");
+            }
 
             ImGui::TextDisabled("Atmospheric Presets:");
-            if (ImGui::SmallButton("Clear")) { fog.enabled = true; fog.density = 0.003f; fog.color = glm::vec3(0.70f, 0.80f, 0.90f); }
+            if (ImGui::SmallButton("Sponza Courtyard Mist"))
+            {
+                fog.enabled = true; fog.show_in_scene = true; fog.mode = 1;
+                fog.density = 0.0065f; fog.height_falloff = 0.085f; fog.base_height = 0.0f;
+                fog.sun_scattering_intensity = 0.45f; fog.color = glm::vec3(0.68f, 0.76f, 0.88f);
+                fogChanged = true;
+            }
             ImGui::SameLine();
-            if (ImGui::SmallButton("Morning Mist")) { fog.enabled = true; fog.density = 0.010f; fog.color = glm::vec3(0.75f, 0.82f, 0.92f); }
+            if (ImGui::SmallButton("Morning Mist"))
+            {
+                fog.enabled = true; fog.mode = 1; fog.density = 0.012f;
+                fog.height_falloff = 0.06f; fog.sun_scattering_intensity = 0.60f;
+                fog.color = glm::vec3(0.75f, 0.82f, 0.92f);
+                fogChanged = true;
+            }
             ImGui::SameLine();
-            if (ImGui::SmallButton("Dense Fog")) { fog.enabled = true; fog.density = 0.025f; fog.color = glm::vec3(0.60f, 0.65f, 0.70f); }
+            if (ImGui::SmallButton("Dense Fog"))
+            {
+                fog.enabled = true; fog.mode = 0; fog.density = 0.025f;
+                fog.sun_scattering_intensity = 0.20f; fog.color = glm::vec3(0.60f, 0.65f, 0.70f);
+                fogChanged = true;
+            }
             ImGui::SameLine();
-            if (ImGui::SmallButton("Sunset Dusk")) { fog.enabled = true; fog.density = 0.009f; fog.color = glm::vec3(0.85f, 0.45f, 0.30f); }
+            if (ImGui::SmallButton("Sunset Dusk"))
+            {
+                fog.enabled = true; fog.mode = 1; fog.density = 0.009f;
+                fog.height_falloff = 0.07f; fog.sun_scattering_intensity = 0.85f;
+                fog.color = glm::vec3(0.85f, 0.50f, 0.32f);
+                fogChanged = true;
+            }
+
+            if (fogChanged)
+            {
+                project::project_manager::instance().save_project(m_engine_ctx);
+            }
         }
 
         ImGui::Spacing();
 
         // ====================================================================
-        // 6. PS1 RETRO HORROR PIPELINE
+        // 5.5. DOLAYLI IŞIK (INDIRECT DIFFUSE GI: HEMISPHERE & SSGI)
+        // ====================================================================
+        if (ImGui::CollapsingHeader("Indirect Diffuse GI (Dolaylı Işık & SSGI)", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            bool giChanged = false;
+
+            giChanged |= ImGui::Checkbox("Enable Indirect GI", &settings.enable_gi);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Light probe veya bake gerektirmeden gökyüzü/zemin yarım-küre ışıması ve ekran uzayı tek-sekme SSGI ile dolaylı aydınlatma sağlar.");
+            }
+
+            if (settings.enable_gi)
+            {
+                const char* giMethods[] = {
+                    "Hemisphere Sky/Ground Irradiance (Analitik - En Hızlı)",
+                    "Hybrid SSGI + Hemisphere (Yarım Çözünürlük Tek-Bounce + Bilateral Denoise)"
+                };
+                giChanged |= ImGui::Combo("GI Method", &settings.gi_method, giMethods, IM_ARRAYSIZE(giMethods));
+
+                giChanged |= ImGui::ColorEdit3("Ambient Sky Color", &settings.gi_sky_color.x, ImGuiColorEditFlags_Float);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Yukarı bakan yüzeyleri aydınlatan gökyüzü dolaylı ışık rengi.");
+                }
+
+                giChanged |= ImGui::ColorEdit3("Ambient Ground Bounce Color", &settings.gi_ground_color.x, ImGuiColorEditFlags_Float);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Aşağı bakan kemer ve tavan yüzeylerini aydınlatan sıcak zemin sekmesi rengi.");
+                }
+
+                if (settings.gi_method == 1)
+                {
+                    giChanged |= ImGui::SliderFloat("SSGI Bounce Intensity", &settings.gi_intensity, 0.0f, 4.0f, "%.2f");
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Güneşli zeminden ve renkli perdelerden çevredeki gölgeli duvarlara seken ekran uzayı dolaylı ışık şiddeti.");
+                    }
+
+                    giChanged |= ImGui::SliderFloat("SSGI Bounce Radius", &settings.gi_radius, 0.5f, 12.0f, "%.2f m");
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Dolaylı ışık sarmal örnekleme yarıçapı (Dünya uzayı metre).");
+                    }
+
+                    giChanged |= ImGui::SliderInt("SSGI Sample Count", &settings.gi_sample_count, 4, 16);
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Piksel başına ekran uzayı ışın/örneklem sayısı (Varsayılan: 8).");
+                    }
+                }
+            }
+
+            if (giChanged)
+            {
+                m_engine_ctx.renderSettings = settings;
+                project::project_manager::instance().save_project(m_engine_ctx);
+            }
+        }
+
+        ImGui::Spacing();
+
+        // ====================================================================
+        // 6. STANDART PBR, HDR TON EŞLEME VE IBL (PBR, TONE MAPPING & IBL)
+        // ====================================================================
+        if (ImGui::CollapsingHeader("Standard PBR Pipeline, Tone Mapping & IBL", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            bool pbrChanged = false;
+
+            const char* toneMapModes[] = {
+                "None (Linear Clamp)",
+                "Reinhard (Extended White Point)",
+                "ACES Filmic (Narkowicz HDR - Recommended)",
+                "AgX (Filmic Highlight Desaturation)",
+                "Uncharted 2 / Hable Filmic"
+            };
+            pbrChanged |= ImGui::Combo("Tone Mapping Operator", &settings.pbr_tone_mapping, toneMapModes, IM_ARRAYSIZE(toneMapModes));
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("RGBA16F doğrusal HDR tamponundaki sahne ışığını sRGB dönüşümü öncesinde ekrana eşleyen operatör.");
+            }
+
+            pbrChanged |= ImGui::SliderFloat("Exposure (EV)", &settings.pbr_exposure, -3.0f, 3.0f, "%+.2f EV");
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Pozlama değeri (2^EV çarpanı). Güneşli alanların patlamasını önlemek veya karanlık sahneyi açmak için kullanılır.");
+            }
+
+            if (settings.pbr_tone_mapping == 1 || settings.pbr_tone_mapping == 4)
+            {
+                pbrChanged |= ImGui::SliderFloat("Tone Map White Point", &settings.pbr_white_point, 1.0f, 12.0f, "%.2f");
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Reinhard ve Uncharted 2 operatörlerinde tam beyaza kesilecek üst parlaklık eşiği.");
+                }
+            }
+
+            pbrChanged |= ImGui::SliderFloat("Diffuse IBL / Ambient Intensity", &settings.pbr_ambient_intensity, 0.0f, 2.0f, "%.2f");
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Dolaylı yayılı (Diffuse IBL / Hemisphere) ortam aydınlatması şiddeti (0.0 - 2.0).");
+            }
+
+            pbrChanged |= ImGui::SliderFloat("Specular IBL Intensity", &settings.pbr_ibl_intensity, 0.0f, 2.0f, "%.2f");
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Gökyüzü küp haritası aynasal çevresel yansıma (Specular IBL) çarpanı (Lagarde Specular Occlusion ile korunur).");
+            }
+
+            pbrChanged |= ImGui::SliderFloat("Direct Specular Highlight", &settings.pbr_specular_intensity, 0.0f, 3.0f, "%.2fx");
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Cook-Torrance GGX doğrudan güneş/ışık parlama (Specular) şiddeti çarpanı.");
+            }
+
+            pbrChanged |= ImGui::SliderFloat("Global Roughness Scale", &settings.pbr_roughness_multiplier, 0.1f, 2.0f, "%.2fx");
+            pbrChanged |= ImGui::SliderFloat("Global Metallic Scale", &settings.pbr_metallic_multiplier, 0.0f, 2.0f, "%.2fx");
+            pbrChanged |= ImGui::SliderFloat("Global Normal Map Strength", &settings.pbr_normal_strength, 0.0f, 3.0f, "%.2fx");
+
+            ImGui::Spacing();
+            ImGui::TextDisabled("PBR & HDR Presets:");
+            if (ImGui::SmallButton("Sponza Natural GI & ACES (Recommended)"))
+            {
+                settings.pbr_tone_mapping = 2;
+                settings.pbr_exposure = 0.0f;
+                settings.pbr_white_point = 4.0f;
+                settings.pbr_ambient_intensity = 0.22f;
+                settings.pbr_ibl_intensity = 0.15f;
+                settings.pbr_specular_intensity = 1.0f;
+                settings.pbr_roughness_multiplier = 1.0f;
+                settings.pbr_metallic_multiplier = 1.0f;
+                settings.pbr_normal_strength = 1.0f;
+                settings.enable_gi = true;
+                settings.gi_method = 1;
+                settings.gi_intensity = 1.15f;
+                pbrChanged = true;
+            }
+            ImGui::SameLine();
+            if (ImGui::SmallButton("AgX Cinematic"))
+            {
+                settings.pbr_tone_mapping = 3;
+                settings.pbr_exposure = 0.15f;
+                settings.pbr_ambient_intensity = 0.24f;
+                settings.pbr_ibl_intensity = 0.18f;
+                settings.pbr_specular_intensity = 1.0f;
+                settings.enable_gi = true;
+                settings.gi_method = 1;
+                pbrChanged = true;
+            }
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Deep Horror Shadow"))
+            {
+                settings.pbr_tone_mapping = 4;
+                settings.pbr_exposure = -0.35f;
+                settings.pbr_white_point = 4.5f;
+                settings.pbr_ambient_intensity = 0.09f;
+                settings.pbr_ibl_intensity = 0.06f;
+                settings.pbr_specular_intensity = 1.15f;
+                pbrChanged = true;
+            }
+
+            if (pbrChanged)
+            {
+                m_engine_ctx.renderSettings = settings;
+                project::project_manager::instance().save_project(m_engine_ctx);
+            }
+        }
+
+        ImGui::Spacing();
+
+        // ====================================================================
+        // 6.5. KENAR YUMUŞATMA (ANTI-ALIASING: OFF / FXAA / TAA)
+        // ====================================================================
+        if (ImGui::CollapsingHeader("Anti-Aliasing (FXAA 3.11 & Temporal AA)", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            bool aaChanged = false;
+
+            const char* aaModes[] = {
+                "Off (Kapalı)",
+                "FXAA 3.11 (LDR Post-ToneMap Kenar Yumuşatma)",
+                "TAA (Halton Jitter + YCoCg Variance Clip + Sharpen)"
+            };
+            aaChanged |= ImGui::Combo("Anti-Aliasing Mode", &settings.aa_mode, aaModes, IM_ARRAYSIZE(aaModes));
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("FXAA: Hızlı tek-kare LDR kenar yumuşatma.\nTAA: 8-örnekli Halton alt-piksel projeksiyon kaydırması, geçmiş tamponu reprojeksiyonu ve YCoCg varyans kırpma.");
+            }
+
+            if (settings.aa_mode == 2)
+            {
+                aaChanged |= ImGui::SliderFloat("TAA History Blend / Feedback", &settings.taa_blend, 0.50f, 0.96f, "%.2f");
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Geçmiş karelerin ağırlığı (Varsayılan: 0.88). Daha yüksek değerler daha pürüzsüz kenarlar sağlar, düşük değerler hareket izini (ghosting) azaltır.");
+                }
+
+                aaChanged |= ImGui::SliderFloat("TAA Sharpen", &settings.taa_sharpen, 0.0f, 1.0f, "%.2f");
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("TAA zamansal birleştirme sonrası kontrast duyarlı keskinleştirme (CAS) miktarı.");
+                }
+            }
+
+            if (aaChanged)
+            {
+                m_engine_ctx.renderSettings = settings;
+                project::project_manager::instance().save_project(m_engine_ctx);
+            }
+        }
+
+        ImGui::Spacing();
+
+        // ====================================================================
+        // 7. PS1 RETRO HORROR PIPELINE
         // ====================================================================
         if (ImGui::CollapsingHeader("PS1 Retro Horror Pipeline", ImGuiTreeNodeFlags_DefaultOpen))
         {

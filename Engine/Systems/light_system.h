@@ -18,7 +18,8 @@
 struct light_data
 {
     int       type;        ///< Işık türü (0: Directional, 1: Point, 2: Spot).
-    float     _pad0[3];    ///< std140 16-byte hizalama dolgusu (Offset: 0 - 16).
+    int       cast_shadows;///< Gölge oluşturma aktif mi? (0: Hayır, 1: Evet).
+    float     _pad0[2];    ///< std140 16-byte hizalama dolgusu (Offset: 0 - 16).
 
     glm::vec3 position;    ///< Işığın dünya uzayındaki konumu.
     float     range;       ///< Işığın etki yarıçapı (Offset: 16 - 32).

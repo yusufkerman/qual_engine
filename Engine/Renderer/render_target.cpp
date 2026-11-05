@@ -38,21 +38,21 @@ void RenderTarget::create(int w, int h)
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    // Renk eki olarak kullanılacak 2B dokuyu yapılandır
+    // Renk eki olarak kullanılacak 2B HDR (GL_RGBA16F) dokuyu yapılandır
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
-        GL_RGB,
+        GL_RGBA16F,
         width,
         height,
         0,
-        GL_RGB,
-        GL_UNSIGNED_BYTE,
+        GL_RGBA,
+        GL_FLOAT,
         nullptr
     );
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
@@ -98,17 +98,17 @@ void RenderTarget::resize(int w, int h)
     width = w;
     height = h;
 
-    // Renk doku belleğini yeni boyutla yeniden tahsis et
+    // Renk doku belleğini yeni boyutla HDR (GL_RGBA16F) olarak yeniden tahsis et
     glBindTexture(GL_TEXTURE_2D, tex);
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
-        GL_RGB,
+        GL_RGBA16F,
         width,
         height,
         0,
-        GL_RGB,
-        GL_UNSIGNED_BYTE,
+        GL_RGBA,
+        GL_FLOAT,
         nullptr
     );
 

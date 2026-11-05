@@ -42,7 +42,14 @@
         "show_shadow_map_debug": false,
         "skybox_path": "@engine/Textures/sky/skybox1.png",
         "vsync": true,
-        "wireframe": false
+        "wireframe": false,
+        "enable_ssao": true,
+        "ssao_radius": 0.5,
+        "ssao_bias": 0.025,
+        "ssao_intensity": 1.2,
+        "ssao_sample_count": 16,
+        "ssao_blur": true,
+        "show_ssao_debug": false
     },
     "start_scene": "Assets/Scenes/Main.json",
     "version": "1.0.0"

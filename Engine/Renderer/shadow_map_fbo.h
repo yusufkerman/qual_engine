@@ -56,6 +56,21 @@ public:
     [[nodiscard]] unsigned int get_cascade_count() const noexcept { return m_CascadeCount; }
 
     /**
+     * @brief Spot isik golge render gecisi icin FBO'yu baglar ve derinlik tamponunu temizler.
+     */
+    void bind_spot();
+
+    /**
+     * @brief Noktasal isik kup golge haritasinin belirtilen yuzeyini baglar ve temizler.
+     * @param face_index Kup yuzeyi indeksi (0: +X, 1: -X, 2: +Y, 3: -Y, 4: +Z, 5: -Z).
+     */
+    void bind_point_face(unsigned int face_index);
+
+    [[nodiscard]] unsigned int get_spot_depth_texture() const noexcept { return m_SpotDepthTexture; }
+    [[nodiscard]] unsigned int get_point_depth_cubemap() const noexcept { return m_PointDepthCubemap; }
+    [[nodiscard]] unsigned int get_point_resolution() const noexcept { return m_PointResolution; }
+
+    /**
      * @brief Gölge haritası genişliğini döner.
      */
     [[nodiscard]] unsigned int get_width() const noexcept { return m_Width; }
@@ -77,4 +92,10 @@ private:
     unsigned int m_CascadeCount = 3;      ///< Kaskat sayısı.
     unsigned int m_Width = 0;             ///< Gölge haritası genişliği.
     unsigned int m_Height = 0;            ///< Gölge haritası yüksekliği.
+
+    unsigned int m_SpotFBO = 0;           ///< Spot isik Framebuffer taniticisi.
+    unsigned int m_SpotDepthTexture = 0;  ///< Spot isik 2B derinlik dokusu.
+    unsigned int m_PointFBO = 0;          ///< Noktasal isik Framebuffer taniticisi.
+    unsigned int m_PointDepthCubemap = 0; ///< Noktasal isik kup harita (Cubemap) derinlik dokusu.
+    unsigned int m_PointResolution = 1024;///< Noktasal isik kup harita cozunurlugu.
 };

@@ -8,7 +8,9 @@
 #include "../../Editor/editor_context.h"
 #include "../../Editor/editor_camera.h"
 #include "skybox_pass.h"
+#include "ssao_pass.h"
 #include "volumetric_pass.h"
+#include "post_process_pass.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
 
@@ -34,7 +36,7 @@ void editor_pass::render(EngineContext& ctx, EditorContext& editorCtx)
         ctx.renderSettings.clear_color_scene.r,
         ctx.renderSettings.clear_color_scene.g,
         ctx.renderSettings.clear_color_scene.b,
-        1.0f
+        0.0f
     );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -44,9 +46,12 @@ void editor_pass::render(EngineContext& ctx, EditorContext& editorCtx)
 
     const glm::mat4 editorView = editorCtx.camera->getViewMatrix();
     const glm::mat4 editorProj = editorCtx.camera->getProjectionMatrix(aspect);
+    const glm::mat4 jitteredProj = post_process_pass::apply_taa_jitter(
+        ctx, editorProj, ctx.editorTarget.width, ctx.editorTarget.height, true
+    );
 
     // 3. Gökyüzü (Skybox) render geçişi
-    skybox_pass::render(ctx, editorView, editorProj);
+    skybox_pass::render(ctx, editorView, jitteredProj);
 
     // 4. Ana sahne geometrisi ve ışıklandırma (isSceneViewport = true)
     ctx.renderSystem.render(
@@ -54,10 +59,17 @@ void editor_pass::render(EngineContext& ctx, EditorContext& editorCtx)
         ctx.session.editor_scene().get_light_batch(),
         ctx,
         editorView,
-        editorProj,
+        jitteredProj,
         true
     );
 
+    // 4.5. Ekran Uzayı Ortam Örtmesi (SSAO/GTAO) ve Küresel Aydınlatma (SSGI)
+    // Jitter'sız projeksiyon matrisi kullanılarak gölge/AO/SSGI kararsızlığı engellenir.
+    ssao_pass::render(ctx, ctx.editorTarget, editorView, editorProj, true);
+
     // 5. Hacimsel Işıklandırma (Volumetric Lighting / God Rays)
     volumetric_pass::render(ctx, ctx.editorTarget, editorView, editorProj, editorCtx.camera->position, true);
+
+    // 6. HDR Ton Eşleme (Tone Mapping), sRGB Dönüşümü ve Kenar Yumuşatma (FXAA / TAA)
+    post_process_pass::render(ctx, ctx.editorTarget, editorView, editorProj, true);
 }

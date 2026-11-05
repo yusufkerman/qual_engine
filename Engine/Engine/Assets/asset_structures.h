@@ -39,6 +39,7 @@ namespace aria {
     struct mesh_asset {
         std::string name;               ///< Alt ağın (sub-mesh) adı.
         glm::mat4 local_transform{ 1.0f }; ///< Alt ağın yerel dönüşüm matrisi.
+        uint32_t material_index{ 0 };      ///< Alt ağın ait olduğu materyal indeksi.
         unsigned int vao{ 0 };          ///< Vertex Array Object (OpenGL Kimliği).
         unsigned int vbo{ 0 };          ///< Vertex Buffer Object (OpenGL Kimliği).
         unsigned int ebo{ 0 };          ///< Element Buffer Object (OpenGL Kimliği).

@@ -274,6 +274,10 @@ namespace project {
                 manifestJson["b872a912-4c28-4f81-a67b-12a83ef549c2"] = (outDir / "EngineResources" / "Shaders" / "PS1" / "ps1_shader").string();
                 manifestJson["c5f9d91c-bb85-4af0-9ff9-4240a85df7fe"] = (outDir / "EngineResources" / "Shaders" / "Volumetric" / "volumetric").string();
                 manifestJson["d4e29cab-f4ef-4b1b-81f2-b54f7560cd16"] = (outDir / "EngineResources" / "Shaders" / "Volumetric" / "volumetric_composite").string();
+                manifestJson["f34ffc95-47fd-4d89-b6b9-20016d2518e7"] = (outDir / "EngineResources" / "Shaders" / "SSAO" / "ssao").string();
+                manifestJson["79872aed-83d7-4cfa-bd48-00c3a65f6560"] = (outDir / "EngineResources" / "Shaders" / "SSAO" / "ssao_blur").string();
+                manifestJson["63c18c7e-0ad4-46f5-a199-b258219e76e6"] = (outDir / "EngineResources" / "Shaders" / "SSAO" / "ssao_composite").string();
+                manifestJson["8a43ccd3-2ab7-48ad-8aa1-f1e68613aec8"] = (outDir / "EngineResources" / "Shaders" / "SSAO" / "gtao").string();
                 manifestJson["f18b3e21-9541-4770-bc2d-5b3a8829f001"] = "engine://builtin/sphere";
                 manifestJson["8be082d0-aec8-5a89-adeb-3603feae9e3e"] = "engine://builtin/sphere";
 

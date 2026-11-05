@@ -30,6 +30,12 @@ namespace engine_resources {
         inline const aria::asset_guid ps1_shader            = *uuids::uuid::from_string("b872a912-4c28-4f81-a67b-12a83ef549c2");
         inline const aria::asset_guid volumetric_shader           = *uuids::uuid::from_string("c5f9d91c-bb85-4af0-9ff9-4240a85df7fe");
         inline const aria::asset_guid volumetric_composite_shader = *uuids::uuid::from_string("d4e29cab-f4ef-4b1b-81f2-b54f7560cd16");
+        inline const aria::asset_guid ssao_shader                 = *uuids::uuid::from_string("f34ffc95-47fd-4d89-b6b9-20016d2518e7");
+        inline const aria::asset_guid ssao_blur_shader            = *uuids::uuid::from_string("79872aed-83d7-4cfa-bd48-00c3a65f6560");
+        inline const aria::asset_guid ssao_composite_shader       = *uuids::uuid::from_string("63c18c7e-0ad4-46f5-a199-b258219e76e6");
+        inline const aria::asset_guid gtao_shader                 = *uuids::uuid::from_string("8a43ccd3-2ab7-48ad-8aa1-f1e68613aec8");
+        inline const aria::asset_guid ssgi_shader                 = *uuids::uuid::from_string("9b54dde4-3bc8-49be-9bb2-a2f79724bfd9");
+        inline const aria::asset_guid post_process_shader         = *uuids::uuid::from_string("7c65eef5-4cd9-4acf-8cc3-b3a80835cae0");
         inline const aria::asset_guid cube_mesh             = *uuids::uuid::from_string("d23a0aff-3fdc-5851-a6c3-e9623da3cd11");
         inline const aria::asset_guid sphere_mesh           = *uuids::uuid::from_string("f18b3e21-9541-4770-bc2d-5b3a8829f001");
     }

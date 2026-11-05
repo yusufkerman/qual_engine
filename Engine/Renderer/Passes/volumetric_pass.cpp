@@ -181,12 +181,17 @@ void volumetric_pass::render(
         glUniform3fv(glGetUniformLocation(volShaderID, "u_LightColor"), 1, &dirLight.color[0]);
         glUniform1f(glGetUniformLocation(volShaderID, "u_LightIntensity"), dirLight.intensity);
 
-        // Hacimsel parametreler
+        // Hacimsel parametreler (Sis aktifse yoğunluk tabanını sis yoğunluğu ile senkronize destekle)
+        const bool fogActive = ctx.fog.enabled && (isSceneViewport ? ctx.fog.show_in_scene : true);
         glUniform1f(glGetUniformLocation(volShaderID, "u_VolumetricIntensity"), ctx.renderSettings.volumetric_intensity);
         glUniform1i(glGetUniformLocation(volShaderID, "u_Steps"), ctx.renderSettings.volumetric_steps);
         glUniform1f(glGetUniformLocation(volShaderID, "u_ScatteringG"), ctx.renderSettings.volumetric_scattering);
         glUniform1f(glGetUniformLocation(volShaderID, "u_Density"), ctx.renderSettings.volumetric_density);
         glUniform1f(glGetUniformLocation(volShaderID, "u_MaxDistance"), ctx.renderSettings.volumetric_max_distance);
+        glUniform1i(glGetUniformLocation(volShaderID, "u_FogEnabled"), fogActive ? 1 : 0);
+        glUniform1i(glGetUniformLocation(volShaderID, "u_FogMode"), ctx.fog.mode);
+        glUniform1f(glGetUniformLocation(volShaderID, "u_FogHeightFalloff"), ctx.fog.height_falloff);
+        glUniform1f(glGetUniformLocation(volShaderID, "u_FogBaseHeight"), ctx.fog.base_height);
 
         // Gölge uniformları
         const auto& csmCascades = ctx.renderSystem.get_csm_cascades();

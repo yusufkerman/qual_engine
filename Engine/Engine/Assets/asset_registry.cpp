@@ -164,6 +164,7 @@ namespace aria {
         for (size_t i = 0; i < raw_data.sub_meshes.size(); ++i) {
             slot.asset.sub_meshes[i].name = raw_data.sub_meshes[i].name;
             slot.asset.sub_meshes[i].local_transform = raw_data.sub_meshes[i].local_transform;
+            slot.asset.sub_meshes[i].material_index = raw_data.sub_meshes[i].material_index;
             slot.asset.sub_meshes[i].index_count = static_cast<unsigned int>(raw_data.sub_meshes[i].indices.size());
             slot.asset.sub_meshes[i].local_center = raw_data.sub_meshes[i].local_center;
             slot.asset.sub_meshes[i].local_radius = raw_data.sub_meshes[i].local_radius;

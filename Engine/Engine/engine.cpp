@@ -16,6 +16,8 @@
 #include "../Renderer/Passes/grid_pass.h"
 #include "../Renderer/Passes/gizmo_pass.h"
 #include "../Renderer/Passes/volumetric_pass.h"
+#include "../Renderer/Passes/ssao_pass.h"
+#include "../Renderer/Passes/post_process_pass.h"
 #include "../Engine/asset_pipeline.h"
 #include "../Sera/sera.h"
 #include "../Editor/editor_context.h"
@@ -267,6 +269,12 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
     ctx.skyboxShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Skybox/skybox");
     ctx.volumetricShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Volumetric/volumetric");
     ctx.volumetricCompositeShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/Volumetric/volumetric_composite");
+    ctx.ssaoShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/SSAO/ssao");
+    ctx.ssaoBlurShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/SSAO/ssao_blur");
+    ctx.ssaoCompositeShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/SSAO/ssao_composite");
+    ctx.gtaoShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/SSAO/gtao");
+    ctx.ssgiShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/SSAO/ssgi");
+    ctx.postProcessShaderHandle = asset_pipeline::import_shader(ctx, "@engine/Shaders/PostProcess/post_process");
 
     // Shader sampler'ları için sabit doku yuvalarını bağla (Çakışan sampler tiplerini ve GL_INVALID_OPERATION'ı önler)
     auto init_shader_samplers = [](unsigned int shaderID) {
@@ -291,6 +299,10 @@ bool Engine::init(EngineContext& ctx, EditorContext& editorCtx)
         if (loc >= 0) glUniform1i(loc, RenderConstants::SPECULAR_TEXTURE_SLOT);
         loc = glGetUniformLocation(shaderID, "u_ShadowMapArray");
         if (loc >= 0) glUniform1i(loc, RenderConstants::CSM_SHADOW_TEXTURE_SLOT);
+        loc = glGetUniformLocation(shaderID, "u_SpotShadowMap");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::SPOT_SHADOW_TEXTURE_SLOT);
+        loc = glGetUniformLocation(shaderID, "u_PointShadowMap");
+        if (loc >= 0) glUniform1i(loc, RenderConstants::POINT_SHADOW_TEXTURE_SLOT);
         glUseProgram(0);
     };
 
@@ -533,6 +545,8 @@ void Engine::shutdown(EngineContext& ctx, EditorContext& editorCtx)
     core::async_task_manager::instance().shutdown();
 
     volumetric_pass::shutdown();
+    ssao_pass::shutdown();
+    post_process_pass::shutdown();
     ctx.grid.shutdown();
     ctx.physicsSystem.shutdown();
     ctx.audioSystem.shutdown();

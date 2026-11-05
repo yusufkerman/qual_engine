@@ -56,6 +56,37 @@ namespace project {
             j["volumetric_scattering"] = r.volumetric_scattering;
             j["volumetric_density"] = r.volumetric_density;
             j["volumetric_max_distance"] = r.volumetric_max_distance;
+            j["enable_ssao"] = r.enable_ssao;
+            j["ssao_radius"] = r.ssao_radius;
+            j["ssao_bias"] = r.ssao_bias;
+            j["ssao_intensity"] = r.ssao_intensity;
+            j["ssao_sample_count"] = r.ssao_sample_count;
+            j["ssao_blur"] = r.ssao_blur;
+            j["show_ssao_debug"] = r.show_ssao_debug;
+            j["ao_method"] = r.ao_method;
+            j["gtao_directions"] = r.gtao_directions;
+            j["gtao_steps"] = r.gtao_steps;
+            j["gtao_falloff"] = r.gtao_falloff;
+            j["gtao_thickness"] = r.gtao_thickness;
+            j["pbr_ambient_intensity"] = r.pbr_ambient_intensity;
+            j["pbr_ibl_intensity"] = r.pbr_ibl_intensity;
+            j["pbr_specular_intensity"] = r.pbr_specular_intensity;
+            j["pbr_roughness_multiplier"] = r.pbr_roughness_multiplier;
+            j["pbr_metallic_multiplier"] = r.pbr_metallic_multiplier;
+            j["pbr_normal_strength"] = r.pbr_normal_strength;
+            j["pbr_exposure"] = r.pbr_exposure;
+            j["pbr_white_point"] = r.pbr_white_point;
+            j["pbr_tone_mapping"] = r.pbr_tone_mapping;
+            j["enable_gi"] = r.enable_gi;
+            j["gi_method"] = r.gi_method;
+            j["gi_intensity"] = r.gi_intensity;
+            j["gi_radius"] = r.gi_radius;
+            j["gi_sample_count"] = r.gi_sample_count;
+            j["gi_sky_color"] = { r.gi_sky_color.r, r.gi_sky_color.g, r.gi_sky_color.b };
+            j["gi_ground_color"] = { r.gi_ground_color.r, r.gi_ground_color.g, r.gi_ground_color.b };
+            j["aa_mode"] = r.aa_mode;
+            j["taa_blend"] = r.taa_blend;
+            j["taa_sharpen"] = r.taa_sharpen;
             return j;
         }
 
@@ -104,6 +135,50 @@ namespace project {
             try { if (j.contains("volumetric_scattering")) r.volumetric_scattering = j.value("volumetric_scattering", r.volumetric_scattering); } catch (...) {}
             try { if (j.contains("volumetric_density")) r.volumetric_density = j.value("volumetric_density", r.volumetric_density); } catch (...) {}
             try { if (j.contains("volumetric_max_distance")) r.volumetric_max_distance = j.value("volumetric_max_distance", r.volumetric_max_distance); } catch (...) {}
+            try { if (j.contains("enable_ssao")) r.enable_ssao = j.value("enable_ssao", r.enable_ssao); } catch (...) {}
+            try { if (j.contains("ssao_radius")) r.ssao_radius = j.value("ssao_radius", r.ssao_radius); } catch (...) {}
+            try { if (j.contains("ssao_bias")) r.ssao_bias = j.value("ssao_bias", r.ssao_bias); } catch (...) {}
+            try { if (j.contains("ssao_intensity")) r.ssao_intensity = j.value("ssao_intensity", r.ssao_intensity); } catch (...) {}
+            try { if (j.contains("ssao_sample_count")) r.ssao_sample_count = j.value("ssao_sample_count", r.ssao_sample_count); } catch (...) {}
+            try { if (j.contains("ssao_blur")) r.ssao_blur = j.value("ssao_blur", r.ssao_blur); } catch (...) {}
+            try { if (j.contains("show_ssao_debug")) r.show_ssao_debug = j.value("show_ssao_debug", r.show_ssao_debug); } catch (...) {}
+            try { if (j.contains("ao_method")) r.ao_method = j.value("ao_method", r.ao_method); } catch (...) {}
+            try { if (j.contains("gtao_directions")) r.gtao_directions = j.value("gtao_directions", r.gtao_directions); } catch (...) {}
+            try { if (j.contains("gtao_steps")) r.gtao_steps = j.value("gtao_steps", r.gtao_steps); } catch (...) {}
+            try { if (j.contains("gtao_falloff")) r.gtao_falloff = j.value("gtao_falloff", r.gtao_falloff); } catch (...) {}
+            try { if (j.contains("gtao_thickness")) r.gtao_thickness = j.value("gtao_thickness", r.gtao_thickness); } catch (...) {}
+            try { if (j.contains("pbr_ambient_intensity")) r.pbr_ambient_intensity = j.value("pbr_ambient_intensity", r.pbr_ambient_intensity); } catch (...) {}
+            try { if (j.contains("pbr_ibl_intensity")) r.pbr_ibl_intensity = j.value("pbr_ibl_intensity", r.pbr_ibl_intensity); } catch (...) {}
+            try { if (j.contains("pbr_specular_intensity")) r.pbr_specular_intensity = j.value("pbr_specular_intensity", r.pbr_specular_intensity); } catch (...) {}
+            try { if (j.contains("pbr_roughness_multiplier")) r.pbr_roughness_multiplier = j.value("pbr_roughness_multiplier", r.pbr_roughness_multiplier); } catch (...) {}
+            try { if (j.contains("pbr_metallic_multiplier")) r.pbr_metallic_multiplier = j.value("pbr_metallic_multiplier", r.pbr_metallic_multiplier); } catch (...) {}
+            try { if (j.contains("pbr_normal_strength")) r.pbr_normal_strength = j.value("pbr_normal_strength", r.pbr_normal_strength); } catch (...) {}
+            if (j.contains("pbr_white_point"))
+            {
+                try { if (j.contains("pbr_exposure")) r.pbr_exposure = j.value("pbr_exposure", r.pbr_exposure); } catch (...) {}
+                try { r.pbr_white_point = j.value("pbr_white_point", r.pbr_white_point); } catch (...) {}
+                try { if (j.contains("pbr_tone_mapping")) r.pbr_tone_mapping = j.value("pbr_tone_mapping", r.pbr_tone_mapping); } catch (...) {}
+            }
+            try { if (j.contains("enable_gi")) r.enable_gi = j.value("enable_gi", r.enable_gi); } catch (...) {}
+            try { if (j.contains("gi_method")) r.gi_method = j.value("gi_method", r.gi_method); } catch (...) {}
+            try { if (j.contains("gi_intensity")) r.gi_intensity = j.value("gi_intensity", r.gi_intensity); } catch (...) {}
+            try { if (j.contains("gi_radius")) r.gi_radius = j.value("gi_radius", r.gi_radius); } catch (...) {}
+            try { if (j.contains("gi_sample_count")) r.gi_sample_count = j.value("gi_sample_count", r.gi_sample_count); } catch (...) {}
+            try {
+                if (j.contains("gi_sky_color") && j["gi_sky_color"].is_array() && j["gi_sky_color"].size() >= 3)
+                {
+                    r.gi_sky_color = glm::vec3(j["gi_sky_color"][0].get<float>(), j["gi_sky_color"][1].get<float>(), j["gi_sky_color"][2].get<float>());
+                }
+            } catch (...) {}
+            try {
+                if (j.contains("gi_ground_color") && j["gi_ground_color"].is_array() && j["gi_ground_color"].size() >= 3)
+                {
+                    r.gi_ground_color = glm::vec3(j["gi_ground_color"][0].get<float>(), j["gi_ground_color"][1].get<float>(), j["gi_ground_color"][2].get<float>());
+                }
+            } catch (...) {}
+            try { if (j.contains("aa_mode")) r.aa_mode = j.value("aa_mode", r.aa_mode); } catch (...) {}
+            try { if (j.contains("taa_blend")) r.taa_blend = j.value("taa_blend", r.taa_blend); } catch (...) {}
+            try { if (j.contains("taa_sharpen")) r.taa_sharpen = j.value("taa_sharpen", r.taa_sharpen); } catch (...) {}
         }
 
         nlohmann::json fog_settings_to_json(const fog_settings& f)
@@ -111,8 +186,13 @@ namespace project {
             nlohmann::json j;
             j["enabled"] = f.enabled;
             j["show_in_scene"] = f.show_in_scene;
+            j["mode"] = f.mode;
             j["color"] = { f.color.r, f.color.g, f.color.b };
             j["density"] = f.density;
+            j["height_falloff"] = f.height_falloff;
+            j["base_height"] = f.base_height;
+            j["sun_scattering_intensity"] = f.sun_scattering_intensity;
+            j["link_to_ambient_sky"] = f.link_to_ambient_sky;
             return j;
         }
 
@@ -120,6 +200,7 @@ namespace project {
         {
             try { if (j.contains("enabled")) f.enabled = j.value("enabled", f.enabled); } catch (...) {}
             try { if (j.contains("show_in_scene")) f.show_in_scene = j.value("show_in_scene", f.show_in_scene); } catch (...) {}
+            try { if (j.contains("mode")) f.mode = j.value("mode", f.mode); } catch (...) {}
             try {
                 if (j.contains("color") && j["color"].is_array() && j["color"].size() >= 3)
                 {
@@ -127,6 +208,10 @@ namespace project {
                 }
             } catch (...) {}
             try { if (j.contains("density")) f.density = j.value("density", f.density); } catch (...) {}
+            try { if (j.contains("height_falloff")) f.height_falloff = j.value("height_falloff", f.height_falloff); } catch (...) {}
+            try { if (j.contains("base_height")) f.base_height = j.value("base_height", f.base_height); } catch (...) {}
+            try { if (j.contains("sun_scattering_intensity")) f.sun_scattering_intensity = j.value("sun_scattering_intensity", f.sun_scattering_intensity); } catch (...) {}
+            try { if (j.contains("link_to_ambient_sky")) f.link_to_ambient_sky = j.value("link_to_ambient_sky", f.link_to_ambient_sky); } catch (...) {}
         }
 
     project_manager& project_manager::instance()

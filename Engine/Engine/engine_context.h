@@ -121,4 +121,10 @@ struct EngineContext
     aria::handle<aria::shader_asset> skinnedShadowShaderHandle; ///< İskeletli modellerin gölge hesaplamaları için shader referansı.
     aria::handle<aria::shader_asset> volumetricShaderHandle;    ///< Hacimsel ışıklandırma (Volumetric Raymarching) shader referansı.
     aria::handle<aria::shader_asset> volumetricCompositeShaderHandle; ///< Hacimsel ışık birleştirme (Composite Additive) shader referansı.
+    aria::handle<aria::shader_asset> ssaoShaderHandle;          ///< Ekran uzayı ortam örtmesi (SSAO) shader referansı.
+    aria::handle<aria::shader_asset> ssaoBlurShaderHandle;      ///< SSAO kenar koruyucu bilateral filtre shader referansı.
+    aria::handle<aria::shader_asset> ssaoCompositeShaderHandle; ///< SSAO sahne çarpımsal harmanlama (Composite) shader referansı.
+    aria::handle<aria::shader_asset> gtaoShaderHandle;          ///< GTAO analitik ufuk integrali shader referansı.
+    aria::handle<aria::shader_asset> ssgiShaderHandle;          ///< Ekran uzayı tek-sekme dolaylı yayılı ışıklandırma (SSGI) shader referansı.
+    aria::handle<aria::shader_asset> postProcessShaderHandle;   ///< HDR Tone Mapping, FXAA ve TAA son işleme (Post-Process) shader referansı.
 };

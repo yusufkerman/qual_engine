@@ -2,7 +2,7 @@
 
 /**
  * @file render_settings.h
- * @brief Motorun tüm grafik boru hattı (Culling, Shadows, Skybox, VSync, Rasterizer, PS1, Volumetric Lighting) ayarlarını merkezi olarak yöneten yapı.
+ * @brief Motorun tüm grafik boru hattı (Culling, Shadows, Skybox, VSync, Rasterizer, PS1, Volumetric, SSAO/GTAO, PBR/ToneMap, GI/SSGI, AA) ayarlarını merkezi olarak yöneten yapı.
  */
 
 #include <glm/glm.hpp>
@@ -73,4 +73,53 @@ struct render_settings
     float volumetric_scattering = 0.6f;          ///< Henyey-Greenstein asimetri saçılma faktörü g (0.0 ile 0.95 arası; pozitif = ileriye saçılma).
     float volumetric_density = 0.04f;            ///< Sis / partikül ortam yoğunluğu (Extinction/Absorption).
     float volumetric_max_distance = 60.0f;       ///< Işın yürütme azami hesaplama mesafesi (Metre).
+
+    // ==========================================
+    // 7. ORTAM GÖLGELEMESİ (AMBIENT OCCLUSION / SSAO & GTAO)
+    // ==========================================
+    bool enable_ssao = true;                     ///< Ekran uzayı ortam örtmesi (AO) aktif mi?
+    int ao_method = 1;                           ///< 0: SSAO (Klasik), 1: GTAO (Ground Truth Ambient Occlusion)
+    float ssao_radius = 2.5f;                    ///< Örnekleme yarıçapı (Metre cinsinden view space yarıçapı).
+    float ssao_bias = 0.025f;                    ///< Derinlik toleransı (Acne önleme).
+    float ssao_intensity = 1.3f;                 ///< Gölgeleme koyuluk / güç katsayısı.
+    int ssao_sample_count = 16;                  ///< SSAO örneklem sayısı (8 - 32).
+    bool ssao_blur = true;                       ///< Kenar koruyucu bilateral bulanıklaştırma aktif mi?
+    bool show_ssao_debug = false;                ///< AO dokusunu doğrudan ekranda maske olarak önizle.
+
+    // GTAO Spesifik Ayarlar:
+    int gtao_directions = 3;                     ///< GTAO dilim/yön sayısı (1 - 6).
+    int gtao_steps = 4;                          ///< Her dilimdeki örnekleme adım sayısı (2 - 8).
+    float gtao_falloff = 1.5f;                   ///< Mesafe sönümleme katsayısı (Haloları engeller).
+    float gtao_thickness = 0.5f;                 ///< İnce nesneler için arka derinlik toleransı (Metre).
+
+    // ==========================================
+    // 8. STANDART PBR BORU HATTI, IBL VE HDR TONE MAPPING
+    // ==========================================
+    float pbr_ambient_intensity = 0.35f;         ///< Diffuse IBL / Hemisphere ortam aydınlanma şiddeti (0.0 - 2.0).
+    float pbr_ibl_intensity = 0.15f;             ///< Specular IBL küp harita yansıma şiddeti (0.0 - 2.0, varsayılan düşürülmüş değer).
+    float pbr_specular_intensity = 1.0f;         ///< Cook-Torrance GGX doğrudan parlama (specular) çarpanı.
+    float pbr_roughness_multiplier = 1.0f;       ///< Küresel pürüzlülük (roughness) çarpanı.
+    float pbr_metallic_multiplier = 1.0f;        ///< Küresel metaliklik (metallic) çarpanı.
+    float pbr_normal_strength = 1.0f;            ///< Küresel normal haritası (normal map) derinlik çarpanı.
+    float pbr_exposure = 0.0f;                   ///< HDR Pozlama (EV - Exposure Value, [-4.0 .. +4.0], çarpan = 2^EV).
+    float pbr_white_point = 4.0f;                ///< Reinhard ve Uncharted 2 için beyaz nokta (White Point) eşiği.
+    int pbr_tone_mapping = 2;                    ///< Tone Mapping operatörü (0: None/Clamp, 1: Reinhard, 2: ACES Filmic, 3: AgX, 4: Uncharted 2 / Filmic).
+
+    // ==========================================
+    // 9. DOLAYLI IŞIKLANDIRMA (INDIRECT DIFFUSE GI: SSGI & HEMISPHERE)
+    // ==========================================
+    bool enable_gi = true;                       ///< Dolaylı yayılı ışıklandırma (Indirect Diffuse GI) aktif mi?
+    int gi_method = 1;                           ///< 0: Hemisphere Sky/Ground Irradiance, 1: Hybrid Screen-Space Single-Bounce SSGI + Hemisphere.
+    float gi_intensity = 1.2f;                   ///< SSGI sekme ışığı (bounce light) şiddeti çarpanı.
+    float gi_radius = 4.5f;                      ///< SSGI ekran/görüş uzayı sekme yarıçapı (Metre).
+    int gi_sample_count = 6;                     ///< SSGI piksel başına ışın/örneklem sayısı (2 - 16).
+    glm::vec3 gi_sky_color{ 0.58f, 0.70f, 0.92f };    ///< Üst yarım-küre gökyüzü ortam ışığı rengi (Ambient Sky Color).
+    glm::vec3 gi_ground_color{ 0.45f, 0.36f, 0.26f }; ///< Alt yarım-küre zemin yansıma rengi (Ambient Ground Bounce Color).
+
+    // ==========================================
+    // 10. KENAR YUMUŞATMA (ANTI-ALIASING: FXAA & TAA)
+    // ==========================================
+    int aa_mode = 2;                             ///< 0: Off, 1: FXAA 3.11 (LDR), 2: TAA (Halton Jitter + Variance Clipping).
+    float taa_blend = 0.88f;                     ///< TAA geçmiş kare geri besleme (feedback/blend) ağırlığı (0.50 - 0.96).
+    float taa_sharpen = 0.25f;                   ///< TAA / FXAA sonrası keskinleştirme (Sharpen) miktarı (0.0 - 1.0).
 };

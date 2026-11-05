@@ -33,6 +33,12 @@ uniform float u_ScatteringG;    // Henyey-Greenstein asimetri katsayısı (-0.9 
 uniform float u_Density;        // Sis / partikül yoğunluğu (sigma_t)
 uniform float u_MaxDistance;    // Azami ışın yürüme mesafesi
 
+// Atmosferik Yükseklik Sisi (Height Fog) Entegrasyonu
+uniform bool u_FogEnabled;
+uniform int u_FogMode;
+uniform float u_FogHeightFalloff;
+uniform float u_FogBaseHeight;
+
 // Gölge Ayarları
 uniform bool u_EnableShadows;
 uniform bool u_EnableCSM;
@@ -186,18 +192,26 @@ void main()
 
         float visibility = 1.0 - shadow;
 
+        // Yükseklik sisi (Height Fog) aktifse örneklem yüksekliğine göre lokal yoğunluğu ölçekle
+        float localSigmaT = sigmaT;
+        if (u_FogEnabled && u_FogMode == 1)
+        {
+            float heightAboveBase = max(samplePos.y - u_FogBaseHeight, 0.0);
+            localSigmaT *= exp(-max(u_FogHeightFalloff, 0.0) * heightAboveBase);
+        }
+
         // Saçılma ve sönümleme (Beer-Lambert & In-scattering)
         if (visibility > 0.001)
         {
-            float stepExtinction = exp(-sigmaT * stepSize);
-            float stepScattering = sigmaT * stepSize;
+            float stepExtinction = exp(-localSigmaT * stepSize);
+            float stepScattering = localSigmaT * stepSize;
             vec3 inScattered = u_LightColor * u_LightIntensity * visibility * phase * stepScattering;
             accumulatedLight += inScattered * transmittance;
             transmittance *= stepExtinction;
         }
         else
         {
-            transmittance *= exp(-sigmaT * stepSize);
+            transmittance *= exp(-localSigmaT * stepSize);
         }
 
         if (transmittance < 0.01)

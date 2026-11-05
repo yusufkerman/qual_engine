@@ -45,6 +45,7 @@ std::vector<light_data> light_system::extract(const registry& reg)
 
         light_data data{};
 
+        data.cast_shadows = light.cast_shadows ? 1 : 0;
         data.color = light.color;
         data.intensity = light.intensity;
         data.range = light.range;

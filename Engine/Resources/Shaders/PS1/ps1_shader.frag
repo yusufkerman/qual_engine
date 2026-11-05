@@ -68,6 +68,8 @@ const float ps1_bayer4x4[16] = float[16](
 struct Light
 {
     int   type;           // 0: DIRECTIONAL, 1: POINT, 2: SPOT
+    int   cast_shadows;
+    vec2  _pad0;
     vec3  position;
 
     float range;
@@ -89,6 +91,74 @@ layout (std140) uniform LightBuffer
     int   _pad2;
     Light lights[64];
 };
+
+
+// Spot ve Point Isik Golgeleri
+uniform bool u_HasSpotShadow;
+uniform sampler2D u_SpotShadowMap;
+uniform mat4 u_SpotLightSpaceMatrix;
+
+uniform bool u_HasPointShadow;
+uniform samplerCube u_PointShadowMap;
+uniform vec3 u_PointShadowLightPos;
+uniform float u_PointShadowFarPlane;
+
+float CalculateShadowSpot(vec4 fragPosLightSpace, vec3 N, vec3 L)
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
+        return 0.0;
+
+    float bias = max(0.003 * (1.0 - dot(N, L)), 0.0008);
+    vec2 texelSize = 1.0 / textureSize(u_SpotShadowMap, 0);
+    float shadow = 0.0;
+
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float depth = texture(u_SpotShadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += (projCoords.z - bias > depth) ? 1.0 : 0.0;
+        }
+    }
+    return shadow / 9.0;
+}
+
+const vec3 pointSampleOffsetDirections[20] = vec3[20](
+   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+);
+
+float CalculateShadowPoint(vec3 worldPos, vec3 lightPos, float farPlane, vec3 N)
+{
+    vec3 fragToLight = worldPos - lightPos;
+    float currentDist = length(fragToLight);
+    if (currentDist > farPlane) return 0.0;
+
+    float d = max(abs(fragToLight.x), max(abs(fragToLight.y), abs(fragToLight.z)));
+    float n = 0.1;
+    float f = farPlane;
+    float currentDepth = ((f + n) / (f - n) - (2.0 * f * n) / ((f - n) * d)) * 0.5 + 0.5;
+
+    float bias = max(0.005 * (1.0 - dot(N, -normalize(fragToLight))), 0.001);
+    float shadow = 0.0;
+    float diskRadius = (1.0 + (currentDist / farPlane)) / 50.0;
+
+    for (int i = 0; i < 20; ++i)
+    {
+        vec3 sampleDir = fragToLight + pointSampleOffsetDirections[i] * diskRadius;
+        float closestDepth = texture(u_PointShadowMap, sampleDir).r;
+        if (currentDepth - bias > closestDepth)
+            shadow += 1.0;
+    }
+
+    return shadow / 20.0;
+}
 
 float CalculateShadowCSM(vec3 worldPos, vec3 N, vec3 L, float viewDepth)
 {
@@ -222,7 +292,7 @@ void main()
 
         // Gölge hesaplama
         float shadow = 0.0;
-        if (l.type == 0)
+        if (l.type == 0) // DIRECTIONAL
         {
             if (u_EnableCSM)
             {
@@ -232,6 +302,21 @@ void main()
             else
             {
                 shadow = CalculateShadow(vFragPosLightSpace, N, L);
+            }
+        }
+        else if (l.type == 1) // POINT
+        {
+            if (l.cast_shadows != 0 && u_HasPointShadow)
+            {
+                shadow = CalculateShadowPoint(vWorldPos, l.position, l.range, N);
+            }
+        }
+        else if (l.type == 2) // SPOT
+        {
+            if (l.cast_shadows != 0 && u_HasSpotShadow)
+            {
+                vec4 fragPosSpot = u_SpotLightSpaceMatrix * vec4(vWorldPos, 1.0);
+                shadow = CalculateShadowSpot(fragPosSpot, N, L);
             }
         }
 

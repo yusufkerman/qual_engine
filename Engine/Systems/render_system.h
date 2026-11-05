@@ -77,6 +77,37 @@ struct shader_uniform_cache
     int u_PS1ColorDepth = -1;
     int u_PS1Dithering = -1;
     int u_PS1DitherStrength = -1;
+
+    // Standart PBR Küresel Işıklandırma Parametreleri
+    int u_PbrAmbientIntensity = -1;
+    int u_PbrIBLIntensity = -1;
+    int u_PbrSpecularIntensity = -1;
+    int u_PbrRoughnessMultiplier = -1;
+    int u_PbrMetallicMultiplier = -1;
+    int u_PbrExposure = -1;
+    int u_PbrToneMapping = -1;
+
+    // Dolaylı Işık (GI) ve Gelişmiş Atmosferik Sis Parametreleri
+    int u_PS1Mode = -1;
+    int u_EnableGI = -1;
+    int u_GISkyColor = -1;
+    int u_GIGroundColor = -1;
+    int u_FogMode = -1;
+    int u_FogHeightFalloff = -1;
+    int u_FogBaseHeight = -1;
+    int u_FogSunScattering = -1;
+    int u_FogLinkAmbient = -1;
+    int u_VolumetricActive = -1;
+    int u_VolumetricMaxDistance = -1;
+
+    // Spot ve Point Isik Golgeleri
+    int u_SpotLightSpaceMatrix = -1;
+    int u_SpotShadowMap = -1;
+    int u_HasSpotShadow = -1;
+    int u_PointShadowMap = -1;
+    int u_HasPointShadow = -1;
+    int u_PointShadowLightPos = -1;
+    int u_PointShadowFarPlane = -1;
 };
 
 /**
@@ -212,6 +243,18 @@ private:
     unsigned int m_LightUBO;                            ///< Tüm ışık verilerini shader'lara taşıyan Uniform Buffer Object kimliği.
     std::vector<render_item> m_RenderItemsCache;        ///< Çıkarım aşamasında toplanan render paketlerinin geçici önbelleği.
     render_queue m_RenderQueueCache;                    ///< Shader ID'lerine göre gruplanmış çizim kuyruğu.
+    std::vector<render_item> m_CascadeShadowItems[3];   ///< Kaskatlı gölge haritaları için gölge düşüren (caster) nesneler.
+    std::vector<render_item> m_SingleShadowItems;       ///< Tekli gölge haritası için gölge düşüren nesneler.
+    std::vector<render_item> m_SpotShadowItems;         ///< Spot isik icin golge dusuren nesneler.
+    std::vector<render_item> m_PointShadowItems;        ///< Noktasal isik icin golge dusuren nesneler.
+
+    bool m_HasSpotLightShadow = false;
+    light_data m_ShadowSpotLight{};
+    glm::mat4 m_SpotLightSpaceMatrix{ 1.0f };
+
+    bool m_HasPointLightShadow = false;
+    light_data m_ShadowPointLight{};
+    float m_PointShadowFarPlane = 10.0f;
     render_pass_stats m_SceneStats{};                   ///< Sahne görünümü (Scene Pass) çizim telemetrisi.
     render_pass_stats m_GameStats{};                    ///< Oyun görünümü (Game Pass) çizim telemetrisi.
 
@@ -243,5 +286,6 @@ private:
      * @return Işık uzayı (Light Space) dönüşüm matrisi.
      */
     glm::mat4 calculate_light_space_matrix(const struct EngineContext& ctx, const light_data& light, const glm::vec3& viewPos);
+    glm::mat4 calculate_spot_light_space_matrix(const light_data& light);
 
 };

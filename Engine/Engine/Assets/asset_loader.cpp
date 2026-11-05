@@ -168,6 +168,7 @@ namespace aria {
             }
 
             r_mesh.local_transform = current_transform;
+            r_mesh.material_index = mesh->mMaterialIndex;
             out_model.sub_meshes.push_back(std::move(r_mesh));
         }
 
@@ -484,18 +485,44 @@ namespace aria {
         Assimp::Importer importer;
         constexpr unsigned int model_pFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace;
         const aiScene* scene = nullptr;
-        std::vector<uint8_t> vfs_model_bytes;
+        std::vector<uint8_t> model_bytes;
 
         if (qual::vfs::instance().has_file(file_path)) {
-            vfs_model_bytes = qual::vfs::instance().read_bytes(file_path);
-            if (!vfs_model_bytes.empty()) {
-                std::string ext = std::filesystem::path(file_path).extension().string();
-                if (!ext.empty() && ext.front() == '.') ext.erase(0, 1);
-                scene = importer.ReadFileFromMemory(vfs_model_bytes.data(), vfs_model_bytes.size(), model_pFlags, ext.c_str());
+            model_bytes = qual::vfs::instance().read_bytes(file_path);
+        }
+        else {
+            const std::filesystem::path fsPath = qual::path_from_utf8(file_path);
+            std::error_code ec;
+            if (std::filesystem::exists(fsPath, ec) && std::filesystem::is_regular_file(fsPath, ec)) {
+                std::ifstream ifs(fsPath, std::ios::binary | std::ios::ate);
+                if (ifs.is_open()) {
+                    const std::streamsize size = ifs.tellg();
+                    if (size > 0) {
+                        ifs.seekg(0, std::ios::beg);
+                        model_bytes.resize(static_cast<size_t>(size));
+                        ifs.read(reinterpret_cast<char*>(model_bytes.data()), size);
+                    }
+                }
             }
         }
-        if (!scene) {
-            scene = importer.ReadFile(file_path, model_pFlags);
+
+        if (!model_bytes.empty()) {
+            std::string ext = qual::path_from_utf8(file_path).extension().string();
+            if (!ext.empty() && ext.front() == '.') ext.erase(0, 1);
+            try {
+                scene = importer.ReadFileFromMemory(model_bytes.data(), model_bytes.size(), model_pFlags, ext.c_str());
+            }
+            catch (...) {
+                scene = nullptr;
+            }
+        }
+        else {
+            try {
+                scene = importer.ReadFile(file_path, model_pFlags);
+            }
+            catch (...) {
+                scene = nullptr;
+            }
         }
 
         if (!scene || !scene->mRootNode) {
@@ -507,7 +534,17 @@ namespace aria {
         raw_model_data out_model_data;
         out_model_data.debug_path = file_path;
 
-        process_assimp_node(scene->mRootNode, scene, out_model_data);
+        try {
+            process_assimp_node(scene->mRootNode, scene, out_model_data);
+        }
+        catch (const std::exception& e) {
+            std::cout << "[ARIA Loader] Hata: process_assimp_node istisnasi: " << e.what() << "\n";
+            return std::nullopt;
+        }
+        catch (...) {
+            std::cout << "[ARIA Loader] Hata: process_assimp_node bilinmeyen hata!\n";
+            return std::nullopt;
+        }
 
         return out_model_data;
     }
@@ -520,14 +557,52 @@ namespace aria {
 
         Assimp::Importer importer;
         importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
-        const aiScene* scene = importer.ReadFile(
-            file_path,
-            aiProcess_Triangulate |
+        constexpr unsigned int skinned_pFlags = aiProcess_Triangulate |
             aiProcess_GenNormals |
             aiProcess_JoinIdenticalVertices |
             aiProcess_CalcTangentSpace |
-            aiProcess_LimitBoneWeights
-        );
+            aiProcess_LimitBoneWeights;
+
+        const aiScene* scene = nullptr;
+        std::vector<uint8_t> model_bytes;
+
+        if (qual::vfs::instance().has_file(file_path)) {
+            model_bytes = qual::vfs::instance().read_bytes(file_path);
+        }
+        else {
+            const std::filesystem::path fsPath = qual::path_from_utf8(file_path);
+            std::error_code ec;
+            if (std::filesystem::exists(fsPath, ec) && std::filesystem::is_regular_file(fsPath, ec)) {
+                std::ifstream ifs(fsPath, std::ios::binary | std::ios::ate);
+                if (ifs.is_open()) {
+                    const std::streamsize size = ifs.tellg();
+                    if (size > 0) {
+                        ifs.seekg(0, std::ios::beg);
+                        model_bytes.resize(static_cast<size_t>(size));
+                        ifs.read(reinterpret_cast<char*>(model_bytes.data()), size);
+                    }
+                }
+            }
+        }
+
+        if (!model_bytes.empty()) {
+            std::string ext = qual::path_from_utf8(file_path).extension().string();
+            if (!ext.empty() && ext.front() == '.') ext.erase(0, 1);
+            try {
+                scene = importer.ReadFileFromMemory(model_bytes.data(), model_bytes.size(), skinned_pFlags, ext.c_str());
+            }
+            catch (...) {
+                scene = nullptr;
+            }
+        }
+        else {
+            try {
+                scene = importer.ReadFile(file_path, skinned_pFlags);
+            }
+            catch (...) {
+                scene = nullptr;
+            }
+        }
 
         if (!scene || !scene->mRootNode) {
             std::cout << "[ARIA Loader] Hata: Assimp skinned model yukleme basarisiz: " << file_path << "\n";
@@ -948,41 +1023,76 @@ namespace aria {
                 aria_sys->register_asset_path(guid, path_u8);
             }
 
-            // Retro/PS1 modu aciksa ve mevcut materyal varsayilan standart shader'da ise PS1 shader'a yukselt
-            if (ps1_active) {
-                try {
-                    std::ifstream in(existing_mat_path);
-                    if (in.is_open()) {
-                        nlohmann::json exJson;
-                        in >> exJson;
-                        in.close();
-                        std::string curSh = exJson.value("shader_path", "");
-                        std::string defShGuid = uuids::to_string(engine_resources::builtin_guid::default_shader);
-                        if (curSh.empty() || curSh == "@engine/Shaders/default_shader" || exJson.value("shader_guid", "") == defShGuid) {
-                            exJson["shader_guid"] = uuids::to_string(engine_resources::builtin_guid::ps1_shader);
-                            exJson["shader_path"] = "@engine/Shaders/PS1/ps1_shader";
-                            std::ofstream out(existing_mat_path);
-                            if (out.is_open()) {
-                                out << exJson.dump(2);
-                            }
-                            if (aria_sys && !guid.is_nil()) {
-                                aria_sys->registry()->reload_material(guid, path_u8);
-                            }
+            // Aktif boru hattina (PS1 veya Standart PBR) gore varsayilan shader eslesmesini senkronize et
+            try {
+                std::ifstream in(existing_mat_path);
+                if (in.is_open()) {
+                    nlohmann::json exJson;
+                    in >> exJson;
+                    in.close();
+                    std::string curSh = exJson.value("shader_path", "");
+                    std::string defShGuid = uuids::to_string(engine_resources::builtin_guid::default_shader);
+                    std::string ps1ShGuid = uuids::to_string(engine_resources::builtin_guid::ps1_shader);
+                    bool changed = false;
+                    if (ps1_active && (curSh.empty() || curSh == "@engine/Shaders/default_shader" || exJson.value("shader_guid", "") == defShGuid)) {
+                        exJson["shader_guid"] = ps1ShGuid;
+                        exJson["shader_path"] = "@engine/Shaders/PS1/ps1_shader";
+                        changed = true;
+                    } else if (!ps1_active && (curSh == "@engine/Shaders/PS1/ps1_shader" || exJson.value("shader_guid", "") == ps1ShGuid)) {
+                        exJson["shader_guid"] = defShGuid;
+                        exJson["shader_path"] = "@engine/Shaders/default_shader";
+                        changed = true;
+                    }
+                    if (changed) {
+                        std::ofstream out(existing_mat_path);
+                        if (out.is_open()) {
+                            out << exJson.dump(2);
+                        }
+                        if (aria_sys && !guid.is_nil()) {
+                            aria_sys->registry()->reload_material(guid, path_u8);
                         }
                     }
-                } catch (...) {}
-            }
+                }
+            } catch (...) {}
 
             results.push_back({ qual::path_to_utf8(existing_mat_path.stem()), path_u8, guid });
             return results;
         }
 
         // Assimp ile modeli ac ve materyal/doku tanimlarini cozumle
+        // Not: Turkce / Unicode karakterli yollar icin bellekten okuma guvencesi uygulanir
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(
-            model_file_path,
-            aiProcess_Triangulate | aiProcess_GenNormals
-        );
+        const aiScene* scene = nullptr;
+        std::vector<uint8_t> model_bytes;
+        {
+            const std::filesystem::path fsModelPath = qual::path_from_utf8(model_file_path);
+            std::ifstream ifs(fsModelPath, std::ios::binary | std::ios::ate);
+            if (ifs.is_open()) {
+                const std::streamsize size = ifs.tellg();
+                if (size > 0) {
+                    ifs.seekg(0, std::ios::beg);
+                    model_bytes.resize(static_cast<size_t>(size));
+                    ifs.read(reinterpret_cast<char*>(model_bytes.data()), size);
+                }
+            }
+        }
+
+        if (!model_bytes.empty()) {
+            std::string ext = qual::path_from_utf8(model_file_path).extension().string();
+            if (!ext.empty() && ext.front() == '.') ext.erase(0, 1);
+            try {
+                scene = importer.ReadFileFromMemory(model_bytes.data(), model_bytes.size(), aiProcess_Triangulate | aiProcess_GenNormals, ext.c_str());
+            } catch (...) {
+                scene = nullptr;
+            }
+        } else {
+            try {
+                scene = importer.ReadFile(model_file_path, aiProcess_Triangulate | aiProcess_GenNormals);
+            } catch (...) {
+                scene = nullptr;
+            }
+        }
+
         if (!scene) {
             return results;
         }
@@ -990,14 +1100,46 @@ namespace aria {
         std::error_code ec;
         std::filesystem::create_directories(tex_dir, ec);
 
+        // Hem standart Assimp doku yuvalarini hem de 3ds Max / Maya PBR custom map mulklerini arayan yardimci lambda
+        auto find_tex_path = [](const aiMaterial* mat, aiTextureType primaryType, std::initializer_list<aiTextureType> fallbackTypes, std::initializer_list<const char*> rawKeywords) -> std::string {
+            if (!mat) return "";
+            aiString p;
+            if (mat->GetTexture(primaryType, 0, &p) == AI_SUCCESS && p.length > 0) {
+                return p.C_Str();
+            }
+            for (aiTextureType fb : fallbackTypes) {
+                if (mat->GetTexture(fb, 0, &p) == AI_SUCCESS && p.length > 0) {
+                    return p.C_Str();
+                }
+            }
+            // 3ds Max / Maya FBX materyal mulkleri (Orn: $raw.3dsMax|main|diffuseColor_map|file)
+            for (unsigned int propIdx = 0; propIdx < mat->mNumProperties; ++propIdx) {
+                const aiMaterialProperty* prop = mat->mProperties[propIdx];
+                if (prop->mType == aiPTI_String && prop->mDataLength > 4) {
+                    std::string key = prop->mKey.C_Str();
+                    std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return static_cast<char>(::tolower(c)); });
+                    for (const char* kw : rawKeywords) {
+                        std::string kwLower = kw;
+                        std::transform(kwLower.begin(), kwLower.end(), kwLower.begin(), [](unsigned char c) { return static_cast<char>(::tolower(c)); });
+                        if (key.find(kwLower) != std::string::npos) {
+                            uint32_t len = *reinterpret_cast<const uint32_t*>(prop->mData);
+                            std::string val(prop->mData + 4, std::min<size_t>(len, prop->mDataLength - 4));
+                            while (!val.empty() && (val.back() == '\0' || val.back() == ' ')) val.pop_back();
+                            if (!val.empty()) return val;
+                        }
+                    }
+                }
+            }
+            return "";
+        };
+
         // Gomulu veya bagil disk dokusunu tespit edip kaydeden lambda
-        auto resolve_or_extract_texture = [&](aiMaterial* mat, aiTextureType type, const std::string& suffix) -> std::pair<std::string, aria::asset_guid> {
-            aiString texPath;
-            if (mat->GetTexture(type, 0, &texPath) != AI_SUCCESS || texPath.length == 0) {
+        auto resolve_or_extract_texture = [&](const std::string& rawPath, const std::string& currentMatStem, const std::string& suffix) -> std::pair<std::string, aria::asset_guid> {
+            if (rawPath.empty()) {
                 return { "", aria::asset_guid{} };
             }
 
-            const char* pathStr = texPath.C_Str();
+            const char* pathStr = rawPath.c_str();
 
             // A) Gomulu Doku (GLB veya embedded FBX)
             const aiTexture* embedded = scene->GetEmbeddedTexture(pathStr);
@@ -1007,14 +1149,41 @@ namespace aria {
                     embedded = scene->mTextures[idx];
                 }
             }
+            // FBX gomulu doku arama: Dosya adi veya stem eslesmesi
+            if (!embedded && scene->mNumTextures > 0) {
+                std::filesystem::path rawP = qual::path_from_utf8(rawPath);
+                std::string rawFileName = qual::path_to_utf8(rawP.filename());
+                std::string rawStem = qual::path_to_utf8(rawP.stem());
+                for (unsigned int t = 0; t < scene->mNumTextures; ++t) {
+                    const aiTexture* candidate = scene->mTextures[t];
+                    if (!candidate) continue;
+                    std::string candName = candidate->mFilename.C_Str();
+                    std::filesystem::path candP = qual::path_from_utf8(candName);
+                    std::string candFileName = qual::path_to_utf8(candP.filename());
+                    std::string candStem = qual::path_to_utf8(candP.stem());
+                    if (candName == rawPath || candFileName == rawFileName || (!rawStem.empty() && candStem == rawStem)) {
+                        embedded = candidate;
+                        break;
+                    }
+                }
+            }
 
             if (embedded) {
                 std::string formatHint = (embedded->achFormatHint[0] != '\0') ? embedded->achFormatHint : "png";
-                std::transform(formatHint.begin(), formatHint.end(), formatHint.begin(), ::tolower);
+                std::transform(formatHint.begin(), formatHint.end(), formatHint.begin(), [](unsigned char c) { return static_cast<char>(::tolower(c)); });
                 if (!formatHint.empty() && formatHint.front() == '.') formatHint.erase(0, 1);
                 if (formatHint.empty()) formatHint = "png";
 
-                std::string outFilename = model_stem + suffix + "." + formatHint;
+                // Dosya adini tekil yap: rawPath stem'i veya materyal adindan turet (cakismalari onle)
+                std::filesystem::path rawP = qual::path_from_utf8(rawPath);
+                std::string baseStem = qual::path_to_utf8(rawP.stem());
+                std::string outFilename;
+                if (!baseStem.empty() && rawPath[0] != '*') {
+                    outFilename = model_stem + "_" + baseStem + "." + formatHint;
+                } else {
+                    outFilename = currentMatStem + suffix + "." + formatHint;
+                }
+
                 std::filesystem::path outPath = tex_dir / qual::path_from_utf8(outFilename);
 
                 if (!std::filesystem::exists(outPath)) {
@@ -1039,14 +1208,19 @@ namespace aria {
             }
 
             // B) Harici Doku Referansi
-            std::filesystem::path rawTexP = qual::path_from_utf8(pathStr);
+            std::filesystem::path rawTexP = qual::path_from_utf8(rawPath);
             std::string rawFilename = qual::path_to_utf8(rawTexP.filename());
 
             std::filesystem::path candidates[] = {
                 tex_dir / qual::path_from_utf8(rawFilename),
+                model_dir / "Textures" / qual::path_from_utf8(rawFilename),
+                model_dir / "textures" / qual::path_from_utf8(rawFilename),
                 model_dir / qual::path_from_utf8(rawFilename),
                 model_dir / rawTexP,
-                model_dir.parent_path() / "Textures" / qual::path_from_utf8(rawFilename)
+                model_dir.parent_path() / "Textures" / qual::path_from_utf8(rawFilename),
+                model_dir.parent_path() / "textures" / qual::path_from_utf8(rawFilename),
+                model_dir.parent_path() / qual::path_from_utf8(rawFilename),
+                model_dir.parent_path() / rawTexP
             };
 
             for (const auto& cand : candidates) {
@@ -1062,6 +1236,26 @@ namespace aria {
 
             return { "", aria::asset_guid{} };
         };
+
+        // glTF / GLB JSON ustbilgilerini cozumle (varsa gercek metallicFactor / roughnessFactor tespiti icin)
+        nlohmann::json gltf_root;
+        if (model_bytes.size() >= 20) {
+            uint32_t magic = *reinterpret_cast<const uint32_t*>(model_bytes.data());
+            if (magic == 0x46546C67) { // "glTF"
+                uint32_t json_chunk_len = *reinterpret_cast<const uint32_t*>(model_bytes.data() + 12);
+                uint32_t json_chunk_type = *reinterpret_cast<const uint32_t*>(model_bytes.data() + 16);
+                if (json_chunk_type == 0x4E4F534A && 20 + json_chunk_len <= model_bytes.size()) {
+                    try {
+                        gltf_root = nlohmann::json::parse(model_bytes.data() + 20, model_bytes.data() + 20 + json_chunk_len);
+                    } catch (...) {}
+                }
+            }
+        }
+        if (gltf_root.is_null() && !model_bytes.empty()) {
+            try {
+                gltf_root = nlohmann::json::parse(model_bytes.begin(), model_bytes.end());
+            } catch (...) {}
+        }
 
         unsigned int matCount = scene->mNumMaterials;
         if (matCount == 0) matCount = 1;
@@ -1083,26 +1277,46 @@ namespace aria {
                 matStem += "_" + std::to_string(m);
             }
 
-            // Dokulari ara/cikart
-            auto [diffPath, diffGuid] = mat ? resolve_or_extract_texture(mat, aiTextureType_DIFFUSE, "_Albedo") : std::make_pair(std::string{}, aria::asset_guid{});
-            if (diffPath.empty() && mat) {
-                std::tie(diffPath, diffGuid) = resolve_or_extract_texture(mat, aiTextureType_BASE_COLOR, "_Albedo");
+            // Dokulari ara/cikart (Standart Assimp slotlari + 3ds Max / Maya PBR map property fallback'leri)
+            std::string diffRaw = find_tex_path(mat, aiTextureType_DIFFUSE, { aiTextureType_BASE_COLOR }, { "diffusecolor_map", "basecolor", "albedo", "diffuse" });
+            auto [diffPath, diffGuid] = resolve_or_extract_texture(diffRaw, matStem, "_Albedo");
+
+            std::string normRaw = find_tex_path(mat, aiTextureType_NORMALS, { aiTextureType_HEIGHT, aiTextureType_NORMAL_CAMERA }, { "normal_map", "bump" });
+            auto [normPath, normGuid] = resolve_or_extract_texture(normRaw, matStem, "_Normal");
+
+            std::string metalRaw = find_tex_path(mat, aiTextureType_METALNESS, {}, { "metallic_map", "metalness" });
+            std::string roughRaw = find_tex_path(mat, aiTextureType_DIFFUSE_ROUGHNESS, { aiTextureType_SHININESS }, { "roughness_map", "glossiness" });
+
+            std::string metalPath = "", roughPath = "";
+            aria::asset_guid metalGuid{}, roughGuid{};
+
+            if (!metalRaw.empty() && metalRaw == roughRaw) {
+                // glTF / ORM paylasimli packed Metallic-Roughness dokusu: Ayni dosyayi ve GUID'i paylas
+                auto [mrPath, mrG] = resolve_or_extract_texture(metalRaw, matStem, "_MetallicRoughness");
+                metalPath = mrPath;
+                metalGuid = mrG;
+                roughPath = mrPath;
+                roughGuid = mrG;
+            } else {
+                if (!metalRaw.empty()) {
+                    auto [p, g] = resolve_or_extract_texture(metalRaw, matStem, "_Metallic");
+                    metalPath = p;
+                    metalGuid = g;
+                }
+                if (!roughRaw.empty()) {
+                    auto [p, g] = resolve_or_extract_texture(roughRaw, matStem, "_Roughness");
+                    roughPath = p;
+                    roughGuid = g;
+                }
             }
 
-            auto [normPath, normGuid] = mat ? resolve_or_extract_texture(mat, aiTextureType_NORMALS, "_Normal") : std::make_pair(std::string{}, aria::asset_guid{});
-            if (normPath.empty() && mat) {
-                std::tie(normPath, normGuid) = resolve_or_extract_texture(mat, aiTextureType_HEIGHT, "_Normal");
-            }
+            std::string aoRaw = find_tex_path(mat, aiTextureType_AMBIENT_OCCLUSION, { aiTextureType_LIGHTMAP, aiTextureType_AMBIENT }, { "occlusion_map", "ao_map", "occlusion", "ao" });
+            auto [aoPath, aoGuid] = resolve_or_extract_texture(aoRaw, matStem, "_AO");
 
-            auto [metalPath, metalGuid] = mat ? resolve_or_extract_texture(mat, aiTextureType_METALNESS, "_Metallic") : std::make_pair(std::string{}, aria::asset_guid{});
-            if (metalPath.empty() && mat) {
-                std::tie(metalPath, metalGuid) = resolve_or_extract_texture(mat, aiTextureType_DIFFUSE_ROUGHNESS, "_Roughness");
-            }
-            if (metalPath.empty() && mat) {
-                std::tie(metalPath, metalGuid) = resolve_or_extract_texture(mat, aiTextureType_UNKNOWN, "_PBR");
-            }
+            std::string emissRaw = find_tex_path(mat, aiTextureType_EMISSIVE, { aiTextureType_EMISSION_COLOR }, { "emissivecolor_map", "emissive_map", "emission" });
+            auto [emissPath, emissGuid] = resolve_or_extract_texture(emissRaw, matStem, "_Emissive");
 
-            auto [emissPath, emissGuid] = mat ? resolve_or_extract_texture(mat, aiTextureType_EMISSIVE, "_Emissive") : std::make_pair(std::string{}, aria::asset_guid{});
+            std::string opacityRaw = find_tex_path(mat, aiTextureType_OPACITY, {}, { "opacity_map", "mask", "alpha" });
 
             // Renk ve PBR katsayilari
             aiColor4D baseColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1113,10 +1327,218 @@ namespace aria {
             }
 
             float metallic = 0.0f;
-            float roughness = 0.5f;
-            if (mat) {
-                mat->Get(AI_MATKEY_METALLIC_FACTOR, metallic);
-                mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
+            float roughness = 0.72f;
+            bool explicit_metallic = false;
+            bool explicit_roughness = false;
+            int extracted_render_mode = (!opacityRaw.empty()) ? 1 : 0;
+            float extracted_alpha_cutoff = 0.1f;
+
+            // A) glTF JSON dogrudan inceleme: Exporter acikca metallicFactor, roughnessFactor veya alphaMode yazdi mi?
+            if (!gltf_root.is_null() && gltf_root.contains("materials") && gltf_root["materials"].is_array() && m < gltf_root["materials"].size()) {
+                const auto& gltf_mat = gltf_root["materials"][m];
+                if (gltf_mat.contains("alphaMode") && gltf_mat["alphaMode"].is_string()) {
+                    std::string alphaMode = gltf_mat["alphaMode"].get<std::string>();
+                    if (alphaMode == "MASK") {
+                        extracted_render_mode = 1;
+                        extracted_alpha_cutoff = gltf_mat.value("alphaCutoff", 0.5f);
+                    } else if (alphaMode == "BLEND") {
+                        extracted_render_mode = 2;
+                    }
+                }
+                if (gltf_mat.contains("pbrMetallicRoughness") && gltf_mat["pbrMetallicRoughness"].is_object()) {
+                    const auto& pbr = gltf_mat["pbrMetallicRoughness"];
+                    if (pbr.contains("baseColorFactor") && pbr["baseColorFactor"].is_array() && pbr["baseColorFactor"].size() >= 3) {
+                        baseColor.r = pbr["baseColorFactor"][0].get<float>();
+                        baseColor.g = pbr["baseColorFactor"][1].get<float>();
+                        baseColor.b = pbr["baseColorFactor"][2].get<float>();
+                        if (pbr["baseColorFactor"].size() >= 4) {
+                            baseColor.a = pbr["baseColorFactor"][3].get<float>();
+                        }
+                    }
+                    if (pbr.contains("metallicFactor") && pbr["metallicFactor"].is_number()) {
+                        metallic = glm::clamp(pbr["metallicFactor"].get<float>(), 0.0f, 1.0f);
+                        explicit_metallic = true;
+                    }
+                    if (pbr.contains("roughnessFactor") && pbr["roughnessFactor"].is_number()) {
+                        roughness = glm::clamp(pbr["roughnessFactor"].get<float>(), 0.04f, 1.0f);
+                        explicit_roughness = true;
+                    }
+                }
+            }
+
+            // Eger Albedo dokusu bagliysa ve baseColor 3ds Max / Maya varsayilan gri Kd degeri ise (Orn: 0.588, 0.588, 0.588),
+            // dokunun kendi renk doygunlugunu karartmamasi icin baseColor'u (1, 1, 1) olarak normalize et.
+            if (!diffGuid.is_nil()) {
+                if (std::abs(baseColor.r - baseColor.g) < 0.01f &&
+                    std::abs(baseColor.g - baseColor.b) < 0.01f &&
+                    baseColor.r >= 0.45f && baseColor.r <= 0.85f) {
+                    baseColor.r = 1.0f;
+                    baseColor.g = 1.0f;
+                    baseColor.b = 1.0f;
+                }
+            }
+
+            // B) glTF harici (FBX, OBJ, Collada) veya glTF JSON'da bulunamayan durumlar: Assimp sorgulari
+            if (!explicit_metallic && gltf_root.is_null() && mat) {
+                float mFactor = 0.0f;
+                if (mat->Get(AI_MATKEY_METALLIC_FACTOR, mFactor) == AI_SUCCESS) {
+                    metallic = glm::clamp(mFactor, 0.0f, 1.0f);
+                    explicit_metallic = true;
+                } else {
+                    for (unsigned int propIdx = 0; propIdx < mat->mNumProperties; ++propIdx) {
+                        const aiMaterialProperty* prop = mat->mProperties[propIdx];
+                        if (std::string(prop->mKey.C_Str()).find("metallic") != std::string::npos && prop->mType == aiPTI_Float && prop->mDataLength >= sizeof(float)) {
+                            metallic = glm::clamp(*reinterpret_cast<const float*>(prop->mData), 0.0f, 1.0f);
+                            explicit_metallic = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!explicit_roughness && gltf_root.is_null() && mat) {
+                float rFactor = 0.72f;
+                if (mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, rFactor) == AI_SUCCESS) {
+                    roughness = glm::clamp(rFactor, 0.04f, 1.0f);
+                    explicit_roughness = true;
+                } else {
+                    for (unsigned int propIdx = 0; propIdx < mat->mNumProperties; ++propIdx) {
+                        const aiMaterialProperty* prop = mat->mProperties[propIdx];
+                        if (std::string(prop->mKey.C_Str()).find("roughness") != std::string::npos && prop->mType == aiPTI_Float && prop->mDataLength >= sizeof(float)) {
+                            roughness = glm::clamp(*reinterpret_cast<const float*>(prop->mData), 0.04f, 1.0f);
+                            explicit_roughness = true;
+                            break;
+                        }
+                    }
+                    if (!explicit_roughness) {
+                        // Shininess / Specular exponent donusumu (Blinn-Phong -> Roughness)
+                        float shininess = 0.0f;
+                        if (mat->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS && shininess > 0.0f) {
+                            roughness = glm::clamp(1.0f - std::sqrt(shininess / 256.0f), 0.04f, 1.0f);
+                            explicit_roughness = true;
+                        }
+                    }
+                }
+            }
+
+            // C) Doku Piksel Analizi (stb_image ile gercek Metallic/Roughness istatistiklerini cikar)
+            struct pbr_tex_stats {
+                bool valid = false;
+                float avgR = 1.0f, avgG = 0.72f, avgB = 0.0f;
+                float maxG = 0.72f, maxB = 0.0f;
+                float minG = 0.72f, minB = 0.0f;
+                float avgDiffGB = 0.0f;
+            };
+
+            auto analyze_pbr_tex = [](const std::string& texPathU8) -> pbr_tex_stats {
+                pbr_tex_stats st;
+                if (texPathU8.empty()) return st;
+                std::filesystem::path fp = qual::path_from_utf8(texPathU8);
+                std::ifstream ifs(fp, std::ios::binary | std::ios::ate);
+                if (!ifs.is_open()) return st;
+                const std::streamsize sz = ifs.tellg();
+                if (sz <= 0) return st;
+                ifs.seekg(0, std::ios::beg);
+                std::vector<uint8_t> buf(static_cast<size_t>(sz));
+                ifs.read(reinterpret_cast<char*>(buf.data()), sz);
+                ifs.close();
+
+                int w = 0, h = 0, ch = 0;
+                stbi_set_flip_vertically_on_load(false);
+                unsigned char* px = stbi_load_from_memory(buf.data(), static_cast<int>(buf.size()), &w, &h, &ch, 4);
+                if (!px || w <= 0 || h <= 0) {
+                    if (px) stbi_image_free(px);
+                    return st;
+                }
+
+                const int total = w * h;
+                const int step = std::max(1, total / 4096);
+                double sumR = 0.0, sumG = 0.0, sumB = 0.0, sumDiffGB = 0.0;
+                float minG = 1.0f, maxG = 0.0f, minB = 1.0f, maxB = 0.0f;
+                int count = 0;
+
+                for (int idx = 0; idx < total; idx += step) {
+                    const float r = px[idx * 4 + 0] / 255.0f;
+                    const float g = px[idx * 4 + 1] / 255.0f;
+                    const float b = px[idx * 4 + 2] / 255.0f;
+                    sumR += r;
+                    sumG += g;
+                    sumB += b;
+                    sumDiffGB += std::abs(g - b);
+                    minG = std::min(minG, g);
+                    maxG = std::max(maxG, g);
+                    minB = std::min(minB, b);
+                    maxB = std::max(maxB, b);
+                    ++count;
+                }
+                stbi_image_free(px);
+
+                if (count > 0) {
+                    st.valid = true;
+                    st.avgR = static_cast<float>(sumR / count);
+                    st.avgG = static_cast<float>(sumG / count);
+                    st.avgB = static_cast<float>(sumB / count);
+                    st.avgDiffGB = static_cast<float>(sumDiffGB / count);
+                    st.minG = minG;
+                    st.maxG = maxG;
+                    st.minB = minB;
+                    st.maxB = maxB;
+                }
+                return st;
+            };
+
+            if (!metalPath.empty() && metalPath == roughPath) {
+                pbr_tex_stats st = analyze_pbr_tex(metalPath);
+                if (st.valid) {
+                    // Eski Specular is akisindan glTF metallicRoughness'a yanlis donusturulmus karanlik Specular haritasi tespiti:
+                    // (Orn: Sponza GLB'de R=1.0, G==B <= 0.12; dogrudan roughness olarak okundugunda 0.04 islak ayna hatasi uretir)
+                    if (st.maxG < 0.12f && st.maxB < 0.12f && st.avgDiffGB < 0.02f && st.avgR > 0.5f) {
+                        if (!explicit_metallic) metallic = 0.0f;
+                        if (!explicit_roughness) {
+                            roughness = std::round(glm::clamp(0.85f - (st.maxG * 2.2f + st.avgG * 3.0f), 0.50f, 0.90f) * 100.0f) / 100.0f;
+                        }
+                        metalGuid = {};
+                        roughGuid = {};
+                    } else {
+                        if (!explicit_metallic) {
+                            if (st.maxB < 0.10f) {
+                                metallic = 0.0f;
+                                metalGuid = {};
+                            } else {
+                                metallic = std::round(glm::clamp(st.avgB, 0.0f, 1.0f) * 100.0f) / 100.0f;
+                            }
+                        }
+                        if (!explicit_roughness) {
+                            roughness = std::round(glm::clamp(st.avgG, 0.05f, 1.0f) * 100.0f) / 100.0f;
+                            if ((st.maxG - st.minG) < 0.04f) {
+                                roughGuid = {};
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (!metalPath.empty() && !explicit_metallic) {
+                    pbr_tex_stats stM = analyze_pbr_tex(metalPath);
+                    if (stM.valid) {
+                        if (stM.maxB < 0.10f) {
+                            metallic = 0.0f;
+                            metalGuid = {};
+                        } else {
+                            metallic = std::round(glm::clamp(stM.avgB, 0.0f, 1.0f) * 100.0f) / 100.0f;
+                        }
+                    }
+                }
+                if (!roughPath.empty() && !explicit_roughness) {
+                    pbr_tex_stats stR = analyze_pbr_tex(roughPath);
+                    if (stR.valid) {
+                        if (stR.maxG < 0.12f && stR.avgDiffGB < 0.02f) {
+                            roughness = std::round(glm::clamp(0.85f - stR.maxG * 2.2f, 0.50f, 0.90f) * 100.0f) / 100.0f;
+                            roughGuid = {};
+                        } else {
+                            roughness = std::round(glm::clamp(stR.avgG, 0.05f, 1.0f) * 100.0f) / 100.0f;
+                        }
+                    }
+                }
             }
 
             std::filesystem::path finalMatPath = mat_dir / qual::path_from_utf8(matStem + ".json");
@@ -1132,11 +1554,11 @@ namespace aria {
             mat_json["emissive_color"] = { 0.0f, 0.0f, 0.0f };
             mat_json["emissive_intensity"] = 0.0f;
             mat_json["specular_strength"] = 0.5f;
-            mat_json["shininess"] = std::pow(1.0f - roughness, 2.0f) * 256.0f;
+            mat_json["shininess"] = std::round(std::pow(1.0f - roughness, 2.0f) * 256.0f * 10.0f) / 10.0f;
             mat_json["normal_strength"] = 1.0f;
             mat_json["texture_scale"] = { 1.0f, 1.0f };
-            mat_json["render_mode"] = 0;
-            mat_json["alpha_threshold"] = 0.1f;
+            mat_json["render_mode"] = extracted_render_mode;
+            mat_json["alpha_threshold"] = extracted_alpha_cutoff;
             if (ps1_active) {
                 mat_json["shader_guid"] = uuids::to_string(engine_resources::builtin_guid::ps1_shader);
                 mat_json["shader_path"] = "@engine/Shaders/PS1/ps1_shader";
@@ -1147,8 +1569,8 @@ namespace aria {
             mat_json["diffuse_texture_guid"] = diffGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(diffGuid);
             mat_json["normal_texture_guid"] = normGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(normGuid);
             mat_json["metallic_texture_guid"] = metalGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(metalGuid);
-            mat_json["roughness_texture_guid"] = metalGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(metalGuid);
-            mat_json["ao_texture_guid"] = "00000000-0000-0000-0000-000000000000";
+            mat_json["roughness_texture_guid"] = roughGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(roughGuid);
+            mat_json["ao_texture_guid"] = aoGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(aoGuid);
             mat_json["emissive_texture_guid"] = emissGuid.is_nil() ? "00000000-0000-0000-0000-000000000000" : uuids::to_string(emissGuid);
             mat_json["specular_texture_guid"] = "00000000-0000-0000-0000-000000000000";
 
@@ -1162,6 +1584,7 @@ namespace aria {
             aria::asset_guid matGuid = asset_pipeline::get_or_create_meta_guid(finalMatPathU8);
             if (aria_sys && !matGuid.is_nil()) {
                 aria_sys->register_asset_path(matGuid, finalMatPathU8);
+                aria_sys->registry()->reload_material(matGuid, finalMatPathU8);
             }
 
             results.push_back({ matStem, finalMatPathU8, matGuid });

@@ -168,8 +168,8 @@ namespace vesta {
                                 // Materyal eşleştirmesi
                                 if (!loadedMatHandles.empty()) {
                                     material_component childMat;
-                                    // Eğer alt parçanın kendi materyali varsa onu bağla, yoksa ilk materyali kullan
-                                    const size_t matIdx = (i < loadedMatHandles.size()) ? i : 0;
+                                    // Alt parçanın ait olduğu materyal indeksini (mMaterialIndex) bağla
+                                    const size_t matIdx = (sm.material_index < loadedMatHandles.size()) ? sm.material_index : 0;
                                     childMat.material_handle = loadedMatHandles[matIdx];
                                     reg.add_component<material_component>(childEnt, childMat);
                                 }

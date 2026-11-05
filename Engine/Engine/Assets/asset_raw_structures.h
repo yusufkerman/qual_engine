@@ -81,6 +81,7 @@ namespace aria {
     struct raw_mesh_data {
         std::string name;                 ///< Alt ağ (sub-mesh) veya düğüm adı (Örn: "Magazine", "Barrel").
         glm::mat4 local_transform{ 1.0f };///< Ebeveyn düğüme veya köke göre yerel dönüşüm matrisi.
+        uint32_t material_index{ 0 };     ///< Alt ağın ait olduğu Assimp materyal indeksi.
         std::vector<raw_vertex> vertices; ///< Köşe noktaları dizisi.
         std::vector<uint32_t> indices;    ///< Köşe indeksleri dizisi (Çizim sırası).
 

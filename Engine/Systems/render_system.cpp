@@ -128,6 +128,34 @@ const shader_uniform_cache& render_system::get_shader_uniforms(unsigned int shad
     c.u_PS1Dithering = glGetUniformLocation(shaderID, "u_PS1Dithering");
     c.u_PS1DitherStrength = glGetUniformLocation(shaderID, "u_PS1DitherStrength");
 
+    c.u_PbrAmbientIntensity = glGetUniformLocation(shaderID, "u_PbrAmbientIntensity");
+    c.u_PbrIBLIntensity = glGetUniformLocation(shaderID, "u_PbrIBLIntensity");
+    c.u_PbrSpecularIntensity = glGetUniformLocation(shaderID, "u_PbrSpecularIntensity");
+    c.u_PbrRoughnessMultiplier = glGetUniformLocation(shaderID, "u_PbrRoughnessMultiplier");
+    c.u_PbrMetallicMultiplier = glGetUniformLocation(shaderID, "u_PbrMetallicMultiplier");
+    c.u_PbrExposure = glGetUniformLocation(shaderID, "u_PbrExposure");
+    c.u_PbrToneMapping = glGetUniformLocation(shaderID, "u_PbrToneMapping");
+
+    c.u_PS1Mode = glGetUniformLocation(shaderID, "u_PS1Mode");
+    c.u_EnableGI = glGetUniformLocation(shaderID, "u_EnableGI");
+    c.u_GISkyColor = glGetUniformLocation(shaderID, "u_GISkyColor");
+    c.u_GIGroundColor = glGetUniformLocation(shaderID, "u_GIGroundColor");
+    c.u_FogMode = glGetUniformLocation(shaderID, "u_FogMode");
+    c.u_FogHeightFalloff = glGetUniformLocation(shaderID, "u_FogHeightFalloff");
+    c.u_FogBaseHeight = glGetUniformLocation(shaderID, "u_FogBaseHeight");
+    c.u_FogSunScattering = glGetUniformLocation(shaderID, "u_FogSunScattering");
+    c.u_FogLinkAmbient = glGetUniformLocation(shaderID, "u_FogLinkAmbient");
+    c.u_VolumetricActive = glGetUniformLocation(shaderID, "u_VolumetricActive");
+    c.u_VolumetricMaxDistance = glGetUniformLocation(shaderID, "u_VolumetricMaxDistance");
+
+    c.u_SpotLightSpaceMatrix = glGetUniformLocation(shaderID, "u_SpotLightSpaceMatrix");
+    c.u_SpotShadowMap = glGetUniformLocation(shaderID, "u_SpotShadowMap");
+    c.u_HasSpotShadow = glGetUniformLocation(shaderID, "u_HasSpotShadow");
+    c.u_PointShadowMap = glGetUniformLocation(shaderID, "u_PointShadowMap");
+    c.u_HasPointShadow = glGetUniformLocation(shaderID, "u_HasPointShadow");
+    c.u_PointShadowLightPos = glGetUniformLocation(shaderID, "u_PointShadowLightPos");
+    c.u_PointShadowFarPlane = glGetUniformLocation(shaderID, "u_PointShadowFarPlane");
+
     glUseProgram(shaderID);
     if (c.u_diffuseTex >= 0) glUniform1i(c.u_diffuseTex, RenderConstants::DIFFUSE_TEXTURE_SLOT);
     if (c.u_normalTex >= 0) glUniform1i(c.u_normalTex, RenderConstants::NORMAL_TEXTURE_SLOT);
@@ -137,6 +165,8 @@ const shader_uniform_cache& render_system::get_shader_uniforms(unsigned int shad
     if (c.u_aoTex >= 0) glUniform1i(c.u_aoTex, RenderConstants::AO_TEXTURE_SLOT);
     if (c.u_emissiveTex >= 0) glUniform1i(c.u_emissiveTex, RenderConstants::EMISSIVE_TEXTURE_SLOT);
     if (c.u_ShadowMapArray >= 0) glUniform1i(c.u_ShadowMapArray, RenderConstants::CSM_SHADOW_TEXTURE_SLOT);
+    if (c.u_SpotShadowMap >= 0) glUniform1i(c.u_SpotShadowMap, RenderConstants::SPOT_SHADOW_TEXTURE_SLOT);
+    if (c.u_PointShadowMap >= 0) glUniform1i(c.u_PointShadowMap, RenderConstants::POINT_SHADOW_TEXTURE_SLOT);
 
     return m_ShaderUniformCache.emplace(shaderID, c).first->second;
 }
@@ -173,7 +203,13 @@ void render_system::render(
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_LightUBO);
 
-    const glm::mat4 viewProj = projection * view;
+    // TAA sub-pixel jitter aktifken gölge kaskatlarının (CSM) ve Frustum Culling sınırlarının
+    // titrememesi için kırpma ve gölge hesaplarında jitter'sız projeksiyon matrisini kullan
+    glm::mat4 unjitteredProjection = projection;
+    unjitteredProjection[2][0] = 0.0f;
+    unjitteredProjection[2][1] = 0.0f;
+
+    const glm::mat4 viewProj = unjitteredProjection * view;
     const glm::mat4 invView = glm::inverse(view);
     const glm::vec3 cameraPosition = glm::vec3(invView[3]);
 
@@ -195,8 +231,60 @@ void render_system::render(
     passStats = render_pass_stats{};
     passStats.active_lights = static_cast<uint32_t>(lightCount);
 
-    // 2. Çıkarım (Extraction) ve Gruplama (Batching)
-    m_RenderItemsCache.clear();
+    // 2. Gölge Haritası ve Hacimsel Işıklandırma için Işık Matrisinin Hesaplanması (Directional Light araması)
+    m_HasDirectionalLight = false;
+    m_DirectionalLight = {};
+    m_DirectionalLightSpaceMatrix = glm::mat4(1.0f);
+    m_CSMCascades.clear();
+
+    m_HasSpotLightShadow = false;
+    m_ShadowSpotLight = {};
+    m_SpotLightSpaceMatrix = glm::mat4(1.0f);
+    m_SpotShadowItems.clear();
+
+    m_HasPointLightShadow = false;
+    m_ShadowPointLight = {};
+    m_PointShadowFarPlane = 10.0f;
+    m_PointShadowItems.clear();
+
+    if (ctx.renderSettings.enable_shadows || ctx.renderSettings.enable_volumetric_lighting)
+    {
+        for (int i = 0; i < lightCount; ++i)
+        {
+            if (!m_HasDirectionalLight && lights[i].type == 0) // Directional
+            {
+                m_DirectionalLight = lights[i];
+                m_DirectionalLightSpaceMatrix = calculate_light_space_matrix(ctx, lights[i], cameraPosition);
+                m_HasDirectionalLight = true;
+            }
+            if (ctx.renderSettings.enable_shadows)
+            {
+                if (!m_HasSpotLightShadow && lights[i].type == 2 && lights[i].cast_shadows != 0)
+                {
+                    m_HasSpotLightShadow = true;
+                    m_ShadowSpotLight = lights[i];
+                    m_SpotLightSpaceMatrix = calculate_spot_light_space_matrix(lights[i]);
+                }
+                if (!m_HasPointLightShadow && lights[i].type == 1 && lights[i].cast_shadows != 0)
+                {
+                    m_HasPointLightShadow = true;
+                    m_ShadowPointLight = lights[i];
+                    m_PointShadowFarPlane = std::max(0.5f, lights[i].range);
+                }
+            }
+        }
+    }
+
+    if (m_HasDirectionalLight && ctx.renderSettings.enable_csm)
+    {
+        m_CSMCascades = calculate_csm_cascades(ctx, m_DirectionalLight, view, unjitteredProjection, cameraPosition);
+    }
+
+    passStats.shadow_pass_active = (m_HasDirectionalLight || m_HasSpotLightShadow || m_HasPointLightShadow) && ctx.renderSettings.enable_shadows;
+
+    // 3. Çıkarım (Extraction) ve Gruplama (Batching):
+    // Frustum Culling uygulanır; kamera görüşündekiler ana çizim için,
+    // kaskat/gölge hacmindekiler ise gölge çizimi için ayrı önbelleklenir.
     extract(reg, ctx, viewProj, passStats);
 
     m_RenderQueueCache.batches.clear();
@@ -208,33 +296,6 @@ void render_system::render(
     }
 
     passStats.shader_batches = static_cast<uint32_t>(m_RenderQueueCache.batches.size());
-
-    // 3. Gölge Haritası ve Hacimsel Işıklandırma için Işık Matrisinin Hesaplanması (Directional Light araması)
-    m_HasDirectionalLight = false;
-    m_DirectionalLight = {};
-    m_DirectionalLightSpaceMatrix = glm::mat4(1.0f);
-    m_CSMCascades.clear();
-
-    if (ctx.renderSettings.enable_shadows || ctx.renderSettings.enable_volumetric_lighting)
-    {
-        for (int i = 0; i < lightCount; ++i)
-        {
-            if (lights[i].type == 0) // Directional
-            {
-                m_DirectionalLight = lights[i];
-                m_DirectionalLightSpaceMatrix = calculate_light_space_matrix(ctx, lights[i], cameraPosition);
-                m_HasDirectionalLight = true;
-                break;
-            }
-        }
-    }
-
-    if (m_HasDirectionalLight && ctx.renderSettings.enable_csm)
-    {
-        m_CSMCascades = calculate_csm_cascades(ctx, m_DirectionalLight, view, projection, cameraPosition);
-    }
-
-    passStats.shadow_pass_active = m_HasDirectionalLight && ctx.renderSettings.enable_shadows;
 
     // ========================================================================
     // GÖLGE GEÇİŞİ (SHADOW PASS)
@@ -253,48 +314,7 @@ void render_system::render(
                 unsigned int currentShaderID = 0;
                 const shadow_uniform_cache* currentShadowCache = nullptr;
 
-                for (auto& [gpuShaderID, batch] : m_RenderQueueCache.batches)
-                {
-                    for (const auto& item : batch)
-                    {
-                        unsigned int targetShader = item.is_skinned ? skinnedShadowGLShaderID : shadowGLShaderID;
-                        if (targetShader == 0) targetShader = shadowGLShaderID;
-
-                        if (currentShaderID != targetShader)
-                        {
-                            currentShaderID = targetShader;
-                            glUseProgram(currentShaderID);
-                            currentShadowCache = &get_shadow_uniforms(currentShaderID);
-                            if (currentShadowCache->u_lightSpaceMatrix >= 0)
-                            {
-                                glUniformMatrix4fv(currentShadowCache->u_lightSpaceMatrix, 1, GL_FALSE, &m_CSMCascades[c].light_space_matrix[0][0]);
-                            }
-                        }
-
-                        if (currentShadowCache && currentShadowCache->u_model >= 0)
-                        {
-                            glUniformMatrix4fv(currentShadowCache->u_model, 1, GL_FALSE, &item.model[0][0]);
-                        }
-                        const unsigned int drawnIndices = ctx.renderer.Draw(item, ctx.aria_system);
-                        if (drawnIndices > 0)
-                        {
-                            ++passStats.draw_calls_shadow;
-                            passStats.triangles_shadow += drawnIndices / 3;
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            ctx.shadowFBO.bind();
-
-            unsigned int currentShaderID = 0;
-            const shadow_uniform_cache* currentShadowCache = nullptr;
-
-            for (auto& [gpuShaderID, batch] : m_RenderQueueCache.batches)
-            {
-                for (const auto& item : batch)
+                for (const auto& item : m_CascadeShadowItems[c])
                 {
                     unsigned int targetShader = item.is_skinned ? skinnedShadowGLShaderID : shadowGLShaderID;
                     if (targetShader == 0) targetShader = shadowGLShaderID;
@@ -306,7 +326,7 @@ void render_system::render(
                         currentShadowCache = &get_shadow_uniforms(currentShaderID);
                         if (currentShadowCache->u_lightSpaceMatrix >= 0)
                         {
-                            glUniformMatrix4fv(currentShadowCache->u_lightSpaceMatrix, 1, GL_FALSE, &m_DirectionalLightSpaceMatrix[0][0]);
+                            glUniformMatrix4fv(currentShadowCache->u_lightSpaceMatrix, 1, GL_FALSE, &m_CSMCascades[c].light_space_matrix[0][0]);
                         }
                     }
 
@@ -323,7 +343,141 @@ void render_system::render(
                 }
             }
         }
+        else
+        {
+            ctx.shadowFBO.bind();
 
+            unsigned int currentShaderID = 0;
+            const shadow_uniform_cache* currentShadowCache = nullptr;
+
+            for (const auto& item : m_SingleShadowItems)
+            {
+                unsigned int targetShader = item.is_skinned ? skinnedShadowGLShaderID : shadowGLShaderID;
+                if (targetShader == 0) targetShader = shadowGLShaderID;
+
+                if (currentShaderID != targetShader)
+                {
+                    currentShaderID = targetShader;
+                    glUseProgram(currentShaderID);
+                    currentShadowCache = &get_shadow_uniforms(currentShaderID);
+                    if (currentShadowCache->u_lightSpaceMatrix >= 0)
+                    {
+                        glUniformMatrix4fv(currentShadowCache->u_lightSpaceMatrix, 1, GL_FALSE, &m_DirectionalLightSpaceMatrix[0][0]);
+                    }
+                }
+
+                if (currentShadowCache && currentShadowCache->u_model >= 0)
+                {
+                    glUniformMatrix4fv(currentShadowCache->u_model, 1, GL_FALSE, &item.model[0][0]);
+                }
+                const unsigned int drawnIndices = ctx.renderer.Draw(item, ctx.aria_system);
+                if (drawnIndices > 0)
+                {
+                    ++passStats.draw_calls_shadow;
+                    passStats.triangles_shadow += drawnIndices / 3;
+                }
+            }
+        }
+
+    }
+
+    // Spot Isik Golge Gecisi
+    if (m_HasSpotLightShadow && ctx.renderSettings.enable_shadows && !m_SpotShadowItems.empty())
+    {
+        ctx.shadowFBO.bind_spot();
+
+        const unsigned int shadowGLShaderID = ctx.aria_system->get_shader_id(ctx.shadowShaderHandle);
+        const unsigned int skinnedShadowGLShaderID = ctx.aria_system->get_shader_id(ctx.skinnedShadowShaderHandle);
+
+        unsigned int currentShaderID = 0;
+        const shadow_uniform_cache* currentShadowCache = nullptr;
+
+        for (const auto& item : m_SpotShadowItems)
+        {
+            unsigned int targetShader = item.is_skinned ? skinnedShadowGLShaderID : shadowGLShaderID;
+            if (targetShader == 0) targetShader = shadowGLShaderID;
+
+            if (currentShaderID != targetShader)
+            {
+                currentShaderID = targetShader;
+                glUseProgram(currentShaderID);
+                currentShadowCache = &get_shadow_uniforms(currentShaderID);
+                if (currentShadowCache->u_lightSpaceMatrix >= 0)
+                {
+                    glUniformMatrix4fv(currentShadowCache->u_lightSpaceMatrix, 1, GL_FALSE, &m_SpotLightSpaceMatrix[0][0]);
+                }
+            }
+
+            if (currentShadowCache && currentShadowCache->u_model >= 0)
+            {
+                glUniformMatrix4fv(currentShadowCache->u_model, 1, GL_FALSE, &item.model[0][0]);
+            }
+            const unsigned int drawnIndices = ctx.renderer.Draw(item, ctx.aria_system);
+            if (drawnIndices > 0)
+            {
+                ++passStats.draw_calls_shadow;
+                passStats.triangles_shadow += drawnIndices / 3;
+            }
+        }
+    }
+
+    // Noktasal Isik Kup Golge Gecisi (6 Yuz)
+    if (m_HasPointLightShadow && ctx.renderSettings.enable_shadows && !m_PointShadowItems.empty())
+    {
+        const unsigned int shadowGLShaderID = ctx.aria_system->get_shader_id(ctx.shadowShaderHandle);
+        const unsigned int skinnedShadowGLShaderID = ctx.aria_system->get_shader_id(ctx.skinnedShadowShaderHandle);
+
+        const glm::mat4 pointProj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, m_PointShadowFarPlane);
+        const glm::vec3 pPos = m_ShadowPointLight.position;
+
+        const glm::mat4 pointFaceMatrices[6] = {
+            pointProj * glm::lookAt(pPos, pPos + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+            pointProj * glm::lookAt(pPos, pPos + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+            pointProj * glm::lookAt(pPos, pPos + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+            pointProj * glm::lookAt(pPos, pPos + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+            pointProj * glm::lookAt(pPos, pPos + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+            pointProj * glm::lookAt(pPos, pPos + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+        };
+
+        for (unsigned int face = 0; face < 6; ++face)
+        {
+            ctx.shadowFBO.bind_point_face(face);
+
+            unsigned int currentShaderID = 0;
+            const shadow_uniform_cache* currentShadowCache = nullptr;
+
+            for (const auto& item : m_PointShadowItems)
+            {
+                unsigned int targetShader = item.is_skinned ? skinnedShadowGLShaderID : shadowGLShaderID;
+                if (targetShader == 0) targetShader = shadowGLShaderID;
+
+                if (currentShaderID != targetShader)
+                {
+                    currentShaderID = targetShader;
+                    glUseProgram(currentShaderID);
+                    currentShadowCache = &get_shadow_uniforms(currentShaderID);
+                    if (currentShadowCache->u_lightSpaceMatrix >= 0)
+                    {
+                        glUniformMatrix4fv(currentShadowCache->u_lightSpaceMatrix, 1, GL_FALSE, &pointFaceMatrices[face][0][0]);
+                    }
+                }
+
+                if (currentShadowCache && currentShadowCache->u_model >= 0)
+                {
+                    glUniformMatrix4fv(currentShadowCache->u_model, 1, GL_FALSE, &item.model[0][0]);
+                }
+                const unsigned int drawnIndices = ctx.renderer.Draw(item, ctx.aria_system);
+                if (drawnIndices > 0)
+                {
+                    ++passStats.draw_calls_shadow;
+                    passStats.triangles_shadow += drawnIndices / 3;
+                }
+            }
+        }
+    }
+
+    if (passStats.shadow_pass_active)
+    {
         glBindFramebuffer(GL_FRAMEBUFFER, previousFBO);
         ctx.renderer.BindFramebuffer(previousFBO);
     }
@@ -373,6 +527,29 @@ void render_system::render(
         glBindTexture(GL_TEXTURE_2D_ARRAY, ctx.shadowFBO.get_depth_texture_array());
         if (u.u_ShadowMapArray >= 0) glUniform1i(u.u_ShadowMapArray, RenderConstants::CSM_SHADOW_TEXTURE_SLOT);
 
+        // Spot Isik Golge Dokusu (Slot 10)
+        glActiveTexture(GL_TEXTURE0 + RenderConstants::SPOT_SHADOW_TEXTURE_SLOT);
+        glBindTexture(GL_TEXTURE_2D, ctx.shadowFBO.get_spot_depth_texture());
+        if (u.u_SpotShadowMap >= 0) glUniform1i(u.u_SpotShadowMap, RenderConstants::SPOT_SHADOW_TEXTURE_SLOT);
+        const bool spotShadowActive = m_HasSpotLightShadow && ctx.renderSettings.enable_shadows;
+        if (u.u_HasSpotShadow >= 0) glUniform1i(u.u_HasSpotShadow, spotShadowActive ? 1 : 0);
+        if (spotShadowActive && u.u_SpotLightSpaceMatrix >= 0)
+        {
+            glUniformMatrix4fv(u.u_SpotLightSpaceMatrix, 1, GL_FALSE, &m_SpotLightSpaceMatrix[0][0]);
+        }
+
+        // Noktasal Isik Kup Golge Dokusu (Slot 11)
+        glActiveTexture(GL_TEXTURE0 + RenderConstants::POINT_SHADOW_TEXTURE_SLOT);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, ctx.shadowFBO.get_point_depth_cubemap());
+        if (u.u_PointShadowMap >= 0) glUniform1i(u.u_PointShadowMap, RenderConstants::POINT_SHADOW_TEXTURE_SLOT);
+        const bool pointShadowActive = m_HasPointLightShadow && ctx.renderSettings.enable_shadows;
+        if (u.u_HasPointShadow >= 0) glUniform1i(u.u_HasPointShadow, pointShadowActive ? 1 : 0);
+        if (pointShadowActive)
+        {
+            if (u.u_PointShadowLightPos >= 0) glUniform3fv(u.u_PointShadowLightPos, 1, &m_ShadowPointLight.position[0]);
+            if (u.u_PointShadowFarPlane >= 0) glUniform1f(u.u_PointShadowFarPlane, m_PointShadowFarPlane);
+        }
+
         // PS1 Retro Horror Parametreleri
         const auto& ps1 = ctx.renderSettings;
         const float snapVal = ps1.enable_ps1_mode ? ps1.ps1_vertex_snapping : 0.0f;
@@ -386,6 +563,30 @@ void render_system::render(
         if (u.u_PS1ColorDepth >= 0) glUniform1f(u.u_PS1ColorDepth, depthVal);
         if (u.u_PS1Dithering >= 0) glUniform1i(u.u_PS1Dithering, ditherVal ? 1 : 0);
         if (u.u_PS1DitherStrength >= 0) glUniform1f(u.u_PS1DitherStrength, ditherStr);
+
+        // Standart PBR Küresel Işıklandırma Parametreleri
+        if (u.u_PbrAmbientIntensity >= 0) glUniform1f(u.u_PbrAmbientIntensity, ps1.pbr_ambient_intensity);
+        if (u.u_PbrIBLIntensity >= 0) glUniform1f(u.u_PbrIBLIntensity, ps1.pbr_ibl_intensity);
+        if (u.u_PbrSpecularIntensity >= 0) glUniform1f(u.u_PbrSpecularIntensity, ps1.pbr_specular_intensity);
+        if (u.u_PbrRoughnessMultiplier >= 0) glUniform1f(u.u_PbrRoughnessMultiplier, ps1.pbr_roughness_multiplier);
+        if (u.u_PbrMetallicMultiplier >= 0) glUniform1f(u.u_PbrMetallicMultiplier, ps1.pbr_metallic_multiplier);
+        if (u.u_PbrExposure >= 0) glUniform1f(u.u_PbrExposure, ps1.pbr_exposure);
+        if (u.u_PbrToneMapping >= 0) glUniform1i(u.u_PbrToneMapping, ps1.pbr_tone_mapping);
+
+        if (u.u_PS1Mode >= 0) glUniform1i(u.u_PS1Mode, ps1.enable_ps1_mode ? 1 : 0);
+        if (u.u_EnableGI >= 0) glUniform1i(u.u_EnableGI, ps1.enable_gi ? 1 : 0);
+        if (u.u_GISkyColor >= 0) glUniform3fv(u.u_GISkyColor, 1, &ps1.gi_sky_color[0]);
+        if (u.u_GIGroundColor >= 0) glUniform3fv(u.u_GIGroundColor, 1, &ps1.gi_ground_color[0]);
+
+        if (u.u_FogMode >= 0) glUniform1i(u.u_FogMode, ctx.fog.mode);
+        if (u.u_FogHeightFalloff >= 0) glUniform1f(u.u_FogHeightFalloff, ctx.fog.height_falloff);
+        if (u.u_FogBaseHeight >= 0) glUniform1f(u.u_FogBaseHeight, ctx.fog.base_height);
+        if (u.u_FogSunScattering >= 0) glUniform1f(u.u_FogSunScattering, ctx.fog.sun_scattering_intensity);
+        if (u.u_FogLinkAmbient >= 0) glUniform1i(u.u_FogLinkAmbient, ctx.fog.link_to_ambient_sky ? 1 : 0);
+
+        const bool volActive = ps1.enable_volumetric_lighting && m_HasDirectionalLight;
+        if (u.u_VolumetricActive >= 0) glUniform1i(u.u_VolumetricActive, volActive ? 1 : 0);
+        if (u.u_VolumetricMaxDistance >= 0) glUniform1f(u.u_VolumetricMaxDistance, ps1.volumetric_max_distance);
 
         const bool csmActive = ctx.renderSettings.enable_shadows && ctx.renderSettings.enable_csm && !m_CSMCascades.empty();
         if (u.u_EnableCSM >= 0) glUniform1i(u.u_EnableCSM, csmActive ? 1 : 0);
@@ -426,7 +627,7 @@ void render_system::render(
             if (u.u_normalTex >= 0) glUniform1i(u.u_normalTex, RenderConstants::NORMAL_TEXTURE_SLOT);
             if (item.normal_handle.is_valid() && u.u_normalStrength >= 0)
             {
-                glUniform1f(u.u_normalStrength, item.normal_strength);
+                glUniform1f(u.u_normalStrength, item.normal_strength * ps1.pbr_normal_strength);
             }
 
             if (u.u_UseMetallicMap >= 0) glUniform1i(u.u_UseMetallicMap, item.metallic_handle.is_valid());
@@ -461,6 +662,10 @@ void render_system::render(
         glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
         glActiveTexture(GL_TEXTURE0 + RenderConstants::SHADOW_TEXTURE_SLOT);
         glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE0 + RenderConstants::SPOT_SHADOW_TEXTURE_SLOT);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE0 + RenderConstants::POINT_SHADOW_TEXTURE_SLOT);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
         glActiveTexture(GL_TEXTURE0);
     }
 
@@ -481,8 +686,46 @@ void render_system::extract(
     const glm::mat4& viewProj,
     render_pass_stats& outStats)
 {
-    const frustum f = buildFrustum(viewProj);
-    constexpr float kCullBias = 0.01f;
+    const frustum cameraFrustum = build_frustum(viewProj);
+    const bool enableCulling = ctx.renderSettings.enable_frustum_culling;
+    const float cullBias = ctx.renderSettings.cull_bias;
+
+    // Gölge geçişi için kaskat ve tekli gölge hacimlerini (Shadow Frustums) önceden hazırla
+    const bool shadowsActive = m_HasDirectionalLight && ctx.renderSettings.enable_shadows;
+    const bool csmActive = shadowsActive && ctx.renderSettings.enable_csm && !m_CSMCascades.empty();
+    const size_t cascadeCount = csmActive ? m_CSMCascades.size() : 0;
+
+    frustum cascadeFrustums[3];
+    if (csmActive)
+    {
+        for (size_t c = 0; c < cascadeCount && c < 3; ++c)
+        {
+            cascadeFrustums[c] = build_frustum(m_CSMCascades[c].light_space_matrix);
+        }
+    }
+
+    frustum singleShadowFrustum;
+    if (shadowsActive && !csmActive)
+    {
+        singleShadowFrustum = build_frustum(m_DirectionalLightSpaceMatrix);
+    }
+
+    // Önbellek listelerini temizle
+    m_RenderItemsCache.clear();
+    for (int c = 0; c < 3; ++c)
+    {
+        m_CascadeShadowItems[c].clear();
+    }
+    m_SingleShadowItems.clear();
+    m_SpotShadowItems.clear();
+    m_PointShadowItems.clear();
+
+    const bool spotActive = m_HasSpotLightShadow && ctx.renderSettings.enable_shadows;
+    const frustum spotFrustum = spotActive ? build_frustum(m_SpotLightSpaceMatrix) : frustum{};
+    const bool pointActive = m_HasPointLightShadow && ctx.renderSettings.enable_shadows;
+
+    const unsigned int defaultShaderID = ctx.aria_system->get_shader_id(ctx.defaultShaderHandle);
+    const unsigned int defaultSkinnedShaderID = ctx.aria_system->get_shader_id(ctx.skinnedShaderHandle);
 
     // 1. Statik Mesh Varlıklarının Çıkarımı (Modern EnTT Çoklu Bileşen View ile Bitişik Bellek Hızı)
     auto meshView = reg.view<const transform_component, const mesh_component>();
@@ -496,7 +739,6 @@ void render_system::extract(
         // Model Matrisinin Hesaplanması
         const glm::mat4 model = ecs_transform::get_world_matrix(e, reg);
 
-        // 2. Frustum Culling (Görüş Alanı Kırpması)
         const aria::submesh_runtime_info meshInfo =
             ctx.aria_system->get_submesh_info(
                 meshComp.model_handle,
@@ -511,164 +753,100 @@ void render_system::extract(
             absoluteScale.x,
             glm::max(absoluteScale.y, absoluteScale.z));
 
-        const float radius = (meshInfo.local_radius * maxScale) + ctx.renderSettings.cull_bias;
+        const float radius = (meshInfo.local_radius * maxScale) + cullBias;
 
-        if (ctx.renderSettings.enable_frustum_culling && !f.is_inside(worldCenter, radius))
+        // Kamera görüş alanı testi
+        const bool visibleInCamera = !enableCulling || cameraFrustum.is_inside(worldCenter, radius);
+
+        // Gölge düşürme hacmi (Shadow Caster) testi:
+        // Nesne kameranın arkasında veya ekran dışında kalsa dahi gölgesi görüş alanına düşüyorsa gölge haritasına çizilmelidir!
+        bool inCascade[3] = { false, false, false };
+        bool visibleInShadow = false;
+
+        if (shadowsActive)
+        {
+            if (csmActive)
+            {
+                for (size_t c = 0; c < cascadeCount && c < 3; ++c)
+                {
+                    inCascade[c] = !enableCulling || cascadeFrustums[c].is_inside(worldCenter, radius);
+                    if (inCascade[c])
+                    {
+                        visibleInShadow = true;
+                    }
+                }
+            }
+            else
+            {
+                visibleInShadow = !enableCulling || singleShadowFrustum.is_inside(worldCenter, radius);
+            }
+        }
+
+        const bool inSpot = spotActive && (!enableCulling || spotFrustum.is_inside(worldCenter, radius));
+        const bool inPoint = pointActive && (glm::distance(worldCenter, m_ShadowPointLight.position) <= (m_ShadowPointLight.range + radius));
+
+        // Hem kameraya hem de herhangi bir golgeye gorunmuyorsa tamamen kirp (Cull)
+        if (!visibleInCamera && !visibleInShadow && !inSpot && !inPoint)
         {
             ++outStats.culled_submeshes;
             continue;
         }
-        ++outStats.visible_submeshes;
 
-        // 3. Render Öğe Verilerinin Toplanması
-        render_item item;
-        item.model = model;
-        item.model_handle = meshComp.model_handle;
-        item.sub_mesh_index = meshComp.sub_mesh_index;
-
-        const unsigned int defaultShaderID = ctx.aria_system->get_shader_id(ctx.defaultShaderHandle);
-
-        if (matComp && matComp->material_handle.is_valid())
+        if (visibleInCamera)
         {
-            const auto* mat = ctx.aria_system->get_material_data(matComp->material_handle);
+            ++outStats.visible_submeshes;
+        }
 
-            if (mat)
+        // Golge dusuren nesne olarak ilgili golge listelerine ekle
+        if (visibleInShadow || inSpot || inPoint)
+        {
+            render_item shadowItem;
+            shadowItem.model = model;
+            shadowItem.model_handle = meshComp.model_handle;
+            shadowItem.sub_mesh_index = meshComp.sub_mesh_index;
+            shadowItem.is_skinned = false;
+
+            if (visibleInShadow)
             {
-                if (mat->shader_handle.is_valid())
+                if (csmActive)
                 {
-                    item.gpu_shader_id = ctx.aria_system->get_shader_id(mat->shader_handle);
+                    for (size_t c = 0; c < cascadeCount && c < 3; ++c)
+                    {
+                        if (inCascade[c])
+                        {
+                            m_CascadeShadowItems[c].push_back(shadowItem);
+                        }
+                    }
                 }
                 else
                 {
-                    item.gpu_shader_id = defaultShaderID;
+                    m_SingleShadowItems.push_back(shadowItem);
                 }
-
-                item.mode = mat->mode;
-                item.alpha_threshold = mat->alpha_threshold;
-                item.base_color = mat->base_color;
-                item.metallic = mat->metallic;
-                item.roughness = mat->roughness;
-                item.ao = mat->ao;
-                item.emissive_color = mat->emissive_color;
-                item.emissive_intensity = mat->emissive_intensity;
-
-                item.normal_strength = mat->normal_strength;
-                item.texture_scale = mat->texture_scale;
-                item.diffuse_handle = mat->diffuse_texture_handle;
-                item.normal_handle = mat->normal_texture_handle;
-                item.metallic_handle = mat->metallic_texture_handle;
-                item.roughness_handle = mat->roughness_texture_handle;
-                item.ao_handle = mat->ao_texture_handle;
-                item.emissive_handle = mat->emissive_texture_handle;
-                item.specular_handle = mat->specular_texture_handle;
-                item.specular_strength = mat->specular_strength;
-                item.shininess = mat->shininess;
             }
-            else
+
+            if (inSpot)
             {
-                // Varlık çözümlemesi başarısız olursa varsayılan lit shader atanır
-                item.gpu_shader_id = defaultShaderID;
-                item.mode = aria::render_mode::opaque;
-                item.alpha_threshold = 0.1f;
-                item.base_color = glm::vec3(1.0f);
-                item.metallic = 0.0f;
-                item.roughness = 0.5f;
-                item.ao = 1.0f;
-                item.emissive_color = glm::vec3(0.0f);
-                item.emissive_intensity = 0.0f;
-                item.texture_scale = glm::vec2(1.0f);
-                item.specular_strength = 0.5f;
-                item.shininess = 32.0f;
+                m_SpotShadowItems.push_back(shadowItem);
             }
-        }
-        else
-        {
-            // Materyal bileşeni yoksa varsayılan lit shader atanır
-            item.gpu_shader_id = defaultShaderID;
-            item.mode = aria::render_mode::opaque;
-            item.alpha_threshold = 0.1f;
-            item.base_color = glm::vec3(1.0f);
-            item.metallic = 0.0f;
-            item.roughness = 0.5f;
-            item.ao = 1.0f;
-            item.emissive_color = glm::vec3(0.0f);
-            item.emissive_intensity = 0.0f;
-            item.texture_scale = glm::vec2(1.0f);
-            item.specular_strength = 0.5f;
-            item.shininess = 32.0f;
-        }
 
-        m_RenderItemsCache.push_back(item);
-    }
-
-    // 4. İskeletli (Skinned) Mesh Varlıklarının Çıkarımı (Modern EnTT View)
-    auto skinnedView = reg.view<const transform_component, const skinned_mesh_component>();
-    for (auto ent : skinnedView)
-    {
-        const auto& transform = skinnedView.get<const transform_component>(ent);
-        const auto& skinnedMeshComp = skinnedView.get<const skinned_mesh_component>(ent);
-        const entity e = to_entity(ent);
-        const auto* matComp = reg.get_component<material_component>(e);
-        const auto* skelComp = reg.get_component<skeleton_component>(e);
-
-        // Model Matrisinin Hesaplanması
-        const glm::mat4 model = ecs_transform::get_world_matrix(e, reg);
-
-        const auto* skinnedModelData = ctx.aria_system->get_skinned_model_data(skinnedMeshComp.model_handle);
-        if (!skinnedModelData || skinnedModelData->sub_meshes.empty())
-        {
-            continue;
-        }
-
-        const size_t totalSubMeshes = skinnedModelData->sub_meshes.size();
-
-        for (size_t subIdx = 0; subIdx < totalSubMeshes; ++subIdx)
-        {
-            // Frustum Culling
-            const aria::submesh_runtime_info meshInfo =
-                ctx.aria_system->get_skinned_submesh_info(
-                    skinnedMeshComp.model_handle,
-                    subIdx);
-
-            const glm::vec3 localCenter = meshInfo.local_center;
-            const glm::vec4 homogeneousCenter = model * glm::vec4(localCenter, 1.0f);
-            const glm::vec3 worldCenter = glm::vec3(homogeneousCenter) / homogeneousCenter.w;
-
-            const glm::vec3 absoluteScale = glm::abs(transform.scale);
-            const float maxScale = glm::max(
-                absoluteScale.x,
-                glm::max(absoluteScale.y, absoluteScale.z));
-
-            const float radius = (meshInfo.local_radius * maxScale) + ctx.renderSettings.cull_bias;
-
-            if (ctx.renderSettings.enable_frustum_culling && !f.is_inside(worldCenter, radius))
+            if (inPoint)
             {
-                ++outStats.culled_submeshes;
-                continue;
+                m_PointShadowItems.push_back(shadowItem);
             }
-            ++outStats.visible_submeshes;
+        }
 
+        // Yalnızca kameraya görünen nesneler için materyal/doku çözümlemesi yap ve ana çizim kuyruğuna ekle
+        if (visibleInCamera)
+        {
             render_item item;
-            item.is_skinned = true;
             item.model = model;
-            item.skinned_model_handle = skinnedMeshComp.model_handle;
-            item.sub_mesh_index = subIdx;
-
-            if (skelComp && !skelComp->skinning_palette.empty())
-            {
-                item.bone_matrices = &skelComp->skinning_palette;
-            }
-            else
-            {
-                item.bone_matrices = nullptr;
-            }
-
-            const unsigned int defaultSkinnedShaderID = ctx.aria_system->get_shader_id(ctx.skinnedShaderHandle);
+            item.model_handle = meshComp.model_handle;
+            item.sub_mesh_index = meshComp.sub_mesh_index;
+            item.is_skinned = false;
 
             if (matComp && matComp->material_handle.is_valid())
             {
                 const auto* mat = ctx.aria_system->get_material_data(matComp->material_handle);
-
                 if (mat)
                 {
                     if (mat->shader_handle.is_valid())
@@ -677,7 +855,7 @@ void render_system::extract(
                     }
                     else
                     {
-                        item.gpu_shader_id = defaultSkinnedShaderID;
+                        item.gpu_shader_id = defaultShaderID;
                     }
 
                     item.mode = mat->mode;
@@ -703,10 +881,10 @@ void render_system::extract(
                 }
                 else
                 {
-                    item.gpu_shader_id = defaultSkinnedShaderID;
+                    item.gpu_shader_id = defaultShaderID;
                     item.mode = aria::render_mode::opaque;
                     item.alpha_threshold = 0.1f;
-                    item.base_color = glm::vec3(1.0f, 0.0f, 1.0f);
+                    item.base_color = glm::vec3(1.0f);
                     item.metallic = 0.0f;
                     item.roughness = 0.5f;
                     item.ao = 1.0f;
@@ -719,7 +897,7 @@ void render_system::extract(
             }
             else
             {
-                item.gpu_shader_id = defaultSkinnedShaderID;
+                item.gpu_shader_id = defaultShaderID;
                 item.mode = aria::render_mode::opaque;
                 item.alpha_threshold = 0.1f;
                 item.base_color = glm::vec3(1.0f);
@@ -736,6 +914,227 @@ void render_system::extract(
             m_RenderItemsCache.push_back(item);
         }
     }
+
+    // 2. İskeletli (Skinned) Mesh Varlıklarının Çıkarımı (Modern EnTT View)
+    auto skinnedView = reg.view<const transform_component, const skinned_mesh_component>();
+    for (auto ent : skinnedView)
+    {
+        const auto& transform = skinnedView.get<const transform_component>(ent);
+        const auto& skinnedMeshComp = skinnedView.get<const skinned_mesh_component>(ent);
+        const entity e = to_entity(ent);
+        const auto* matComp = reg.get_component<material_component>(e);
+        const auto* skelComp = reg.get_component<skeleton_component>(e);
+
+        const glm::mat4 model = ecs_transform::get_world_matrix(e, reg);
+
+        const auto* skinnedModelData = ctx.aria_system->get_skinned_model_data(skinnedMeshComp.model_handle);
+        if (!skinnedModelData || skinnedModelData->sub_meshes.empty())
+        {
+            continue;
+        }
+
+        const size_t totalSubMeshes = skinnedModelData->sub_meshes.size();
+
+        for (size_t subIdx = 0; subIdx < totalSubMeshes; ++subIdx)
+        {
+            const aria::submesh_runtime_info meshInfo =
+                ctx.aria_system->get_skinned_submesh_info(
+                    skinnedMeshComp.model_handle,
+                    subIdx);
+
+            const glm::vec3 localCenter = meshInfo.local_center;
+            const glm::vec4 homogeneousCenter = model * glm::vec4(localCenter, 1.0f);
+            const glm::vec3 worldCenter = glm::vec3(homogeneousCenter) / homogeneousCenter.w;
+
+            const glm::vec3 absoluteScale = glm::abs(transform.scale);
+            const float maxScale = glm::max(
+                absoluteScale.x,
+                glm::max(absoluteScale.y, absoluteScale.z));
+
+            const float radius = (meshInfo.local_radius * maxScale) + cullBias;
+
+            // Kamera görüş alanı testi
+            const bool visibleInCamera = !enableCulling || cameraFrustum.is_inside(worldCenter, radius);
+
+            // Gölge düşürme hacmi (Shadow Caster) testi
+            bool inCascade[3] = { false, false, false };
+            bool visibleInShadow = false;
+
+            if (shadowsActive)
+            {
+                if (csmActive)
+                {
+                    for (size_t c = 0; c < cascadeCount && c < 3; ++c)
+                    {
+                        inCascade[c] = !enableCulling || cascadeFrustums[c].is_inside(worldCenter, radius);
+                        if (inCascade[c])
+                        {
+                            visibleInShadow = true;
+                        }
+                    }
+                }
+                else
+                {
+                    visibleInShadow = !enableCulling || singleShadowFrustum.is_inside(worldCenter, radius);
+                }
+            }
+
+            const bool inSpot = spotActive && (!enableCulling || spotFrustum.is_inside(worldCenter, radius));
+            const bool inPoint = pointActive && (glm::distance(worldCenter, m_ShadowPointLight.position) <= (m_ShadowPointLight.range + radius));
+
+            if (!visibleInCamera && !visibleInShadow && !inSpot && !inPoint)
+            {
+                ++outStats.culled_submeshes;
+                continue;
+            }
+
+            if (visibleInCamera)
+            {
+                ++outStats.visible_submeshes;
+            }
+
+            // Iskeletli golge nesnesi ekle
+            if (visibleInShadow || inSpot || inPoint)
+            {
+                render_item shadowItem;
+                shadowItem.is_skinned = true;
+                shadowItem.model = model;
+                shadowItem.skinned_model_handle = skinnedMeshComp.model_handle;
+                shadowItem.sub_mesh_index = subIdx;
+
+                if (skelComp && !skelComp->skinning_palette.empty())
+                {
+                    shadowItem.bone_matrices = &skelComp->skinning_palette;
+                }
+
+                if (visibleInShadow)
+                {
+                    if (csmActive)
+                    {
+                        for (size_t c = 0; c < cascadeCount && c < 3; ++c)
+                        {
+                            if (inCascade[c])
+                            {
+                                m_CascadeShadowItems[c].push_back(shadowItem);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        m_SingleShadowItems.push_back(shadowItem);
+                    }
+                }
+
+                if (inSpot)
+                {
+                    m_SpotShadowItems.push_back(shadowItem);
+                }
+
+                if (inPoint)
+                {
+                    m_PointShadowItems.push_back(shadowItem);
+                }
+            }
+
+            // Kameraya görünürse ana çizim kuyruğuna ekle
+            if (visibleInCamera)
+            {
+                render_item item;
+                item.is_skinned = true;
+                item.model = model;
+                item.skinned_model_handle = skinnedMeshComp.model_handle;
+                item.sub_mesh_index = subIdx;
+
+                if (skelComp && !skelComp->skinning_palette.empty())
+                {
+                    item.bone_matrices = &skelComp->skinning_palette;
+                }
+
+                if (matComp && matComp->material_handle.is_valid())
+                {
+                    const auto* mat = ctx.aria_system->get_material_data(matComp->material_handle);
+                    if (mat)
+                    {
+                        if (mat->shader_handle.is_valid())
+                        {
+                            item.gpu_shader_id = ctx.aria_system->get_shader_id(mat->shader_handle);
+                        }
+                        else
+                        {
+                            item.gpu_shader_id = defaultSkinnedShaderID;
+                        }
+
+                        item.mode = mat->mode;
+                        item.alpha_threshold = mat->alpha_threshold;
+                        item.base_color = mat->base_color;
+                        item.metallic = mat->metallic;
+                        item.roughness = mat->roughness;
+                        item.ao = mat->ao;
+                        item.emissive_color = mat->emissive_color;
+                        item.emissive_intensity = mat->emissive_intensity;
+
+                        item.normal_strength = mat->normal_strength;
+                        item.texture_scale = mat->texture_scale;
+                        item.diffuse_handle = mat->diffuse_texture_handle;
+                        item.normal_handle = mat->normal_texture_handle;
+                        item.metallic_handle = mat->metallic_texture_handle;
+                        item.roughness_handle = mat->roughness_texture_handle;
+                        item.ao_handle = mat->ao_texture_handle;
+                        item.emissive_handle = mat->emissive_texture_handle;
+                        item.specular_handle = mat->specular_texture_handle;
+                        item.specular_strength = mat->specular_strength;
+                        item.shininess = mat->shininess;
+                    }
+                    else
+                    {
+                        item.gpu_shader_id = defaultSkinnedShaderID;
+                        item.mode = aria::render_mode::opaque;
+                        item.alpha_threshold = 0.1f;
+                        item.base_color = glm::vec3(1.0f);
+                        item.metallic = 0.0f;
+                        item.roughness = 0.5f;
+                        item.ao = 1.0f;
+                        item.emissive_color = glm::vec3(0.0f);
+                        item.emissive_intensity = 0.0f;
+                        item.texture_scale = glm::vec2(1.0f);
+                        item.specular_strength = 0.5f;
+                        item.shininess = 32.0f;
+                    }
+                }
+                else
+                {
+                    item.gpu_shader_id = defaultSkinnedShaderID;
+                    item.mode = aria::render_mode::opaque;
+                    item.alpha_threshold = 0.1f;
+                    item.base_color = glm::vec3(1.0f);
+                    item.metallic = 0.0f;
+                    item.roughness = 0.5f;
+                    item.ao = 1.0f;
+                    item.emissive_color = glm::vec3(0.0f);
+                    item.emissive_intensity = 0.0f;
+                    item.texture_scale = glm::vec2(1.0f);
+                    item.specular_strength = 0.5f;
+                    item.shininess = 32.0f;
+                }
+
+                m_RenderItemsCache.push_back(item);
+            }
+        }
+    }
+}
+
+glm::mat4 render_system::calculate_spot_light_space_matrix(const light_data& light)
+{
+    const float fovY = glm::radians(std::clamp(light.outer_cone * 2.0f, 1.0f, 175.0f));
+    const float farPlane = std::max(0.5f, light.range);
+    const glm::mat4 proj = glm::perspective(fovY, 1.0f, 0.1f, farPlane);
+
+    glm::vec3 dir = glm::normalize(light.direction);
+    if (glm::length(dir) < 0.0001f) dir = glm::vec3(0.0f, -1.0f, 0.0f);
+    const glm::vec3 up = (std::abs(dir.y) > 0.99f) ? glm::vec3(0.0f, 0.0f, 1.0f) : glm::vec3(0.0f, 1.0f, 0.0f);
+    const glm::mat4 view = glm::lookAt(light.position, light.position + dir, up);
+
+    return proj * view;
 }
 
 glm::mat4 render_system::calculate_light_space_matrix(const EngineContext& ctx, const light_data& light, const glm::vec3& viewPos)
