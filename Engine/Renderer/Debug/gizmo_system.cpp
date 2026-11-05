@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include <unordered_set>
 
 namespace
 {
@@ -68,6 +69,13 @@ void gizmo_system::shutdown()
         m_VBO = 0;
         m_AllocatedCapacity = 0;
     }
+
+    for (auto& [key, entry] : m_MeshWireCache)
+    {
+        if (entry.vao != 0) glDeleteVertexArrays(1, &entry.vao);
+        if (entry.vbo != 0) glDeleteBuffers(1, &entry.vbo);
+    }
+    m_MeshWireCache.clear();
 }
 
 void gizmo_system::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color)
@@ -173,7 +181,7 @@ void gizmo_system::DrawWireSphere(const glm::mat4& transform, float radius, cons
 
     auto TransformPoint = [&](const glm::vec3& p) {
         return glm::vec3(transform * glm::vec4(p, 1.0f));
-        };
+    };
 
     for (int i = 0; i < segments; ++i)
     {
@@ -399,6 +407,107 @@ void gizmo_system::DrawDirectionalLightGizmo(
     }
 }
 
+void gizmo_system::DrawWireMesh(
+    uint32_t cacheKey,
+    const glm::mat4& transform,
+    const std::vector<glm::vec3>& localVertices,
+    const std::vector<uint32_t>& indices,
+    const glm::vec4& color)
+{
+    if (localVertices.empty() || indices.size() < 3)
+    {
+        return;
+    }
+
+    auto& entry = m_MeshWireCache[cacheKey];
+    const glm::vec3 firstV = localVertices.front();
+    const glm::vec3 lastV = localVertices.back();
+
+    const bool needsRebuild =
+        (entry.vao == 0) ||
+        (entry.vbo == 0) ||
+        (entry.sourceVertexCount != localVertices.size()) ||
+        (entry.sourceIndexCount != indices.size()) ||
+        (entry.firstVertex != firstV) ||
+        (entry.lastVertex != lastV) ||
+        (entry.transform != transform) ||
+        (entry.color != color);
+
+    if (needsRebuild)
+    {
+        if (entry.vao == 0)
+        {
+            glGenVertexArrays(1, &entry.vao);
+            glGenBuffers(1, &entry.vbo);
+
+            glBindVertexArray(entry.vao);
+            glBindBuffer(GL_ARRAY_BUFFER, entry.vbo);
+
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GizmoVertex), reinterpret_cast<void*>(0));
+            glEnableVertexAttribArray(0);
+
+            glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(GizmoVertex), reinterpret_cast<void*>(offsetof(GizmoVertex, color)));
+            glEnableVertexAttribArray(1);
+
+            glBindVertexArray(0);
+        }
+
+        // Tum kose noktalarini dunya uzayina donustur
+        std::vector<glm::vec3> worldVerts(localVertices.size());
+        for (size_t i = 0; i < localVertices.size(); ++i)
+        {
+            worldVerts[i] = glm::vec3(transform * glm::vec4(localVertices[i], 1.0f));
+        }
+
+        const size_t numVerts = worldVerts.size();
+        const size_t numTris = indices.size() / 3;
+        std::vector<GizmoVertex> lineVerts;
+        lineVerts.reserve(numTris * 6);
+
+        for (size_t t = 0; t < numTris; ++t)
+        {
+            const uint32_t i0 = indices[t * 3 + 0];
+            const uint32_t i1 = indices[t * 3 + 1];
+            const uint32_t i2 = indices[t * 3 + 2];
+
+            if (i0 < numVerts && i1 < numVerts && i2 < numVerts)
+            {
+                const glm::vec3& p0 = worldVerts[i0];
+                const glm::vec3& p1 = worldVerts[i1];
+                const glm::vec3& p2 = worldVerts[i2];
+
+                lineVerts.push_back({ p0, color });
+                lineVerts.push_back({ p1, color });
+
+                lineVerts.push_back({ p1, color });
+                lineVerts.push_back({ p2, color });
+
+                lineVerts.push_back({ p2, color });
+                lineVerts.push_back({ p0, color });
+            }
+        }
+
+        glBindBuffer(GL_ARRAY_BUFFER, entry.vbo);
+        glBufferData(
+            GL_ARRAY_BUFFER,
+            static_cast<GLsizeiptr>(lineVerts.size() * sizeof(GizmoVertex)),
+            lineVerts.data(),
+            GL_STATIC_DRAW
+        );
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        entry.lineVertexCount = lineVerts.size();
+        entry.sourceVertexCount = localVertices.size();
+        entry.sourceIndexCount = indices.size();
+        entry.firstVertex = firstV;
+        entry.lastVertex = lastV;
+        entry.transform = transform;
+        entry.color = color;
+    }
+
+    entry.queuedThisFrame = true;
+}
+
 void gizmo_system::ClearGameplay()
 {
     m_GameplayLineVertices.clear();
@@ -413,11 +522,64 @@ void gizmo_system::Flush(const glm::mat4& view, const glm::mat4& projection, uns
 {
     DrawVertexBatch(m_LineVertices, view, projection, shaderID, m_Settings.line_width);
     m_LineVertices.clear();
+
+    bool anyMeshQueued = false;
+    for (const auto& [key, entry] : m_MeshWireCache)
+    {
+        if (entry.queuedThisFrame && entry.vao != 0 && entry.lineVertexCount > 0)
+        {
+            anyMeshQueued = true;
+            break;
+        }
+    }
+
+    if (anyMeshQueued && shaderID != 0)
+    {
+        glUseProgram(shaderID);
+
+        const int loc = glGetUniformLocation(shaderID, "u_ViewProj");
+        if (loc != -1)
+        {
+            const glm::mat4 viewProj = projection * view;
+            glUniformMatrix4fv(loc, 1, GL_FALSE, &viewProj[0][0]);
+        }
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glLineWidth(std::clamp(m_Settings.line_width, 1.0f, 5.0f));
+        glEnable(GL_POLYGON_OFFSET_LINE);
+        glPolygonOffset(-1.0f, -1.0f);
+
+        for (auto& [key, entry] : m_MeshWireCache)
+        {
+            if (entry.queuedThisFrame && entry.vao != 0 && entry.lineVertexCount > 0)
+            {
+                glBindVertexArray(entry.vao);
+                glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(entry.lineVertexCount));
+                entry.queuedThisFrame = false;
+            }
+        }
+
+        glBindVertexArray(0);
+        glDisable(GL_POLYGON_OFFSET_LINE);
+        glLineWidth(1.0f);
+        glDisable(GL_BLEND);
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
+        glUseProgram(0);
+    }
 }
 
 void gizmo_system::Clear()
 {
     m_LineVertices.clear();
+    for (auto& [key, entry] : m_MeshWireCache)
+    {
+        entry.queuedThisFrame = false;
+    }
 }
 
 void gizmo_system::DrawVertexBatch(
@@ -476,4 +638,4 @@ void gizmo_system::DrawVertexBatch(
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
     glUseProgram(0);
-}
+}

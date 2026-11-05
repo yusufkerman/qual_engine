@@ -11,6 +11,7 @@
  // --- Bileşen UI Kayıt Sistemleri ---
 #include "Inspector/Components/camera_component_ui.h"
 #include "Inspector/Components/collider_component_ui.h"
+#include "Inspector/Components/mesh_collider_component_ui.h"
 #include "Inspector/Components/light_component_ui.h"
 #include "Inspector/Components/material_component_ui.h"
 #include "Inspector/Components/mesh_component_ui.h"
@@ -62,6 +63,7 @@ namespace vesta {
         register_rigidbody_ui_system();
         register_character_controller_ui_system();
         register_collider_ui_system();
+        register_mesh_collider_ui_system(engineCtx.aria_system);
         register_native_script_ui_system();
         register_material_ui_system(*engineCtx.aria_system);
         register_mesh_ui_system(*engineCtx.aria_system);
@@ -129,6 +131,12 @@ namespace vesta {
 
         // Collider silindiğinde fizik dünyasından şeklinin kaldırılması için kanca eklendi
         vesta::vesta_module::register_remove_hook<collider_component>(
+            [&api](entity e)
+            {
+                api.remove_collider_shape(e);
+            });
+
+        vesta::vesta_module::register_remove_hook<mesh_collider_component>(
             [&api](entity e)
             {
                 api.remove_collider_shape(e);

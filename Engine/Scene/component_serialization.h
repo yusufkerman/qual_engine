@@ -209,6 +209,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(light_type, {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(collider_component,
         type, extents, offset)
 
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(mesh_collider_component, resolution, is_convex, is_trigger, offset)
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(character_controller_component,
         radius, height, walk_speed, jump_speed, max_slope_angle, step_height, gravity)
 
@@ -275,6 +276,7 @@ using EngineComponentList = std::tuple<
     bounds_component,
     rigidbody_component,
     collider_component,
+    mesh_collider_component,
     skinned_mesh_component,
     skeleton_component,
     animator_component,

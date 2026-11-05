@@ -30,7 +30,8 @@ using all_engine_components = std::tuple<
     ui_button_component,
     audio_source_component,
     audio_listener_component,
-    character_controller_component
+    character_controller_component,
+    mesh_collider_component
 >;
 
 template<typename Tuple, size_t... Is>
@@ -125,6 +126,7 @@ void registry::rebind_pools()
     m_pool_audio_sources.set_registry(&m_entt);
     m_pool_audio_listeners.set_registry(&m_entt);
     m_pool_character_controllers.set_registry(&m_entt);
+    m_pool_mesh_colliders.set_registry(&m_entt);
 }
 
 entity registry::create_entity()

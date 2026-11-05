@@ -263,6 +263,8 @@ namespace vesta {
         if (component_hash == typeid(ui_button_component).hash_code()) return m_registry.get_component<ui_button_component>(e);
         if (component_hash == typeid(audio_source_component).hash_code()) return m_registry.get_component<audio_source_component>(e);
         if (component_hash == typeid(audio_listener_component).hash_code()) return m_registry.get_component<audio_listener_component>(e);
+        if (component_hash == typeid(character_controller_component).hash_code()) return m_registry.get_component<character_controller_component>(e);
+        if (component_hash == typeid(mesh_collider_component).hash_code()) return m_registry.get_component<mesh_collider_component>(e);
 
         return nullptr;
     }

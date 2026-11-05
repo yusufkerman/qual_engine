@@ -44,6 +44,15 @@ enum class collider_type
     sphere
 };
 
+enum class mesh_collider_resolution : int
+{
+    full = 0,       ///< 1:1 Kusursuz orijinal geometri (tum ucgenler korunur).
+    high = 1,       ///< ~%75 ucgen detay (hafif birlestirme).
+    medium = 2,     ///< ~%40 ucgen detay (standart oyun fizik simulasyonu icin dengeli).
+    low = 3,        ///< ~%20 ucgen detay (hizli kaba carpisma, yuksek FPS).
+    convex_hull = 4 ///< Dis bukey kabuk (Convex Hull).
+};
+
 enum class mesh_source_type
 {
     model,
@@ -397,6 +406,30 @@ struct collider_component
 };
 
 /**
+ * @struct mesh_collider_component
+ * @brief Varligin kendisindeki veya tum alt submesh cocuklarindaki geometrilerden derlenen gelismis ag carpistiricisi.
+ */
+struct mesh_collider_component
+{
+    mesh_collider_resolution resolution = mesh_collider_resolution::medium;
+    bool is_convex = false;       ///< Dinamik rigidbody ile kullanilacaksa convex olmak zorundadir.
+    bool is_trigger = false;      ///< Kati carpisma yerine temas tetikleyici (sensor).
+    glm::vec3 offset{ 0.0f };     ///< Yerel merkez sapmasi.
+
+    // Calisma zamani ve VESTA editor gizmo cizimi icin derlenmis (cooked) geometri verileri
+    std::vector<glm::vec3> cooked_vertices;
+    std::vector<uint32_t> cooked_indices;
+
+    uint32_t submesh_count = 0;
+    uint32_t original_vertex_count = 0;
+    uint32_t original_triangle_count = 0;
+    uint32_t cooked_vertex_count = 0;
+    uint32_t cooked_triangle_count = 0;
+
+    bool is_dirty = true; ///< Yeniden olusturulmasi (bake) gerektigini belirtir.
+};
+
+/**
  * @struct character_controller_component
  * @brief Kinematik karakter kontrolcusu (FPS/TPS oyuncu veya NPC hareketi, basamak cikma, egim destegi).
  */
@@ -526,6 +559,13 @@ DESCRIBE_COMPONENT(rigidbody_component,
 DESCRIBE_COMPONENT(collider_component,
     SERA_FIELD(type),
     SERA_FIELD(extents),
+    SERA_FIELD(offset)
+)
+
+DESCRIBE_COMPONENT(mesh_collider_component,
+    SERA_FIELD(resolution),
+    SERA_FIELD(is_convex),
+    SERA_FIELD(is_trigger),
     SERA_FIELD(offset)
 )
 

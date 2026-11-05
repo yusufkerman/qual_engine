@@ -170,6 +170,12 @@ namespace aria {
             slot.asset.sub_meshes[i].local_radius = raw_data.sub_meshes[i].local_radius;
             slot.asset.sub_meshes[i].aabb_min = raw_data.sub_meshes[i].aabb_min;
             slot.asset.sub_meshes[i].aabb_max = raw_data.sub_meshes[i].aabb_max;
+
+            slot.asset.sub_meshes[i].collision_positions.reserve(raw_data.sub_meshes[i].vertices.size());
+            for (const auto& v : raw_data.sub_meshes[i].vertices) {
+                slot.asset.sub_meshes[i].collision_positions.push_back(v.position);
+            }
+            slot.asset.sub_meshes[i].collision_indices = raw_data.sub_meshes[i].indices;
         }
 
         handle<model_asset> h{ slot_idx, gen };
@@ -660,6 +666,12 @@ namespace aria {
             slot.asset.sub_meshes[i].local_radius = raw_data.sub_meshes[i].local_radius;
             slot.asset.sub_meshes[i].aabb_min = raw_data.sub_meshes[i].aabb_min;
             slot.asset.sub_meshes[i].aabb_max = raw_data.sub_meshes[i].aabb_max;
+
+            slot.asset.sub_meshes[i].collision_positions.reserve(raw_data.sub_meshes[i].vertices.size());
+            for (const auto& v : raw_data.sub_meshes[i].vertices) {
+                slot.asset.sub_meshes[i].collision_positions.push_back(v.position);
+            }
+            slot.asset.sub_meshes[i].collision_indices = raw_data.sub_meshes[i].indices;
         }
 
         // Eğer iskelet varsa, alt iskelet varlığı olarak da kaydet ve bağla

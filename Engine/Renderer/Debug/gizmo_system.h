@@ -6,6 +6,8 @@
  */
 
 #include <vector>
+#include <unordered_map>
+#include <cstdint>
 #include <glm/glm.hpp>
 #include "gizmo_settings.h"
 
@@ -160,6 +162,13 @@ public:
      */
     void SetGameplayWriteMode(bool gameplayMode) noexcept { m_WritingGameplay = gameplayMode; }
 
+    void DrawWireMesh(
+        uint32_t cacheKey,
+        const glm::mat4& transform,
+        const std::vector<glm::vec3>& localVertices,
+        const std::vector<uint32_t>& indices,
+        const glm::vec4& color);
+
     /**
      * @brief Sadece çalışma zamanı (Gameplay) gizmo çizgilerini temizler.
      */
@@ -205,4 +214,20 @@ private:
 
     std::vector<GizmoVertex> m_LineVertices;
     std::vector<GizmoVertex> m_GameplayLineVertices;
+
+    struct CachedWireMesh
+    {
+        unsigned int vao = 0;
+        unsigned int vbo = 0;
+        size_t lineVertexCount = 0;
+        size_t sourceVertexCount = 0;
+        size_t sourceIndexCount = 0;
+        glm::vec3 firstVertex{ 0.0f };
+        glm::vec3 lastVertex{ 0.0f };
+        glm::mat4 transform{ 1.0f };
+        glm::vec4 color{ 0.0f };
+        bool queuedThisFrame = false;
+    };
+
+    std::unordered_map<uint32_t, CachedWireMesh> m_MeshWireCache;
 };

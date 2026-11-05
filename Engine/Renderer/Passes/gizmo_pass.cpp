@@ -11,6 +11,7 @@
 #include "../../ECS/components.h"
 #include "../../ECS/transform_utils.h"
 #include "../../Systems/physics_api.h"
+#include "../../Systems/mesh_collider_baker.h"
 #include "../../Engine/fly_camera.h"
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -127,6 +128,67 @@ namespace
             default:
                 break;
             }
+        }
+
+        // Mesh Collider (Ag Carpistirici) 3B Tel Kafes Cizimi (1:1 Tam Cozunurluk Destekli GPU VBO)
+        for (const auto& [e, meshCol] : reg.get_all<mesh_collider_component>())
+        {
+            bool isSelectedOrChildSelected = (selectedID != -1 && static_cast<int>(e) == selectedID);
+            if (!isSelectedOrChildSelected && selectedID != -1)
+            {
+                entity curr = static_cast<entity>(selectedID);
+                int depthSafety = 0;
+                while (curr != 0 && depthSafety++ < 64)
+                {
+                    const auto* hier = reg.get_component<hierarchy_component>(curr);
+                    if (!hier || hier->parent == 0) break;
+                    curr = hier->parent;
+                    if (curr == e)
+                    {
+                        isSelectedOrChildSelected = true;
+                        break;
+                    }
+                }
+            }
+
+            if (settings.collider_mode == gizmo_visibility_mode::selected_only && !isSelectedOrChildSelected)
+            {
+                continue;
+            }
+
+            if (!reg.has_component<transform_component>(e))
+            {
+                continue;
+            }
+
+            auto& mutableMeshCol = const_cast<mesh_collider_component&>(meshCol);
+            if (mutableMeshCol.is_dirty || mutableMeshCol.cooked_vertices.empty())
+            {
+                qual::physics::mesh_collider_baker::bake(
+                    e,
+                    const_cast<registry&>(reg),
+                    ctx.aria_system,
+                    mutableMeshCol
+                );
+            }
+
+            if (mutableMeshCol.cooked_vertices.empty() || mutableMeshCol.cooked_indices.size() < 3)
+            {
+                continue;
+            }
+
+            const glm::mat4 worldMat = ecs_transform::get_world_matrix(e, reg);
+            const glm::vec4 gizmoColor = isSelectedOrChildSelected
+                ? glm::vec4(0.18f, 0.95f, 0.35f, 0.88f)
+                : glm::vec4(0.18f, 0.80f, 0.30f, 0.45f);
+
+            ctx.gizmoSystem.DrawWireMesh(
+                static_cast<uint32_t>(e),
+                worldMat,
+                mutableMeshCol.cooked_vertices,
+                mutableMeshCol.cooked_indices,
+                gizmoColor
+            );
         }
     }
 

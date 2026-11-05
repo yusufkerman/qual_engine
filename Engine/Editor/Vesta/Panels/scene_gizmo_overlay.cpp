@@ -1736,6 +1736,24 @@ void scene_gizmo_overlay::render(
         entity bestEntity = candidates.front().ent;
         if (bestEntity != 0)
         {
+            if (!ImGui::GetIO().KeyAlt && !reg.has_component<mesh_collider_component>(bestEntity))
+            {
+                entity curr = bestEntity;
+                int depthSafety = 0;
+                while (curr != 0 && depthSafety++ < 64)
+                {
+                    const auto* hier = reg.get_component<hierarchy_component>(curr);
+                    if (!hier || hier->parent == 0)
+                    {
+                        break;
+                    }
+                    curr = hier->parent;
+                    if (reg.has_component<mesh_collider_component>(curr))
+                    {
+                        bestEntity = curr;
+                    }
+                }
+            }
             engineCtx.vestaSys.selection().select_entity(bestEntity, ImGui::GetIO().KeyCtrl);
             return true;
         }

@@ -55,6 +55,7 @@ bool scene_serializer::serialize(const std::string& filepath, const scene& curre
         serialize_component_if_exists<rigidbody_component>(e, reg, entityJson, "rigidbody_component");
         serialize_component_if_exists<character_controller_component>(e, reg, entityJson, "character_controller_component");
         serialize_component_if_exists<collider_component>(e, reg, entityJson, "collider_component");
+        serialize_component_if_exists<mesh_collider_component>(e, reg, entityJson, "mesh_collider_component");
         serialize_component_if_exists<native_script_component>(e, reg, entityJson, "native_script_component");
         if (entityJson.contains("native_script_component"))
         {
@@ -159,6 +160,7 @@ bool scene_serializer::deserialize(const std::string& filepath, scene& currentSc
             deserialize_component_if_exists<rigidbody_component>(newE, reg, entityJson, "rigidbody_component");
             deserialize_component_if_exists<character_controller_component>(newE, reg, entityJson, "character_controller_component");
             deserialize_component_if_exists<collider_component>(newE, reg, entityJson, "collider_component");
+            deserialize_component_if_exists<mesh_collider_component>(newE, reg, entityJson, "mesh_collider_component");
 
             if (entityJson.contains("native_script_component"))
             {

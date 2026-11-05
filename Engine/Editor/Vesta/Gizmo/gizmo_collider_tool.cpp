@@ -8,6 +8,7 @@
 #include "../../../Engine/engine_context.h"
 #include "../../../ECS/components.h"
 #include "../../../ECS/transform_utils.h"
+#include "../../../Systems/mesh_collider_baker.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -39,8 +40,9 @@ namespace vesta
 
         const entity e = static_cast<entity>(selectedID);
         auto* col = reg.get_component<collider_component>(e);
+        auto* meshCol = reg.get_component<mesh_collider_component>(e);
         const auto* transform = reg.get_component<transform_component>(e);
-        if (!col || !transform)
+        if ((!col && !meshCol) || !transform)
         {
             reset_interaction();
             return;
@@ -51,7 +53,70 @@ namespace vesta
         const glm::mat4 worldMat = ecs_transform::get_world_matrix(e, reg);
         const glm::vec3 worldPos = glm::vec3(worldMat[3]);
 
-        // Yönelim (Rotation) ve Ölçek (Scale) vektörlerini dünya matrisinden ayrıştır
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+
+        // ====================================================================
+        // MESH COLLIDER (AG CARPISTIRICI) TEL KAFES CIZIMI
+        // ====================================================================
+        // Mesh Collider tel kafes cizimi 1:1 tam cozunurluk ve 3B derinlik testiyle gizmo_pass::render icerisinde GPU VBO uzerinden yapilir.
+        if (meshCol && (meshCol->is_dirty || meshCol->cooked_vertices.empty()))
+        {
+            qual::physics::mesh_collider_baker::bake(e, reg, engineCtx.aria_system, *meshCol);
+        }
+        if (false && meshCol)
+        {
+            if (meshCol->is_dirty || meshCol->cooked_vertices.empty())
+            {
+                qual::physics::mesh_collider_baker::bake(e, reg, engineCtx.aria_system, *meshCol);
+            }
+
+            const size_t numVerts = meshCol->cooked_vertices.size();
+            const size_t numIndices = meshCol->cooked_indices.size();
+
+            if (numVerts > 0 && numIndices >= 3)
+            {
+                const ImU32 wireCol = IM_COL32(45, 235, 95, 200);
+                std::vector<ImVec2> screenPts(numVerts);
+                std::vector<uint8_t> valid(numVerts, 0);
+
+                for (size_t i = 0; i < numVerts; ++i)
+                {
+                    const glm::vec3 wPt = glm::vec3(worldMat * glm::vec4(meshCol->cooked_vertices[i], 1.0f));
+                    ImVec2 sp;
+                    if (gizmo_math::project_world_to_screen(wPt, viewProj, viewportPos, viewportSize, sp))
+                    {
+                        screenPts[i] = sp;
+                        valid[i] = 1;
+                    }
+                }
+
+                // Cok yogun modellerde editorde 60 FPS'i korumak icin adimlama uygula
+                const size_t numTris = numIndices / 3;
+                const size_t step = (numTris > 6000) ? (numTris / 6000) : 1;
+
+                for (size_t t = 0; t < numTris; t += step)
+                {
+                    const uint32_t i0 = meshCol->cooked_indices[t * 3 + 0];
+                    const uint32_t i1 = meshCol->cooked_indices[t * 3 + 1];
+                    const uint32_t i2 = meshCol->cooked_indices[t * 3 + 2];
+
+                    if (i0 < numVerts && i1 < numVerts && valid[i0] && valid[i1])
+                        dl->AddLine(screenPts[i0], screenPts[i1], wireCol, 1.2f);
+                    if (i1 < numVerts && i2 < numVerts && valid[i1] && valid[i2])
+                        dl->AddLine(screenPts[i1], screenPts[i2], wireCol, 1.2f);
+                    if (i2 < numVerts && i0 < numVerts && valid[i2] && valid[i0])
+                        dl->AddLine(screenPts[i2], screenPts[i0], wireCol, 1.2f);
+                }
+            }
+        }
+
+        if (!col)
+        {
+            reset_interaction();
+            return;
+        }
+
+        // Yonelim (Rotation) ve Olcek (Scale) vektorlerini dunya matrisinden ayristir
         glm::vec3 worldScale;
         worldScale.x = glm::length(glm::vec3(worldMat[0]));
         worldScale.y = glm::length(glm::vec3(worldMat[1]));
@@ -63,7 +128,7 @@ namespace vesta
         rotMat[1] = glm::vec3(worldMat[1]) / effScale.y;
         rotMat[2] = glm::vec3(worldMat[2]) / effScale.z;
 
-        // Çarpıştırıcı yerel ofsetinin dünya uzayındaki merkezi
+        // Carpistirici yerel ofsetinin dunya uzayindaki merkezi
         const glm::vec3 colliderCenter = worldPos + rotMat * (col->offset * effScale);
 
         const ImVec2 mousePos = ImGui::GetMousePos();
@@ -75,7 +140,6 @@ namespace vesta
             m_ActiveHandle = -1;
         }
 
-        ImDrawList* dl = ImGui::GetWindowDrawList();
         const gizmo_math::Ray3D mouseRay = gizmo_math::screen_to_world_ray(
             mousePos, invViewProj, viewportPos, viewportSize);
 

@@ -211,6 +211,19 @@ namespace sera {
                 }
             }
 
+            // 9.05. Mesh Collider Component
+            if (reg.has_component<mesh_collider_component>(e))
+            {
+                auto* comp = const_cast<registry&>(reg).get_component<mesh_collider_component>(e);
+                if (comp)
+                {
+                    json comp_json = json::object();
+                    serialize_visitor visitor{ comp_json };
+                    sera_reflect_component(*comp, visitor);
+                    comps_out["mesh_collider_component"] = comp_json;
+                }
+            }
+
             // 9.1. Character Controller Component
             if (reg.has_component<character_controller_component>(e))
             {
@@ -714,6 +727,16 @@ namespace sera {
                     deserialize_visitor visitor{ comps_json["collider_component"] };
                     sera_reflect_component(comp, visitor);
                     reg.add_component<collider_component>(current_e, comp);
+                }
+
+                // Mesh Collider Component
+                if (comps_json.contains("mesh_collider_component"))
+                {
+                    mesh_collider_component comp{};
+                    deserialize_visitor visitor{ comps_json["mesh_collider_component"] };
+                    sera_reflect_component(comp, visitor);
+                    comp.is_dirty = true;
+                    reg.add_component<mesh_collider_component>(current_e, comp);
                 }
 
                 // Character Controller Component

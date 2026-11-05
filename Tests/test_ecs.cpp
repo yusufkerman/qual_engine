@@ -5,6 +5,7 @@
 #include <doctest/doctest.h>
 #include "ECS/registry.h"
 #include "ECS/components.h"
+#include "Systems/mesh_collider_baker.h"
 
 TEST_CASE("ECS Registry - Entity Allocation and Reservation") {
     registry reg;
@@ -154,5 +155,66 @@ TEST_CASE("Primitives - Procedural Cube and Sphere Generation and ARIA Integrati
         comp.source = mesh_source_type::primitive_sphere;
         comp.model_handle = sphereHandle;
         CHECK(comp.model_handle.is_valid());
+    }
+}
+
+
+TEST_CASE("Mesh Collider Component - Hierarchy Traversal, Decimation and Jolt Shape Creation") {
+    registry reg;
+    aria::system ariaSys;
+
+    // 1. Kok Entity (Parent)
+    entity parent = reg.create_entity();
+    reg.add_component<transform_component>(parent, transform_component{ glm::vec3(0.0f, 0.0f, 0.0f) });
+    auto& mc = reg.add_component<mesh_collider_component>(parent, mesh_collider_component{});
+
+    // 2. Cocuk 1 Entity (Cube)
+    entity child1 = reg.create_entity();
+    reg.add_component<transform_component>(child1, transform_component{ glm::vec3(-2.0f, 0.0f, 0.0f) });
+    reg.add_component<hierarchy_component>(child1, hierarchy_component{ parent, 0, 0, 0 });
+    auto& mesh1 = reg.add_component<mesh_component>(child1, mesh_component{});
+    mesh1.source = mesh_source_type::primitive_cube;
+
+    // 3. Cocuk 2 Entity (Sphere)
+    entity child2 = reg.create_entity();
+    reg.add_component<transform_component>(child2, transform_component{ glm::vec3(2.0f, 0.0f, 0.0f) });
+    reg.add_component<hierarchy_component>(child2, hierarchy_component{ parent, 0, 0, 0 });
+    auto& mesh2 = reg.add_component<mesh_component>(child2, mesh_component{});
+    mesh2.source = mesh_source_type::primitive_sphere;
+
+    SUBCASE("Full Resolution Bake preserves all hierarchy triangles") {
+        mc.resolution = mesh_collider_resolution::full;
+        bool ok = qual::physics::mesh_collider_baker::bake(parent, reg, &ariaSys, mc);
+        CHECK(ok);
+        CHECK(mc.submesh_count == 2);
+        CHECK(mc.original_triangle_count > 0);
+        CHECK(mc.cooked_triangle_count > 0);
+        CHECK(mc.cooked_vertices.size() == mc.cooked_vertex_count);
+
+        // Play / Stop snapshot klonlama (clone_entity & move assignment) koruma testi
+        registry snapshotReg;
+        reg.clone_entity(parent, snapshotReg);
+        CHECK(snapshotReg.has_component<mesh_collider_component>(parent));
+        CHECK(mc.cooked_indices.size() == mc.cooked_triangle_count * 3);
+        CHECK_FALSE(mc.is_dirty);
+
+        // Jolt Physics Static Mesh Shape olusturma testi
+        auto shape = qual::physics::mesh_collider_baker::create_shape(mc, glm::vec3(1.0f));
+        CHECK(shape != nullptr);
+    }
+
+    SUBCASE("Medium and Low Resolution Decimation simplifies geometry") {
+        mc.resolution = mesh_collider_resolution::low;
+        bool ok = qual::physics::mesh_collider_baker::bake(parent, reg, &ariaSys, mc);
+        CHECK(ok);
+        CHECK(mc.submesh_count == 2);
+        CHECK(mc.cooked_triangle_count < mc.original_triangle_count);
+        CHECK(mc.cooked_vertices.size() < mc.original_vertex_count);
+
+        // Convex Hull modu testi
+        mc.resolution = mesh_collider_resolution::convex_hull;
+        mc.is_convex = true;
+        auto convexShape = qual::physics::mesh_collider_baker::create_shape(mc, glm::vec3(1.0f));
+        CHECK(convexShape != nullptr);
     }
 }

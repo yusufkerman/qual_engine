@@ -17,12 +17,19 @@
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 #include "physics_system.h"
+#include "mesh_collider_baker.h"
 
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp> 
+#include <vector>
 
 namespace physics_bridge
 {
+    namespace
+    {
+        // Rigidbody bileseni olmayan saf statik mesh collider govde kimlikleri
+        std::vector<JPH::BodyID> s_static_mesh_bodies;
+    }
     void create_physics_world(EngineContext& ctx, scene& current_scene)
     {
         auto* jolt_system = ctx.physicsSystem.get_jolt_system();
@@ -35,8 +42,9 @@ namespace physics_bridge
         {
             auto* transform = reg.get_component<transform_component>(ent);
             auto* collider = reg.get_component<collider_component>(ent);
+            auto* meshCol = reg.get_component<mesh_collider_component>(ent);
 
-            if (!transform || !collider)
+            if (!transform || (!collider && !meshCol))
             {
                 continue;
             }
@@ -59,28 +67,38 @@ namespace physics_bridge
             const JPH::Quat jolt_quat(q.x, q.y, q.z, q.w);
 
             JPH::ShapeRefC shape;
-            if (collider->type == collider_type::box)
-            {
-                // Nesnenin transform scale degeriyle orantili fizik sinirlari
-                const glm::vec3 halfExtents = glm::max(collider->extents * effScale, glm::vec3(0.01f));
-                shape = new JPH::BoxShape(JPH::Vec3(halfExtents.x, halfExtents.y, halfExtents.z));
-            }
-            else if (collider->type == collider_type::sphere)
-            {
-                const float maxScale = std::max({ effScale.x, effScale.y, effScale.z });
-                const float radius = std::max(0.01f, collider->extents.x * maxScale);
-                shape = new JPH::SphereShape(radius);
-            }
 
-            // Offset uygula: Eger offset sifirdan farkliysa, RotatedTranslatedShape ile sar
-            if (collider->offset != glm::vec3(0.0f))
+            if (meshCol)
             {
-                const glm::vec3 scaledOffset = collider->offset * effScale;
-                shape = new JPH::RotatedTranslatedShape(
-                    JPH::Vec3(scaledOffset.x, scaledOffset.y, scaledOffset.z),
-                    JPH::Quat::sIdentity(),
-                    shape
-                );
+                if (meshCol->is_dirty || meshCol->cooked_vertices.empty())
+                {
+                    qual::physics::mesh_collider_baker::bake(ent, reg, ctx.aria_system, *meshCol);
+                }
+                shape = qual::physics::mesh_collider_baker::create_shape(*meshCol, effScale);
+            }
+            else if (collider)
+            {
+                if (collider->type == collider_type::box)
+                {
+                    const glm::vec3 halfExtents = glm::max(collider->extents * effScale, glm::vec3(0.01f));
+                    shape = new JPH::BoxShape(JPH::Vec3(halfExtents.x, halfExtents.y, halfExtents.z));
+                }
+                else if (collider->type == collider_type::sphere)
+                {
+                    const float maxScale = std::max({ effScale.x, effScale.y, effScale.z });
+                    const float radius = std::max(0.01f, collider->extents.x * maxScale);
+                    shape = new JPH::SphereShape(radius);
+                }
+
+                if (collider->offset != glm::vec3(0.0f))
+                {
+                    const glm::vec3 scaledOffset = collider->offset * effScale;
+                    shape = new JPH::RotatedTranslatedShape(
+                        JPH::Vec3(scaledOffset.x, scaledOffset.y, scaledOffset.z),
+                        JPH::Quat::sIdentity(),
+                        shape
+                    );
+                }
             }
 
             JPH::EMotionType jolt_motion = JPH::EMotionType::Static;
@@ -126,6 +144,63 @@ namespace physics_bridge
             body_interface.AddBody(body->GetID(), JPH::EActivation::Activate);
 
             rb.body_id = body->GetID();
+        }
+
+        // 1.5. Rigidbody bileseni olmayan saf statik Mesh Collider nesnelerini Jolt dunyasina ekle
+        auto& mesh_col_pool = reg.get_all<mesh_collider_component>();
+        for (auto& [ent, meshCol] : mesh_col_pool)
+        {
+            // Eger nesnede zaten rigidbody varsa 1. adimda olusturuldu, atla
+            if (reg.has_component<rigidbody_component>(ent))
+            {
+                continue;
+            }
+
+            auto* transform = reg.get_component<transform_component>(ent);
+            if (!transform)
+            {
+                continue;
+            }
+
+            if (meshCol.is_dirty || meshCol.cooked_vertices.empty())
+            {
+                qual::physics::mesh_collider_baker::bake(ent, reg, ctx.aria_system, meshCol);
+            }
+
+            const glm::mat4 worldMat = ecs_transform::get_world_matrix(ent, reg);
+            const glm::vec3 worldPos = glm::vec3(worldMat[3]);
+
+            glm::vec3 worldScale;
+            worldScale.x = glm::length(glm::vec3(worldMat[0]));
+            worldScale.y = glm::length(glm::vec3(worldMat[1]));
+            worldScale.z = glm::length(glm::vec3(worldMat[2]));
+            const glm::vec3 effScale = glm::max(worldScale, glm::vec3(0.001f));
+
+            glm::mat3 rotMat;
+            rotMat[0] = glm::vec3(worldMat[0]) / effScale.x;
+            rotMat[1] = glm::vec3(worldMat[1]) / effScale.y;
+            rotMat[2] = glm::vec3(worldMat[2]) / effScale.z;
+
+            const glm::quat q = glm::quat_cast(rotMat);
+            const JPH::Quat jolt_quat(q.x, q.y, q.z, q.w);
+
+            JPH::ShapeRefC shape = qual::physics::mesh_collider_baker::create_shape(meshCol, effScale);
+
+            JPH::BodyCreationSettings body_settings(
+                shape,
+                JPH::RVec3(worldPos.x, worldPos.y, worldPos.z),
+                jolt_quat,
+                JPH::EMotionType::Static,
+                layers::NON_MOVING
+            );
+
+            body_settings.mIsSensor = meshCol.is_trigger;
+
+            JPH::Body* body = body_interface.CreateBody(body_settings);
+            body->SetUserData(static_cast<JPH::uint64>(ent));
+            body_interface.AddBody(body->GetID(), JPH::EActivation::DontActivate);
+
+            s_static_mesh_bodies.push_back(body->GetID());
         }
 
         // 2. Kinematik Karakter Kontrolculeri (CharacterVirtual) Olustur
@@ -370,6 +445,15 @@ namespace physics_bridge
             body_interface.DestroyBody(rb.body_id);
             rb.body_id = JPH::BodyID();
         }
+
+        for (const auto& bodyID : s_static_mesh_bodies)
+        {
+            if (bodyID.IsInvalid()) continue;
+
+            body_interface.RemoveBody(bodyID);
+            body_interface.DestroyBody(bodyID);
+        }
+        s_static_mesh_bodies.clear();
 
         auto& cc_pool = reg.get_all<character_controller_component>();
         for (auto& [ent, cc] : cc_pool)

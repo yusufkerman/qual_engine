@@ -69,6 +69,10 @@ if (Test-Path $SourceDemo) {
     # Gereksiz derleme çıktılarını temizle
     $BinariesFolder = Join-Path $TargetTemplates "Binaries"
     if (Test-Path $BinariesFolder) { Remove-Item -Recurse -Force $BinariesFolder }
+    $VsFolder = Join-Path $TargetTemplates "Scripts\.vs"
+    if (Test-Path $VsFolder) { Remove-Item -Recurse -Force $VsFolder }
+    $ObjFolder = Join-Path $TargetTemplates "Scripts\obj"
+    if (Test-Path $ObjFolder) { Remove-Item -Recurse -Force $ObjFolder }
 }
 
 # Lisans ve Beni Oku dosyalarını ekle

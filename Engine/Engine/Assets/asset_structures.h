@@ -48,6 +48,8 @@ namespace aria {
         float local_radius{ 0.0f };     ///< Sınırlayıcı küre yarıçapı.
         glm::vec3 aabb_min{ 0.0f };     ///< Yerel eksen hizali kutu minimum kosesi.
         glm::vec3 aabb_max{ 0.0f };     ///< Yerel eksen hizali kutu maksimum kosesi.
+        std::vector<glm::vec3> collision_positions; ///< Fizik ve Mesh Collider icin kose koordinatlari.
+        std::vector<uint32_t> collision_indices;    ///< Fizik ve Mesh Collider icin ucgen indeksleri.
     };
 
     /**
@@ -91,6 +93,9 @@ namespace aria {
         float local_radius{ 0.0f };             ///< Sınırlayıcı küre yarıçapı.
         glm::vec3 aabb_min{ 0.0f };             ///< Yerel eksen hizali kutu minimum kosesi.
         glm::vec3 aabb_max{ 0.0f };             ///< Yerel eksen hizali kutu maksimum kosesi.
+
+        std::vector<glm::vec3> collision_positions; ///< Fizik ve carpisma hesaplari icin yerel tepe noktalari.
+        std::vector<uint32_t> collision_indices;    ///< Fizik ve carpisma hesaplari icin ucgen indeksleri.
     };
 
     /**
